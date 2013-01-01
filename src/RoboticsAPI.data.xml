@@ -8,7 +8,7 @@
             <additionalInformation>
                 <info key="ID" type="java.lang.String" value="b29efb42-cb59-4440-af0e-d5dff2c05900"/>
             </additionalInformation>
-            <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="0.834445127269277" cogY="-102.73319989112022" cogZ="133.8616404554506" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="7.022891209798589"/>
+            <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="2.9816817802899425" cogY="-57.9915515512789" cogZ="123.09184426921048" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="4.03662688918132"/>
         </toolTemplate>
     </objectTemplates>
 </RoboticsAPIData>
