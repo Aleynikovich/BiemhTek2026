@@ -61,9 +61,6 @@
                 </PropertyGroup>
             </TopologyItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ApplGateAgent" installItem="true" installedVersion="NONE" itemPath="com.kuka/ApplGateAgent" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ApplicationFramework" installItem="true" installedVersion="1.2.0" itemPath="com.kuka/ApplicationFramework" selectedVersion="1.2.0" usage="Feature">
-                <Interface id="com.kuka/ApplicationFramework/ApplicationFramework" version="1.1.0"/>
-            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ApplicationHost" installItem="true" installedVersion="1.0.0" itemPath="com.kuka/ApplicationHost" selectedVersion="1.0.0" usage="Library">
                 <Interface id="com.kuka/Bundle/org.eclipse.jetty.continuation" version="8.1.15"/>
                 <Interface id="com.kuka/Bundle/org.eclipse.core.runtime" version="3.7.0"/>
@@ -107,9 +104,6 @@
                 <Interface id="com.kuka/Bundle/javax.servlet" version="3.0.0"/>
                 <Interface id="com.kuka/Bundle/org.eclipse.jetty.server" version="8.1.15"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.BackupRestore" installItem="false" installedVersion="NONE" itemPath="com.kuka/BackupManager" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="BackupRestore" installItem="true" installedVersion="NONE" itemPath="com.kuka/BackupManagerProperties" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="BackupRestore GUI for smartHMI" installItem="true" installedVersion="NONE" itemPath="com.kuka/BackupManagerSmartHMIView" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Cabinet" installItem="true" installedVersion="1" itemPath="com.kuka/Cabinet" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/Cabinet/CabCtrl" version="0.8.4"/>
             </SoftwareItem>
@@ -123,7 +117,6 @@
                 <Interface id="com.kuka/ControllerFramework/ConfigFiles" version="0.8.4"/>
                 <Interface id="com.kuka/NexxtGenSharedLib/ConfigFiles" version="0.8.4"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ConnectivityBasic RT-Libs" installItem="true" installedVersion="NONE" itemPath="com.kuka/ConnectivityBasicModules" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ControlPanelDriver" installItem="true" installedVersion="1" itemPath="com.kuka/ControlPanelDriver" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/ControlPanelDriver/ControlPanelDriver" version="0.8.4"/>
             </SoftwareItem>
@@ -136,14 +129,12 @@
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="DiagnoseManager" installItem="true" installedVersion="1" itemPath="com.kuka/DiagnoseManager" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/DiagnoseManager/DiagnoseManager" version="0.8.4"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="DirectServoSupport" installItem="true" installedVersion="NONE" itemPath="com.kuka/DirectServoSupport" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Enhanced Velocity Controller" installItem="false" installedVersion="NONE" itemPath="com.kuka/EnhancedVelocityController" selectedVersion="NONE" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="EtherCATWrapper" installItem="true" installedVersion="1" itemPath="com.kuka/EtherCATWrapper" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/EtherCATWrapper/EtherCATWrapperBase" version="0.8.4"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="FSoE Slave support" installItem="false" installedVersion="NONE" itemPath="com.kuka/FSoESlaveSupport" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="FastRobotInterface RT-Libs" installItem="true" installedVersion="NONE" itemPath="com.kuka/FastRobotInterface" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="FastRobotInterface Client SDK" installItem="true" installedVersion="NONE" itemPath="com.kuka/FastRobotInterface_SDK_Cpp" selectedVersion="NONE" usage="Library"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="FSoE Slave support" installItem="true" installedVersion="1" itemPath="com.kuka/FSoESlaveSupport" selectedVersion="1" usage="Feature">
+                <Interface id="com.kuka/FSoESlaveSupport/FSoESlaveSupport" version="0.1.0"/>
+            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="GMS Adjustment" installItem="false" installedVersion="NONE" itemPath="com.kuka/GMSAdjustment" selectedVersion="NONE" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="GenericSunriseIODevice" installItem="true" installedVersion="NONE" itemPath="com.kuka/GenericSunriseIODevice" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="HandGuiding" installItem="true" installedVersion="1" itemPath="com.kuka/HandGuiding" selectedVersion="1" usage="Library">
@@ -161,23 +152,12 @@
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="IOManager" installItem="true" installedVersion="1" itemPath="com.kuka/IOManager" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/IOManager/IOManager" version="0.1.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Ikarus AntiVirus Definition Files" installItem="true" installedVersion="101581" itemPath="com.kuka/IkarusAntiVirDefinition" selectedVersion="101581" usage="Library">
-                <Interface id="com.kuka/IkarusAntiVir/VirusDefinitions" version="0.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Ikarus AntiVirus" installItem="true" installedVersion="2.7.30" itemPath="com.kuka/IkarusAntiVirInstallation" selectedVersion="2.7.30" usage="Feature">
-                <Interface id="com.kuka/IkarusAntiVirInstallation/IkarusAntiVirus" version="0.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Ikarus AntiVirus SmartHMI" installItem="true" installedVersion="1.8.0" itemPath="com.kuka/IkarusAntiVirSmartHMI" selectedVersion="1.8.0" usage="Library">
-                <Interface id="com.kuka/IkarusAntiVirSmartHMI/IkarusAntiVirSmartHMI" version="1.8.0"/>
-            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="InjectionLib" installItem="true" installedVersion="1" itemPath="com.kuka/InjectionLib" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/InjectionLib/InjectionLib" version="0.1.0"/>
             </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Java Runtime Environment" installItem="true" installedVersion="6.45" itemPath="com.kuka/JRE" selectedVersion="6.45" usage="Library">
                 <Interface id="com.oracle/Java/JRE" version="6.0.450"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="JointOTGSupport" installItem="true" installedVersion="NONE" itemPath="com.kuka/JointOTGSupport" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Option Network Interface" installItem="true" installedVersion="NONE" itemPath="com.kuka/KONISupport" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KrcDiag" installItem="true" installedVersion="8.5.8.9" itemPath="com.kuka/KrcDiag" selectedVersion="8.5.8.9" usage="Library">
                 <Interface id="com.kuka/KrcDiag/KrcDiag" version="8.5.8"/>
                 <Interface id="com.kuka/KrcDiag/KrcDiagConfig" version="0.2.0"/>
@@ -236,9 +216,6 @@
                 <Interface id="com.kuka/PowerManagementService/PowerManagementService" version="0.1.0"/>
                 <Interface id="com.kuka/Windows/Service" version="0.1.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.PROFINET® M/S" installItem="false" installedVersion="NONE" itemPath="com.kuka/ProfiSafe" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.PROFINET® D" installItem="false" installedVersion="NONE" itemPath="com.kuka/ProfinetDevice" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="PROFINET Driver" installItem="true" installedVersion="NONE" itemPath="com.kuka/ProfinetDriver" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="false" canChangeSelection="true" displayName="Robotics API" installItem="true" installedVersion="1.0.0" itemPath="com.kuka/RAPI" selectedVersion="1.0.0" usage="Feature">
                 <Interface id="com.kuka/RAPI/RAPI" version="1.0.0"/>
             </SoftwareItem>
@@ -253,16 +230,13 @@
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Robot Info Synchronization" installItem="true" installedVersion="1" itemPath="com.kuka/RobotInfoSyncFeature" selectedVersion="1" usage="Feature">
                 <Interface id="com.kuka/RobotInfoSyncFeature/RobotInfoSyncFeature" version="1.0.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Roles &amp; Rights Expert" installItem="true" installedVersion="1.4.0" itemPath="com.kuka/RolesRightsFeature" selectedVersion="1.4.0" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="General safety settings" installItem="true" installedVersion="1" itemPath="com.kuka/SafetyBasic" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/SafetyBasic/KRC4Safety" version="0.1.0"/>
             </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SafetyDiagnose" installItem="true" installedVersion="1" itemPath="com.kuka/SafetyDiagnose" selectedVersion="1" usage="Feature">
                 <Interface id="com.kuka/SafetyDiagnose/KRC4SafetyDiagnose" version="0.1.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Human Robot Collaboration" installItem="true" installedVersion="1" itemPath="com.kuka/SafetyHRC" selectedVersion="1" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="false" displayName="SafetyRAPILibs" installItem="true" installedVersion="1.0.0" itemPath="com.kuka/SafetyRAPILibs" selectedVersion="1.0.0" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Safe Operation" installItem="true" installedVersion="1" itemPath="com.kuka/SafetySOP" selectedVersion="1" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="false" displayName="Safety Signal Observer LBR" installItem="true" installedVersion="1" itemPath="com.kuka/SafetySignalObsLBR" selectedVersion="1" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="smartHMI" installItem="true" installedVersion="1" itemPath="com.kuka/SmartHMI" selectedVersion="1" usage="Feature">
                 <Interface id="com.kuka/SmartHMI/SmartHMI" version="0.1.0"/>
@@ -288,10 +262,6 @@
                     </Property>
                 </PropertyGroup>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SmartHMIApplicationFramework" installItem="true" installedVersion="1.1.0" itemPath="com.kuka/SmartHMIApplicationFramework" selectedVersion="1.1.0" usage="Library">
-                <Interface id="com.kuka/SmartHMIApplicationFramework/SmartHMIApplicationFramework" version="1.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="smartHMI Language Pack" installItem="true" installedVersion="1.10.2" itemPath="com.kuka/SmartHMILanguagePack" selectedVersion="1.10.2" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SmartHMI PDS-Firmware Update" installItem="true" installedVersion="1" itemPath="com.kuka/SmartHMIPdsFirmwareUpdate" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/SmartHMIPdsFirmwareUpdate/SmartHMIPdsFirmwareUpdate" version="0.1.0"/>
             </SoftwareItem>
@@ -314,12 +284,13 @@
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SmartPad Updater" installItem="true" installedVersion="1" itemPath="com.kuka/SmartPadUpdater" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/SmartPadUpdater/SmartPadUpdater" version="0.1.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SmartServoLINSupport" installItem="true" installedVersion="NONE" itemPath="com.kuka/SmartServoLINSupport" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="StartKRC" installItem="true" installedVersion="1" itemPath="com.kuka/StartKRC" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/StartKRC/StartKRC" version="0.1.0"/>
                 <Interface id="com.kuka/StartKRC/StartKRCConfig" version="0.1.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.StatusController" installItem="false" installedVersion="NONE" itemPath="com.kuka/StatusController" selectedVersion="NONE" usage="Feature"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.StatusController" installItem="true" installedVersion="1.1.0" itemPath="com.kuka/StatusController" selectedVersion="1.1.0" usage="Feature">
+                <Interface id="com.kuka/StatusController/StatusController" version="0.1.1"/>
+            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SunriseBasicCompounds" installItem="true" installedVersion="1" itemPath="com.kuka/SunriseBasicCompounds" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/SunriseBasicCompounds/SunriseBasicCompounds" version="0.1.1"/>
             </SoftwareItem>
@@ -372,52 +343,6 @@
             </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="XMLSUA" installItem="true" installedVersion="1.1" itemPath="com.kuka/XMLSUA" selectedVersion="1.1" usage="Library">
                 <Interface id="com.kuka/XMLSUA/XMLSUA" version="0.1.1"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.appframework.api" installItem="true" installedVersion="1.1.0.6" itemPath="com.kuka/com.kuka.appframework.api" selectedVersion="1.1.0.6" usage="Library">
-                <Interface id="com.kuka/OSGi/com.kuka.appframework" version="1.1.0"/>
-                <Interface id="com.kuka/Bundle/com.kuka.appframework.api" version="1.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.appframework.kxrreader" installItem="true" installedVersion="1.1.0.6" itemPath="com.kuka/com.kuka.appframework.kxrreader" selectedVersion="1.1.0.6" usage="Library">
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.kxrreader" version="1.1.0"/>
-                <Interface id="com.kuka/Bundle/com.kuka.appframework.kxrreader" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.kxrreader.exceptions" version="1.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.appframework.model" installItem="true" installedVersion="1.1.0.6" itemPath="com.kuka/com.kuka.appframework.model" selectedVersion="1.1.0.6" usage="Library">
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.validation" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.localization" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.valueobjects" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.routing" version="1.0.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.impl" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.notification.impl" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.xml" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.lists" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.updaters" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.xml.converters" version="1.1.0"/>
-                <Interface id="com.kuka/Bundle/com.kuka.appframework.model" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.finders" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.reflection" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.provider" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.handlers" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.common" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.notification" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.util" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.model.exceptions" version="1.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.appframework.runtime" installItem="true" installedVersion="1.1.0.6" itemPath="com.kuka/com.kuka.appframework.runtime" selectedVersion="1.1.0.6" usage="Library">
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.runtime.util" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.runtime.execution" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.runtime" version="1.1.0"/>
-                <Interface id="com.kuka/Bundle/com.kuka.appframework.runtime" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.runtime.model" version="1.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.appframework.service" installItem="true" installedVersion="1.1.0.6" itemPath="com.kuka/com.kuka.appframework.service" selectedVersion="1.1.0.6" usage="Library">
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.service.osgi" version="1.1.0"/>
-                <Interface id="com.kuka/Bundle/com.kuka.appframework.service" version="1.1.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.appframework.service.ncf" installItem="true" installedVersion="1.1.0.6" itemPath="com.kuka/com.kuka.appframework.service.ncf" selectedVersion="1.1.0.6" usage="Library">
-                <Interface id="com.kuka/Bundle/com.kuka.appframework.service.ncf" version="1.1.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.appframework.service.ncf" version="1.1.0"/>
             </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.applicationHost.server" installItem="true" installedVersion="2.0.0.16" itemPath="com.kuka/com.kuka.applicationHost.server" selectedVersion="2.0.0.16" usage="Library">
                 <Interface id="com.kuka/OSGi/com.kuka.util.dependentComponent" version="2.0.0"/>
@@ -475,9 +400,6 @@
                 <Interface id="com.kuka/Bundle/com.kuka.authorizationService.ncf" version="1.1.0"/>
                 <Interface id="com.kuka/OSGi/com.kuka.authorizationService" version="1.1.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.backupManager" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.backupManager" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.backupManager.service" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.backupManager.service" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.backupManager.service.ncf" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.backupManager.service.ncf" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.command.api" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.command.api" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.command.provider.api" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.command.provider.api" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.common" installItem="true" installedVersion="2.0.1.16" itemPath="com.kuka/com.kuka.common" selectedVersion="2.0.1.16" usage="Library">
@@ -531,16 +453,6 @@
                 <Interface id="com.kuka/Bundle/com.kuka.configuration.manager" version="2.0.1"/>
             </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.connectionLib" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectionLib" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.connectivity.common.JniExtractor" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.common.JniExtractor" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Direct Servo Motion Extension" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.directServo" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Direct Servo Motion Example Applications" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.directServo.exampleApplications" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Fast Robot Interface Extension" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.fastRobotInterface" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="FastRobotInterface - Java SDK Libs" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.fastRobotInterface.clientSDK" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Fast Robot Interface Extension Example Applications" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.fastRobotInterface.exampleApplications" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Smart Servo Motion Extension" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.smartServo" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Smart Servo Motion Example Applications" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.smartServo.exampleApplications" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Smart Servo Linear Motion Extension" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.smartServoLIN" selectedVersion="NONE" usage="Feature"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Smart Servo Linear Motion Example Applications" installItem="false" installedVersion="NONE" itemPath="com.kuka/com.kuka.connectivity.smartServoLIN.exampleApplications" selectedVersion="NONE" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.deployment" installItem="true" installedVersion="1.0.0.16" itemPath="com.kuka/com.kuka.deployment" selectedVersion="1.0.0.16" usage="Library">
                 <Interface id="com.kuka/OSGi/com.kuka.deployment.errors" version="1.0.0"/>
                 <Interface id="com.kuka/OSGi/com.kuka.deployment.client" version="1.0.0"/>
@@ -757,19 +669,21 @@
                 <Interface id="com.kuka/OSGi/com.kuka.roboticsAPI.applicationServer.services.handGuidingService" version="1.15.0"/>
                 <Interface id="com.kuka/Bundle/com.kuka.service.handGuiding.ncf" version="1.15.0"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Ikarus AntiVirus Service" installItem="true" installedVersion="1.15.0.15" itemPath="com.kuka/com.kuka.service.virusScanner" selectedVersion="1.15.0.15" usage="Library">
-                <Interface id="com.kuka/AppServerServices/IkarusAntiVirImpl" version="0.1.0"/>
-                <Interface id="com.kuka/Bundle/com.kuka.service.virusScanner" version="1.15.0"/>
-            </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.service.virusScanner.ncf" installItem="true" installedVersion="1.15.0.15" itemPath="com.kuka/com.kuka.service.virusScanner.ncf" selectedVersion="1.15.0.15" usage="Library">
-                <Interface id="com.kuka/Bundle/com.kuka.service.virusScanner.ncf" version="1.15.0"/>
-                <Interface id="com.kuka/OSGi/com.kuka.roboticsAPI.applicationServer.services.virusScannerService" version="1.15.0"/>
-            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.smartPad.api" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.smartPad.api" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.smartPad.impl" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.smartPad.impl" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.statuscontroller" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.statuscontroller" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.statuscontroller.statusgroups" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.statuscontroller.statusgroups" selectedVersion="NONE" usage="Library"/>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.statuscontroller.systemstatussource" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.statuscontroller.systemstatussource" selectedVersion="NONE" usage="Library"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.statuscontroller" installItem="true" installedVersion="1.1.0.16" itemPath="com.kuka/com.kuka.statuscontroller" selectedVersion="1.1.0.16" usage="Library">
+                <Interface id="com.kuka/OSGi/com.kuka.statuscontroller.exception" version="1.1.0"/>
+                <Interface id="com.kuka/Bundle/com.kuka.statuscontroller" version="1.1.0"/>
+                <Interface id="com.kuka/OSGi/com.kuka.statuscontroller.api.monitors" version="1.1.0"/>
+                <Interface id="com.kuka/OSGi/com.kuka.statuscontroller.api" version="1.1.0"/>
+            </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.statuscontroller.statusgroups" installItem="true" installedVersion="1.1.0.16" itemPath="com.kuka/com.kuka.statuscontroller.statusgroups" selectedVersion="1.1.0.16" usage="Library">
+                <Interface id="com.kuka/Bundle/com.kuka.statuscontroller.statusgroups" version="1.1.0"/>
+                <Interface id="com.kuka/OSGi/com.kuka.statuscontroller.statusgroups" version="1.1.0"/>
+            </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.statuscontroller.systemstatussource" installItem="true" installedVersion="1.1.0.16" itemPath="com.kuka/com.kuka.statuscontroller.systemstatussource" selectedVersion="1.1.0.16" usage="Library">
+                <Interface id="com.kuka/Bundle/com.kuka.statuscontroller.systemstatussource" version="1.1.0"/>
+            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.sunrise.api" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.sunrise.api" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.sunrise.common" installItem="true" installedVersion="1.0.0.16" itemPath="com.kuka/com.kuka.sunrise.common" selectedVersion="1.0.0.16" usage="Library">
                 <Interface id="com.kuka/Bundle/com.kuka.sunrise.common" version="1.0.0"/>
