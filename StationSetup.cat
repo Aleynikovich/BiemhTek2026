@@ -60,7 +60,11 @@
                     </Property>
                 </PropertyGroup>
             </TopologyItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ApplGateAgent" installItem="true" installedVersion="NONE" itemPath="com.kuka/ApplGateAgent" selectedVersion="NONE" usage="Library"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ApplGateAgent" installItem="true" installedVersion="1" itemPath="com.kuka/ApplGateAgent" selectedVersion="1" usage="Library">
+                <Interface id="com.kuka/ApplGateAgent/DiscoveryService" version="0.8.4"/>
+                <Interface id="com.kuka/ApplGateAgent/SoapService" version="0.8.4"/>
+                <Interface id="com.kuka/ApplGateAgent/ApplicationGateAgent" version="0.8.4"/>
+            </SoftwareItem>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="ApplicationHost" installItem="true" installedVersion="1.0.0" itemPath="com.kuka/ApplicationHost" selectedVersion="1.0.0" usage="Library">
                 <Interface id="com.kuka/Bundle/org.eclipse.jetty.continuation" version="8.1.15"/>
                 <Interface id="com.kuka/Bundle/org.eclipse.core.runtime" version="3.7.0"/>
@@ -104,7 +108,7 @@
                 <Interface id="com.kuka/Bundle/javax.servlet" version="3.0.0"/>
                 <Interface id="com.kuka/Bundle/org.eclipse.jetty.server" version="8.1.15"/>
             </SoftwareItem>
-            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.BackupRestore" installItem="false" installedVersion="NONE" itemPath="com.kuka/BackupManager" selectedVersion="NONE" usage="Feature"/>
+            <SoftwareItem autoSelected="false" canChangeSelection="true" displayName="KUKA Sunrise.BackupRestore" installItem="false" installedVersion="NONE" itemPath="com.kuka/BackupManager" selectedVersion="NONE" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="BackupRestore" installItem="true" installedVersion="NONE" itemPath="com.kuka/BackupManagerProperties" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="BackupRestore GUI for smartHMI" installItem="true" installedVersion="NONE" itemPath="com.kuka/BackupManagerSmartHMIView" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Cabinet" installItem="true" installedVersion="1" itemPath="com.kuka/Cabinet" selectedVersion="1" usage="Library">
@@ -218,6 +222,17 @@
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="PowerManagementService" installItem="true" installedVersion="1" itemPath="com.kuka/PowerManagementService" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/PowerManagementService/PowerManagementService" version="0.1.0"/>
                 <Interface id="com.kuka/Windows/Service" version="0.1.0"/>
+            </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.PROFINET® M/S" installItem="true" installedVersion="1.3.1" itemPath="com.kuka/ProfiSafe" selectedVersion="1.3.1" usage="Feature">
+                <Interface id="com.kuka/ProfiSafe/ProfinetMaster" version="0.1.0"/>
+                <Interface id="com.kuka/ProfiSafe/ProfiSafe" version="0.1.0"/>
+            </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.PROFINET® D" installItem="true" installedVersion="1.3.1" itemPath="com.kuka/ProfinetDevice" selectedVersion="1.3.1" usage="Feature">
+                <Interface id="com.kuka/ProfinetDevice/ProfinetDevice" version="0.1.0"/>
+            </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="PROFINET Driver" installItem="true" installedVersion="4.1" itemPath="com.kuka/ProfinetDriver" selectedVersion="4.1" usage="Library">
+                <Interface id="com.kuka/ProfinetDriver/ProfinetDriver" version="0.4.1"/>
+                <Interface id="com.kuka/ProfinetSupport/Profinet" version="0.1.0"/>
             </SoftwareItem>
             <SoftwareItem autoSelected="false" canChangeSelection="true" displayName="Robotics API" installItem="true" installedVersion="1.0.0" itemPath="com.kuka/RAPI" selectedVersion="1.0.0" usage="Feature">
                 <Interface id="com.kuka/RAPI/RAPI" version="1.0.0"/>
