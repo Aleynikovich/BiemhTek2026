@@ -104,6 +104,9 @@
                 <Interface id="com.kuka/Bundle/javax.servlet" version="3.0.0"/>
                 <Interface id="com.kuka/Bundle/org.eclipse.jetty.server" version="8.1.15"/>
             </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="KUKA Sunrise.BackupRestore" installItem="false" installedVersion="NONE" itemPath="com.kuka/BackupManager" selectedVersion="NONE" usage="Feature"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="BackupRestore" installItem="true" installedVersion="NONE" itemPath="com.kuka/BackupManagerProperties" selectedVersion="NONE" usage="Library"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="BackupRestore GUI for smartHMI" installItem="true" installedVersion="NONE" itemPath="com.kuka/BackupManagerSmartHMIView" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Cabinet" installItem="true" installedVersion="1" itemPath="com.kuka/Cabinet" selectedVersion="1" usage="Library">
                 <Interface id="com.kuka/Cabinet/CabCtrl" version="0.8.4"/>
             </SoftwareItem>
@@ -236,7 +239,9 @@
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="SafetyDiagnose" installItem="true" installedVersion="1" itemPath="com.kuka/SafetyDiagnose" selectedVersion="1" usage="Feature">
                 <Interface id="com.kuka/SafetyDiagnose/KRC4SafetyDiagnose" version="0.1.0"/>
             </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Human Robot Collaboration" installItem="true" installedVersion="1" itemPath="com.kuka/SafetyHRC" selectedVersion="1" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="false" displayName="SafetyRAPILibs" installItem="true" installedVersion="1.0.0" itemPath="com.kuka/SafetyRAPILibs" selectedVersion="1.0.0" usage="Feature"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="Safe Operation" installItem="true" installedVersion="1" itemPath="com.kuka/SafetySOP" selectedVersion="1" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="false" displayName="Safety Signal Observer LBR" installItem="true" installedVersion="1" itemPath="com.kuka/SafetySignalObsLBR" selectedVersion="1" usage="Feature"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="smartHMI" installItem="true" installedVersion="1" itemPath="com.kuka/SmartHMI" selectedVersion="1" usage="Feature">
                 <Interface id="com.kuka/SmartHMI/SmartHMI" version="0.1.0"/>
@@ -400,6 +405,9 @@
                 <Interface id="com.kuka/Bundle/com.kuka.authorizationService.ncf" version="1.1.0"/>
                 <Interface id="com.kuka/OSGi/com.kuka.authorizationService" version="1.1.0"/>
             </SoftwareItem>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.backupManager" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.backupManager" selectedVersion="NONE" usage="Library"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.backupManager.service" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.backupManager.service" selectedVersion="NONE" usage="Library"/>
+            <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.backupManager.service.ncf" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.backupManager.service.ncf" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.command.api" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.command.api" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.command.provider.api" installItem="true" installedVersion="NONE" itemPath="com.kuka/com.kuka.command.provider.api" selectedVersion="NONE" usage="Library"/>
             <SoftwareItem autoSelected="true" canChangeSelection="true" displayName="com.kuka.common" installItem="true" installedVersion="2.0.1.16" itemPath="com.kuka/com.kuka.common" selectedVersion="2.0.1.16" usage="Library">
