@@ -13,8 +13,8 @@
       <Submodule Number="32768" SubmoduleIdentNumber="2" InDataLen="0" OutDataLen="0" />
       <Submodule Number="32769" SubmoduleIdentNumber="3" InDataLen="0" OutDataLen="0" />
     </Module>
-    <Module Number="2" ModuleIdentNumber="128">
-      <Submodule Number="1" SubmoduleIdentNumber="1" InDataLen="1" OutDataLen="1" />
+    <Module Number="2" ModuleIdentNumber="4096">
+      <Submodule Number="1" SubmoduleIdentNumber="1" InDataLen="32" OutDataLen="32" />
     </Module>
   </Pndev>
 </Driver>
