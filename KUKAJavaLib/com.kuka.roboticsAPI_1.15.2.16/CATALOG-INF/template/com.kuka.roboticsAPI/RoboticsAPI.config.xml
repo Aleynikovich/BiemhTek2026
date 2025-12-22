@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<RoboticsAPI xmlns:m="http://www.kuka.com/sunrise/xml/merge">
-	<Engine Class="com.kuka.roboticsAPI.uiModel.UIEngine"/>
-
-	<Controller Name="#userName#"
-		m:attrs="Class=com.kuka.roboticsAPI.controllerModel.sunrise.SunriseController,NameserverAddress=#KLI_IP_Range.VxWorksIP#,NameserverPort=23456,KeepAliveSendTimeout=#KeepAliveSendTimeout#"/>
-</RoboticsAPI>

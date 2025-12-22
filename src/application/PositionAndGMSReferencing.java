@@ -1,9 +1,5 @@
 package application;
 
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
-
-import javax.inject.Inject;
-
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.controllerModel.Controller;
@@ -16,6 +12,10 @@ import com.kuka.roboticsAPI.deviceModel.JointPosition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.deviceModel.OperationMode;
 import com.kuka.roboticsAPI.motionModel.PTP;
+
+import javax.inject.Inject;
+
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 
 /**
  * This application can be used as template for Lbr iiwa Position and GMS Referencing.

@@ -1,10 +1,6 @@
 package application;
 
-import javax.inject.Inject;
-
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
-
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.CartDOF;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
@@ -12,6 +8,10 @@ import com.kuka.roboticsAPI.motionModel.PTP;
 import com.kuka.roboticsAPI.motionModel.PositionHold;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
 import com.kuka.roboticsAPI.uiModel.ApplicationDialogType;
+
+import javax.inject.Inject;
+
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 
 public class Impedance extends RoboticsAPIApplication {
 

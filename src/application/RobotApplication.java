@@ -1,10 +1,12 @@
 package application;
 
 
-import javax.inject.Inject;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+
+import javax.inject.Inject;
+
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 
 /**
  * Implementation of a robot application.

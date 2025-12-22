@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
+<SunriseIOGroupDescription Version="1.0.0">
   <IOGroup DisplayName="AutomaticExternal" IconName="AutExt" SignalTypes="InOut" TemplateName="AutomaticExternal">
     <IOs>
       <DigitalIOItem Name="externalStart" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
