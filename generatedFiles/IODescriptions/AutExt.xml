@@ -3,12 +3,12 @@
 Automatically generated IO group description. Please do NOT modify!
 -->
 <SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
-  <IOGroup DisplayName="Profinet" IconName="Profinet" SignalTypes="InOut" TemplateName="Profinet">
+  <IOGroup DisplayName="AutExt" IconName="AutExt" SignalTypes="InOut" TemplateName="AutExt">
     <IOs>
-      <DigitalIOItem Name="In1" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="ExtStart" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Out1" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="Run" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
     </IOs>

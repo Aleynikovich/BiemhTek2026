@@ -6,52 +6,12 @@
   </Version>
   <WarnMultipleUsageOfInputs printWarning="false" />
   <BusList>
-    <Bus BusDriverName="ECatIODriver" BusInstanceName="SYS-X48">
-      <IOList>
-        <DigitalIO Name="MediaFlange.Input1" Type="INPUT" Scope="USER_IO" StartBit="368" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input2" Type="INPUT" Scope="USER_IO" StartBit="369" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input3" Type="INPUT" Scope="USER_IO" StartBit="370" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input4" Type="INPUT" Scope="USER_IO" StartBit="371" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input5" Type="INPUT" Scope="USER_IO" StartBit="372" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input6" Type="INPUT" Scope="USER_IO" StartBit="373" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input7" Type="INPUT" Scope="USER_IO" StartBit="374" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Input8" Type="INPUT" Scope="USER_IO" StartBit="375" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Output1" Type="OUTPUT" Scope="USER_IO" StartBit="12728" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Output2" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Output3" Type="OUTPUT" Scope="USER_IO" StartBit="12730" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Output4" Type="OUTPUT" Scope="USER_IO" StartBit="12731" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-      </IOList>
-    </Bus>
     <Bus BusDriverName="PNIODriver" BusInstanceName="PNIO-DEV">
       <IOList>
-        <DigitalIO Name="Profinet.In1" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.ExtStart" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Profinet.Out1" Type="OUTPUT" Scope="USER_IO" StartBit="2320" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.Run" Type="OUTPUT" Scope="USER_IO" StartBit="2320" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>

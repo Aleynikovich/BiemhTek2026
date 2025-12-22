@@ -5,5 +5,5 @@
     <Schema Version="600" />
   </Version>
   <PROFINET PNIODeviceName="iiwa" DeviceID="1024" />
-  <DeviceInstance Name="PNIO-DEV" busTimeout="20000" busCycleTime="8" DiagnosticAlarmActive="true" EnableBusErrorBit="false" InvertBusErrorBit="false" BusErrorBitOffset="0" EnableMaintenanceRequestBit="false" InvertMaintenanceRequestBit="false" MaintenanceRequestBitOffset="0" EnableMaintenanceDemandBit="false" InvertMaintenanceDemandBit="false" MaintenanceDemandBitOffset="0" EnableDiagnosticAlarmBit="false" InvertDiagnosticAlarmBit="false" DiagnosticAlarmBitOffset="0" NestedAlarmActive="true" />
+  <DeviceInstance Name="PNIO-DEV" busTimeout="20000" busCycleTime="8" DiagnosticAlarmActive="false" EnableBusErrorBit="false" InvertBusErrorBit="false" BusErrorBitOffset="0" EnableMaintenanceRequestBit="false" InvertMaintenanceRequestBit="false" MaintenanceRequestBitOffset="1" EnableMaintenanceDemandBit="false" InvertMaintenanceDemandBit="false" MaintenanceDemandBitOffset="2" EnableDiagnosticAlarmBit="false" InvertDiagnosticAlarmBit="false" DiagnosticAlarmBitOffset="3" NestedAlarmActive="false" />
 </Driver>

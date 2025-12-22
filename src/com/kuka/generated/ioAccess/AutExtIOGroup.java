@@ -8,33 +8,33 @@ import com.kuka.roboticsAPI.ioModel.AbstractIOGroup;
 import com.kuka.roboticsAPI.ioModel.IOTypes;
 
 /**
- * Automatically generated class to abstract I/O access to I/O group <b>Profinet</b>.<br>
+ * Automatically generated class to abstract I/O access to I/O group <b>AutExt</b>.<br>
  * <i>Please, do not modify!</i>
  * <p>
  * <b>I/O group description:</b><br>
  * ./.
  */
 @Singleton
-public class ProfinetIOGroup extends AbstractIOGroup
+public class AutExtIOGroup extends AbstractIOGroup
 {
 	/**
-	 * Constructor to create an instance of class 'Profinet'.<br>
+	 * Constructor to create an instance of class 'AutExt'.<br>
 	 * <i>This constructor is automatically generated. Please, do not modify!</i>
 	 *
 	 * @param controller
-	 *            the controller, which has access to the I/O group 'Profinet'
+	 *            the controller, which has access to the I/O group 'AutExt'
 	 */
 	@Inject
-	public ProfinetIOGroup(Controller controller)
+	public AutExtIOGroup(Controller controller)
 	{
-		super(controller, "Profinet");
+		super(controller, "AutExt");
 
-		addInput("In1", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("Out1", IOTypes.BOOLEAN, 1);
+		addInput("ExtStart", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Run", IOTypes.BOOLEAN, 1);
 	}
 
 	/**
-	 * Gets the value of the <b>digital input '<i>In1</i>'</b>.<br>
+	 * Gets the value of the <b>digital input '<i>ExtStart</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -46,15 +46,15 @@ public class ProfinetIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @return current value of the digital input 'In1'
+	 * @return current value of the digital input 'ExtStart'
 	 */
-	public boolean getIn1()
+	public boolean getExtStart()
 	{
-		return getBooleanIOValue("In1", false);
+		return getBooleanIOValue("ExtStart", false);
 	}
 
 	/**
-	 * Gets the value of the <b>digital output '<i>Out1</i>'</b>.<br>
+	 * Gets the value of the <b>digital output '<i>Run</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -66,15 +66,15 @@ public class ProfinetIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @return current value of the digital output 'Out1'
+	 * @return current value of the digital output 'Run'
 	 */
-	public boolean getOut1()
+	public boolean getRun()
 	{
-		return getBooleanIOValue("Out1", true);
+		return getBooleanIOValue("Run", true);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>Out1</i>'</b>.<br>
+	 * Sets the value of the <b>digital output '<i>Run</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -87,11 +87,11 @@ public class ProfinetIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @param value
-	 *            the value, which has to be written to the digital output 'Out1'
+	 *            the value, which has to be written to the digital output 'Run'
 	 */
-	public void setOut1(java.lang.Boolean value)
+	public void setRun(java.lang.Boolean value)
 	{
-		setDigitalOutput("Out1", value);
+		setDigitalOutput("Run", value);
 	}
 
 }
