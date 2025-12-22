@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns:rapi="com.kuka.roboticsApi"
+xmlns:jxb="http://java.sun.com/xml/ns/jaxb">
+
+    <xsd:include schemaLocation="RoboticsAPI.data.processData.V3.xsd" />
+    <xsd:include schemaLocation="RoboticsAPI.data.templates.V3.xsd" />
+
+    <xsd:simpleType name="versionType">
+        <xsd:restriction base="xsd:decimal">
+            <xsd:totalDigits value="1"/>
+            <xsd:minInclusive value="3"/>
+            <xsd:maxInclusive value="3"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+	<xsd:element name="RoboticsAPIData">
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="Engine" minOccurs="0"/>
+				<xsd:element name="DataSource" minOccurs="0"/>
+				<xsd:element name="world" minOccurs="0"/>
+				<xsd:element name="tools" minOccurs="0"/>
+				<xsd:element name="objectTemplates" type="objectTemplate" minOccurs="0">
+					<xsd:unique name="uniqueName">
+						<xsd:selector xpath="*"/>
+						<xsd:field xpath="@name"/>
+					</xsd:unique>
+				</xsd:element>
+				<xsd:element name="userDatas" minOccurs="0"/>
+				<xsd:element name="processDataContainer" type="processDataContainer" minOccurs="0">
+				    <xsd:unique name="processData-id">
+                        <xsd:selector xpath="*"/>
+                        <xsd:field xpath="@id"/>
+                    </xsd:unique>
+                </xsd:element>
+			</xsd:all>
+			<xsd:attribute name="version" type="versionType" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

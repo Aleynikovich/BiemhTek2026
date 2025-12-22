@@ -1,0 +1,64 @@
+Manifest-Version: 1.0
+Export-Package: com.kuka.roboticsAPI;version="1.15.0",com.kuka.robotic
+ sAPI.applicationModel;version="1.15.0",com.kuka.roboticsAPI.applicati
+ onModel.tasks;version="1.15.0",com.kuka.roboticsAPI.commandModel;vers
+ ion="1.15.0",com.kuka.roboticsAPI.commandModel.l3Exception;version="1
+ .15.0",com.kuka.roboticsAPI.concurrencyModel;version="1.15.0",com.kuk
+ a.roboticsAPI.conditionModel;version="1.15.0",com.kuka.roboticsAPI.co
+ ntrollerModel;version="1.15.0",com.kuka.roboticsAPI.controllerModel.l
+ 3Exception;version="1.15.0",com.kuka.roboticsAPI.controllerModel.mapp
+ ing;version="1.15.0",com.kuka.roboticsAPI.controllerModel.recovery;ve
+ rsion="1.15.0",com.kuka.roboticsAPI.controllerModel.sunrise;version="
+ 1.15.0",com.kuka.roboticsAPI.controllerModel.sunrise.api;version="1.1
+ 5.0",com.kuka.roboticsAPI.controllerModel.sunrise.api.expressions;ver
+ sion="1.15.0",com.kuka.roboticsAPI.controllerModel.sunrise.brakeTest;
+ version="1.15.0",com.kuka.roboticsAPI.controllerModel.sunrise.conditi
+ ons;version="1.15.0",com.kuka.roboticsAPI.controllerModel.sunrise.con
+ nectionLib;version="1.15.0",com.kuka.roboticsAPI.controllerModel.sunr
+ ise.mapping;version="1.15.0",com.kuka.roboticsAPI.controllerModel.sun
+ rise.positionMastering;version="1.15.0",com.kuka.roboticsAPI.controll
+ erModel.sunrise.predefinedCompounds;version="1.15.0",com.kuka.robotic
+ sAPI.controllerModel.sunrise.requests;version="1.15.0",com.kuka.robot
+ icsAPI.controllerModel.sunrise.xml;version="1.15.0",com.kuka.robotics
+ API.deviceModel;version="1.15.0",com.kuka.roboticsAPI.deviceModel.lev
+ el3Exceptions;version="1.15.0",com.kuka.roboticsAPI.executionModel;ve
+ rsion="1.15.0",com.kuka.roboticsAPI.geometricModel;version="1.15.0",c
+ om.kuka.roboticsAPI.geometricModel.math;version="1.15.0",com.kuka.rob
+ oticsAPI.geometricModel.physics;version="1.15.0",com.kuka.roboticsAPI
+ .geometricModel.redundancy;version="1.15.0",com.kuka.roboticsAPI.ioMo
+ del;version="1.15.0",com.kuka.roboticsAPI.motionModel;version="1.15.0
+ ",com.kuka.roboticsAPI.motionModel.controlModeModel;version="1.15.0",
+ com.kuka.roboticsAPI.motionModel.stopConditions;version="1.15.0",com.
+ kuka.roboticsAPI.motionModel.velocityControlled;version="1.15.0",com.
+ kuka.roboticsAPI.params;version="1.15.0",com.kuka.roboticsAPI.persist
+ enceModel;version="1.15.0",com.kuka.roboticsAPI.persistenceModel.meas
+ urementModel;version="1.15.0",com.kuka.roboticsAPI.persistenceModel.p
+ rocessDataModel;version="1.15.0",com.kuka.roboticsAPI.persistenceMode
+ l.templateModel;version="1.15.0",com.kuka.roboticsAPI.requestModel;ve
+ rsion="1.15.0",com.kuka.roboticsAPI.samples;version="1.15.0",com.kuka
+ .roboticsAPI.sensorModel;version="1.15.0",com.kuka.roboticsAPI.uiMode
+ l;version="1.15.0",com.kuka.roboticsAPI.uiModel.userKeys;version="1.1
+ 5.0"
+Bundle-ActivationPolicy: lazy
+Built-By: teamcity
+Bundle-Name: KUKA RoboticsAPI
+Created-By: Apache Maven 3.0.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.kuka.common.datatypes;bundle-version="1.15.0",com.
+ kuka.sunrise.common;bundle-version="1.0.0"
+Bundle-Vendor: KUKA Deutschland GmbH
+Build-Jdk: 1.6.0_45
+Bundle-Version: 1.15.2.16
+Eclipse-BuddyPolicy: registered
+Bundle-ManifestVersion: 2
+Import-Package: com.kuka.common;version="[1.5.0,2.0.0)",com.kuka.commo
+ n.concurrent;version="[1.5.0,2.0.0)",com.kuka.common.devices;version=
+ "[1.5.0,2.0.0)",com.kuka.common.events;version="[1.5.0,2.0.0)",com.ku
+ ka.common.exceptions;version="[1.5.0,2.0.0)",com.kuka.common.params;v
+ ersion="[1.5.0,2.0.0)",com.kuka.common.persistence;version="[1.5.0,2.
+ 0.0)",com.kuka.sunrise.common.task.categories;version="1.0.0",com.kuk
+ a.task;version="1.0.0",javax.inject;version="1.0.0",org.slf4j;version
+ ="1.7.0"
+Bundle-SymbolicName: com.kuka.roboticsAPI;singleton:=true
+Archiver-Version: Plexus Archiver
+

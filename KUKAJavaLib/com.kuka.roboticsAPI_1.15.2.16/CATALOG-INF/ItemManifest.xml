@@ -1,0 +1,60 @@
+<Library>
+	<Parent path="Controller/Windows" version="1.18" />
+
+	<SoftwareRequirement path="MotionCompounds/MotionCompounds"
+		version="1.0" />
+	<SoftwareRequirement path="SunriseFramework/SunriseAPIInterface"
+		version="2.1" />
+	<SoftwareRequirement
+		path="SunriseFramework/SunriseServiceRecordInterface_SSK" version="1.0" />
+	<SoftwareRequirement
+		path="SunriseFramework/SunriseServiceRecordInterface_Safety" version="1.1" />
+	<SoftwareRequirement path="SunriseBasicCompounds/SunriseBasicCompounds"
+		version="1.0" />
+
+
+	<Action path="DefineXmlConfig" version="1.0">
+		<Attribute key="source" value="com.kuka.roboticsAPI/RoboticsAPI.config.xml" />
+		<Attribute key="id" value="com.kuka.RoboticsAPI.config.xml" />
+		<Attribute key="installationPhase" value="Save" />
+	</Action>
+
+	<Action path="DefineXmlConfig" version="1.0">
+		<Attribute key="source"
+			value="com.kuka.roboticsAPI/RoboticsAPI.data.ProcessDataExample.xml" />
+		<Attribute key="id"
+			value="com.kuka.RoboticsAPI.data.ProcessDataExample.xml" />
+		<Attribute key="installationPhase" value="Save" />
+	</Action>
+
+	<Action path="InstallEclipseProjectFileAction" version="1.0">
+		<Attribute key="destinationDir" value="src" />
+		<Attribute key="sourceFile" value="RoboticsAPI.data.ProcessDataExample.xml" />
+	</Action>
+
+	<Action path="MergeRoboticsAPIConfigAction" version="1.0">
+		<Attribute key="source"
+			value="#Template-Folder#/RoboticsAPI.config.xml" />
+		<Attribute key="id" value="com.kuka.RoboticsAPI.config.xml" />
+	</Action>
+
+	<Action path="InstallEclipseProjectFileAction" version="1.0">
+		<Attribute key="destinationDir" value="src" />
+		<Attribute key="sourceFile" value="RoboticsAPI.config.xml" />
+	</Action>
+
+	<Action path="InstallEclipseLibraryAction" version="1.0">
+		<Attribute key="jar" value="#Binaries-Folder#/#Bundle-File#" />
+		<Attribute key="doc" value="#Binaries-Folder#/#Bundle-JavaDoc#" />
+	</Action>
+
+	<Action path="FileCopyToVxWorks" version="1.0">
+		<Attribute key="destination" value="#RuntimeFolder#\dropins\#Bundle-File#" />
+		<Attribute key="source" value="#Binaries-Folder#\#Bundle-File#" />
+		<Attribute key="replacePlaceholderInPath" value="true" />
+	</Action>
+	
+	<Action path="UpdateUuidAction" version="1.0"/>
+	
+	<Action path="MigrateProjectAction" version="1.0"/>
+</Library>

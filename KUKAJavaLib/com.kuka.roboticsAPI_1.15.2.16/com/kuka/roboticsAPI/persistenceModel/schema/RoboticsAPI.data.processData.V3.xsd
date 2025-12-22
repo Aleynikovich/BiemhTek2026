@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"  xmlns:jxb="http://java.sun.com/xml/ns/jaxb">
+
+    <xsd:include schemaLocation="RoboticsAPI.data.commonTypes.V3.xsd" />
+	
+	<xsd:complexType name="processDataContainer">
+        <xsd:sequence>
+            <xsd:group ref="processDataGroup" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:group name="processDataGroup">
+        <xsd:choice>
+            <xsd:element name="processData" type="processData" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:choice>
+    </xsd:group>
+    <xsd:complexType name="processData">
+        <xsd:attribute name="id" type="javaConformType" use="required" />
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+        <xsd:attribute name="defaultValue" type="xsd:string" use="required"/>
+        <xsd:attribute name="dataType" type="validProcessDataTypes" use="required" />
+        <xsd:attribute name="displayName" type="xsd:string" use="optional"/>
+        <xsd:attribute name="unit" type="xsd:string" use="optional"/>
+        <xsd:attribute name="min" type="validDoubleType" use="optional"/>
+        <xsd:attribute name="max" type="validDoubleType" use="optional"/>
+        <xsd:attribute name="comment" type="xsd:string" use="optional"/>
+        <xsd:attribute name="editableOnHmi" type="xsd:boolean" use="optional"/>
+        <xsd:attribute name="visibleOnHmi" type="xsd:boolean" use="optional"/>
+    </xsd:complexType>
+    <xsd:simpleType name="validProcessDataType">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="validProcessDataTypes">
+        <xsd:restriction base="validProcessDataType">
+            <xsd:enumeration value="java.lang.Boolean" />
+            <xsd:enumeration value="java.lang.Integer" />
+            <xsd:enumeration value="java.lang.Double" />
+            <xsd:enumeration value="java.lang.String" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+</xsd:schema>
