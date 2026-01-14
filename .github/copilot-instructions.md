@@ -196,6 +196,11 @@ public class DataParser {
 - Validate data parsing with various input formats
 - Test error handling and recovery scenarios
 
+## Interaction Protocol
+- **Ambiguity Handling**: If a task involves undefined parameters (e.g., specific string delimiters, PLC signal addresses not found in `/generatedFiles/IODescriptions/`, or specific robot frames), you **must** stop and use the `AskUserQuestion` tool.
+- **Incremental Confirmation**: For complex logic like the TCP/IP handshake or the motion state machine, provide a high-level summary of your planned approach and ask for a "Go Ahead" before generating the full implementation.
+- **Short Bursts**: Prefer smaller, more frequent updates to the PR rather than one massive commit, allowing for "back and forth" steering.
+
 ### Testing & Validation Policy
 - **No Active Testing**: Do not attempt to run, execute, or compile the code using automated test runners. The code requires a physical KUKA controller and a PLC.
 - **Static Analysis Only**: Focus on structural and syntactical correctness for Java 1.7.
