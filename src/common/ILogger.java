@@ -1,7 +1,7 @@
-package hardware;
+package common;
 
 /**
- * Simple logger interface for hardware components.
+ * Simple logger interface for all core components.
  * Allows decoupling from KUKA API logger.
  * 
  * Java 1.7 compatible

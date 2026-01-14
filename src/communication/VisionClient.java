@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import common.ILogger;
+
 /**
  * Background TCP client task for vision system communication.
  * Connects to vision system and continuously reads incoming frames in the background.

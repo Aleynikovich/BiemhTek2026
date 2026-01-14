@@ -3,6 +3,8 @@ package hardware;
 import com.kuka.generated.ioAccess.Gripper1IOGroup;
 import com.kuka.generated.ioAccess.Gripper2IOGroup;
 
+import common.ILogger;
+
 /**
  * Controller for Gripper 1 and Gripper 2.
  * Provides methods to control grippers via Profinet I/O.

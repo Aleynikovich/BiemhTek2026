@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.kuka.generated.ioAccess.RobotStatusIOGroup;
 
+import common.ILogger;
+
 /**
  * Background task that toggles a Profinet heartbeat signal every 100ms.
  * Used to indicate robot is alive to the PLC (cell master).

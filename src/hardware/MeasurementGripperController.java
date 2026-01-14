@@ -3,6 +3,8 @@ package hardware;
 import com.kuka.generated.ioAccess.PlcRequestsGrippersIOGroup;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import common.ILogger;
+
 /**
  * Controller for Measurement Machine gripper via PLC requests.
  * Implements request logic using Profinet signals controlled by PLC.
