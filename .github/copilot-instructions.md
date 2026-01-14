@@ -196,6 +196,27 @@ public class DataParser {
 - Validate data parsing with various input formats
 - Test error handling and recovery scenarios
 
+### Testing & Validation Policy
+- **No Active Testing**: Do not attempt to run, execute, or compile the code using automated test runners. The code requires a physical KUKA controller and a PLC.
+- **Static Analysis Only**: Focus on structural and syntactical correctness for Java 1.7.
+- **Manual Verification**: All functional testing is performed manually on physical hardware.
+
+### Token Efficiency & Interaction Rules
+- **Direct Answers**: Provide succinct code snippets and logic explanations. Avoid conversational filler or "sugar-coating."
+- **Verification**: If a technical detail regarding KUKA safety or specific taxation-related logic is unclear, state that you are unsure rather than hallucinating based on training data.
+- **Contextual Awareness**: Before generating code, check the `/Documentation` directory to ensure the methods used exist in the Sunrise 1.16 API.
+
+
+### State Ownership & Handshaking
+- **PLC as Source of Truth**: The PLC is the cell master. The robot must not initiate motion or change its internal state (e.g., "Task Complete") without a confirmed handshake via Profinet.
+- **Sync Logic**: Use a "Request-Response" pattern for all external communication. The robot sends a request, waits for a status bit from the PLC or a string from the Vision PC, and validates the response before proceeding.
+
+
+### Field Debugging Standards
+- **Logging**: Implement verbose logging using `getLogger().info()`. Logs should clearly indicate state transitions (e.g., "TCP_CLIENT_CONNECTED", "PICK_COORDS_RECEIVED", "PLC_READY_FOR_PICK").
+- **Language**: Use English for all code, variable names, and log messages to maintain consistency across the international project team.
+- **Recovery**: Every motion sequence must have a corresponding "Safety Recovery" or "Abort" state defined in case the PLC sends a stop signal or the TCP socket times out.
+
 ## Common Patterns
 
 ### Robot Application Template

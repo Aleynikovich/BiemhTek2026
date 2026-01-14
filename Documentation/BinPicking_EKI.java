@@ -69,28 +69,28 @@ public class BinPicking_EKI extends RoboticsAPIApplication implements BinPicking
 	
 	//nuevo
 	
-	public static JointTorqueCondition parColisiónJ1 = new JointTorqueCondition(JointEnum.J1, -14, 14);
-	public static JointTorqueCondition parColisiónJ2 = new JointTorqueCondition(JointEnum.J2, -10, 10); 
-	public static JointTorqueCondition parColisiónJ3 = new JointTorqueCondition(JointEnum.J3, -8, 8); 
-	public static JointTorqueCondition parColisiónJ4 = new JointTorqueCondition(JointEnum.J4, -8, 8); 
-	public static JointTorqueCondition parColisiónJ5 = new JointTorqueCondition(JointEnum.J5, -5, 5); 
-	public static JointTorqueCondition parColisiónJ6 = new JointTorqueCondition(JointEnum.J6, -4, 4); 
-	public static JointTorqueCondition parColisiónJ7 = new JointTorqueCondition(JointEnum.J7, -2, 2); 
-	private static int tiempoEsperaTrasColisión = 1500;
-	private static double sensibilidadColisión = 0;
+	public static JointTorqueCondition parColisiï¿½nJ1 = new JointTorqueCondition(JointEnum.J1, -14, 14);
+	public static JointTorqueCondition parColisiï¿½nJ2 = new JointTorqueCondition(JointEnum.J2, -10, 10); 
+	public static JointTorqueCondition parColisiï¿½nJ3 = new JointTorqueCondition(JointEnum.J3, -8, 8); 
+	public static JointTorqueCondition parColisiï¿½nJ4 = new JointTorqueCondition(JointEnum.J4, -8, 8); 
+	public static JointTorqueCondition parColisiï¿½nJ5 = new JointTorqueCondition(JointEnum.J5, -5, 5); 
+	public static JointTorqueCondition parColisiï¿½nJ6 = new JointTorqueCondition(JointEnum.J6, -4, 4); 
+	public static JointTorqueCondition parColisiï¿½nJ7 = new JointTorqueCondition(JointEnum.J7, -2, 2); 
+	private static int tiempoEsperaTrasColisiï¿½n = 1500;
+	private static double sensibilidadColisiï¿½n = 0;
 	
 	public final static int ORDEN_GOLPEDERECHA = 1;
 	public final static int ORDEN_GOLPEIZQUIERDA = 2;
 	public final static int ORDEN_GOLPEARRIBA = 3;
 	public final static int ORDEN_GOLPEABAJO = 4;
 	public final static int ORDEN_GOLPEDELANTE = 5;
-	public final static int ORDEN_GOLPEATRÁS = 6;
+	public final static int ORDEN_GOLPEATRï¿½S = 6;
 	
 	private static CartesianImpedanceControlMode blandito=new CartesianImpedanceControlMode();
 	
-	private ICondition condColisión = null;
+	private ICondition condColisiï¿½n = null;
 	private IMotionContainer movimientoSeguro = null;
-	private IFiredConditionInfo colisiónDetectada = null;
+	private IFiredConditionInfo colisiï¿½nDetectada = null;
 	
 	
 	//nuevo fin
@@ -103,7 +103,7 @@ public class BinPicking_EKI extends RoboticsAPIApplication implements BinPicking
     
    	private static final int stiffnessZ = 300;
    	private static final int stiffnessY = 5000;
-   	private static final int stiffnessX = 5000;
+    private static final int stiffnessX = 5000;
    	
 
 	private BinPicking_TCPServer tcp_server;
@@ -150,7 +150,7 @@ public class BinPicking_EKI extends RoboticsAPIApplication implements BinPicking
 			tcp_server.enable();
 					
 		} catch (IOException e) {
-			//TODO Bloque catch generado automáticamente
+			//TODO Bloque catch generado automï¿½ticamente
 			System.err.println("Could not create TCPServer:" +e.getMessage());
 		}
 		 */
@@ -164,7 +164,7 @@ public class BinPicking_EKI extends RoboticsAPIApplication implements BinPicking
 					server_connected = new AtomicBoolean(true);
 							
 			} catch (IOException e) {
-				//TODO Bloque catch generado automáticamente
+				//TODO Bloque catch generado automï¿½ticamente
 				System.err.println("Could not create TCPServer:" +e.getMessage());
 		    }
 		
