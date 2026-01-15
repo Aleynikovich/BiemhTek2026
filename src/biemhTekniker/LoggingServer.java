@@ -6,19 +6,24 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
+import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
+import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 
 /**
- * Background task that runs a ServerSocket to stream robot logs to remote Telnet clients.
+ * Cyclic background task that runs a ServerSocket to stream robot logs to remote Telnet clients.
+ * Follows KUKA best practices for cyclic background task design.
+ * Socket listener runs in a daemon thread; message broadcasting happens in runCyclic.
  */
-public class LoggingServer extends RoboticsAPIBackgroundTask {
+public class LoggingServer extends RoboticsAPICyclicBackgroundTask {
     
     private ServerSocket serverSocket;
     private List<ClientConnection> clients;
     private AtomicBoolean running;
     private int port;
+    private Thread listenerThread;
     
     private class ClientConnection {
         Socket socket;
@@ -61,6 +66,10 @@ public class LoggingServer extends RoboticsAPIBackgroundTask {
     public void initialize() {
         this.clients = new ArrayList<ClientConnection>();
         this.running = new AtomicBoolean(false);
+        
+        // Initialize cyclic behavior: run every 10ms
+        initializeCyclic(0, 10, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+        
         getLogger().info("LoggingServer initialized");
     }
     
@@ -71,47 +80,25 @@ public class LoggingServer extends RoboticsAPIBackgroundTask {
         
         serverSocket = new ServerSocket(port);
         running.set(true);
+        
+        // Start listener thread in daemon mode
+        listenerThread = new Thread(new Runnable() {
+            public void run() {
+                acceptClientConnections();
+            }
+        });
+        listenerThread.setDaemon(true);
+        listenerThread.start();
+        
         getLogger().info("LoggingServer started on port " + port);
     }
     
-    public void stopServer() {
-        running.set(false);
-        
-        synchronized (clients) {
-            for (ClientConnection client : clients) {
-                client.close();
-            }
-            clients.clear();
-        }
-        
-        if (serverSocket != null && !serverSocket.isClosed()) {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                getLogger().warn("Error closing server socket: " + e.getMessage());
-            }
-        }
-        
-        getLogger().info("LoggingServer stopped");
-    }
-    
-    public void broadcastLog(String message) {
-        synchronized (clients) {
-            List<ClientConnection> disconnected = new ArrayList<ClientConnection>();
-            for (ClientConnection client : clients) {
-                if (!client.isConnected()) {
-                    disconnected.add(client);
-                } else {
-                    client.sendMessage(message);
-                }
-            }
-            clients.removeAll(disconnected);
-        }
-    }
-    
-    @Override
-    public void run() {
-        getLogger().info("LoggingServer background task started");
+    /**
+     * Accepts client connections in a background daemon thread.
+     * This method runs continuously until the server is stopped.
+     */
+    private void acceptClientConnections() {
+        getLogger().info("LoggingServer listener thread started");
         
         while (running.get() && !Thread.currentThread().isInterrupted()) {
             try {
@@ -132,7 +119,58 @@ public class LoggingServer extends RoboticsAPIBackgroundTask {
             }
         }
         
-        getLogger().info("LoggingServer background task stopped");
+        getLogger().info("LoggingServer listener thread stopped");
+    }
+    
+    @Override
+    public void runCyclic() {
+        // Cyclic task for periodic operations
+        // Currently no periodic broadcasting, but structure is in place
+        // for future enhancements like periodic heartbeat messages
+    }
+    
+    public void stopServer() {
+        running.set(false);
+        
+        synchronized (clients) {
+            for (ClientConnection client : clients) {
+                client.close();
+            }
+            clients.clear();
+        }
+        
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                getLogger().warn("Error closing server socket: " + e.getMessage());
+            }
+        }
+        
+        // Wait for listener thread to finish
+        if (listenerThread != null && listenerThread.isAlive()) {
+            try {
+                listenerThread.join(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        getLogger().info("LoggingServer stopped");
+    }
+    
+    public void broadcastLog(String message) {
+        synchronized (clients) {
+            List<ClientConnection> disconnected = new ArrayList<ClientConnection>();
+            for (ClientConnection client : clients) {
+                if (!client.isConnected()) {
+                    disconnected.add(client);
+                } else {
+                    client.sendMessage(message);
+                }
+            }
+            clients.removeAll(disconnected);
+        }
     }
     
     public int getClientCount() {

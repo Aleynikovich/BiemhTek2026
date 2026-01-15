@@ -11,7 +11,7 @@ import com.kuka.generated.ioAccess.RobotStatusIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.controllerModel.Controller;
 import com.kuka.roboticsAPI.deviceModel.LBR;
-import com.kuka.roboticsAPI.geometricModel.Frame;
+import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 
@@ -19,6 +19,7 @@ import biemhTekniker.MeasurementGripperController.PlcRequestListener;
 
 /**
  * Main robot application demonstrating core architecture layers.
+ * Follows KUKA Sunrise OS best practices for HMI button handling and background task management.
  */
 public class Main extends RoboticsAPIApplication {
 	
@@ -40,12 +41,21 @@ public class Main extends RoboticsAPIApplication {
 	@Inject
 	private PlcRequestsGrippersIOGroup plcRequestsIO;
 	
-	private ConfigManager config;
+	@Inject
 	private HeartbeatTask heartbeat;
+	
+	@Inject
 	private LoggingServer logServer;
+	
+	@Inject
 	private VisionClient visionClient;
-	private GripperController gripperController;
+	
+	@Inject
 	private MeasurementGripperController mmGripperController;
+	
+	private ConfigManager config;
+	private GripperController gripperController;
+	private IUserKeyBar hmiKeyBar;
 
 	@Override
 	public void initialize() {
@@ -62,24 +72,15 @@ public class Main extends RoboticsAPIApplication {
 			getLogger().warn("Config files not found, using defaults: " + e.getMessage());
 		}
 		
-		heartbeat = new HeartbeatTask();
-		initAndStartTask(heartbeat);
+		// Initialize HMI buttons using correct Sunrise API
+		initializeHmiButtons();
 		
-		int logPort = config.getRobotPropertyInt("logging.port", 9000);
-		logServer = new LoggingServer();
-		logServer.setPort(logPort);
-		initAndStartTask(logServer);
-		try {
-			logServer.startServer();
-		} catch (IOException e) {
-			getLogger().error("Failed to start logging server: " + e.getMessage());
-		}
+		// Initialize gripper controller with IO dependencies
+		gripperController = new GripperController(gripper1IO, gripper2IO);
+		getLogger().info("Gripper controller initialized");
 		
-		gripperController = new GripperController();
-		gripperController.initializeHMI();
-		getLogger().info("Gripper HMI buttons created");
-		
-		mmGripperController = new MeasurementGripperController();
+		// Set up PLC request listener for MeasurementGripperController
+		// Note: mmGripperController is injected and will be auto-started by framework
 		mmGripperController.setListener(new PlcRequestListener() {
 			public void onGripper1OpenRequest() {
 				gripperController.openGripper1();
@@ -94,15 +95,23 @@ public class Main extends RoboticsAPIApplication {
 				gripperController.closeGripper2();
 			}
 		});
-		initAndStartTask(mmGripperController);
 		
+		// Configure and start logging server
+		// Note: logServer is injected and will be auto-started by framework
+		int logPort = config.getRobotPropertyInt("logging.port", 9000);
+		logServer.setPort(logPort);
+		try {
+			logServer.startServer();
+		} catch (IOException e) {
+			getLogger().error("Failed to start logging server: " + e.getMessage());
+		}
+		
+		// Configure and connect vision client
+		// Note: visionClient is injected and will be auto-started by framework
 		String visionIp = config.getRobotProperty("vision.ip", "192.168.1.100");
 		int visionPort = config.getRobotPropertyInt("vision.port", 5000);
 		String delimiter = config.getRobotProperty("vision.delimiter", ",");
-		
-		visionClient = new VisionClient();
 		visionClient.setConnectionParams(visionIp, visionPort, delimiter);
-		initAndStartTask(visionClient);
 		try {
 			visionClient.connect();
 			getLogger().info("Vision client connected");
@@ -111,6 +120,27 @@ public class Main extends RoboticsAPIApplication {
 		}
 		
 		getLogger().info("Core architecture initialized");
+	}
+	
+	/**
+	 * Initializes the HMI programmable buttons on the SmartPad.
+	 * Uses the correct Sunrise API: getApplicationUI().createUserKeyBar()
+	 */
+	private void initializeHmiButtons() {
+		try {
+			getLogger().info("Initializing HMI programmable buttons...");
+			
+			// Create user key bar using correct Sunrise API
+			this.hmiKeyBar = getApplicationUI().createUserKeyBar("BiemhTek_HMI");
+			
+			// Create button handler and register keys
+			HmiButtonHandler buttonHandler = new HmiButtonHandler(gripperController);
+			buttonHandler.registerUserKeys(this.hmiKeyBar);
+			
+			getLogger().info("HMI programmable buttons initialized successfully");
+		} catch (Exception e) {
+			getLogger().error("Failed to initialize HMI buttons: " + e.getMessage());
+		}
 	}
 
 	@Override

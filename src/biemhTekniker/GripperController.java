@@ -1,85 +1,28 @@
 package biemhTekniker;
 
-import javax.inject.Inject;
-
 import com.kuka.generated.ioAccess.Gripper1IOGroup;
 import com.kuka.generated.ioAccess.Gripper2IOGroup;
-import com.kuka.roboticsAPI.uiModel.IApplicationData;
-import com.kuka.roboticsAPI.uiModel.userKeys.IUserKey;
-import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
-import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyListener;
-import com.kuka.roboticsAPI.uiModel.userKeys.UserKeyAlignment;
-import com.kuka.roboticsAPI.uiModel.userKeys.UserKeyEvent;
 
 /**
- * Controller for Gripper 1 and Gripper 2 with HMI button support.
+ * Controller for Gripper 1 and Gripper 2.
+ * Provides open/close operations and status queries for both grippers.
+ * IO dependencies are passed via constructor for better testability.
  */
 public class GripperController {
     
-    @Inject
-    private Gripper1IOGroup gripper1IO;
+    private final Gripper1IOGroup gripper1IO;
+    private final Gripper2IOGroup gripper2IO;
     
-    @Inject
-    private Gripper2IOGroup gripper2IO;
-    
-    @Inject
-    private IApplicationData appData;
-    
-    private IUserKeyBar keyBar;
-    private IUserKey btnGripper1Open;
-    private IUserKey btnGripper1Close;
-    private IUserKey btnGripper2Open;
-    private IUserKey btnGripper2Close;
-    
-    public void initializeHMI() {
-        keyBar = appData.processDataManager().getUserKeyBar(UserKeyAlignment.TopMiddle);
-        
-        btnGripper1Open = keyBar.addUserKey(0, btnGripper1OpenListener, true);
-        btnGripper1Open.setText(UserKeyAlignment.TopMiddle, "G1 Open");
-        
-        btnGripper1Close = keyBar.addUserKey(1, btnGripper1CloseListener, true);
-        btnGripper1Close.setText(UserKeyAlignment.TopMiddle, "G1 Close");
-        
-        btnGripper2Open = keyBar.addUserKey(2, btnGripper2OpenListener, true);
-        btnGripper2Open.setText(UserKeyAlignment.TopMiddle, "G2 Open");
-        
-        btnGripper2Close = keyBar.addUserKey(3, btnGripper2CloseListener, true);
-        btnGripper2Close.setText(UserKeyAlignment.TopMiddle, "G2 Close");
-        
-        keyBar.publish();
+    /**
+     * Creates a new gripper controller with the specified IO groups.
+     * 
+     * @param gripper1IO IO group for gripper 1
+     * @param gripper2IO IO group for gripper 2
+     */
+    public GripperController(Gripper1IOGroup gripper1IO, Gripper2IOGroup gripper2IO) {
+        this.gripper1IO = gripper1IO;
+        this.gripper2IO = gripper2IO;
     }
-    
-    private IUserKeyListener btnGripper1OpenListener = new IUserKeyListener() {
-        public void onKeyEvent(IUserKey key, UserKeyEvent event) {
-            if (event == UserKeyEvent.KeyDown) {
-                openGripper1();
-            }
-        }
-    };
-    
-    private IUserKeyListener btnGripper1CloseListener = new IUserKeyListener() {
-        public void onKeyEvent(IUserKey key, UserKeyEvent event) {
-            if (event == UserKeyEvent.KeyDown) {
-                closeGripper1();
-            }
-        }
-    };
-    
-    private IUserKeyListener btnGripper2OpenListener = new IUserKeyListener() {
-        public void onKeyEvent(IUserKey key, UserKeyEvent event) {
-            if (event == UserKeyEvent.KeyDown) {
-                openGripper2();
-            }
-        }
-    };
-    
-    private IUserKeyListener btnGripper2CloseListener = new IUserKeyListener() {
-        public void onKeyEvent(IUserKey key, UserKeyEvent event) {
-            if (event == UserKeyEvent.KeyDown) {
-                closeGripper2();
-            }
-        }
-    };
     
     public void openGripper1() {
         gripper1IO.setClose(false);
