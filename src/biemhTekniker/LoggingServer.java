@@ -67,8 +67,8 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask {
         this.clients = new ArrayList<ClientConnection>();
         this.running = new AtomicBoolean(false);
         
-        // Initialize cyclic behavior: run every 10ms
-        initializeCyclic(0, 10, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+        // Initialize cyclic behavior: run every 1 second for periodic cleanup
+        initializeCyclic(0, 1, TimeUnit.SECONDS, CycleBehavior.BestEffort);
         
         getLogger().info("LoggingServer initialized");
     }
@@ -171,15 +171,11 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask {
     
     public void broadcastLog(String message) {
         synchronized (clients) {
-            List<ClientConnection> disconnected = new ArrayList<ClientConnection>();
             for (ClientConnection client : clients) {
-                if (!client.isConnected()) {
-                    disconnected.add(client);
-                } else {
+                if (client.isConnected()) {
                     client.sendMessage(message);
                 }
             }
-            clients.removeAll(disconnected);
         }
     }
     
