@@ -19,6 +19,7 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  * Main robot application demonstrating core architecture layers.
  * Follows KUKA Sunrise OS best practices for HMI button handling and background task management.
  */
+@SuppressWarnings("unused")
 public class Main extends RoboticsAPIApplication
 {
 
