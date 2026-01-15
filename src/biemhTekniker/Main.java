@@ -72,12 +72,12 @@ public class Main extends RoboticsAPIApplication {
 			getLogger().warn("Config files not found, using defaults: " + e.getMessage());
 		}
 		
-		// Initialize HMI buttons using correct Sunrise API
-		initializeHmiButtons();
-		
 		// Initialize gripper controller with IO dependencies
 		gripperController = new GripperController(gripper1IO, gripper2IO);
 		getLogger().info("Gripper controller initialized");
+		
+		// Initialize HMI buttons using correct Sunrise API
+		initializeHmiButtons();
 		
 		// Set up PLC request listener for MeasurementGripperController
 		// Note: mmGripperController is injected and will be auto-started by framework

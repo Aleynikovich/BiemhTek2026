@@ -28,17 +28,24 @@ Successfully implemented all core architectural layers for the KUKA LBR iiwa rob
   - Multi-client support
   - Streams robot logs to remote Telnet clients
   - Automatic disconnection cleanup
+  - Follows cyclic background task pattern (RoboticsAPICyclicBackgroundTask)
 
 ### 3. Hardware Layer
 - ✅ **HeartbeatTask** - PLC heartbeat signal
   - Toggles RobotStatus.ZRes1 every 100ms
   - Indicates robot alive status to PLC
-  - Daemon thread with clean shutdown
+  - Background task with clean shutdown
   
 - ✅ **GripperController** - Dual gripper control
   - Open/close operations for Gripper 1 & 2
   - Wait methods with timeout
   - Status query methods
+  - Constructor-based dependency injection for IO groups
+  
+- ✅ **HmiButtonHandler** - HMI button management
+  - Separates HMI logic from gripper business logic
+  - Four programmable buttons for manual gripper control
+  - Registered via getApplicationUI().createUserKeyBar()
   
 - ✅ **MeasurementGripperController** - PLC request handler
   - Monitors PLC request signals at 50ms intervals
@@ -74,6 +81,10 @@ Successfully implemented all core architectural layers for the KUKA LBR iiwa rob
 ### Concurrency ✅
 - All long-running operations in background threads
 - Non-blocking robot motion (no blocking I/O in motion path)
+- Background tasks use proper Sunrise OS lifecycle:
+  - `@Inject` for automatic task management
+  - `RoboticsAPIBackgroundTask` for simple background tasks
+  - `RoboticsAPICyclicBackgroundTask` for periodic operations
 - Thread-safe using:
   - `AtomicBoolean` for flags
   - `synchronized` blocks for collections
@@ -81,12 +92,15 @@ Successfully implemented all core architectural layers for the KUKA LBR iiwa rob
 
 ### Architecture ✅
 - Strict separation of concerns:
-  - **config**: Configuration management
+  - **Main**: Application lifecycle and HMI button initialization
+  - **HmiButtonHandler**: HMI button event handling
+  - **GripperController**: Gripper business logic
   - **communication**: TCP/IP and logging
   - **hardware**: I/O control and PLC interface
   - **common**: Shared utilities
 - No circular dependencies
 - Clean interfaces between layers
+- Constructor-based dependency injection for better testability
 
 ### PLC Integration ✅
 - Heartbeat signal for liveness indication
@@ -115,7 +129,7 @@ Successfully implemented all core architectural layers for the KUKA LBR iiwa rob
 
 ## Files Created/Modified
 
-### New Files (14 total)
+### New Files (15 total)
 ```
 src/
 ├── common/
@@ -129,9 +143,11 @@ src/
 ├── hardware/
 │   ├── HeartbeatTask.java
 │   ├── GripperController.java
+│   ├── HmiButtonHandler.java (NEW)
 │   └── MeasurementGripperController.java
 ├── application/
-│   └── CoreLayersExample.java
+│   ├── CoreLayersExample.java
+│   └── Main.java (UPDATED)
 └── README.md
 
 configs/
@@ -192,9 +208,19 @@ The following values need to be customized for your setup:
 - **Gripper Control**: Uses Gripper1/Gripper2 I/O groups
 - **PLC Requests**: Uses PlcRequestsGrippers I/O group
 
+### Architectural Improvements (Jan 2026)
+The implementation has been updated to match KUKA Sunrise OS best practices:
+
+1. **HMI Button Pattern**: Now uses `getApplicationUI().createUserKeyBar()` in main application class
+2. **Background Task Lifecycle**: Removed invalid `initAndStartTask()` calls; tasks are now properly injected
+3. **Separation of Concerns**: Created dedicated `HmiButtonHandler` class separate from gripper business logic
+4. **Dependency Injection**: `GripperController` now uses constructor-based injection instead of field injection
+5. **Cyclic Task Pattern**: `LoggingServer` now extends `RoboticsAPICyclicBackgroundTask` with proper lifecycle
+
+These changes align with the reference implementation patterns from iiwaTOFAS repository.
+
 ### Future Enhancements
 While not implemented in this bootstrap task, the architecture supports:
-- HMI button integration (using IApplicationData.getUserKeyBar())
 - Retry logic for vision communication
 - Health monitoring for background tasks
 - Additional configuration files for other subsystems
