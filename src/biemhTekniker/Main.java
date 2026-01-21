@@ -1,5 +1,7 @@
 package biemhTekniker;
 
+import biemhTekniker.logger.LogCollector;
+import biemhTekniker.logger.LogManager;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import javax.inject.Inject;
@@ -14,22 +16,18 @@ public class Main extends RoboticsAPIApplication
     @Override
     public void initialize()
     {
+        LogCollector _logCollector = new LogCollector();
+        LogManager.register(_logCollector);
 
     }
 
     @Override
     public void run()
     {
-    	while(true)
-    	{
-    		try {
-    			getLogger().info("testin");
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
+        while (true)
+        {
+
+        }
     }
 
     @Override
