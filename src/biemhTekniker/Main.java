@@ -282,19 +282,7 @@ public class Main extends RoboticsAPIApplication
         public void stop()
         {
             running = false;
-            // Close socket first to interrupt blocking readLine()
-            // This is critical: closing socket before reader unblocks the read operation
-            // The reader will be closed by closeConnection() in the finally block after readLine() throws IOException
-            try
-            {
-                if (socket != null && !socket.isClosed())
-                {
-                    socket.close();
-                }
-            } catch (IOException e)
-            {
-                // Ignore - we're shutting down anyway
-            }
+            closeConnection();
         }
 
         private void closeConnection()

@@ -105,6 +105,8 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask implements Lo
         try
         {
             // Process messages from queue and broadcast to all clients
+            // 10ms timeout provides good responsiveness for real-time robot logging
+            // while keeping CPU usage acceptable (matches hartu reference implementation)
             String message = messageQueue.poll(10, TimeUnit.MILLISECONDS);
             if (message != null && !connectedClients.isEmpty())
             {
@@ -126,6 +128,9 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask implements Lo
      */
     private void broadcastToClients(String message)
     {
+        // Collect clients to remove to avoid ConcurrentModificationException
+        java.util.List<String> clientsToRemove = new java.util.ArrayList<String>();
+        
         for (Map.Entry<String, LogClientConnection> entry : connectedClients.entrySet())
         {
             String clientId = entry.getKey();
@@ -141,29 +146,34 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask implements Lo
                     // Check if write failed
                     if (connection.getWriter().checkError())
                     {
-                        closeClientConnection(clientId, connection);
+                        clientsToRemove.add(clientId);
                     }
                 } catch (Exception e)
                 {
-                    closeClientConnection(clientId, connection);
+                    clientsToRemove.add(clientId);
                 }
             } else
             {
-                closeClientConnection(clientId, connection);
+                clientsToRemove.add(clientId);
             }
         }
-    }
-
-    private void closeClientConnection(String clientId, LogClientConnection connection)
-    {
-        try
+        
+        // Remove disconnected clients
+        for (String clientId : clientsToRemove)
         {
-            connection.close();
-            connectedClients.remove(clientId);
-            CentralLogger.getInstance().debug("LOG_SRV", "Client disconnected: " + clientId);
-        } catch (IOException e)
-        {
-            CentralLogger.getInstance().error("LOG_SRV", "Error closing connection for " + clientId + ": " + e.getMessage());
+            LogClientConnection connection = connectedClients.get(clientId);
+            if (connection != null)
+            {
+                try
+                {
+                    connection.close();
+                    connectedClients.remove(clientId);
+                    CentralLogger.getInstance().debug("LOG_SRV", "Client disconnected: " + clientId);
+                } catch (IOException e)
+                {
+                    CentralLogger.getInstance().error("LOG_SRV", "Error closing connection for " + clientId + ": " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -223,10 +233,13 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask implements Lo
     {
         // Add message to queue for broadcasting
         // Non-blocking - if queue is full, drop oldest messages
-        if (!messageQueue.offer(formattedMessage))
+        boolean offered = messageQueue.offer(formattedMessage);
+        if (!offered)
         {
-            // Queue full - remove oldest and try again
+            // Queue full - try to make space by removing oldest message
+            // then attempt to add the new message. If this still fails, message is lost.
             messageQueue.poll();
+            // Try again - if this fails, the message is dropped (better than blocking)
             messageQueue.offer(formattedMessage);
         }
     }
