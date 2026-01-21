@@ -19,7 +19,7 @@ public class ConfigManager
     {
         this.robotConfig = new Properties();
         this.plcConfig = new Properties();
-        this.configBasePath = "C:/KRC/Projects/BiemhTek2026/configs";
+        this.configBasePath = "C:/KRC/Projects/BiemhTek2026/configs/";
     }
 
     public static synchronized ConfigManager getInstance()

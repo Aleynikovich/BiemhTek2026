@@ -57,7 +57,7 @@ public class Main extends RoboticsAPIApplication
         getLogger().info("Initializing core architecture...");
 
         config = ConfigManager.getInstance();
-        config.setConfigBasePath("/home/KRC/configs/");
+        config.setConfigBasePath("C:/KRC/Projects/BiemhTek2026/configs/");
 
         try
         {
