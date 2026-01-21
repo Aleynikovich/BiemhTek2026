@@ -3,6 +3,7 @@ package biemhTekniker;
 import biemhTekniker.logger.LogCollector;
 import biemhTekniker.logger.LogManager;
 import biemhTekniker.logger.LogPublisher;
+import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -18,16 +19,11 @@ public class Main extends RoboticsAPIApplication
 
     private LogCollector _logCollector;
     private LogPublisher _logPublisher;
-
+    private static final Logger log = Logger.getLogger(Main.class);
     @Override
     public void initialize()
     {
-        _logCollector = new LogCollector();
-        LogManager.register(_logCollector);
-
-
-        _logPublisher = new LogPublisher(_logCollector);
-        _logPublisher.start();
+        initializeLogging();
 
 
     }
@@ -46,6 +42,25 @@ public class Main extends RoboticsAPIApplication
     {
         if (_logPublisher != null) _logPublisher.stop();
         super.dispose();
+    }
+
+    public void initializeLogging()
+    {
+        try
+        {
+            _logCollector = new LogCollector();
+            LogManager.register(_logCollector);
+
+            _logPublisher = new LogPublisher(_logCollector);
+            _logPublisher.start();
+
+            log.info("Logging initialized");
+
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

@@ -41,7 +41,6 @@ public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
     {
         try
         {
-
             Socket ConsoleClient = serverSocket.accept();
         }
         catch (IOException e)
@@ -56,6 +55,7 @@ public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
         try
         {
             serverSocket.close();
+            log.info("Server closed on port " + PORT);
         } catch (IOException e)
         {
             throw new RuntimeException(e);
