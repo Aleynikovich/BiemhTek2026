@@ -23,7 +23,7 @@ public class Main extends RoboticsAPIApplication
     	while(true)
     	{
     		try {
-    			getLogger().info("Server started on port 30001");
+    			getLogger().info("testin");
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
