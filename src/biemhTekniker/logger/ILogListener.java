@@ -2,5 +2,5 @@ package biemhTekniker.logger;
 
 public interface ILogListener
 {
-    void onNewLog(String message);
+    void onNewLog(LogEntry entry);
 }

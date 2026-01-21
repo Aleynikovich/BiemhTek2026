@@ -12,11 +12,11 @@ public class NetworkListener implements ILogListener
     }
 
     @Override
-    public void onNewLog(String message)
+    public void onNewLog(LogEntry entry)
     {
         if (_out != null)
         {
-            _out.println(message);
+            _out.println(entry);
         }
     }
 }

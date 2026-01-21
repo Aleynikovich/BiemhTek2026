@@ -6,6 +6,7 @@ import biemhTekniker.logger.LogPublisher;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+
 import javax.inject.Inject;
 
 
@@ -24,8 +25,10 @@ public class Main extends RoboticsAPIApplication
         _logCollector = new LogCollector();
         LogManager.register(_logCollector);
 
+
         _logPublisher = new LogPublisher(_logCollector);
         _logPublisher.start();
+
 
     }
 

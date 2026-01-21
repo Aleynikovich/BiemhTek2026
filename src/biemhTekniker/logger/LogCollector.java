@@ -4,16 +4,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LogCollector implements ILogListener
 {
-    private final ConcurrentLinkedQueue<String> messages = new ConcurrentLinkedQueue<String>();
+    private final ConcurrentLinkedQueue<LogEntry> entries = new ConcurrentLinkedQueue<LogEntry>();
 
     @Override
-    public void onNewLog(String message)
+    public void onNewLog(LogEntry entry)
     {
-        messages.add(message);
+        entries.add(entry);
     }
 
-    public String pollMessage()
+    public LogEntry pollMessage()
     {
-        return messages.poll();
+        return entries.poll();
     }
 }

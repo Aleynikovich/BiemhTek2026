@@ -7,13 +7,14 @@ public class LogManager
 {
     private static final List<ILogListener> listeners = new CopyOnWriteArrayList<ILogListener>();
 
-    public static void broadcast(String message)
+    public static void broadcast(LogEntry entry)
     {
         for (ILogListener listener : listeners)
         {
-            listener.onNewLog(message);
+            listener.onNewLog(entry);
         }
     }
+
 
     public static void register(ILogListener listener)
     {

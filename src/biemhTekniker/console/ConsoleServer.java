@@ -2,14 +2,13 @@ package biemhTekniker.console;
 
 
 import biemhTekniker.logger.LogManager;
+import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 **/
 public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
 {
-
+    private static final Logger log = Logger.getLogger(ConsoleServer.class);
     private ServerSocket serverSocket;
     private final int PORT = 30001;
     @Override
@@ -29,7 +28,7 @@ public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
         {
             serverSocket = new ServerSocket(PORT);
             serverSocket.setSoTimeout(10);
-            getLogger().info("Server started on port 30001");
+            log.info("Server listening on port " + PORT);
         }
         catch (IOException e)
         {
@@ -42,7 +41,7 @@ public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
     {
         try
         {
-            LogManager.broadcast("Background Heartbeat at: " + System.currentTimeMillis());
+
             Socket ConsoleClient = serverSocket.accept();
         }
         catch (IOException e)
