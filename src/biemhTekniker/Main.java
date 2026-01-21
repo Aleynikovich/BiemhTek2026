@@ -11,9 +11,6 @@ public class Main extends RoboticsAPIApplication
     @Inject
     private LBR iiwa;
 
-    private ConfigManager config;
-    private Thread consoleClientThread;
-
     @Override
     public void initialize()
     {
