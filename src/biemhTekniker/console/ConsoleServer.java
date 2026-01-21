@@ -1,6 +1,7 @@
 package biemhTekniker.console;
 
 
+import biemhTekniker.logger.LogManager;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 
@@ -41,6 +42,7 @@ public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
     {
         try
         {
+            LogManager.broadcast("Background Heartbeat at: " + System.currentTimeMillis());
             Socket ConsoleClient = serverSocket.accept();
         }
         catch (IOException e)
