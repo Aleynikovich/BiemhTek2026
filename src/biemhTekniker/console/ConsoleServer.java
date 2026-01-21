@@ -52,7 +52,13 @@ public class ConsoleServer extends RoboticsAPICyclicBackgroundTask
     @Override
     public void dispose()
     {
-
+        try
+        {
+            serverSocket.close();
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
         super.dispose();
     }
 }
