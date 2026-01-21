@@ -118,18 +118,18 @@ public class Main extends RoboticsAPIApplication
 
         // Configure and connect vision client
         // Note: visionClient is injected and will be auto-started by framework
-        String visionIp = config.getRobotProperty("vision.ip", "172.31.1.69");
-        int visionPort = config.getRobotPropertyInt("vision.port", 59002);
-        String delimiter = config.getRobotProperty("vision.delimiter", ",");
-        visionClient.setConnectionParams(visionIp, visionPort, delimiter);
-        try
-        {
-            visionClient.connect();
-            CentralLogger.getInstance().info("MAIN", "Vision client connected");
-        } catch (IOException e)
-        {
-            CentralLogger.getInstance().error("MAIN", "Failed to connect to vision: " + e.getMessage());
-        }
+        //String visionIp = config.getRobotProperty("vision.ip", "172.31.1.69");
+        //int visionPort = config.getRobotPropertyInt("vision.port", 59002);
+        //String delimiter = config.getRobotProperty("vision.delimiter", ",");
+        //visionClient.setConnectionParams(visionIp, visionPort, delimiter);
+        //try
+        //{
+        //    visionClient.connect();
+        //    CentralLogger.getInstance().info("MAIN", "Vision client connected");
+        //} catch (IOException e)
+        //{
+        //    CentralLogger.getInstance().error("MAIN", "Failed to connect to vision: " + e.getMessage());
+        //}
 
         CentralLogger.getInstance().info("MAIN", "Core architecture initialized");
     }

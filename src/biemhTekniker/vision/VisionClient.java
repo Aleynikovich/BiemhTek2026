@@ -1,5 +1,6 @@
 package biemhTekniker.vision;
 
+import biemhTekniker.ConfigManager;
 import biemhTekniker.logger.CentralLogger;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
 
@@ -31,6 +32,8 @@ public class VisionClient extends RoboticsAPIBackgroundTask
 
     private VisionFrame latestFrame;
     private String latestRawData;
+
+    private ConfigManager config;
 
     public void setConnectionParams(String serverIp, int serverPort, String delimiter)
     {
