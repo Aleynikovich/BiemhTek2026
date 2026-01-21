@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<SamConfigurationTypes>
+<SamConfigurationTypes xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <AMFs>
     <AMF Id="1" Name="E_AMF_TYPE_ALWAYS_VIOLATED" NumInstances="1" Extended="false">
       <Parameters />

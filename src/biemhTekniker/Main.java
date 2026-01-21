@@ -6,7 +6,7 @@ import biemhTekniker.IO.MeasurementGripperController;
 import biemhTekniker.IO.MeasurementGripperController.PlcRequestListener;
 import biemhTekniker.logger.CentralLogger;
 import biemhTekniker.logger.LoggingServer;
-import biemhTekniker.vision.VisionClient;
+//import biemhTekniker.vision.VisionClient;
 import com.kuka.generated.ioAccess.Gripper1IOGroup;
 import com.kuka.generated.ioAccess.Gripper2IOGroup;
 import com.kuka.generated.ioAccess.PlcRequestsGrippersIOGroup;
@@ -51,8 +51,8 @@ public class Main extends RoboticsAPIApplication
     private PlcRequestsGrippersIOGroup plcRequestsIO;
     @Inject
     private LoggingServer logServer;
-    @Inject
-    private VisionClient visionClient;
+    //@Inject
+    //private VisionClient visionClient;
     @Inject
     private MeasurementGripperController mmGripperController;
 
@@ -183,10 +183,6 @@ public class Main extends RoboticsAPIApplication
     {
         CentralLogger.getInstance().info("MAIN", "Disposing core architecture...");
 
-        if (visionClient != null)
-        {
-            visionClient.disconnect();
-        }
 
         // Stop robot console client
         if (consoleClient != null)
