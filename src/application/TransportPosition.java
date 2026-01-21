@@ -7,33 +7,34 @@ import com.kuka.roboticsAPI.uiModel.ApplicationDialogType;
 
 import javax.inject.Inject;
 
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
-public class TransportPosition extends RoboticsAPIApplication {
-	@Inject
-	private LBR lbr;
-	
-	private final static String informationText=
-         "This application is intended for floor mounted robots!"+ "\n" +
-			"\n" +
-			"The robot moves to the transportation position.";
+public class TransportPosition extends RoboticsAPIApplication
+{
+    private final static String informationText =
+            "This application is intended for floor mounted robots!" + "\n" +
+                    "\n" +
+                    "The robot moves to the transportation position.";
+    @Inject
+    private LBR lbr;
 
-	public void initialize() 
-	{
-	}
+    public void initialize()
+    {
+    }
 
-	public void run() {
-		getLogger().info("Show modal dialog and wait for user to confirm");
+    public void run()
+    {
+        getLogger().info("Show modal dialog and wait for user to confirm");
         int isCancel = getApplicationUI().displayModalDialog(ApplicationDialogType.QUESTION, informationText, "OK", "Cancel");
         if (isCancel == 1)
         {
             return;
         }
 
-		getLogger().info("Move to the transport position");
-		PTP ptpToTransportPosition = ptp(0, Math.toRadians(25), 0, Math.toRadians(90), 0, 0, 0);
-		ptpToTransportPosition.setJointVelocityRel(0.25);
-		lbr.move(ptpToTransportPosition);
-	}
+        getLogger().info("Move to the transport position");
+        PTP ptpToTransportPosition = ptp(0, Math.toRadians(25), 0, Math.toRadians(90), 0, 0, 0);
+        ptpToTransportPosition.setJointVelocityRel(0.25);
+        lbr.move(ptpToTransportPosition);
+    }
 
 }
