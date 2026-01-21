@@ -1,5 +1,6 @@
 package biemhTekniker.IO;
 
+import biemhTekniker.logger.CentralLogger;
 import com.kuka.generated.ioAccess.PlcRequestsGrippersIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
 
@@ -8,6 +9,7 @@ import javax.inject.Inject;
 /**
  * Controller for Measurement Machine gripper via PLC requests.
  * PLC is the cell master - all operations are gated by handshake.
+ * Uses CentralLogger for logging as background tasks cannot write to robot console directly.
  */
 public class MeasurementGripperController extends RoboticsAPIBackgroundTask
 {
@@ -26,7 +28,7 @@ public class MeasurementGripperController extends RoboticsAPIBackgroundTask
     @Override
     public void initialize()
     {
-        getLogger().info("MeasurementGripperController initialized");
+        CentralLogger.getInstance().info("MM_GRIPPER", "MeasurementGripperController initialized");
     }
 
     @Override
@@ -37,7 +39,7 @@ public class MeasurementGripperController extends RoboticsAPIBackgroundTask
         boolean prevGripper2Open = false;
         boolean prevGripper2Close = false;
 
-        getLogger().info("MeasurementGripperController started monitoring PLC requests");
+        CentralLogger.getInstance().info("MM_GRIPPER", "MeasurementGripperController started monitoring PLC requests");
 
         while (!Thread.currentThread().isInterrupted())
         {
@@ -51,25 +53,25 @@ public class MeasurementGripperController extends RoboticsAPIBackgroundTask
                 // Detect rising edges
                 if (g1Open && !prevGripper1Open && listener != null)
                 {
-                    getLogger().info("PLC Request: Gripper 1 OPEN");
+                    CentralLogger.getInstance().info("MM_GRIPPER", "PLC Request: Gripper 1 OPEN");
                     listener.onGripper1OpenRequest();
                 }
 
                 if (g1Close && !prevGripper1Close && listener != null)
                 {
-                    getLogger().info("PLC Request: Gripper 1 CLOSE");
+                    CentralLogger.getInstance().info("MM_GRIPPER", "PLC Request: Gripper 1 CLOSE");
                     listener.onGripper1CloseRequest();
                 }
 
                 if (g2Open && !prevGripper2Open && listener != null)
                 {
-                    getLogger().info("PLC Request: Gripper 2 OPEN");
+                    CentralLogger.getInstance().info("MM_GRIPPER", "PLC Request: Gripper 2 OPEN");
                     listener.onGripper2OpenRequest();
                 }
 
                 if (g2Close && !prevGripper2Close && listener != null)
                 {
-                    getLogger().info("PLC Request: Gripper 2 CLOSE");
+                    CentralLogger.getInstance().info("MM_GRIPPER", "PLC Request: Gripper 2 CLOSE");
                     listener.onGripper2CloseRequest();
                 }
 
@@ -82,15 +84,15 @@ public class MeasurementGripperController extends RoboticsAPIBackgroundTask
 
             } catch (InterruptedException e)
             {
-                getLogger().info("MeasurementGripperController interrupted, stopping");
+                CentralLogger.getInstance().info("MM_GRIPPER", "MeasurementGripperController interrupted, stopping");
                 break;
             } catch (Exception e)
             {
-                getLogger().error("MeasurementGripperController error: " + e.getMessage());
+                CentralLogger.getInstance().error("MM_GRIPPER", "MeasurementGripperController error: " + e.getMessage());
             }
         }
 
-        getLogger().info("MeasurementGripperController stopped");
+        CentralLogger.getInstance().info("MM_GRIPPER", "MeasurementGripperController stopped");
     }
 
     public boolean isGripper1OpenRequested()

@@ -7,136 +7,201 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Cyclic background task that runs a ServerSocket to stream robot logs to remote Telnet clients.
- * Follows KUKA best practices for cyclic background task design.
- * Socket listener runs in a daemon thread; message broadcasting happens in runCyclic.
+ * Centralized logging server that broadcasts log messages to all connected network clients.
+ * Runs as a cyclic background task and listens on port 30002.
+ * Implements LogHandler to receive messages from the central Logger singleton.
+ * <p>
+ * Architecture:
+ * - CentralLogger sends messages to this server via a queue
+ * - Server broadcasts to all connected network clients (Python log clients, etc.)
+ * - Main.java RobotConsoleClient connects as a client to receive logs for robot console output
+ * <p>
+ * This design allows:
+ * - All tasks (background and foreground) to log centrally
+ * - Robot console to display all logs (via Main's println)
+ * - Multiple network clients to receive logs simultaneously
  */
-public class LoggingServer extends RoboticsAPICyclicBackgroundTask
+public class LoggingServer extends RoboticsAPICyclicBackgroundTask implements LogHandler
 {
-
+    private static final int LOG_PORT = 30002;
+    private static final int QUEUE_CAPACITY = 10000; // Large queue to prevent message loss
+    private final Map<String, LogClientConnection> connectedClients = new ConcurrentHashMap<String, LogClientConnection>();
+    private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<String>(QUEUE_CAPACITY);
     private ServerSocket serverSocket;
-    private List<ClientConnection> clients;
-    private AtomicBoolean running;
-    private int port;
     private Thread listenerThread;
-
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
+    private volatile boolean isRunning = false;
+    private int clientCounter = 0;
 
     @Override
     public void initialize()
     {
-        this.clients = new ArrayList<ClientConnection>();
-        this.running = new AtomicBoolean(false);
+        initializeCyclic(0, 10, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
 
-        // Initialize cyclic behavior: run every 1 second for periodic cleanup
-        initializeCyclic(0, 1, TimeUnit.SECONDS, CycleBehavior.BestEffort);
+        // Register this server as a log handler so CentralLogger sends messages here
+        CentralLogger.getInstance().addHandler(this);
 
-        getLogger().info("LoggingServer initialized");
-    }
-
-    public void startServer() throws IOException
-    {
-        if (running.get())
-        {
-            return;
-        }
-
-        serverSocket = new ServerSocket(port);
-        running.set(true);
-
-        // Start listener thread in daemon mode
+        // Start server listener in a separate thread
         listenerThread = new Thread(new Runnable()
         {
             public void run()
             {
-                acceptClientConnections();
+                try
+                {
+                    serverSocket = new ServerSocket(LOG_PORT);
+                    isRunning = true;
+                    // Log via CentralLogger so it goes through the central logging system
+                    CentralLogger.getInstance().debug("LOG_SRV", "Started on port " + LOG_PORT);
+
+                    while (isRunning && !Thread.currentThread().isInterrupted())
+                    {
+                        try
+                        {
+                            Socket clientSocket = serverSocket.accept();
+                            String clientIp = clientSocket.getInetAddress().getHostAddress();
+                            String clientId = "LogClient-" + (++clientCounter);
+
+                            // Log via CentralLogger
+                            CentralLogger.getInstance().debug("LOG_SRV", "New client connected: " + clientId + " (" + clientIp + ")");
+
+                            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+                            LogClientConnection connection = new LogClientConnection(clientSocket, writer, clientId);
+                            connectedClients.put(clientId, connection);
+
+                            // Send welcome message
+                            writer.println("*** KUKA Robot Logging Server ***");
+                        } catch (IOException e)
+                        {
+                            if (isRunning)
+                            {
+                                // Log via CentralLogger
+                                CentralLogger.getInstance().error("LOG_SRV", "Error accepting client: " + e.getMessage());
+                            }
+                        }
+                    }
+                } catch (IOException e)
+                {
+                    // Log via CentralLogger
+                    CentralLogger.getInstance().error("LOG_SRV", "Error starting server: " + e.getMessage());
+                }
             }
         });
         listenerThread.setDaemon(true);
         listenerThread.start();
 
-        getLogger().info("LoggingServer started on port " + port);
-    }
-
-    /**
-     * Accepts client connections in a background daemon thread.
-     * This method runs continuously until the server is stopped.
-     */
-    private void acceptClientConnections()
-    {
-        getLogger().info("LoggingServer listener thread started");
-
-        while (running.get() && !Thread.currentThread().isInterrupted())
-        {
-            try
-            {
-                Socket clientSocket = serverSocket.accept();
-                ClientConnection client = new ClientConnection(clientSocket);
-
-                synchronized (clients)
-                {
-                    clients.add(client);
-                }
-
-                getLogger().info("Logging client connected from " + clientSocket.getInetAddress());
-                client.sendMessage("*** KUKA Robot Logging Server ***");
-
-            } catch (IOException e)
-            {
-                if (running.get())
-                {
-                    getLogger().warn("Error accepting client connection: " + e.getMessage());
-                }
-            }
-        }
-
-        getLogger().info("LoggingServer listener thread stopped");
+        // Log via CentralLogger
+        CentralLogger.getInstance().debug("LOG_SRV", "Initialized successfully");
     }
 
     @Override
     public void runCyclic()
     {
-        // Periodic cleanup of disconnected clients
-        synchronized (clients)
+        try
         {
-            List<ClientConnection> disconnected = new ArrayList<ClientConnection>();
-            for (ClientConnection client : clients)
+            // Process messages from queue and broadcast to all clients
+            // 10ms timeout provides good responsiveness for real-time robot logging
+            // while keeping CPU usage acceptable (matches hartu reference implementation)
+            String message = messageQueue.poll(10, TimeUnit.MILLISECONDS);
+            if (message != null && !connectedClients.isEmpty())
             {
-                if (!client.isConnected())
-                {
-                    disconnected.add(client);
-                }
+                broadcastToClients(message);
             }
-            for (ClientConnection client : disconnected)
+        } catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        } catch (Exception e)
+        {
+            // Catch any unexpected errors to prevent the cyclic task from stopping
+            CentralLogger.getInstance().error("LOG_SRV", "Error in runCyclic: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Broadcasts a message to all connected clients.
+     * Removes disconnected clients automatically.
+     */
+    private void broadcastToClients(String message)
+    {
+        // Collect clients to remove to avoid ConcurrentModificationException
+        java.util.List<String> clientsToRemove = new java.util.ArrayList<String>();
+        
+        for (Map.Entry<String, LogClientConnection> entry : connectedClients.entrySet())
+        {
+            String clientId = entry.getKey();
+            LogClientConnection connection = entry.getValue();
+
+            if (connection.isConnected())
             {
-                client.close();
-                clients.remove(client);
+                try
+                {
+                    connection.getWriter().println(message);
+                    connection.getWriter().flush();
+
+                    // Check if write failed
+                    if (connection.getWriter().checkError())
+                    {
+                        clientsToRemove.add(clientId);
+                    }
+                } catch (Exception e)
+                {
+                    clientsToRemove.add(clientId);
+                }
+            } else
+            {
+                clientsToRemove.add(clientId);
+            }
+        }
+        
+        // Remove disconnected clients
+        for (String clientId : clientsToRemove)
+        {
+            LogClientConnection connection = connectedClients.get(clientId);
+            if (connection != null)
+            {
+                try
+                {
+                    connection.close();
+                    connectedClients.remove(clientId);
+                    CentralLogger.getInstance().debug("LOG_SRV", "Client disconnected: " + clientId);
+                } catch (IOException e)
+                {
+                    CentralLogger.getInstance().error("LOG_SRV", "Error closing connection for " + clientId + ": " + e.getMessage());
+                }
             }
         }
     }
 
-    public void stopServer()
+    @Override
+    public void dispose()
     {
-        running.set(false);
+        super.dispose();
 
-        synchronized (clients)
+        isRunning = false;
+
+        // Remove this handler from CentralLogger
+        CentralLogger.getInstance().removeHandler(this);
+
+        // Close all client connections
+        for (Map.Entry<String, LogClientConnection> entry : connectedClients.entrySet())
         {
-            for (ClientConnection client : clients)
+            LogClientConnection connection = entry.getValue();
+            try
             {
-                client.close();
+                connection.close();
+            } catch (IOException e)
+            {
+                // Can't log during dispose as we've removed ourselves from CentralLogger
             }
-            clients.clear();
         }
+        connectedClients.clear();
 
+        // Close server socket
         if (serverSocket != null && !serverSocket.isClosed())
         {
             try
@@ -144,7 +209,7 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask
                 serverSocket.close();
             } catch (IOException e)
             {
-                getLogger().warn("Error closing server socket: " + e.getMessage());
+                // Can't log during dispose
             }
         }
 
@@ -159,84 +224,73 @@ public class LoggingServer extends RoboticsAPICyclicBackgroundTask
                 Thread.currentThread().interrupt();
             }
         }
-
-        getLogger().info("LoggingServer stopped");
     }
 
-    public void broadcastLog(String message)
+    // LogHandler implementation
+
+    @Override
+    public void sendMessage(String formattedMessage)
     {
-        synchronized (clients)
+        // Add message to queue for broadcasting
+        // Non-blocking - if queue is full, drop oldest messages
+        boolean offered = messageQueue.offer(formattedMessage);
+        if (!offered)
         {
-            for (ClientConnection client : clients)
-            {
-                if (client.isConnected())
-                {
-                    client.sendMessage(message);
-                }
-            }
+            // Queue full - try to make space by removing oldest message
+            // then attempt to add the new message. If this still fails, message is lost.
+            messageQueue.poll();
+            // Try again - if this fails, the message is dropped (better than blocking)
+            messageQueue.offer(formattedMessage);
         }
-    }
-
-    public int getClientCount()
-    {
-        synchronized (clients)
-        {
-            return clients.size();
-        }
-    }
-
-    public boolean isRunning()
-    {
-        return running.get();
     }
 
     @Override
-    public void dispose()
+    public boolean isActive()
     {
-        stopServer();
-        super.dispose();
+        return isRunning;
     }
 
-    private class ClientConnection
+    @Override
+    public void close()
     {
-        Socket socket;
-        PrintWriter writer;
+        // Called when removed from CentralLogger
+        isRunning = false;
+    }
 
-        ClientConnection(Socket socket) throws IOException
+    /**
+     * Inner class to represent a log client connection
+     */
+    private static class LogClientConnection
+    {
+        private final Socket socket;
+        private final PrintWriter writer;
+
+        public LogClientConnection(Socket socket, PrintWriter writer, String clientId)
         {
             this.socket = socket;
-            this.writer = new PrintWriter(socket.getOutputStream(), true);
+            this.writer = writer;
         }
 
-        void sendMessage(String message)
+        public PrintWriter getWriter()
         {
-            if (writer != null && !socket.isClosed())
-            {
-                writer.println(message);
-            }
+            return writer;
         }
 
-        void close()
-        {
-            try
-            {
-                if (writer != null)
-                {
-                    writer.close();
-                }
-                if (socket != null && !socket.isClosed())
-                {
-                    socket.close();
-                }
-            } catch (IOException e)
-            {
-                // Ignore close errors
-            }
-        }
-
-        boolean isConnected()
+        public boolean isConnected()
         {
             return socket != null && socket.isConnected() && !socket.isClosed();
+        }
+
+        public void close() throws IOException
+        {
+            if (writer != null)
+            {
+                writer.close();
+            }
+            if (socket != null && !socket.isClosed())
+            {
+                socket.close();
+            }
         }
     }
 }

@@ -217,6 +217,40 @@ The implementation has been updated to match KUKA Sunrise OS best practices:
 4. **Dependency Injection**: `GripperController` now uses constructor-based injection instead of field injection
 5. **Cyclic Task Pattern**: `LoggingServer` now extends `RoboticsAPICyclicBackgroundTask` with proper lifecycle
 
+#### Central Logging Architecture (Jan 21, 2026)
+The logging system has been completely refactored to follow the hartu reference architecture:
+
+**Problem**: In KUKA API, only the main foreground application (RoboticsAPIApplication) can write to the robot console via `getLogger()`. Background tasks calling `getLogger()` cannot output to the robot console.
+
+**Solution**: Implemented a central logging architecture with handler pattern:
+- **CentralLogger**: Singleton logger that collects logs from all components (both foreground and background)
+- **LogHandler Interface**: Abstraction for different log destinations (console, network, file)
+- **LogLevel Enum**: Priority-based filtering (CRITICAL, HIGH, MEDIUM, LOW, DEBUG)
+- **LoggingServer**: RoboticsAPICyclicBackgroundTask that implements LogHandler, broadcasts to network clients
+- **RobotConsoleClient**: Inner class in Main.java that connects to LoggingServer and uses `println()` to write to robot console
+
+**Architecture Flow**:
+```
+Background Task --> CentralLogger --> LoggingServer (port 30002)
+                                           |
+                                           +--> Network Clients (Python, Telnet)
+                                           |
+                                           +--> RobotConsoleClient --> println() --> Robot Console
+```
+
+**Benefits**:
+- All tasks (background and foreground) can log centrally
+- Robot console displays all logs from all tasks
+- Multiple network clients can receive logs simultaneously
+- Priority-based filtering reduces console noise
+- Thread-safe implementation for concurrent logging
+
+**Updated Components**:
+- `Main.java`: Added RobotConsoleClient to receive and print logs to console
+- `VisionClient.java`: Updated to use CentralLogger instead of getLogger()
+- `MeasurementGripperController.java`: Updated to use CentralLogger
+- `LoggingServer.java`: Refactored to implement LogHandler pattern
+
 These changes align with the reference implementation patterns from iiwaTOFAS repository.
 
 ### Future Enhancements

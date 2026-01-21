@@ -1,5 +1,6 @@
 package biemhTekniker.vision;
 
+import biemhTekniker.logger.CentralLogger;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
 
 import java.io.BufferedReader;
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Background TCP client for vision system communication.
  * Connects to vision system and continuously reads incoming frames.
+ * Uses CentralLogger for logging as background tasks cannot write to robot console directly.
  */
 public class VisionClient extends RoboticsAPIBackgroundTask
 {
@@ -43,14 +45,14 @@ public class VisionClient extends RoboticsAPIBackgroundTask
         this.connected = new AtomicBoolean(false);
         this.dataAvailable = new AtomicBoolean(false);
         this.latestFrame = new VisionFrame();
-        getLogger().info("VisionClient initialized");
+        CentralLogger.getInstance().info("VISION", "VisionClient initialized");
     }
 
     public void connect() throws IOException
     {
         if (connected.get())
         {
-            getLogger().warn("VisionClient already connected");
+            CentralLogger.getInstance().warn("VISION", "VisionClient already connected");
             return;
         }
 
@@ -59,7 +61,7 @@ public class VisionClient extends RoboticsAPIBackgroundTask
         writer = new DataOutputStream(clientSocket.getOutputStream());
 
         connected.set(true);
-        getLogger().info("VisionClient connected to " + serverIp + ":" + serverPort);
+        CentralLogger.getInstance().info("VISION", "VisionClient connected to " + serverIp + ":" + serverPort);
     }
 
     public void disconnect()
@@ -82,10 +84,10 @@ public class VisionClient extends RoboticsAPIBackgroundTask
             }
         } catch (IOException e)
         {
-            getLogger().warn("Error closing connection: " + e.getMessage());
+            CentralLogger.getInstance().warn("VISION", "Error closing connection: " + e.getMessage());
         }
 
-        getLogger().info("VisionClient disconnected");
+        CentralLogger.getInstance().info("VISION", "VisionClient disconnected");
     }
 
     public void sendData(String data) throws IOException
@@ -97,7 +99,7 @@ public class VisionClient extends RoboticsAPIBackgroundTask
 
         writer.writeBytes(data + "\n");
         writer.flush();
-        getLogger().info("Sent to vision: " + data);
+        CentralLogger.getInstance().info("VISION", "Sent to vision: " + data);
     }
 
     public void sendDataInt(int value) throws IOException
@@ -108,7 +110,7 @@ public class VisionClient extends RoboticsAPIBackgroundTask
     @Override
     public void run()
     {
-        getLogger().info("VisionClient background task started");
+        CentralLogger.getInstance().info("VISION", "VisionClient background task started");
 
         while (!Thread.currentThread().isInterrupted() && connected.get())
         {
@@ -127,10 +129,10 @@ public class VisionClient extends RoboticsAPIBackgroundTask
                         {
                             latestFrame = frame;
                             dataAvailable.set(true);
-                            getLogger().info("Vision data received: " + frame);
+                            CentralLogger.getInstance().info("VISION", "Vision data received: " + frame);
                         } else
                         {
-                            getLogger().warn("Failed to parse vision data: " + line);
+                            CentralLogger.getInstance().warn("VISION", "Failed to parse vision data: " + line);
                         }
                     }
                 }
@@ -141,7 +143,7 @@ public class VisionClient extends RoboticsAPIBackgroundTask
             {
                 if (connected.get())
                 {
-                    getLogger().error("Vision read error: " + e.getMessage());
+                    CentralLogger.getInstance().error("VISION", "Vision read error: " + e.getMessage());
                     connected.set(false);
                 }
                 break;
@@ -151,7 +153,7 @@ public class VisionClient extends RoboticsAPIBackgroundTask
             }
         }
 
-        getLogger().info("VisionClient background task stopped");
+        CentralLogger.getInstance().info("VISION", "VisionClient background task stopped");
     }
 
     public VisionFrame getLatestFrame()
