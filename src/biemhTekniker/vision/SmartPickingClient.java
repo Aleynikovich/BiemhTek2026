@@ -59,7 +59,7 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
             _socket = new Socket(SERVER_IP,PORT);
             _writer = new PrintWriter(_socket.getOutputStream(), true);
 
-            _writer.println("15;BIEMH26_105055"); //Send ref
+            _writer.println("15;BIEMH26_105055\r\n"); //Send ref
    
 
 
