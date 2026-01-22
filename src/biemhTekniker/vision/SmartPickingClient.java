@@ -1,18 +1,16 @@
 package biemhTekniker.vision;
 
 import biemhTekniker.logger.Logger;
-import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
-import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
+import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask; // Changed import
 import com.kuka.generated.ioAccess.VisionIOGroup;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
-public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
+// CHANGED: Extend standard BackgroundTask, NOT Cyclic
+public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private static final Logger log = Logger.getLogger(SmartPickingClient.class);
     private static final String SERVER_IP = "172.31.1.69";
@@ -28,23 +26,31 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
 
     @Override
     public void initialize() {
-        initializeCyclic(0, 1000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
-        log.info("SmartPickingClient initialized. Target: " + SERVER_IP + ":" + PORT);
-        tryToConnect();
+        log.info("SmartPickingClient (Threaded) initialized.");
     }
 
     @Override
-    public void runCyclic() {
-        if (!_isConnected) {
-            tryToConnect();
-        } else {
-            if (_socket == null || _socket.isClosed()) {
-                _isConnected = false;
-                return;
-            }
-
-            if (vision.getTriggerRequest()) {
-                sendAndReceive();
+    public void run() {
+        // We create our own loop here. This thread is now independent of the cycle time.
+        while (true) {
+            try {
+                if (!_isConnected) {
+                    tryToConnect();
+                } else {
+                    // Logic Loop
+                    if (vision.getTriggerRequest()) {
+                        sendAndReceive();
+                        // Prevent spamming: Wait until trigger goes low or add delay
+                        Thread.sleep(500); 
+                    }
+                }
+                
+                // Vital: Sleep to prevent 100% CPU usage
+                Thread.sleep(100); 
+                
+            } catch (Exception e) {
+                log.error("Error in background loop: " + e.getMessage());
+                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
             }
         }
     }
@@ -53,19 +59,19 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
         try {
             if (_socket != null && !_socket.isClosed()) return;
 
-            log.debug("Attempting to connect to Smart Picking Server...");
+            // log.info("Connecting..."); 
             _socket = new Socket(SERVER_IP, PORT);
-            
-            _socket.setSoTimeout(500); 
+            _socket.setSoTimeout(1000); 
             
             _out = _socket.getOutputStream();
             _in = _socket.getInputStream();
             
             _isConnected = true;
-            log.info("Connected successfully.");
+            log.info("CONNECTED to Smart Picking Server.");
 
         } catch (Exception e) {
             _isConnected = false;
+            // Silent fail to avoid log spam, retry in main loop
         }
     }
 
@@ -73,39 +79,37 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
         try {
             String payload = "15;BIEMH26_105055\r\n";
             
-            // FIX: Use string "US-ASCII" instead of StandardCharsets.US_ASCII
+            // 1. Send
             _out.write(payload.getBytes("US-ASCII"));
             _out.flush();
 
-            Thread.sleep(50);
+            // 2. Wait
+            Thread.sleep(100);
 
-            byte[] buffer = new byte[128];
+            // 3. Read
+            byte[] buffer = new byte[256];
             int bytesRead = _in.read(buffer);
 
             if (bytesRead > 0) {
-                // FIX: Use string "US-ASCII" here as well
                 String response = new String(buffer, 0, bytesRead, "US-ASCII");
-                log.info("Server Response: " + response);
+                log.info("SERVER RESPONSE: " + response);
+                
+                // OPTIONAL: Reset the trigger from Java side if needed
+                // vision.setTriggerRequest(false);
             } else {
-                log.info("No data received.");
+                log.info("Connected, but no data received.");
             }
-            
-            // vision.setTriggerRequest(false);
 
         } catch (Exception e) {
-            log.error("Communication error: " + e.getMessage());
+            log.error("Comms Error: " + e.getMessage());
             _isConnected = false;
             try { _socket.close(); } catch (Exception ignored) {}
         }
     }
-
+    
     @Override
     public void dispose() {
-        try {
-            if (_socket != null) _socket.close();
-        } catch (Exception e) {
-            log.error("Error closing vision socket: " + e.getMessage());
-        }
+        try { if (_socket != null) _socket.close(); } catch (Exception e) {}
         super.dispose();
     }
 }
