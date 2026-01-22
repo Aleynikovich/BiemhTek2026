@@ -56,47 +56,15 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
         try
         {
             log.debug("Attempting to connect to Smart Picking Server...");
-            _socket = new Socket();
-            _socket.connect(new InetSocketAddress(SERVER_IP, PORT), 500);
-
+            _socket = new Socket(SERVER_IP,PORT);
             _writer = new PrintWriter(_socket.getOutputStream(), true);
-            _reader = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
-
-            _isConnected = true;
-            log.info("Successfully connected to Smart Picking Server.");
 
             _writer.println("15;BIEMH26_105055"); //Send ref
-            _writer.flush();
-            Thread.sleep(10000);
-            String response = _reader.readLine();
-
-            if ("0".equals(response))
-            {
-                _isConnected = true;
-                log.info("Connected and reference loaded successfully.");
-            }
-            else
-            {
-                throw new Exception("Invalid server response: " + response);
-            }
-
-            _writer.println("101"); //Send auto mode
-            response = _reader.readLine();
-
-            if ("0".equals(response))
-            {
-                log.info("Smart Picking in automatic mode.");
-            }
-            else
-            {
-                throw new Exception("Invalid server response: " + response);
-            }
+   
 
 
         } catch (Exception e)
         {
-            _isConnected = false;
-
             log.debug("Connection failed: " + e.getMessage());
         }
     }
