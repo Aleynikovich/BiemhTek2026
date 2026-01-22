@@ -1,7 +1,7 @@
 Program: WorkVisual
 Program Version: 5.0.5.600
 Installation Directory: C:\Users\BIEHM\Desktop\WorkVisual_V5.0.5_Build0600\WorkVisual_V5.0.5_Build0600
-Export Date: 22/12/2025 16:51:17
+Export Date: 22/01/2026 10:15:41
 Controller Firmware Version: 8.5.0
 Option Package Name: Sunrise
 Option Package Directory: C:\Users\BIEHM\Desktop\WorkVisual_V5.0.5_Build0600\WorkVisual_V5.0.5_Build0600\[AppData]\Application\WorkVisual\OptionPackagesIIWA\Sunrise\Sunrise.kop

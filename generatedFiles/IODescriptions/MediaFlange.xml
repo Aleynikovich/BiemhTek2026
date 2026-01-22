@@ -2,16 +2,16 @@
 <!--
 Automatically generated IO group description. Please do NOT modify!
 -->
-<SunriseIOGroupDescription Version="1.0.0">
+<SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
   <IOGroup DisplayName="MediaFlange" IconName="MediaFlange" SignalTypes="InOut" TemplateName="MediaFlange">
     <IOs>
       <DigitalIOItem Name="Gripper1_Open" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper2_Open" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="Gripper1_Close" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper1_Close" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="Gripper2_Open" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
       <DigitalIOItem Name="Gripper2_Close" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
@@ -20,10 +20,10 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="Gripper1_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper2_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="Gripper1_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper1_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="Gripper2_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
       <DigitalIOItem Name="Gripper2_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">

@@ -3,15 +3,15 @@
 Automatically generated IO group description. Please do NOT modify!
 -->
 <SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
-  <IOGroup DisplayName="PlcRequestsProgram" IconName="PlcRequestsProgram" SignalTypes="InOut" TemplateName="PlcRequestsProgram">
+  <IOGroup DisplayName="Vision" IconName="Vision" SignalTypes="InOut" TemplateName="Vision">
     <IOs>
-      <DigitalIOItem Name="ProgramStop" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="TriggerRequest" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="ProgramAbort" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="TriggerSent" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="ProgramStart" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="PickPositionReady" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
     </IOs>

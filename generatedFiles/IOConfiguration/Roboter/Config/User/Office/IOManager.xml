@@ -8,131 +8,41 @@
   <BusList>
     <Bus BusDriverName="ECatIODriver" BusInstanceName="SYS-X48">
       <IOList>
-        <DigitalIO Name="Gripper1.Open" Type="OUTPUT" Scope="USER_IO" StartBit="12728" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper1_isOpen" Type="INPUT" Scope="USER_IO" StartBit="368" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper1.Close" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper1_isClosed" Type="INPUT" Scope="USER_IO" StartBit="369" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper1.IsOpen" Type="INPUT" Scope="USER_IO" StartBit="368" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_isOpen" Type="INPUT" Scope="USER_IO" StartBit="370" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper1.IsClosed" Type="INPUT" Scope="USER_IO" StartBit="369" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_isClosed" Type="INPUT" Scope="USER_IO" StartBit="371" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper2.Open" Type="OUTPUT" Scope="USER_IO" StartBit="12730" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper1_Open" Type="OUTPUT" Scope="USER_IO" StartBit="12728" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper2.Close" Type="OUTPUT" Scope="USER_IO" StartBit="12731" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper1_Close" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper2.IsOpen" Type="INPUT" Scope="USER_IO" StartBit="370" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_Open" Type="OUTPUT" Scope="USER_IO" StartBit="12730" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="Gripper2.IsClosed" Type="INPUT" Scope="USER_IO" StartBit="371" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_Close" Type="OUTPUT" Scope="USER_IO" StartBit="12731" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
     </Bus>
     <Bus BusDriverName="PNIODriver" BusInstanceName="PNIO-DEV">
       <IOList>
-        <DigitalIO Name="RobotStatus.Aut" Type="OUTPUT" Scope="USER_IO" StartBit="2320" BitSize="1" Signed="false">
+        <DigitalIO Name="Vision.TriggerSent" Type="OUTPUT" Scope="USER_IO" StartBit="2504" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="RobotStatus.T1" Type="OUTPUT" Scope="USER_IO" StartBit="2321" BitSize="1" Signed="false">
+        <DigitalIO Name="Vision.PickPositionReady" Type="OUTPUT" Scope="USER_IO" StartBit="2505" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="RobotStatus.Homed" Type="OUTPUT" Scope="USER_IO" StartBit="2322" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="RobotStatus.Moving" Type="OUTPUT" Scope="USER_IO" StartBit="2323" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="RobotStatus.Stopped" Type="OUTPUT" Scope="USER_IO" StartBit="2324" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="RobotStatus.ZRes1" Type="OUTPUT" Scope="USER_IO" StartBit="2325" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="RobotStatus.ZRes2" Type="OUTPUT" Scope="USER_IO" StartBit="2326" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="RobotStatus.ZRes3" Type="OUTPUT" Scope="USER_IO" StartBit="2327" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ProgramNumber" Type="INPUT" Scope="USER_IO" StartBit="152" BitSize="16" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.DryRun" Type="INPUT" Scope="USER_IO" StartBit="168" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes1" Type="INPUT" Scope="USER_IO" StartBit="169" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes2" Type="INPUT" Scope="USER_IO" StartBit="170" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes3" Type="INPUT" Scope="USER_IO" StartBit="171" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes4" Type="INPUT" Scope="USER_IO" StartBit="172" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes5" Type="INPUT" Scope="USER_IO" StartBit="173" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes6" Type="INPUT" Scope="USER_IO" StartBit="174" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramData.ZRes7" Type="INPUT" Scope="USER_IO" StartBit="175" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.Gripper1Open" Type="OUTPUT" Scope="USER_IO" StartBit="2328" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.Gripper1Closed" Type="OUTPUT" Scope="USER_IO" StartBit="2329" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.Gripper2Open" Type="OUTPUT" Scope="USER_IO" StartBit="2330" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.Gripper2Closed" Type="OUTPUT" Scope="USER_IO" StartBit="2331" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.ZRes1" Type="OUTPUT" Scope="USER_IO" StartBit="2332" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.ZRes2" Type="OUTPUT" Scope="USER_IO" StartBit="2333" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.ZRes3" Type="OUTPUT" Scope="USER_IO" StartBit="2334" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="GripperStatus.ZRes4" Type="OUTPUT" Scope="USER_IO" StartBit="2335" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.Selected" Type="OUTPUT" Scope="USER_IO" StartBit="2336" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.Stopped" Type="OUTPUT" Scope="USER_IO" StartBit="2337" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.Running" Type="OUTPUT" Scope="USER_IO" StartBit="2338" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.Crashed" Type="OUTPUT" Scope="USER_IO" StartBit="2339" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.ZRes1" Type="OUTPUT" Scope="USER_IO" StartBit="2340" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.ZRes2" Type="OUTPUT" Scope="USER_IO" StartBit="2341" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.ZRes3" Type="OUTPUT" Scope="USER_IO" StartBit="2342" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="ProgramStatus.ZRes4" Type="OUTPUT" Scope="USER_IO" StartBit="2343" BitSize="1" Signed="false">
+        <DigitalIO Name="Vision.TriggerRequest" Type="INPUT" Scope="USER_IO" StartBit="320" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
