@@ -32,6 +32,7 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
     {
         initializeCyclic(0, 1000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
         log.info("SmartPickingClient initialized. Target: " + SERVER_IP + ":" + PORT);
+        tryToConnect();
     }
 
     @Override
@@ -39,7 +40,7 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
     {
         if (!_isConnected)
         {
-            tryToConnect();
+           // tryToConnect();
         } else
         {
             if (vision.getTriggerRequest())
