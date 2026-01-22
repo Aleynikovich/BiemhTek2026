@@ -65,8 +65,7 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
             _isConnected = true;
             log.info("Successfully connected to Smart Picking Server.");
 
-            _writer.println("15;BIEMH26_105055"+ "\r\n"); //Send ref
-            
+            _writer.println("15;BIEMH26_105055"); //Send ref
             _writer.flush();
             Thread.sleep(10000);
             String response = _reader.readLine();
