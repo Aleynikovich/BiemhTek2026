@@ -4,7 +4,6 @@ import biemhTekniker.logger.LogCollector;
 import biemhTekniker.logger.LogManager;
 import biemhTekniker.logger.LogPublisher;
 import biemhTekniker.logger.Logger;
-import biemhTekniker.vision.VisionGateway;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -34,20 +33,8 @@ public class Main extends RoboticsAPIApplication
     {
         while (true)
         {
-            // Example: Ask for vision every 5 seconds
-            VisionGateway.send("15;BIEMH26_105055\n");
 
-            // Wait a tiny bit for the background task to do its work
             ThreadUtil.milliSleep(5000);
-
-            // Check if the response arrived
-            String response = VisionGateway.getResponse();
-            if (response != null) {
-                log.info("Robot received: " + response);
-                // Logic to move the robot based on 'response' goes here
-            }
-
-            ThreadUtil.milliSleep(4900);
         }
     }
 
