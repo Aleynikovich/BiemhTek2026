@@ -82,7 +82,7 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
 
             if ("0".equals(response))
             {
-                log.info("Smart Picking in automatic mode");
+                log.info("Smart Picking in automatic mode.");
             }
             else
             {
