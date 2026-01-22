@@ -5,9 +5,8 @@ import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.generated.ioAccess.VisionIOGroup;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
@@ -20,8 +19,8 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
     private static final int PORT = 59002;
 
     private Socket _socket;
-    private PrintWriter _writer;
-    private BufferedReader _reader;
+    private OutputStream _out;
+    private InputStream _in;
     private boolean _isConnected = false;
 
     @Inject
@@ -30,8 +29,6 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
     @Override
     public void initialize() {
         initializeCyclic(0, 1000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
-        
-              
         log.info("SmartPickingClient initialized. Target: " + SERVER_IP + ":" + PORT);
         tryToConnect();
     }
@@ -41,7 +38,6 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
         if (!_isConnected) {
             tryToConnect();
         } else {
-            // Fix 2: Check for socket health explicitly
             if (_socket == null || _socket.isClosed()) {
                 _isConnected = false;
                 return;
@@ -60,34 +56,41 @@ public class SmartPickingClient extends RoboticsAPICyclicBackgroundTask {
             log.debug("Attempting to connect to Smart Picking Server...");
             _socket = new Socket(SERVER_IP, PORT);
             
-            // Fix 3: Set timeout to avoid halting the robot logic if server hangs
             _socket.setSoTimeout(500); 
             
-            _writer = new PrintWriter(_socket.getOutputStream(), true);
-            _reader = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
+            _out = _socket.getOutputStream();
+            _in = _socket.getInputStream();
             
             _isConnected = true;
             log.info("Connected successfully.");
 
         } catch (Exception e) {
             _isConnected = false;
-            // Log sparingly in cyclic to avoid flooding
         }
     }
 
     private void sendAndReceive() {
         try {
-            // Fix 4: Use print, not println, to control line endings exactly like Hercules
             String payload = "15;BIEMH26_105055\r\n";
-            _writer.print(payload);
-            _writer.flush();
-
-            // Read Response
-            String response = _reader.readLine();
-            log.info("Server Response: " + response);
             
-            // Acknowledge logic (Optional: Reset trigger here if not handled by PLC)
-            // vision.setTriggerRequest(false); 
+            // FIX: Use string "US-ASCII" instead of StandardCharsets.US_ASCII
+            _out.write(payload.getBytes("US-ASCII"));
+            _out.flush();
+
+            Thread.sleep(50);
+
+            byte[] buffer = new byte[128];
+            int bytesRead = _in.read(buffer);
+
+            if (bytesRead > 0) {
+                // FIX: Use string "US-ASCII" here as well
+                String response = new String(buffer, 0, bytesRead, "US-ASCII");
+                log.info("Server Response: " + response);
+            } else {
+                log.info("No data received.");
+            }
+            
+            // vision.setTriggerRequest(false);
 
         } catch (Exception e) {
             log.error("Communication error: " + e.getMessage());
