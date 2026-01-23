@@ -7,6 +7,7 @@ import com.kuka.generated.ioAccess.VisionOutputsIOGroup;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import javax.inject.Inject;
 
@@ -48,7 +49,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     public void run() {
         while (_running) {
             try {
-                if (!_isConnected || _socket == null || _socket.isClosed()) {
+                if (!_isConnected || _socket == null || _socket.isClosed() || !_socket.isConnected()) {
                     _referenceLoaded = false;
                     _currentCameraMode = 0;
                     tryToConnect();
@@ -153,7 +154,15 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
         try {
             closeConnection();
             if (!_running) return;
-            _socket = new Socket(SERVER_IP, PORT);
+
+            _socket = new Socket();
+            // Allows the socket to be bound even if previous connection is in TIME_WAIT
+            _socket.setReuseAddress(true);
+            
+            // Explicit connection timeout (5 seconds) to prevent hanging if server is busy/cleaning
+            _socket.connect(new InetSocketAddress(SERVER_IP, PORT), 5000);
+            
+            // Transaction timeout
             _socket.setSoTimeout(25000); 
             
             _in = _socket.getInputStream();
@@ -163,11 +172,12 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
             log.info("Connected to Vision Server.");
         } catch (Exception e) {
             _isConnected = false;
+            // Silent log here to avoid flooding while retrying
         }
     }
 
     private String performTransaction(String message) {
-        if (!_running) return null;
+        if (!_running || !_isConnected) return null;
         try {
             _out.write(message.getBytes("US-ASCII"));
             _out.flush();
@@ -180,10 +190,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
                 String raw = new String(buffer, 0, bytesRead, "US-ASCII");
                 log.info("Received Raw: [" + raw + "]");
                 
-                // Remove the parentheses: (0) -> 0 or (-1) -> -1
                 String cleaned = raw.replace("(", "").replace(")", "").trim();
-                
-                // Return only the first element if it's a list (e.g. "0,1,2,3" -> "0")
                 if (cleaned.contains(",")) {
                     cleaned = cleaned.split(",")[0].trim();
                 }
@@ -192,6 +199,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
                 return cleaned;
             } else {
                 log.warn("No bytes read from camera.");
+                _isConnected = false;
             }
         } catch (Exception e) {
             if (_running) {
@@ -209,13 +217,13 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     }
 
     private void closeConnection() {
+        _isConnected = false;
         try { if (_in != null) _in.close(); } catch (Exception e) {}
         try { if (_out != null) _out.close(); } catch (Exception e) {}
         try { if (_socket != null) _socket.close(); } catch (Exception e) {}
         _in = null;
         _out = null;
         _socket = null;
-        _isConnected = false;
     }
 
     @Override
