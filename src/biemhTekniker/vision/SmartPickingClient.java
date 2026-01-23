@@ -175,7 +175,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private String performTransaction(String message) {
         try {
-            _out.print(message + "\r\n");
+            _out.print(message);// + "\r\n");
             _out.flush();
 
             if (_in.hasNext()) {
