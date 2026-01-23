@@ -65,8 +65,7 @@ public class SmartPickingProtocol {
         if (args != null && !args.isEmpty()) {
             message += ";" + args;
         }
-
-
+        log.debug("Sending + " + message);
         String rawResponse = _client.sendAndReceive(message);
         VisionResult result = new VisionResult(rawResponse, cmd);
         log.debug(result.toString());
