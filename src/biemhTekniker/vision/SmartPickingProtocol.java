@@ -23,7 +23,11 @@ public class SmartPickingProtocol {
         GET_CONTAINER_POS("8"),
         LOCATE_PARTS("4"),
         GET_PART_POS("9"),
-        GET_NEXT_PART_POS("11");
+        GET_NEXT_PART_POS("11"),
+        ADD_CALIB_POINT("5"),
+        CALIBRATE("6"),
+        TEST_CALIB("7"),
+        SEND_ROBOT_POSE("14");
 
         private final String code;
         Command(String code) { this.code = code; }
