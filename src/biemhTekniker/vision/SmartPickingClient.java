@@ -12,6 +12,12 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private static final Logger log = Logger.getLogger(SmartPickingClient.class);
 
+    private enum Mode {
+        NONE,
+        AUTO,
+        CALIBRATION
+    }
+
     @Inject
     private VisionInputsIOGroup visionInputs;
     @Inject
@@ -21,7 +27,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     private SmartPickingProtocol _protocol;
 
     private boolean _referenceLoaded = false;
-    private Command _currentCameraMode = null;
+    private Mode _currentMode = Mode.NONE;
     private volatile boolean _running = true;
 
     @Override
@@ -53,10 +59,8 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private void handleReconnection() {
         _referenceLoaded = false;
-        _currentCameraMode = null;
-        if (_socketClient.connect()) {
-            log.info("Reconnected to vision server.");
-        }
+        _currentMode = Mode.NONE;
+        _socketClient.connect();
     }
 
     private void processWorkCycle() {
@@ -67,14 +71,11 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
         handleModeSelection();
 
-        // Check for Run Mode (101)
-        if (visionInputs.getRunMode() && _currentCameraMode == Command.SET_AUTO_MODE) {
+        if (_currentMode == Mode.AUTO) {
             if (visionInputs.getDataRequest()) {
                 executeRunSequence();
             }
-        }
-        // Check for Calibration Mode (102)
-        else if (visionInputs.getCalibrationMode() && _currentCameraMode == Command.SET_CALIB_MODE) {
+        } else if (_currentMode == Mode.CALIBRATION) {
             if (visionInputs.getCalibrationRequest()) {
                 executeCalibrationSequence();
             }
@@ -85,22 +86,22 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
         boolean runReq = visionInputs.getRunMode();
         boolean calReq = visionInputs.getCalibrationMode();
 
-        Command targetMode = runReq ? Command.SET_AUTO_MODE : (calReq ? Command.SET_CALIB_MODE : null);
+        Mode targetMode = runReq ? Mode.AUTO : (calReq ? Mode.CALIBRATION : Mode.NONE);
 
-        if (targetMode != null && targetMode != _currentCameraMode) {
-            if (_protocol.setMode(targetMode)) {
-                _currentCameraMode = targetMode;
-                log.info("Mode changed to: " + targetMode.name());
+        if (targetMode != Mode.NONE && targetMode != _currentMode) {
+            Command cmd = (targetMode == Mode.AUTO) ? Command.SET_AUTO_MODE : Command.SET_CALIB_MODE;
+            if (_protocol.setMode(cmd)) {
+                _currentMode = targetMode;
+                log.info("Mode changed to: " + _currentMode);
             }
-        } else if (targetMode == null) {
-            _currentCameraMode = null;
+        } else if (targetMode == Mode.NONE) {
+            _currentMode = Mode.NONE;
         }
     }
 
     private void executeRunSequence() {
         visionOutputs.setDataRequestSent(true);
 
-        // Defined steps using the Command enum for protocol compliance
         Command[] steps = {
                 Command.CAPTURE_DATA,
                 Command.LOCATE_CONTAINER,
@@ -110,12 +111,11 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
         boolean success = true;
 
-        for (Command cmd : steps) {
+        for (int i = 0; i < steps.length; i++) {
             if (!_running) return;
-
-            VisionResult res = _protocol.execute(cmd);
+            VisionResult res = _protocol.execute(steps[i]);
             if (!res.isSuccess()) {
-                log.error("Step " + cmd.name() + " failed.");
+                log.error("Step " + steps[i] + " failed.");
                 success = false;
                 break;
             }
@@ -133,7 +133,6 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     }
 
     private void executeCalibrationSequence() {
-        // Logic for specific calibration commands could be added here
         visionOutputs.setCalibrationComplete(true);
         waitForInputLow(new InputCheck() {
             public boolean isHigh() { return visionInputs.getCalibrationRequest(); }
