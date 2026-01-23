@@ -5,7 +5,7 @@ public class LogPublisher implements Runnable
     private final LogCollector _logCollector;
     private Thread _workerThread;
     private volatile boolean _running = false;
-    private LogLevel _filterLevel = LogLevel.INFO;
+    private LogLevel _filterLevel = LogLevel.DEBUG;
 
     public LogPublisher(LogCollector collector)
     {

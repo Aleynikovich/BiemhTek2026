@@ -54,12 +54,14 @@ public class VisionSocketClient {
         try {
             out.print(message);
             out.flush();
-
+            log.debug("Sent [" + message + "] to photoneo");
             byte[] buffer = new byte[2048];
             int bytesRead = in.read(buffer);
 
             if (bytesRead > 0) {
-                return new String(buffer, 0, bytesRead, "US-ASCII");
+                String result = new String(buffer, 0, bytesRead, "US-ASCII");
+                log.debug("Received [" + result + "] from photoneo");
+                return result;
             } else {
                 log.warn("Connection closed by remote host.");
                 close();
