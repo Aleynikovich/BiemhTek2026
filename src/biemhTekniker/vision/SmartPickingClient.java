@@ -29,6 +29,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     private OutputStream _out;
     private boolean _isConnected = false;
     private boolean _referenceLoaded = false;
+    private volatile boolean _running = true;
     
     private int _currentCameraMode = 0; 
 
@@ -45,7 +46,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     @Override
     public void run() {
-        while (true) {
+        while (_running) {
             try {
                 if (!_isConnected || _socket == null || _socket.isClosed()) {
                     _referenceLoaded = false;
@@ -78,12 +79,19 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
                 
                 Thread.sleep(100); 
 
+            } catch (InterruptedException e) {
+                log.info("SmartPickingClient thread interrupted.");
+                _running = false;
             } catch (Exception e) {
-                log.error("Main Loop Error: " + e.getMessage());
-                _isConnected = false;
-                try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+                if (_running) {
+                    log.error("Main Loop Error: " + e.getMessage());
+                    _isConnected = false;
+                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+                }
             }
         }
+        closeConnection();
+        log.info("SmartPickingClient thread finished.");
     }
 
     private void handleModeSelection() {
@@ -113,10 +121,10 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
         String[] sequence = {"2", "3", "4", "9"};
         
         for (int i = 0; i < sequence.length; i++) {
+            if (!_running) return;
             String resp = performTransaction(sequence[i]);
             if (resp == null || CMD_FAILURE.equals(resp)) {
                 log.error("Sequence failed at step " + sequence[i] + ". Resp: " + resp);
-                success = success && false; // Keep track of failure
                 success = false;
                 break;
             }
@@ -124,8 +132,8 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
         if (success) {
             visionOutputs.setPickPositionReady(true);
-            while (visionInputs.getDataRequest()) {
-                try { Thread.sleep(50); } catch (InterruptedException e) {}
+            while (visionInputs.getDataRequest() && _running) {
+                try { Thread.sleep(50); } catch (InterruptedException e) { _running = false; }
             }
         }
         
@@ -135,15 +143,16 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private void executeCalibrationPlaceholder() {
         visionOutputs.setCalibrationComplete(true);
-        while (visionInputs.getCalibrationRequest()) {
-            try { Thread.sleep(50); } catch (InterruptedException e) {}
+        while (visionInputs.getCalibrationRequest() && _running) {
+            try { Thread.sleep(50); } catch (InterruptedException e) { _running = false; }
         }
         visionOutputs.setCalibrationComplete(false);
     }
 
     private void tryToConnect() {
         try {
-            if (_socket != null) { try { _socket.close(); } catch(Exception e){} }
+            closeConnection();
+            if (!_running) return;
             _socket = new Socket(SERVER_IP, PORT);
             _socket.setSoTimeout(25000); 
             
@@ -158,6 +167,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     }
 
     private String performTransaction(String message) {
+        if (!_running) return null;
         try {
             _out.write(message.getBytes("US-ASCII"));
             _out.flush();
@@ -167,19 +177,27 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
             int bytesRead = _in.read(buffer);
 
             if (bytesRead > 0) {
-                // Remove everything except digits and the minus sign
-                // This cleans up null bytes, \r, \n, or spaces that trim() might miss
                 String raw = new String(buffer, 0, bytesRead, "US-ASCII");
-                String cleaned = raw.replaceAll("[^0-9\\-]", "");
+                log.info("Received Raw: [" + raw + "]");
                 
-                log.info("Received Raw: [" + raw + "] -> Cleaned: [" + cleaned + "]");
+                // Remove the parentheses: (0) -> 0 or (-1) -> -1
+                String cleaned = raw.replace("(", "").replace(")", "").trim();
+                
+                // Return only the first element if it's a list (e.g. "0,1,2,3" -> "0")
+                if (cleaned.contains(",")) {
+                    cleaned = cleaned.split(",")[0].trim();
+                }
+                
+                log.info("Cleaned Result: [" + cleaned + "]");
                 return cleaned;
             } else {
                 log.warn("No bytes read from camera.");
             }
         } catch (Exception e) {
-            log.error("Comm error on [" + message + "]: " + e.getMessage());
-            _isConnected = false;
+            if (_running) {
+                log.error("Comm error on [" + message + "]: " + e.getMessage());
+                _isConnected = false;
+            }
         }
         return null;
     }
@@ -190,9 +208,20 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
         visionOutputs.setCalibrationComplete(false);
     }
 
+    private void closeConnection() {
+        try { if (_in != null) _in.close(); } catch (Exception e) {}
+        try { if (_out != null) _out.close(); } catch (Exception e) {}
+        try { if (_socket != null) _socket.close(); } catch (Exception e) {}
+        _in = null;
+        _out = null;
+        _socket = null;
+        _isConnected = false;
+    }
+
     @Override
     public void dispose() {
-        try { if (_socket != null) _socket.close(); } catch (Exception e) {}
+        _running = false;
+        closeConnection();
         super.dispose();
     }
 }
