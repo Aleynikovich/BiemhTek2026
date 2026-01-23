@@ -5,10 +5,9 @@ import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
 import com.kuka.generated.ioAccess.VisionInputsIOGroup;
 import com.kuka.generated.ioAccess.VisionOutputsIOGroup;
 
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 import javax.inject.Inject;
 
 /**
@@ -22,18 +21,16 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     private static final String SERVER_IP = "172.31.1.69";
     private static final int PORT = 59002;
     
-    // Response codes from camera
     private static final String CMD_SUCCESS = "0";
     private static final String CMD_FAILURE = "-1";
 
     private Socket _socket;
-    private Scanner _in;
-    private PrintWriter _out;
+    private InputStream _in;
+    private OutputStream _out;
     private boolean _isConnected = false;
     private boolean _referenceLoaded = false;
     
-    // Internal state to track if we've already notified the camera of the mode
-    private int _currentCameraMode = 0; // 0: None, 101: Run, 102: Calib
+    private int _currentCameraMode = 0; 
 
     @Inject
     private VisionInputsIOGroup visionInputs;
@@ -55,22 +52,16 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
                     _currentCameraMode = 0;
                     tryToConnect();
                 } else {
-                    // 1. One-time initialization for the reference
                     if (!_referenceLoaded) {
                         String resp = performTransaction("15;BIEMH26_105055");
-                        log.info(resp);
                         if (CMD_SUCCESS.equals(resp)) {
                             _referenceLoaded = true;
                             log.info("Reference loaded successfully.");
-                        } else {
-                            log.error("Failed to load reference. Server returned: " + resp);
                         }
                     }
 
-                    // 2. Mode Management (Run vs Calibration)
                     handleModeSelection();
 
-                    // 3. Request Management
                     if (visionInputs.getRunMode() && _currentCameraMode == 101) {
                         if (visionInputs.getDataRequest()) {
                             executeRunSequence();
@@ -97,14 +88,12 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
         boolean calReq = visionInputs.getCalibrationMode();
 
         if (runReq && _currentCameraMode != 101) {
-            String resp = performTransaction("101");
-            if (CMD_SUCCESS.equals(resp)) {
+            if (CMD_SUCCESS.equals(performTransaction("101"))) {
                 _currentCameraMode = 101;
                 log.info("Camera switched to RUN mode (101)");
             }
         } else if (calReq && _currentCameraMode != 102) {
-            String resp = performTransaction("102");
-            if (CMD_SUCCESS.equals(resp)) {
+            if (CMD_SUCCESS.equals(performTransaction("102"))) {
                 _currentCameraMode = 102;
                 log.info("Camera switched to CALIBRATION mode (102)");
             }
@@ -115,18 +104,14 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private void executeRunSequence() {
         log.info("Data Request received. Executing sequence 2,3,4,9...");
-        
         visionOutputs.setDataRequestSent(true);
-        visionOutputs.setPickPositionReady(false);
 
-        // Sequence of data requests
         boolean success = true;
         String[] sequence = {"2", "3", "4", "9"};
         
         for (int i = 0; i < sequence.length; i++) {
             String resp = performTransaction(sequence[i]);
             if (resp == null || CMD_FAILURE.equals(resp)) {
-                log.error("Sequence failed at command [" + sequence[i] + "] with response: " + resp);
                 success = false;
                 break;
             }
@@ -134,23 +119,17 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
         if (success) {
             visionOutputs.setPickPositionReady(true);
-            log.info("Run sequence complete. Pick position ready.");
-            
             while (visionInputs.getDataRequest()) {
                 try { Thread.sleep(50); } catch (InterruptedException e) {}
             }
-            
-            visionOutputs.setDataRequestSent(false);
-            visionOutputs.setPickPositionReady(false);
-        } else {
-            visionOutputs.setDataRequestSent(false);
         }
+        
+        visionOutputs.setDataRequestSent(false);
+        visionOutputs.setPickPositionReady(false);
     }
 
     private void executeCalibrationPlaceholder() {
-        log.info("Calibration Request received. (Placeholder logic)");
         visionOutputs.setCalibrationComplete(true);
-        
         while (visionInputs.getCalibrationRequest()) {
             try { Thread.sleep(50); } catch (InterruptedException e) {}
         }
@@ -163,9 +142,8 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
             _socket = new Socket(SERVER_IP, PORT);
             _socket.setSoTimeout(25000); 
             
-            // High-level wrappers for cleaner code
-            _in = new Scanner(_socket.getInputStream(), "US-ASCII");
-            _out = new PrintWriter(new OutputStreamWriter(_socket.getOutputStream(), "US-ASCII"), true);
+            _in = _socket.getInputStream();
+            _out = _socket.getOutputStream();
             
             _isConnected = true;
             log.info("Connected to Vision Server.");
@@ -176,14 +154,19 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private String performTransaction(String message) {
         try {
-            _out.print(message);// + "\r\n");
+            _out.write(message.getBytes("US-ASCII"));
             _out.flush();
+            log.info("Sent [" + message + "] to camera.");
 
-            if (_in.hasNext()) {
-                return _in.next();
+            byte[] buffer = new byte[1024];
+            // This blocks until ANY byte is received, then returns immediately.
+            int bytesRead = _in.read(buffer);
+
+            if (bytesRead > 0) {
+                return new String(buffer, 0, bytesRead, "US-ASCII").trim();
             }
         } catch (Exception e) {
-            log.error("Transaction failed [" + message + "]: " + e.getMessage());
+            log.error("Comm error on [" + message + "]: " + e.getMessage());
             _isConnected = false;
         }
         return null;
