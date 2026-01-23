@@ -2,10 +2,10 @@
 <RoboticsAPIData version="3">
     <world>
         <gravitation x="0.0" y="0.0" z="9.81"/>
-        <frame id="_a4eb0c02-3e73-4a4b-a90f-e3226f4859d7" name="P1">
+        <frame id="_a4eb0c02-3e73-4a4b-a90f-e3226f4859d7" name="CallibrationPoints">
             <transformation a="-0.35614773044130543" b="1.5483741189675386" c="0.43972446067295345" x="224.95336648185983" y="-471.93799824061233" z="251.5543380072358"/>
             <additionalInformation>
-                <info key="LastModificationTime" type="java.lang.Long" value="1769168867816"/>
+                <info key="LastModificationTime" type="java.lang.Long" value="1769170339736"/>
                 <info base="iiwa" controller="Sunrise" device="iiwa" tcpName="Flange" tool="Flange" type="com.kuka.roboticsAPI.deviceModel.TeachInformation">
                     <tcpTransformation a="0.0" b="0.0" c="0.0" x="0.0" y="0.0" z="0.0"/>
                 </info>
