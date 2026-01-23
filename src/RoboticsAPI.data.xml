@@ -285,7 +285,7 @@
             <additionalInformation>
                 <info key="ID" type="java.lang.String" value="8fb966b3-83ca-4d23-8bc7-bdfc7440c6e0"/>
             </additionalInformation>
-            <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="0.0" cogY="0.0" cogZ="0.0" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="3.0"/>
+            <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="3.884487255951194" cogY="-6.717026972060215" cogZ="71.44449641775539" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="2.424001076407311"/>
         </toolTemplate>
     </objectTemplates>
 </RoboticsAPIData>
