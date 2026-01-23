@@ -80,7 +80,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
             _socket = new Socket(SERVER_IP, PORT);
             
             // TIMEOUT is crucial so read() doesn't hang forever if server dies
-            _socket.setSoTimeout(2000); 
+            _socket.setSoTimeout(20000); 
             
             _out = _socket.getOutputStream();
             _in = _socket.getInputStream();
@@ -111,7 +111,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
             // --- STEP 2: WAIT (Polling) ---
             // We give the server a moment to process
-            Thread.sleep(100);
+            Thread.sleep(5000);
 
             // --- STEP 3: READ ---
             byte[] buffer = new byte[1024];
