@@ -20,8 +20,19 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 public class CalibrationRoutine {
 
     private static final Logger log = Logger.getLogger(CalibrationRoutine.class);
+    
+    /**
+     * Number of calibration points to visit.
+     * Should match the number of points defined in RoboticsAPI.data.xml
+     */
     private static final int NUM_CALIBRATION_POINTS = 16;
+    
+    /**
+     * Joint velocity for calibration movements (0.25 = 25% of maximum joint velocity).
+     * Lower speeds ensure precise positioning at calibration points.
+     */
     private static final double JOINT_VELOCITY = 0.25;
+    
     private static final int DELAY_MS = 500;
 
     private final RoboticsAPIApplication application;
@@ -211,12 +222,21 @@ public class CalibrationRoutine {
         double z = pose.getZ() * 10.0;
 
         // Convert angles: radians to millidegrees
-        double gamma = pose.getGammaRad() * 180.0 * 1000.0 / Math.PI;
-        double beta = pose.getBetaRad() * 180.0 * 1000.0 / Math.PI;
-        double alpha = pose.getAlphaRad() * 180.0 * 1000.0 / Math.PI;
+        double gamma = convertRadToMillidegrees(pose.getGammaRad());
+        double beta = convertRadToMillidegrees(pose.getBetaRad());
+        double alpha = convertRadToMillidegrees(pose.getAlphaRad());
 
         // Build message string
         return String.format("%.0f;%.0f;%.0f;%.0f;%.0f;%.0f",
                 x, y, z, gamma, beta, alpha);
+    }
+
+    /**
+     * Converts an angle from radians to millidegrees.
+     * @param radians Angle in radians
+     * @return Angle in millidegrees (degrees * 1000)
+     */
+    private double convertRadToMillidegrees(double radians) {
+        return radians * 180.0 * 1000.0 / Math.PI;
     }
 }
