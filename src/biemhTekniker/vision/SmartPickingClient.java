@@ -29,6 +29,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
     private boolean _referenceLoaded = false;
     private Mode _currentMode = Mode.NONE;
     private volatile boolean _running = true;
+    private String reference = "BIEMH26_105055";
 
     @Override
     public void initialize() {
@@ -65,7 +66,10 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private void processWorkCycle() {
         if (!_referenceLoaded) {
-            _referenceLoaded = _protocol.loadReference("BIEMH26_105055");
+            _referenceLoaded = _protocol.loadReference(reference);
+            if (_referenceLoaded) {
+                log.debug("Loaded reference: " + reference);
+            }
             return;
         }
 
