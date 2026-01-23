@@ -116,6 +116,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
             String resp = performTransaction(sequence[i]);
             if (resp == null || CMD_FAILURE.equals(resp)) {
                 log.error("Sequence failed at step " + sequence[i] + ". Resp: " + resp);
+                success = success && false; // Keep track of failure
                 success = false;
                 break;
             }
@@ -158,7 +159,6 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private String performTransaction(String message) {
         try {
-            // Reverted to raw bytes without extra terminators
             _out.write(message.getBytes("US-ASCII"));
             _out.flush();
             log.info("Sent: [" + message + "]");
@@ -167,9 +167,13 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
             int bytesRead = _in.read(buffer);
 
             if (bytesRead > 0) {
-                String result = new String(buffer, 0, bytesRead, "US-ASCII").trim();
-                log.info("Received: [" + result + "]");
-                return result;
+                // Remove everything except digits and the minus sign
+                // This cleans up null bytes, \r, \n, or spaces that trim() might miss
+                String raw = new String(buffer, 0, bytesRead, "US-ASCII");
+                String cleaned = raw.replaceAll("[^0-9\\-]", "");
+                
+                log.info("Received Raw: [" + raw + "] -> Cleaned: [" + cleaned + "]");
+                return cleaned;
             } else {
                 log.warn("No bytes read from camera.");
             }
