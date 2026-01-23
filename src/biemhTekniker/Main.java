@@ -25,7 +25,6 @@ public class Main extends RoboticsAPIApplication
     {
         initializeLogging();
 
-
     }
 
     @Override
