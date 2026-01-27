@@ -22,7 +22,7 @@ public class Main extends RoboticsAPIApplication
 	private String VisionServerIP = "172.31.1.69";  
 	private int VisionServerPort = 59002;
 	
-	private boolean calibrationSuccess = false;
+	private boolean calibrationSuccess = true;
 	
     private LogPublisher _logPublisher;
     private static final Logger log = Logger.getLogger(Main.class);
