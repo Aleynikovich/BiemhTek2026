@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import com.kuka.common.ThreadUtil;
+
 /**
  * Standardized TCP Client for Vision System communication.
  * Compatible with Java 1.6.
@@ -55,6 +57,7 @@ public class VisionSocketClient {
             out.print(message);
             out.flush();
             log.debug("Sending " + message);
+            ThreadUtil.milliSleep(100);
             byte[] buffer = new byte[2048];
             
             if (expectResponse)

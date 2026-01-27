@@ -42,12 +42,16 @@ public class SmartPickingProtocol {
         this._client = client;
     }
     
-    public boolean sendCustomMessage(RoboticsAPIApplication app,LBR robot)
+    public boolean sendCustomMessage(String message, boolean expectReply)
     {
-    	
-    	
-
-    		try {
+    	_client.sendAndReceive(message, expectReply);
+    	return true;
+    }
+    
+    @Deprecated
+    public boolean sendHardCodedMessage(RoboticsAPIApplication app,LBR robot)
+    {
+    	    		try {
         		execute(Command.SET_CALIB_MODE);
         		//app.getApplicationControl().halt();
         		execute(Command.SEND_ROBOT_POSE);

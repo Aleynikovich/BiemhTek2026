@@ -129,20 +129,10 @@ public class CalibrationRoutine {
         Frame currentPose = robot.getCurrentCartesianPosition(flangeFrame);
 
         // Send robot pose to vision system
-        String poseMessage = buildPoseMessage(currentPose);
-        //log.debug("Sending pose: " + poseMessage);
-        //TODO: Cambiar hardcode
-        //VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE, poseMessage);
-        poseMessage = "14";
-        
-        log.debug("sending " + poseMessage);
-        
-        
-        //if (!poseResult.isSuccess()) {
-        //    log.error("Failed to send robot pose for point " + pointNumber);
-        //    return false;
-        //}
-
+        String[] poseMessage = buildPoseMessage(currentPose);
+        log.debug("Sending pose: " + poseMessage);
+        protocol.execute(Command.SEND_ROBOT_POSE);
+ 
         ThreadUtil.milliSleep(DELAY_MS);
 
         // Add calibration point
@@ -190,10 +180,14 @@ public class CalibrationRoutine {
         Frame currentPose = robot.getCurrentCartesianPosition(flangeFrame);
 
         // Send robot pose
-        String poseMessage = buildPoseMessage(currentPose);
-        log.debug("Sending test pose: " + poseMessage);
-        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE, poseMessage);
-
+        String[] poseParts = buildPoseMessage(currentPose);
+        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE);
+        
+        for (int i = 0; i < 6; i++)
+		{
+        	protocol.sendCustomMessage(poseParts[i], false);
+		}
+        
         if (!poseResult.isSuccess()) {
             log.error("Failed to send test pose");
             return false;
@@ -221,19 +215,19 @@ public class CalibrationRoutine {
      * - Positions are multiplied by 10 (mm * 10 = tenths of mm)
      * - Angles are converted from radians to millidegrees (rad * 180/PI * 1000)
      */
-    private String buildPoseMessage(Frame pose) {
+    private String[] buildPoseMessage(Frame pose) {
         // Convert positions: mm to tenths of mm
-        double x = pose.getX()*10;
-        double y = pose.getY()*10;
-        double z = pose.getZ()*10;
+    	String[] poses = new String[6];
+        poses[0] = String.format("%.0f", pose.getX()*10);
+        poses[1] = String.format("%.0f", pose.getY()*10);
+        poses[2] = String.format("%.0f", pose.getZ()*10);
 
         // Convert angles: radians to millidegrees
-        double gamma = Math.toDegrees(pose.getGammaRad())*1000;
-        double beta = Math.toDegrees(pose.getBetaRad())*1000;
-        double alpha = Math.toDegrees(pose.getAlphaRad())*1000;
+        poses[3] = String.format("%.0f", Math.toDegrees(pose.getGammaRad())*1000);
+        poses[4] = String.format("%.0f", Math.toDegrees(pose.getBetaRad())*1000);
+        poses[5] = String.format("%.0f", Math.toDegrees(pose.getAlphaRad())*1000);
 
         // Build message string
-        return String.format("%.0f;%.0f;%.0f;%.0f;%.0f;%.0f",
-                x, y, z, gamma, beta, alpha);
+        return poses;
     }
 }
