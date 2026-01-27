@@ -46,6 +46,8 @@ public class SmartPickingProtocol {
     {
     	
     	try {
+    		_client.sendAndReceive("102", true);
+    		Thread.sleep(500);
     		_client.sendAndReceive("14", false);
 			Thread.sleep(500);
 	    	_client.sendAndReceive(String.valueOf(robot.getFlange().getX()*10), false);
