@@ -61,8 +61,8 @@ public class VisionSocketClient {
                 String result = new String(buffer, 0, bytesRead, "US-ASCII");
                 return result;
             } else {
-                log.warn("Connection closed by remote host.");
-                close();
+                log.warn("No data returned from camera.");
+                //close();
                 return null;
             }
         } catch (IOException e) {
