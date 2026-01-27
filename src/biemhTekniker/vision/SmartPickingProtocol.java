@@ -119,7 +119,7 @@ public class SmartPickingProtocol {
             message += ";" + args;
         }
         log.debug("Sending " + message + " to cam.");
-        String rawResponse = _client.sendAndReceive(message, true);
+        String rawResponse = _client.sendAndReceive(message, expectReply);
         VisionResult result = new VisionResult(rawResponse, cmd);
         log.debug(result.toString());
 
