@@ -218,9 +218,9 @@ public class CalibrationRoutine {
      */
     private String buildPoseMessage(Frame pose) {
         // Convert positions: mm to tenths of mm
-        double x = pose.getX();
-        double y = pose.getY();
-        double z = pose.getZ();
+        double x = pose.getX() / 1000;
+        double y = pose.getY() / 1000;
+        double z = pose.getZ() / 1000;
 
         // Convert angles: radians to millidegrees
         double gamma = Math.toDegrees(pose.getGammaRad());
