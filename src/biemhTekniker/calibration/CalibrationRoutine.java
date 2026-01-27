@@ -68,7 +68,7 @@ public class CalibrationRoutine {
         ThreadUtil.milliSleep(DELAY_MS);
 
         // Visit all calibration points
-        for (int i = 1; i <= NUM_CALIBRATION_POINTS; i++) {
+        for (int i = 1; i <= NUM_CALIBRATION_POINTS - 1; i++) {
             if (!visitCalibrationPoint(calibrationPointsRoot, i)) {
                 log.error("Calibration failed at point " + i);
                 return false;
@@ -134,30 +134,30 @@ public class CalibrationRoutine {
         protocol.execute(Command.SEND_ROBOT_POSE, false);
         
         // Send robot pose
-        String[] poseParts = buildPoseMessage(currentPose);
-        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE,false);
-        
-        for (int i = 0; i < poseParts.length; i++)
-		{
-        	protocol.sendCustomMessage(poseParts[i], false);
-		}
-        
- 
-        ThreadUtil.milliSleep(DELAY_MS);
 
-        // Add calibration point
-        log.debug("Adding calibration point " + pointNumber);
-        VisionResult addResult = protocol.execute(Command.ADD_CALIB_POINT, true);
+            String[] poseParts = buildPoseMessage(currentPose);
+            VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE,false);
+            
+            for (int i = 0; i < poseParts.length; i++)
+    		{
+            	protocol.sendCustomMessage(poseParts[i], false);
+    		}
+            ThreadUtil.milliSleep(DELAY_MS);
+            // Add calibration point
+            log.debug("Adding calibration point " + pointNumber);
+            VisionResult addResult = protocol.execute(Command.ADD_CALIB_POINT, true);
+            
 
-        if (!addResult.isSuccess()) {
-            log.error("Failed to add calibration point " + pointNumber);
-            return false;
-        }
+            if (!addResult.isSuccess()) {
+                log.error("Failed to add calibration point " + pointNumber);
+                return false;
+            }
 
-        log.info("Calibration point " + pointNumber + " added successfully");
-        ThreadUtil.milliSleep(200);
+            log.info("Calibration point " + pointNumber + " added successfully");
+            ThreadUtil.milliSleep(200);
+            return true;
 
-        return true;
+       
     }
 
     /**

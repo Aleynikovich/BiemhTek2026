@@ -22,7 +22,7 @@ public class Main extends RoboticsAPIApplication
 	private String VisionServerIP = "172.31.1.69";  
 	private int VisionServerPort = 59002;
 	
-	private boolean calibrationSuccess = true;
+	private boolean calibrationSuccess = false;
 	
     private LogPublisher _logPublisher;
     private static final Logger log = Logger.getLogger(Main.class);
@@ -130,7 +130,7 @@ public class Main extends RoboticsAPIApplication
         // To use a test frame, define it in the XML (e.g., "/CalibrationPoints/Test")
         boolean success = calibration.executeCalibration(
                 "/CalibrationPoints",
-                null
+                "/CalibrationPoints/P16"
         );
 
         // Clean up
