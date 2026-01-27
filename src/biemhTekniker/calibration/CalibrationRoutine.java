@@ -132,6 +132,16 @@ public class CalibrationRoutine {
         String[] poseMessage = buildPoseMessage(currentPose);
         log.debug("Sending pose: " + poseMessage);
         protocol.execute(Command.SEND_ROBOT_POSE);
+        
+        // Send robot pose
+        String[] poseParts = buildPoseMessage(currentPose);
+        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE);
+        
+        for (int i = 0; i < poseParts.length; i++)
+		{
+        	protocol.sendCustomMessage(poseParts[i], false);
+		}
+        
  
         ThreadUtil.milliSleep(DELAY_MS);
 
