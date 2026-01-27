@@ -60,6 +60,7 @@ public class SmartPickingProtocol {
 	    	Thread.sleep(500);
 	    	_client.sendAndReceive(String.valueOf(Math.toDegrees(robot.getFlange().getAlphaRad())*1000), false);
 	    	Thread.sleep(500);
+	    	log.debug("Sending 5");
 	    	_client.sendAndReceive("5", true);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
