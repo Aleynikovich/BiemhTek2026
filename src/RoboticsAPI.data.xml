@@ -178,9 +178,9 @@
                 </redundancyData>
             </frame>
             <frame id="_2374e425-1a16-46fc-bedc-51dfabff10f6" name="P11">
-                <transformation a="-0.18040963247559327" b="-2.7854226390307285E-4" c="0.15835378322911867" x="-1.1724068226413635" y="-56.36207516411267" z="-26.718537424585634"/>
+                <transformation a="-0.10315458397245347" b="0.07849119146209474" c="0.1493703326673766" x="28.91952236355897" y="-81.53912036996729" z="-1.886841301421498"/>
                 <additionalInformation>
-                    <info key="LastModificationTime" type="java.lang.Long" value="1769169009436"/>
+                    <info key="LastModificationTime" type="java.lang.Long" value="1769523267213"/>
                     <info base="iiwa" controller="Sunrise" device="iiwa" tcpName="Flange" tool="Flange" type="com.kuka.roboticsAPI.deviceModel.TeachInformation">
                         <tcpTransformation a="0.0" b="0.0" c="0.0" x="0.0" y="0.0" z="0.0"/>
                     </info>
@@ -188,8 +188,8 @@
                 <redundancyData>
                     <redundancy transformationProviderName="Sunrise/iiwa" type="com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy">
                         <info type="com.kuka.roboticsAPI.deviceModel.StatusTurnRedundancy$StatusParameter" value="6" valueType="java.lang.Integer"/>
-                        <info type="com.kuka.roboticsAPI.deviceModel.StatusTurnRedundancy$TurnParameter" value="125" valueType="java.lang.Integer"/>
-                        <info type="com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy$E1Parameter" value="-0.02179588964689553" valueType="java.lang.Double"/>
+                        <info type="com.kuka.roboticsAPI.deviceModel.StatusTurnRedundancy$TurnParameter" value="61" valueType="java.lang.Integer"/>
+                        <info type="com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy$E1Parameter" value="-0.02180062341615925" valueType="java.lang.Double"/>
                     </redundancy>
                 </redundancyData>
             </frame>
