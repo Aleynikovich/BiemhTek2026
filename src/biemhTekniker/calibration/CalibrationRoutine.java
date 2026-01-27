@@ -251,9 +251,9 @@ public class CalibrationRoutine {
         
         
         // Convert angles: radians to millidegrees     
-        poses[3] = String.format("%.0f", Math.toDegrees(alpha*1000));
+        poses[3] = String.format("%.0f", Math.toDegrees(gamma*1000));
         poses[4] = String.format("%.0f", Math.toDegrees(beta*1000));
-        poses[5] = String.format("%.0f", Math.toDegrees(gamma*1000));
+        poses[5] = String.format("%.0f", Math.toDegrees(alpha*1000));
 
         // Build message string
         return poses;
