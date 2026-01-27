@@ -54,6 +54,7 @@ public class VisionSocketClient {
         try {
             out.print(message);
             out.flush();
+            log.debug("Sending " + message);
             byte[] buffer = new byte[2048];
             
             if (expectResponse)
@@ -62,7 +63,7 @@ public class VisionSocketClient {
 	
 	            if (bytesRead > 0) {
 	                String result = new String(buffer, 0, bytesRead, "US-ASCII");
-	                log.debug(result);
+	                log.debug("Received " + result);
 	                return result;
 	            } else {
 	                log.warn("No data returned from camera.");
