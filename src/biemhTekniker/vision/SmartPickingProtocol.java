@@ -50,7 +50,7 @@ public class SmartPickingProtocol {
     		Thread.sleep(500);
     		_client.sendAndReceive("14", false);
 			Thread.sleep(500);
-	    	_client.sendAndReceive(String.valueOf(robot.getFlange().getX()*10), false);
+	    	_client.sendAndReceive(String.valueOf(robot.getFlange().getX()*10), true);
 	    	Thread.sleep(500);
 	    	_client.sendAndReceive(String.valueOf(robot.getFlange().getY()*10), false);
 	    	Thread.sleep(500);
