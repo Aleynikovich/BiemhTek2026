@@ -77,7 +77,7 @@ public class CalibrationRoutine {
 
         // Execute calibration
         log.info("All calibration points collected. Executing calibration...");
-        VisionResult calibResult = protocol.execute(Command.CALIBRATE);
+        VisionResult calibResult = protocol.execute(Command.CALIBRATE, true);
         if (!calibResult.isSuccess()) {
             log.error("Calibration execution failed");
             return false;
@@ -131,11 +131,11 @@ public class CalibrationRoutine {
         // Send robot pose to vision system
         String[] poseMessage = buildPoseMessage(currentPose);
         log.debug("Sending pose: " + poseMessage);
-        protocol.execute(Command.SEND_ROBOT_POSE);
+        protocol.execute(Command.SEND_ROBOT_POSE, false);
         
         // Send robot pose
         String[] poseParts = buildPoseMessage(currentPose);
-        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE);
+        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE,false);
         
         for (int i = 0; i < poseParts.length; i++)
 		{
@@ -147,7 +147,7 @@ public class CalibrationRoutine {
 
         // Add calibration point
         log.debug("Adding calibration point " + pointNumber);
-        VisionResult addResult = protocol.execute(Command.ADD_CALIB_POINT);
+        VisionResult addResult = protocol.execute(Command.ADD_CALIB_POINT, true);
 
         if (!addResult.isSuccess()) {
             log.error("Failed to add calibration point " + pointNumber);
@@ -191,7 +191,7 @@ public class CalibrationRoutine {
 
         // Send robot pose
         String[] poseParts = buildPoseMessage(currentPose);
-        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE);
+        VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE, false);
         
         for (int i = 0; i < 6; i++)
 		{
@@ -206,7 +206,7 @@ public class CalibrationRoutine {
         ThreadUtil.milliSleep(DELAY_MS);
 
         // Execute test calibration
-        VisionResult testResult = protocol.execute(Command.TEST_CALIB);
+        VisionResult testResult = protocol.execute(Command.TEST_CALIB, false);
 
         if (!testResult.isSuccess()) {
             log.error("Test calibration failed");

@@ -52,9 +52,9 @@ public class SmartPickingProtocol {
     public boolean sendHardCodedMessage(RoboticsAPIApplication app,LBR robot)
     {
     	    		try {
-        		execute(Command.SET_CALIB_MODE);
+        		execute(Command.SET_CALIB_MODE, true);
         		//app.getApplicationControl().halt();
-        		execute(Command.SEND_ROBOT_POSE);
+        		execute(Command.SEND_ROBOT_POSE, false);
         		//app.getApplicationControl().halt();;
 				Thread.sleep(500);
 				_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getX()*10)), false);
@@ -92,9 +92,9 @@ public class SmartPickingProtocol {
      * Follows the sequence required by the manual: 15;ref -> 19 (reset) -> 15;ref
      */
     public boolean loadReference(String name) {
-        execute(Command.LOAD_REFERENCE, name);
+        execute(Command.LOAD_REFERENCE, name, true);
         _client.sendAndReceive("19", false); // Internal cleanup/reset command
-        VisionResult res = execute(Command.LOAD_REFERENCE, name);
+        VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
         return res.isSuccess();
     }
 
@@ -106,14 +106,14 @@ public class SmartPickingProtocol {
             log.error("Invalid mode command requested.");
             return false;
         }
-        return execute(mode).isSuccess();
+        return execute(mode, true).isSuccess();
     }
 
-    public VisionResult execute(Command cmd) {
-        return execute(cmd, null);
+    public VisionResult execute(Command cmd, boolean expectReply) {
+        return execute(cmd, null, expectReply);
     }
 
-    public VisionResult execute(Command cmd, String args) {
+    public VisionResult execute(Command cmd, String args, boolean expectReply) {
         String message = cmd.getCode();
         if (args != null && !args.isEmpty()) {
             message += ";" + args;

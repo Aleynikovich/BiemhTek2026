@@ -117,7 +117,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
         for (int i = 0; i < steps.length; i++) {
             if (!_running) return;
-            VisionResult res = _protocol.execute(steps[i]);
+            VisionResult res = _protocol.execute(steps[i], false);
 
             if (!res.isSuccess()) {
                 log.error("Step " + steps[i] + " failed.");
