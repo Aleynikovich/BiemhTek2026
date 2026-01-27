@@ -207,7 +207,7 @@ public class CalibrationRoutine {
         ThreadUtil.milliSleep(DELAY_MS);
 
         // Execute test calibration
-        VisionResult testResult = protocol.execute(Command.TEST_CALIB, false);
+        VisionResult testResult = protocol.execute(Command.TEST_CALIB, true);
 
         if (!testResult.isSuccess()) {
             log.error("Test calibration failed");
