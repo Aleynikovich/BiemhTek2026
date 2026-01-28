@@ -226,14 +226,14 @@ public class CalibrationRoutine {
      * - Positions are multiplied by 10 (mm * 10 = tenths of mm)
      * - Angles are converted from radians to millidegrees (rad * 180/PI * 1000)
      */
-    private String[] buildPoseMessage(Frame pose) {
-        // Convert positions: mm to tenths of mm
-    	String[] poses = new String[6];
-        poses[0] = String.format("%.0f", pose.getX()*10);
-        poses[1] = String.format("%.0f", pose.getY()*10);
-        poses[2] = String.format("%.0f", pose.getZ()*10);
+    private String[] buildPoseMessage(Frame pose)
+    {    	
+    	String[] poseData = new String[6];
+    	poseData[0] = String.format("%.0f", pose.getX());
+    	poseData[1] = String.format("%.0f", pose.getY());
+    	poseData[2] = String.format("%.0f", pose.getZ());
         
-        //Convert
+  
         double cA = Math.cos(pose.getAlphaRad()), sA = Math.sin(pose.getAlphaRad());
         double cB = Math.cos(pose.getBetaRad()), sB = Math.sin(pose.getBetaRad());
         double cC = Math.cos((pose.getGammaRad())), sC = Math.sin((pose.getGammaRad()));
@@ -249,13 +249,11 @@ public class CalibrationRoutine {
         double alpha = Math.atan2(-R[1][2], R[2][2]);
         double gamma = Math.atan2(-R[0][1], R[0][0]);
         
-        
-        // Convert angles: radians to millidegrees     
-        poses[3] = String.format("%.0f", Math.toDegrees(alpha*1000));
-        poses[4] = String.format("%.0f", Math.toDegrees(beta*1000));
-        poses[5] = String.format("%.0f", Math.toDegrees(gamma*1000));
+           
+        poseData[3] = String.format("%.0f", Math.toDegrees(gamma*1000));
+        poseData[4] = String.format("%.0f", Math.toDegrees(beta*1000));
+        poseData[5] = String.format("%.0f", Math.toDegrees(alpha*1000));
 
-        // Build message string
-        return poses;
+        return poseData;
     }
 }
