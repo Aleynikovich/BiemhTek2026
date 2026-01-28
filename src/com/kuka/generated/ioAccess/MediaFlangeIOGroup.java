@@ -37,6 +37,10 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 		addInput("Gripper1_isClosed", IOTypes.BOOLEAN, 1);
 		addInput("Gripper2_isOpen", IOTypes.BOOLEAN, 1);
 		addInput("Gripper2_isClosed", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Test1", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Test2", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Test3", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Test4", IOTypes.BOOLEAN, 1);
 	}
 
 	/**
@@ -281,6 +285,170 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	public boolean getGripper2_isClosed()
 	{
 		return getBooleanIOValue("Gripper2_isClosed", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Test1</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Test1'
+	 */
+	public boolean getTest1()
+	{
+		return getBooleanIOValue("Test1", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Test1</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Test1'
+	 */
+	public void setTest1(java.lang.Boolean value)
+	{
+		setDigitalOutput("Test1", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Test2</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Test2'
+	 */
+	public boolean getTest2()
+	{
+		return getBooleanIOValue("Test2", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Test2</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Test2'
+	 */
+	public void setTest2(java.lang.Boolean value)
+	{
+		setDigitalOutput("Test2", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Test3</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Test3'
+	 */
+	public boolean getTest3()
+	{
+		return getBooleanIOValue("Test3", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Test3</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Test3'
+	 */
+	public void setTest3(java.lang.Boolean value)
+	{
+		setDigitalOutput("Test3", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Test4</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Test4'
+	 */
+	public boolean getTest4()
+	{
+		return getBooleanIOValue("Test4", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Test4</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Test4'
+	 */
+	public void setTest4(java.lang.Boolean value)
+	{
+		setDigitalOutput("Test4", value);
 	}
 
 }
