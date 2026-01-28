@@ -232,28 +232,25 @@ public class CalibrationRoutine {
     	poseData[0] = String.format("%.0f", pose.getX()*10);
     	poseData[1] = String.format("%.0f", pose.getY()*10);
     	poseData[2] = String.format("%.0f", pose.getZ()*10);
-        
-  
-        double cA = Math.cos(pose.getAlphaRad()), sA = Math.sin(pose.getAlphaRad());
-        double cB = Math.cos(pose.getBetaRad()), sB = Math.sin(pose.getBetaRad());
-        double cC = Math.cos((pose.getGammaRad())), sC = Math.sin((pose.getGammaRad()));
-         
-        double[][] R = {
-            { cA*cB,  cA*sB*sC - sA*cC,  cA*sB*cC + sA*sC },
-            { sA*cB,  sA*sB*sC + cA*cC,  sA*sB*cC - cA*sC },
-            { -sB,    cB*sC,            cB*cC }
-        };
-
-         
-        double beta  = Math.asin(R[0][2]);
-        double alpha = Math.atan2(-R[1][2], R[2][2]);
-        double gamma = Math.atan2(-R[0][1], R[0][0]);
-        
-           
-        poseData[3] = String.format("%.0f", Math.toDegrees(gamma*1000));
-        poseData[4] = String.format("%.0f", Math.toDegrees(beta*1000));
-        poseData[5] = String.format("%.0f", Math.toDegrees(alpha*1000));
+    	
+        poseData[3] = String.format("%.0f", Math.toDegrees(pose.getGammaRad()*1000));
+        poseData[4] = String.format("%.0f", Math.toDegrees(pose.getBetaRad()*1000));
+        poseData[5] = String.format("%.0f", Math.toDegrees(pose.getAlphaRad()*1000));
 
         return poseData;
     }
 }
+//double cA = Math.cos(pose.getAlphaRad()), sA = Math.sin(pose.getAlphaRad());
+//double cB = Math.cos(pose.getBetaRad()), sB = Math.sin(pose.getBetaRad());
+//double cC = Math.cos((pose.getGammaRad())), sC = Math.sin((pose.getGammaRad()));
+ 
+//double[][] R = {
+//    { cA*cB,  cA*sB*sC - sA*cC,  cA*sB*cC + sA*sC },
+//    { sA*cB,  sA*sB*sC + cA*cC,  sA*sB*cC - cA*sC },
+//    { -sB,    cB*sC,            cB*cC }
+//};
+
+ 
+//double beta  = Math.asin(R[0][2]);
+//double alpha = Math.atan2(-R[1][2], R[2][2]);
+//double gamma = Math.atan2(-R[0][1], R[0][0]);
