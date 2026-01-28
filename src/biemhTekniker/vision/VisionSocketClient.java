@@ -76,7 +76,7 @@ public class VisionSocketClient {
             }
             else
             {
-            	return "0";
+            	return "0"; //Return 0 (success) if no expected response
             }
         } catch (IOException e) {
             log.error("Communication error: " + e.getMessage());

@@ -229,9 +229,9 @@ public class CalibrationRoutine {
     private String[] buildPoseMessage(Frame pose)
     {    	
     	String[] poseData = new String[6];
-    	poseData[0] = String.format("%.0f", pose.getX());
-    	poseData[1] = String.format("%.0f", pose.getY());
-    	poseData[2] = String.format("%.0f", pose.getZ());
+    	poseData[0] = String.format("%.0f", pose.getX()*10);
+    	poseData[1] = String.format("%.0f", pose.getY()*10);
+    	poseData[2] = String.format("%.0f", pose.getZ()*10);
         
   
         double cA = Math.cos(pose.getAlphaRad()), sA = Math.sin(pose.getAlphaRad());
