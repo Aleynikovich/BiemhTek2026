@@ -132,7 +132,7 @@ public class CalibrationRoutine {
         // Send robot pose to vision system
         String[] poseMessage = buildPoseMessage(currentPose);
         log.debug("Sending pose: " + poseMessage);
-        protocol.execute(Command.SEND_ROBOT_POSE, false);
+      
         
         // Send robot pose
 
