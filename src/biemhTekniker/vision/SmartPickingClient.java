@@ -9,6 +9,12 @@ import biemhTekniker.vision.SmartPickingProtocol.Command;
 import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
 import javax.inject.Inject;
 
+/**
+ * @deprecated This class has been replaced by {@link SmartPickingThread}.
+ * Use SmartPickingThread for better integration with the main application.
+ * This file is kept for reference only.
+ */
+@Deprecated
 public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
     private static final Logger log = Logger.getLogger(SmartPickingClient.class);
