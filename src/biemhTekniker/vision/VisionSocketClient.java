@@ -35,7 +35,7 @@ public class VisionSocketClient {
             socket = new Socket();
             socket.setReuseAddress(true);
             socket.connect(new InetSocketAddress(ip, port), timeout);
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(5000);
 
             in = socket.getInputStream();
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "US-ASCII"), true);
