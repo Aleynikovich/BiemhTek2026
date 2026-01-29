@@ -1,6 +1,7 @@
 package biemhTekniker.vision;
 
 import biemhTekniker.logger.Logger;
+import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
 import com.kuka.generated.ioAccess.VisionInputsIOGroup;
 import com.kuka.generated.ioAccess.VisionOutputsIOGroup;
@@ -48,9 +49,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
                 } else {
                     processWorkCycle();
                 }
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                _running = false;
+                ThreadUtil.milliSleep(100);
             } catch (Exception e) {
                 log.error("Loop Error: " + e.getMessage());
             }
@@ -77,7 +76,7 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
 
         if (_currentMode == Mode.AUTO) {
             if (visionInputs.getDataRequest()) {
-                executeRunSequence();
+                //executeRunSequence();
             }
         } else if (_currentMode == Mode.CALIBRATION) {
             if (visionInputs.getCalibrationRequest()) {
@@ -101,51 +100,6 @@ public class SmartPickingClient extends RoboticsAPIBackgroundTask {
         } else if (targetMode == Mode.NONE) {
             _currentMode = Mode.NONE;
         }
-    }
-
-    private void executeRunSequence() {
-        visionOutputs.setDataRequestSent(true);
-
-        Command[] steps = {
-                Command.CAPTURE_DATA,
-                Command.LOCATE_CONTAINER,
-                Command.LOCATE_PARTS,
-                Command.GET_PART_POS
-        };
-
-        boolean success = true;
-
-        for (int i = 0; i < steps.length; i++) {
-            if (!_running) return;
-            VisionResult res = _protocol.execute(steps[i], false);
-
-            if (!res.isSuccess()) {
-                log.error("Step " + steps[i] + " failed.");
-                success = false;
-                break;
-            }
-
-            // --- BRIDGE UPDATE START ---
-            // If we successfully got part positions, save them to the bridge
-            if (steps[i] == Command.GET_PART_POS) {
-                VisionDataBridge.get().update(
-                        res.getX(), res.getY(), res.getZ(),
-                        res.getRx(), res.getRy(), res.getRz()
-                );
-                log.info("Part found at X=" + res.getX() + ", Y=" + res.getY());
-            }
-            // --- BRIDGE UPDATE END ---
-        }
-
-        if (success) {
-            visionOutputs.setPickPositionReady(true);
-            waitForInputLow(new InputCheck() {
-                public boolean isHigh() { return visionInputs.getDataRequest(); }
-            });
-        }
-
-        visionOutputs.setDataRequestSent(false);
-        visionOutputs.setPickPositionReady(false);
     }
 
     private void executeCalibrationSequence() {
