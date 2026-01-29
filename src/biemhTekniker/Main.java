@@ -1,5 +1,8 @@
 package biemhTekniker;
 
+import java.io.IOException;
+import java.net.Socket;
+
 import biemhTekniker.calibration.CalibrationRoutine;
 import biemhTekniker.logger.LogCollector;
 import biemhTekniker.logger.LogManager;
@@ -39,7 +42,7 @@ public class Main extends RoboticsAPIApplication
     public void run()
     {
         log.info("Main Application Running. Monitoring Vision Bridge...");
-
+        Socket socket = null;
         while (true)
         {
             // Check if the Background Task has put new data in the bridge
@@ -47,11 +50,30 @@ public class Main extends RoboticsAPIApplication
              //   displayPartData();
             //}
             
-            if (!calibrationSuccess)
+            /*if (!calibrationSuccess)
             {
             	calibrationSuccess = executeCalibration(VisionServerIP, VisionServerPort);
+            }*/
+            if (socket == null)
+            {
+            	try {
+                    socket = new Socket("172.31.1.69", 59002);
+                    if (socket.isConnected()) {
+                        System.out.println("Connection successful");
+                    }
+                    // Operations
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
-            
 
             ThreadUtil.milliSleep(100);
         }
