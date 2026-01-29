@@ -57,6 +57,7 @@ public class Main extends RoboticsAPIApplication
             if (socket == null)
             {
             	try {
+            		System.out.println("Connection going");
                     socket = new Socket("172.31.1.69", 59002);
                     if (socket.isConnected()) {
                         System.out.println("Connection successful");
@@ -75,7 +76,7 @@ public class Main extends RoboticsAPIApplication
                 }
             }
 
-            ThreadUtil.milliSleep(100);
+            ThreadUtil.milliSleep(3000);
         }
     }
 
