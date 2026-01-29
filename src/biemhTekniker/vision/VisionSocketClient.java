@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import com.kuka.common.ThreadUtil;
+
 /**
  * Standardized TCP Client for Vision System communication.
  * Compatible with Java 1.6.
@@ -46,7 +48,7 @@ public class VisionSocketClient {
         }
     }
 
-    public String sendAndReceive(String message) {
+    public String sendAndReceive(String message, boolean expectResponse) {
         if (!isConnected()) {
             return null;
         }
@@ -54,20 +56,31 @@ public class VisionSocketClient {
         try {
             out.print(message);
             out.flush();
+            log.debug("Sending " + message);
+            ThreadUtil.milliSleep(100);
             byte[] buffer = new byte[2048];
-            int bytesRead = in.read(buffer);
-
-            if (bytesRead > 0) {
-                String result = new String(buffer, 0, bytesRead, "US-ASCII");
-                return result;
-            } else {
-                log.warn("Connection closed by remote host.");
-                close();
-                return null;
+            
+            if (expectResponse)
+            {
+	            int bytesRead = in.read(buffer);
+	
+	            if (bytesRead > 0) {
+	                String result = new String(buffer, 0, bytesRead, "US-ASCII");
+	                log.debug("Received " + result);
+	                return result;
+	            } else {
+	                log.warn("No data returned from camera.");
+	                //close();
+	                return null;
+	            }
+            }
+            else
+            {
+            	return "0"; //Return 0 (success) if no expected response
             }
         } catch (IOException e) {
             log.error("Communication error: " + e.getMessage());
-            close();
+            //close();
             return null;
         }
     }

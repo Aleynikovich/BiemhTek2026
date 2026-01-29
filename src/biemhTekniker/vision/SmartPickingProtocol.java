@@ -1,5 +1,8 @@
 package biemhTekniker.vision;
 
+import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
+import com.kuka.roboticsAPI.deviceModel.LBR;
+
 import biemhTekniker.logger.Logger;
 
 /**
@@ -23,7 +26,12 @@ public class SmartPickingProtocol {
         GET_CONTAINER_POS("8"),
         LOCATE_PARTS("4"),
         GET_PART_POS("9"),
-        GET_NEXT_PART_POS("11");
+        GET_NEXT_PART_POS("11"),
+        ADD_CALIB_POINT("5"),
+        CALIBRATE("6"),
+        TEST_CALIB("7"),
+        SEND_ROBOT_POSE("14"),
+        SEND_CUSTOM_MESSAGE("103");
 
         private final String code;
         Command(String code) { this.code = code; }
@@ -33,15 +41,60 @@ public class SmartPickingProtocol {
     public SmartPickingProtocol(VisionSocketClient client) {
         this._client = client;
     }
+    
+    public boolean sendCustomMessage(String message, boolean expectReply)
+    {
+    	_client.sendAndReceive(message, expectReply);
+    	return true;
+    }
+    
+    @Deprecated
+    public boolean sendHardCodedMessage(RoboticsAPIApplication app,LBR robot)
+    {
+    	    		try {
+        		execute(Command.SET_CALIB_MODE, true);
+        		//app.getApplicationControl().halt();
+        		execute(Command.SEND_ROBOT_POSE, false);
+        		//app.getApplicationControl().halt();;
+				Thread.sleep(500);
+				_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getX()*10)), false);
+				Thread.sleep(500);
+		    	//app.getApplicationControl().halt();
+		    	_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getY()*10)), false);
+		    	Thread.sleep(500);
+		    	//app.getApplicationControl().halt();
+		    	_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getZ()*10)), false);
+		    	Thread.sleep(500);
+		    	//app.getApplicationControl().halt();
+		    	_client.sendAndReceive(String.format("%.0f", (Math.toDegrees(robot.getFlange().getGammaRad())*1000)), false);
+		    	Thread.sleep(500);
+		    	//app.getApplicationControl().halt();
+		    	_client.sendAndReceive(String.format("%.0f", (Math.toDegrees(robot.getFlange().getBetaRad())*1000)), false);
+		    	Thread.sleep(500);
+		    	//app.getApplicationControl().halt();
+		    	_client.sendAndReceive(String.format("%.0f", (Math.toDegrees(robot.getFlange().getAlphaRad())*1000)), false);
+		    	Thread.sleep(500);
+		    	//app.getApplicationControl().halt();
+		    	log.debug("Sending 5");
+		    	_client.sendAndReceive("5", true);
+		    	//app.getApplicationControl().halt();
 
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	
+    	return true;
+    	
+    }
     /**
      * Loads a specific reference by name.
      * Follows the sequence required by the manual: 15;ref -> 19 (reset) -> 15;ref
      */
     public boolean loadReference(String name) {
-        execute(Command.LOAD_REFERENCE, name);
-        _client.sendAndReceive("19"); // Internal cleanup/reset command
-        VisionResult res = execute(Command.LOAD_REFERENCE, name);
+        execute(Command.LOAD_REFERENCE, name, true);
+        _client.sendAndReceive("19", false); // Internal cleanup/reset command
+        VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
         return res.isSuccess();
     }
 
@@ -53,20 +106,20 @@ public class SmartPickingProtocol {
             log.error("Invalid mode command requested.");
             return false;
         }
-        return execute(mode).isSuccess();
+        return execute(mode, true).isSuccess();
     }
 
-    public VisionResult execute(Command cmd) {
-        return execute(cmd, null);
+    public VisionResult execute(Command cmd, boolean expectReply) {
+        return execute(cmd, null, expectReply);
     }
 
-    public VisionResult execute(Command cmd, String args) {
+    public VisionResult execute(Command cmd, String args, boolean expectReply) {
         String message = cmd.getCode();
         if (args != null && !args.isEmpty()) {
             message += ";" + args;
         }
         log.debug("Sending " + message + " to cam.");
-        String rawResponse = _client.sendAndReceive(message);
+        String rawResponse = _client.sendAndReceive(message, expectReply);
         VisionResult result = new VisionResult(rawResponse, cmd);
         log.debug(result.toString());
 

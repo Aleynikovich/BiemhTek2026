@@ -1,10 +1,13 @@
 package biemhTekniker;
 
+import biemhTekniker.calibration.CalibrationRoutine;
 import biemhTekniker.logger.LogCollector;
 import biemhTekniker.logger.LogManager;
 import biemhTekniker.logger.LogPublisher;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.VisionDataBridge;
+import biemhTekniker.vision.VisionSocketClient;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -15,7 +18,12 @@ public class Main extends RoboticsAPIApplication
 {
     @Inject
     private LBR iiwa;
-
+    
+	private String VisionServerIP = "172.31.1.69";  
+	private int VisionServerPort = 59002;
+	
+	private boolean calibrationSuccess = false;
+	
     private LogPublisher _logPublisher;
     private static final Logger log = Logger.getLogger(Main.class);
 
@@ -35,9 +43,15 @@ public class Main extends RoboticsAPIApplication
         while (true)
         {
             // Check if the Background Task has put new data in the bridge
-            if (VisionDataBridge.get().hasNewData()) {
-                displayPartData();
+           // if (VisionDataBridge.get().hasNewData()) {
+             //   displayPartData();
+            //}
+            
+            if (!calibrationSuccess)
+            {
+            	calibrationSuccess = executeCalibration(VisionServerIP, VisionServerPort);
             }
+            
 
             ThreadUtil.milliSleep(100);
         }
@@ -80,5 +94,54 @@ public class Main extends RoboticsAPIApplication
         {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Executes the calibration routine for the vision system.
+     * This method can be called separately to perform calibration.
+     * 
+     * @param visionServerIP IP address of the vision system server
+     * @param visionServerPort Port number of the vision system server
+     * @return true if calibration completed successfully, false otherwise
+     */
+    public boolean executeCalibration(String visionServerIP, int visionServerPort) {
+        log.info("Starting calibration sequence...");
+
+        // Create vision client and protocol
+        VisionSocketClient visionClient = new VisionSocketClient(visionServerIP, visionServerPort);
+        if (!visionClient.connect()) {
+            log.error("Failed to connect to vision server");
+            return false;
+        }
+      
+
+        SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
+
+        // Create calibration routine
+        CalibrationRoutine calibration = new CalibrationRoutine(
+                this,
+                iiwa, 
+                protocol, 
+                iiwa.getFlange()
+        );
+
+        // Execute calibration
+        // Note: Pass null for test frame if not defined in RoboticsAPI.data.xml
+        // To use a test frame, define it in the XML (e.g., "/CalibrationPoints/Test")
+        boolean success = calibration.executeCalibration(
+                "/CalibrationPoints",
+                "/CalibrationPoints/P16"
+        );
+
+        // Clean up
+        visionClient.close();
+
+        if (success) {
+            log.info("Calibration completed successfully");
+        } else {
+            log.error("Calibration failed");
+        }
+
+        return success;
     }
 }
