@@ -1,148 +1,121 @@
 package biemhTekniker;
 
-import biemhTekniker.calibration.CalibrationRoutine;
-import biemhTekniker.logger.LogCollector;
-import biemhTekniker.logger.LogManager;
-import biemhTekniker.logger.LogPublisher;
 import biemhTekniker.logger.Logger;
-import biemhTekniker.vision.SmartPickingProtocol;
-import biemhTekniker.vision.VisionSocketClient;
+import biemhTekniker.managers.CalibrationManager;
+import biemhTekniker.managers.LoggingManager;
+import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
+import com.kuka.generated.ioAccess.VisionInputsIOGroup;
+import com.kuka.generated.ioAccess.VisionOutputsIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import javax.inject.Inject;
 
-@SuppressWarnings("unused")
+/**
+ * Main robot application.
+ * Manages program execution, logging, and vision system integration.
+ */
 public class Main extends RoboticsAPIApplication
 {
+    private static final Logger log = Logger.getLogger(Main.class);
+    
     @Inject
     private LBR iiwa;
+    
+    @Inject
+    private VisionInputsIOGroup visionInputs;
+    
+    @Inject
+    private VisionOutputsIOGroup visionOutputs;
 
-    private String VisionServerIP = "172.31.1.69";
-    private int VisionServerPort = 59002;
+    // Configuration
+    private static final String VISION_SERVER_IP = "172.31.1.69";
+    private static final int VISION_SERVER_PORT = 59002;
 
-    private boolean calibrationSuccess = false;
-
-    private LogPublisher _logPublisher;
-    private static final Logger log = Logger.getLogger(Main.class);
+    // Managers
+    private LoggingManager loggingManager;
+    private CalibrationManager calibrationManager;
+    private SmartPickingThread smartPickingThread;
 
     private int programNumber = 0;
 
     @Override
     public void initialize()
     {
-        initializeLogging();
+        // Initialize logging
+        loggingManager = new LoggingManager();
+        loggingManager.initialize();
+        
+        // Initialize calibration manager
+        calibrationManager = new CalibrationManager(this, iiwa, VISION_SERVER_IP, VISION_SERVER_PORT);
+        
+        // Initialize and start SmartPicking thread
+        smartPickingThread = new SmartPickingThread(visionInputs, visionOutputs, 
+                                                    VISION_SERVER_IP, VISION_SERVER_PORT);
+        smartPickingThread.initialize();
+        smartPickingThread.start();
+        
+        // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.00);
+        
+        log.info("Main application initialized");
     }
 
     @Override
     public void run()
     {
-        boolean requestProgramFromPLC = true, programRequested = false;
-
-        if(!programRequested){
-            log.info("Main Application Running, requesting program from PLC");
-            requestProgramFromPLC = true;
-        }
+        log.info("Main application running");
 
         while (true)
         {
             switch (programNumber)
             {
                 case 0:
-                    //Program 0
+                    // Program 0 - Idle
                     break;
                 case 1:
-                    //Program 1
+                    // Program 1 - Reserved
+                    break;
                 case 2:
-                    calibrationSuccess = executeCalibration(VisionServerIP, VisionServerPort);
+                    // Program 2 - Calibration
+                    boolean calibrationSuccess = calibrationManager.executeCalibration();
+                    if (calibrationSuccess) {
+                        log.info("Calibration program completed successfully");
+                    } else {
+                        log.error("Calibration program failed");
+                    }
+                    programNumber = 0; // Return to idle after calibration
                     break;
-                //So on...
                 default:
+                    log.warn("Unknown program number: " + programNumber);
                     break;
-
             }
             ThreadUtil.milliSleep(200);
         }
     }
 
-
     @Override
     public void dispose()
     {
-        if (_logPublisher != null) _logPublisher.stop();
+        log.info("Main application shutting down");
+        
+        // Shutdown SmartPicking thread
+        if (smartPickingThread != null) {
+            smartPickingThread.shutdown();
+            try {
+                smartPickingThread.join(5000); // Wait up to 5 seconds for thread to finish
+            } catch (InterruptedException e) {
+                log.warn("Interrupted while waiting for SmartPicking thread to finish");
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        // Shutdown logging
+        if (loggingManager != null) {
+            loggingManager.shutdown();
+        }
+        
         super.dispose();
-    }
-
-    public void initializeLogging()
-    {
-        try
-        {
-            LogCollector _logCollector = new LogCollector();
-            LogManager.register(_logCollector);
-
-            _logPublisher = new LogPublisher(_logCollector);
-            _logPublisher.start();
-
-            log.info("Logging initialized");
-
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Executes the calibration routine for the vision system.
-     * This method can be called separately to perform calibration.
-     *
-     * @param visionServerIP   IP address of the vision system server
-     * @param visionServerPort Port number of the vision system server
-     * @return true if calibration completed successfully, false otherwise
-     */
-    public boolean executeCalibration(String visionServerIP, int visionServerPort)
-    {
-        log.info("Starting calibration sequence...");
-
-        // Create vision client and protocol
-        VisionSocketClient visionClient = new VisionSocketClient(visionServerIP, visionServerPort);
-        if (!visionClient.connect())
-        {
-            log.error("Failed to connect to vision server");
-            return false;
-        }
-
-
-        SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
-
-        // Create calibration routine
-        CalibrationRoutine calibration = new CalibrationRoutine(
-                this,
-                iiwa,
-                protocol,
-                iiwa.getFlange()
-        );
-
-        // Execute calibration
-        // Note: Pass null for test frame if not defined in RoboticsAPI.data.xml
-        // To use a test frame, define it in the XML (e.g., "/CalibrationPoints/Test")
-        boolean success = calibration.executeCalibration(
-                "/CalibrationPoints",
-                "/CalibrationPoints/P16"
-        );
-
-        // Clean up
-        visionClient.close();
-
-        if (success)
-        {
-            log.info("Calibration completed successfully");
-        } else
-        {
-            log.error("Calibration failed");
-        }
-
-        return success;
     }
 }

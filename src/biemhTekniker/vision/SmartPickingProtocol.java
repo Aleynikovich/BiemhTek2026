@@ -1,8 +1,5 @@
 package biemhTekniker.vision;
 
-import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
-import com.kuka.roboticsAPI.deviceModel.LBR;
-
 import biemhTekniker.logger.Logger;
 
 /**
@@ -46,46 +43,6 @@ public class SmartPickingProtocol {
     {
     	_client.sendAndReceive(message, expectReply);
     	return true;
-    }
-    
-    @Deprecated
-    public boolean sendHardCodedMessage(RoboticsAPIApplication app,LBR robot)
-    {
-    	    		try {
-        		execute(Command.SET_CALIB_MODE, true);
-        		//app.getApplicationControl().halt();
-        		execute(Command.SEND_ROBOT_POSE, false);
-        		//app.getApplicationControl().halt();;
-				Thread.sleep(500);
-				_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getX()*10)), false);
-				Thread.sleep(500);
-		    	//app.getApplicationControl().halt();
-		    	_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getY()*10)), false);
-		    	Thread.sleep(500);
-		    	//app.getApplicationControl().halt();
-		    	_client.sendAndReceive(String.format("%.0f",(robot.getFlange().getZ()*10)), false);
-		    	Thread.sleep(500);
-		    	//app.getApplicationControl().halt();
-		    	_client.sendAndReceive(String.format("%.0f", (Math.toDegrees(robot.getFlange().getGammaRad())*1000)), false);
-		    	Thread.sleep(500);
-		    	//app.getApplicationControl().halt();
-		    	_client.sendAndReceive(String.format("%.0f", (Math.toDegrees(robot.getFlange().getBetaRad())*1000)), false);
-		    	Thread.sleep(500);
-		    	//app.getApplicationControl().halt();
-		    	_client.sendAndReceive(String.format("%.0f", (Math.toDegrees(robot.getFlange().getAlphaRad())*1000)), false);
-		    	Thread.sleep(500);
-		    	//app.getApplicationControl().halt();
-		    	log.debug("Sending 5");
-		    	_client.sendAndReceive("5", true);
-		    	//app.getApplicationControl().halt();
-
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    	
-    	return true;
-    	
     }
     /**
      * Loads a specific reference by name.
