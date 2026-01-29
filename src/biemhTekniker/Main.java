@@ -37,7 +37,12 @@ public class Main extends RoboticsAPIApplication
     private CalibrationManager calibrationManager;
     private SmartPickingThread smartPickingThread;
 
-    private int programNumber = 0;
+    /**
+     * Current program number to execute.
+     * This should be updated based on PLC signals or other external input.
+     * Currently managed internally but designed to be set by external systems.
+     */
+    private volatile int programNumber = 0;
 
     @Override
     public void initialize()

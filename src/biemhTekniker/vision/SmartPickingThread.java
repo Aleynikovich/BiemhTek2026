@@ -32,9 +32,15 @@ public class SmartPickingThread extends Thread {
     private VisionSocketClient socketClient;
     private SmartPickingProtocol protocol;
 
-    private boolean referenceLoaded = false;
-    private Mode currentMode = Mode.NONE;
+    private volatile boolean referenceLoaded = false;
+    private volatile Mode currentMode = Mode.NONE;
     private volatile boolean running = true;
+    
+    /**
+     * Reference identifier for the part being picked.
+     * Format: PROJECT_PARTNUMBER (e.g., "BIEMH26_105055")
+     * This should match a reference loaded in the vision system.
+     */
     private final String reference = "BIEMH26_105055";
 
     /**
@@ -71,6 +77,15 @@ public class SmartPickingThread extends Thread {
     public void run() {
         log.info("SmartPickingThread started.");
         
+        // Verify initialization completed
+        if (socketClient == null || protocol == null) {
+            log.error("SmartPickingThread not properly initialized. Call initialize() first.");
+            return;
+        }
+        
+        int consecutiveErrors = 0;
+        final int MAX_CONSECUTIVE_ERRORS = 10;
+        
         while (running) {
             try {
                 if (!socketClient.isConnected()) {
@@ -78,9 +93,17 @@ public class SmartPickingThread extends Thread {
                 } else {
                     processWorkCycle();
                 }
+                consecutiveErrors = 0; // Reset on success
                 ThreadUtil.milliSleep(100);
             } catch (Exception e) {
-                log.error("Loop Error: " + e.getMessage());
+                consecutiveErrors++;
+                log.error("Loop Error (" + consecutiveErrors + "/" + MAX_CONSECUTIVE_ERRORS + "): " + e.getMessage());
+                
+                if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+                    log.error("Maximum consecutive errors reached. Shutting down SmartPickingThread.");
+                    running = false;
+                }
+                ThreadUtil.milliSleep(500); // Longer delay on error
             }
         }
         
@@ -124,12 +147,22 @@ public class SmartPickingThread extends Thread {
 
     /**
      * Handles mode selection based on input signals.
+     * If both run and calibration modes are requested, calibration takes priority.
      */
     private void handleModeSelection() {
         boolean runReq = visionInputs.getRunMode();
         boolean calReq = visionInputs.getCalibrationMode();
 
-        Mode targetMode = runReq ? Mode.AUTO : (calReq ? Mode.CALIBRATION : Mode.NONE);
+        // Calibration mode takes priority if both are requested
+        Mode targetMode = Mode.NONE;
+        if (calReq) {
+            targetMode = Mode.CALIBRATION;
+            if (runReq) {
+                log.warn("Both RUN and CALIBRATION modes requested. Using CALIBRATION.");
+            }
+        } else if (runReq) {
+            targetMode = Mode.AUTO;
+        }
 
         if (targetMode != Mode.NONE && targetMode != currentMode) {
             Command cmd = (targetMode == Mode.AUTO) ? Command.SET_AUTO_MODE : Command.SET_CALIB_MODE;
@@ -144,6 +177,8 @@ public class SmartPickingThread extends Thread {
 
     /**
      * Executes calibration sequence.
+     * This acknowledges the calibration request signal from PLC.
+     * Note: Actual calibration execution is handled separately by CalibrationManager.
      */
     private void executeCalibrationSequence() {
         visionOutputs.setCalibrationComplete(true);
@@ -157,14 +192,16 @@ public class SmartPickingThread extends Thread {
 
     /**
      * Waits for an input signal to go low.
+     * Thread will be interrupted on shutdown.
      */
     private void waitForInputLow(InputCheck check) {
         while (check.isHigh() && running) {
             try { 
                 Thread.sleep(50); 
-            } catch (InterruptedException e) { 
-                running = false;
+            } catch (InterruptedException e) {
+                log.warn("Input wait interrupted - thread shutting down");
                 Thread.currentThread().interrupt();
+                break;
             }
         }
     }
@@ -205,7 +242,7 @@ public class SmartPickingThread extends Thread {
 
     /**
      * Gets the current protocol instance for external access.
-     * @return SmartPickingProtocol instance
+     * @return SmartPickingProtocol instance, or null if not initialized
      */
     public SmartPickingProtocol getProtocol() {
         return protocol;

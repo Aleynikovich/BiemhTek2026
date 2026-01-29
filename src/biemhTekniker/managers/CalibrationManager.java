@@ -42,40 +42,44 @@ public class CalibrationManager {
     public boolean executeCalibration() {
         log.info("Starting calibration sequence...");
         
-        // Create vision client and protocol
         VisionSocketClient visionClient = new VisionSocketClient(visionServerIP, visionServerPort);
-        if (!visionClient.connect()) {
-            log.error("Failed to connect to vision server");
-            return false;
+        
+        try {
+            // Create vision client and protocol
+            if (!visionClient.connect()) {
+                log.error("Failed to connect to vision server");
+                return false;
+            }
+            
+            SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
+            
+            // Create calibration routine
+            CalibrationRoutine calibration = new CalibrationRoutine(
+                    application,
+                    robot,
+                    protocol,
+                    robot.getFlange()
+            );
+            
+            // Execute calibration
+            // Note: Pass null for test frame if not defined in RoboticsAPI.data.xml
+            // To use a test frame, define it in the XML (e.g., "/CalibrationPoints/Test")
+            boolean success = calibration.executeCalibration(
+                    "/CalibrationPoints",
+                    "/CalibrationPoints/P16"
+            );
+            
+            if (success) {
+                log.info("Calibration completed successfully");
+            } else {
+                log.error("Calibration failed");
+            }
+            
+            return success;
+            
+        } finally {
+            // Ensure vision client is always closed
+            visionClient.close();
         }
-        
-        SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
-        
-        // Create calibration routine
-        CalibrationRoutine calibration = new CalibrationRoutine(
-                application,
-                robot,
-                protocol,
-                robot.getFlange()
-        );
-        
-        // Execute calibration
-        // Note: Pass null for test frame if not defined in RoboticsAPI.data.xml
-        // To use a test frame, define it in the XML (e.g., "/CalibrationPoints/Test")
-        boolean success = calibration.executeCalibration(
-                "/CalibrationPoints",
-                "/CalibrationPoints/P16"
-        );
-        
-        // Clean up
-        visionClient.close();
-        
-        if (success) {
-            log.info("Calibration completed successfully");
-        } else {
-            log.error("Calibration failed");
-        }
-        
-        return success;
     }
 }
