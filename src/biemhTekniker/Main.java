@@ -1,12 +1,10 @@
 package biemhTekniker;
 
 import biemhTekniker.logger.Logger;
-import biemhTekniker.managers.CalibrationManager;
 import biemhTekniker.managers.LoggingManager;
+import biemhTekniker.programs.CalibrationProgram;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
-import com.kuka.generated.ioAccess.VisionInputsIOGroup;
-import com.kuka.generated.ioAccess.VisionOutputsIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import javax.inject.Inject;
@@ -21,26 +19,18 @@ public class Main extends RoboticsAPIApplication
     
     @Inject
     private LBR iiwa;
-    
-    @Inject
-    private VisionInputsIOGroup visionInputs;
-    
-    @Inject
-    private VisionOutputsIOGroup visionOutputs;
 
     // Configuration
     private static final String VISION_SERVER_IP = "172.31.1.69";
     private static final int VISION_SERVER_PORT = 59002;
 
-    // Managers
+    // Managers and threads
     private LoggingManager loggingManager;
-    private CalibrationManager calibrationManager;
     private SmartPickingThread smartPickingThread;
 
     /**
      * Current program number to execute.
      * This should be updated based on PLC signals or other external input.
-     * Currently managed internally but designed to be set by external systems.
      */
     private volatile int programNumber = 0;
 
@@ -51,12 +41,8 @@ public class Main extends RoboticsAPIApplication
         loggingManager = new LoggingManager();
         loggingManager.initialize();
         
-        // Initialize calibration manager
-        calibrationManager = new CalibrationManager(this, iiwa, VISION_SERVER_IP, VISION_SERVER_PORT);
-        
-        // Initialize and start SmartPicking thread
-        smartPickingThread = new SmartPickingThread(visionInputs, visionOutputs, 
-                                                    VISION_SERVER_IP, VISION_SERVER_PORT);
+        // Initialize and start SmartPicking thread (maintains connection to vision server)
+        smartPickingThread = new SmartPickingThread(VISION_SERVER_IP, VISION_SERVER_PORT);
         smartPickingThread.initialize();
         smartPickingThread.start();
         
@@ -84,12 +70,7 @@ public class Main extends RoboticsAPIApplication
                     break;
                 case 2:
                     // Program 2 - Calibration
-                    boolean calibrationSuccess = calibrationManager.executeCalibration();
-                    if (calibrationSuccess) {
-                        log.info("Calibration program completed successfully");
-                    } else {
-                        log.error("Calibration program failed");
-                    }
+                    executeCalibration();
                     programNumber = 0; // Return to idle after calibration
                     break;
                 default:
@@ -122,5 +103,28 @@ public class Main extends RoboticsAPIApplication
         }
         
         super.dispose();
+    }
+
+    /**
+     * Executes calibration program using the SmartPicking connection.
+     */
+    private void executeCalibration() {
+        if (!smartPickingThread.isConnected()) {
+            log.error("Cannot execute calibration - not connected to vision server");
+            return;
+        }
+        
+        CalibrationProgram calibration = new CalibrationProgram(
+                this, 
+                iiwa, 
+                smartPickingThread.getProtocol()
+        );
+        
+        boolean success = calibration.execute();
+        if (success) {
+            log.info("Calibration program completed successfully");
+        } else {
+            log.error("Calibration program failed");
+        }
     }
 }
