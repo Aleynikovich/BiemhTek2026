@@ -27,7 +27,6 @@ public class Main extends RoboticsAPIApplication
     private static final Logger log = Logger.getLogger(Main.class);
 
     private int programNumber = 0;
-    private VisionDataBridge _visionDataBridge;
 
     @Override
     public void initialize()
