@@ -19,7 +19,7 @@ class RobotControlGUI:
         self.root.geometry("900x700")
         
         # Connection settings
-        self.robot_ip = tk.StringVar(value="172.31.1.69")
+        self.robot_ip = tk.StringVar(value="172.31.1.147")
         self.robot_port = tk.IntVar(value=30001)
         self.connected = False
         self.socket = None
