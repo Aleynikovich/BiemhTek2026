@@ -8,6 +8,7 @@ Python-based GUI application for controlling the KUKA LBR iiwa robot remotely.
 - **Program Control**: Set program number (0-7) with dedicated buttons
 - **Real-time Status**: Display current program, vision connection status, and workpiece position
 - **Console Output**: View robot logs and command responses
+- **Log Level Filtering**: Select minimum log level (DEBUG, INFO, WARN, ERROR) to filter console output and reduce network traffic
 - **Quick Actions**: Emergency stop, status requests, console clearing
 
 ## Requirements
@@ -69,6 +70,24 @@ chmod +x robot_control_gui.py
 - **Get Status**: Request current robot status
 - **Clear Console**: Clear the console output window
 
+### Log Level Filtering
+
+The GUI includes a log level filter that allows you to control which messages are displayed:
+
+- **DEBUG**: Shows all messages (most verbose)
+- **INFO**: Shows informational messages, warnings, and errors
+- **WARN**: Shows only warnings and errors
+- **ERROR**: Shows only error messages (least verbose)
+
+When connected to the robot, changing the log level also instructs the robot to filter messages at the source, reducing network traffic. Each client can set their own log level independently.
+
+Log messages are color-coded:
+- Debug messages appear in gray
+- Info messages appear in black
+- Warnings appear in orange
+- Errors appear in red
+- Success messages appear in green
+
 ## Architecture
 
 ### Communication Protocol
@@ -90,6 +109,21 @@ The GUI communicates with the robot using JSON messages over TCP:
 }
 ```
 
+**Set Log Level Command:**
+```json
+{
+  "type": "set_log_level",
+  "level": "INFO"
+}
+```
+
+**Get Log Level Command:**
+```json
+{
+  "type": "get_log_level"
+}
+```
+
 **Status Response:**
 ```json
 {
@@ -100,12 +134,36 @@ The GUI communicates with the robot using JSON messages over TCP:
 }
 ```
 
+**Log Level Response:**
+```json
+{
+  "type": "log_level",
+  "level": "DEBUG"
+}
+```
+
+**Log Message:**
+```json
+{
+  "type": "log",
+  "level": "info",
+  "message": "Operation completed successfully"
+}
+```
+
+Or in NetworkListener format:
+```
+[13:45:23.456] ClassName | INFO: Operation completed successfully
+```
+
 ### Robot-Side Components
 
 - **ConsoleServer.java**: Accepts TCP connections and manages client handlers
-- **ConsoleCommandHandler.java**: Processes JSON commands from GUI
+- **ConsoleCommandHandler.java**: Processes JSON commands from GUI, manages NetworkListener for log forwarding
 - **ConsoleServerInterface.java**: Interface for Main.java to provide robot state
 - **SimpleJSON.java**: Minimal JSON implementation for Java 1.7 compatibility
+- **NetworkListener.java**: Forwards log entries to connected clients with configurable filtering
+- **LogManager.java**: Central logging system that broadcasts to all registered listeners
 
 ## Troubleshooting
 
