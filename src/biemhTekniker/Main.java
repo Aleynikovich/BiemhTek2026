@@ -1,148 +1,291 @@
 package biemhTekniker;
 
-import biemhTekniker.calibration.CalibrationRoutine;
-import biemhTekniker.logger.LogCollector;
-import biemhTekniker.logger.LogManager;
-import biemhTekniker.logger.LogPublisher;
+import biemhTekniker.console.ConsoleServer;
+import biemhTekniker.console.ConsoleServerInterface;
+import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
-import biemhTekniker.vision.SmartPickingProtocol;
-import biemhTekniker.vision.VisionSocketClient;
+import biemhTekniker.managers.LoggingManager;
+import biemhTekniker.programs.*;
+import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import javax.inject.Inject;
 
-@SuppressWarnings("unused")
-public class Main extends RoboticsAPIApplication
+/**
+ * Main robot application.
+ * Manages program execution, logging, and vision system integration.
+ * Implements ConsoleServerInterface for GUI control.
+ */
+public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
 {
+    private static final Logger log = Logger.getLogger(Main.class);
+    
     @Inject
     private LBR iiwa;
 
-    private String VisionServerIP = "172.31.1.69";
-    private int VisionServerPort = 59002;
+    // Configuration
+    private static final String VISION_SERVER_IP = "172.31.1.69";
+    private static final int VISION_SERVER_PORT = 59002;
 
-    private boolean calibrationSuccess = false;
+    // Managers and threads
+    private LoggingManager loggingManager;
+    private SmartPickingThread smartPickingThread;
+    private ConsoleServer consoleServer;
+    
+    // Shared data
+    private WorkpieceData workpieceData;
 
-    private LogPublisher _logPublisher;
-    private static final Logger log = Logger.getLogger(Main.class);
-
-    private int programNumber = 0;
+    /**
+     * Current program number to execute.
+     * This should be updated based on PLC signals or other external input.
+     */
+    private volatile int programNumber = 0;
 
     @Override
     public void initialize()
     {
-        initializeLogging();
+        // Initialize logging
+        loggingManager = new LoggingManager();
+        loggingManager.initialize();
+        
+        // Initialize shared data
+        workpieceData = new WorkpieceData();
+        
+        // Initialize and start SmartPicking thread (maintains connection to vision server)
+        smartPickingThread = new SmartPickingThread(VISION_SERVER_IP, VISION_SERVER_PORT);
+        smartPickingThread.initialize();
+        smartPickingThread.start();
+        
+        // Initialize and start console server for GUI control
+        consoleServer = new ConsoleServer(this);
+        consoleServer.initialize();
+        
+        // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.00);
+        
+        log.info("Main application initialized");
     }
 
     @Override
     public void run()
     {
-        boolean requestProgramFromPLC = true, programRequested = false;
-
-        if(!programRequested){
-            log.info("Main Application Running, requesting program from PLC");
-            requestProgramFromPLC = true;
-        }
+        log.info("Main application running");
 
         while (true)
         {
             switch (programNumber)
             {
                 case 0:
-                    //Program 0
+                    // Program 0 - Idle
                     break;
+                    
                 case 1:
-                    //Program 1
+                    // Program 1 - Get New Workpiece Position
+                    getNewWorkpiecePosition();
+                    programNumber = 0;
+                    break;
+                    
                 case 2:
-                    calibrationSuccess = executeCalibration(VisionServerIP, VisionServerPort);
+                    // Program 2 - Calibration
+                    executeCalibration();
+                    programNumber = 0;
                     break;
-                //So on...
+                    
+                case 3:
+                    // Program 3 - Test Calibration
+                    testCalibration();
+                    programNumber = 0;
+                    break;
+                    
+                case 4:
+                    // Program 4 - Pick New Workpiece
+                    pickNewWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
+                case 5:
+                    // Program 5 - Place New Workpiece
+                    placeNewWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
+                case 6:
+                    // Program 6 - Pick Measured Workpiece
+                    pickMeasuredWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
+                case 7:
+                    // Program 7 - Place Measured Workpiece
+                    placeMeasuredWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
                 default:
+                    log.warn("Unknown program number: " + programNumber);
                     break;
-
             }
             ThreadUtil.milliSleep(200);
         }
     }
 
-
     @Override
     public void dispose()
     {
-        if (_logPublisher != null) _logPublisher.stop();
+        log.info("Main application shutting down");
+        
+        // Shutdown console server
+        if (consoleServer != null) {
+            consoleServer.dispose();
+        }
+        
+        // Shutdown SmartPicking thread
+        if (smartPickingThread != null) {
+            smartPickingThread.shutdown();
+            try {
+                smartPickingThread.join(5000);
+            } catch (InterruptedException e) {
+                log.warn("Interrupted while waiting for SmartPicking thread to finish");
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        // Shutdown logging
+        if (loggingManager != null) {
+            loggingManager.shutdown();
+        }
+        
         super.dispose();
     }
 
-    public void initializeLogging()
-    {
-        try
-        {
-            LogCollector _logCollector = new LogCollector();
-            LogManager.register(_logCollector);
+    // ========== ConsoleServerInterface Implementation ==========
 
-            _logPublisher = new LogPublisher(_logCollector);
-            _logPublisher.start();
-
-            log.info("Logging initialized");
-
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
+    @Override
+    public void setProgramNumber(int programNumber) {
+        if (programNumber >= 0 && programNumber <= 7) {
+            this.programNumber = programNumber;
+            log.info("Program number set to: " + programNumber + " via console");
+        } else {
+            log.warn("Invalid program number requested: " + programNumber);
         }
     }
 
-    /**
-     * Executes the calibration routine for the vision system.
-     * This method can be called separately to perform calibration.
-     *
-     * @param visionServerIP   IP address of the vision system server
-     * @param visionServerPort Port number of the vision system server
-     * @return true if calibration completed successfully, false otherwise
-     */
-    public boolean executeCalibration(String visionServerIP, int visionServerPort)
-    {
-        log.info("Starting calibration sequence...");
+    @Override
+    public int getCurrentProgram() {
+        return programNumber;
+    }
 
-        // Create vision client and protocol
-        VisionSocketClient visionClient = new VisionSocketClient(visionServerIP, visionServerPort);
-        if (!visionClient.connect())
-        {
-            log.error("Failed to connect to vision server");
+    @Override
+    public boolean isVisionConnected() {
+        return smartPickingThread != null && smartPickingThread.isConnected();
+    }
+
+    @Override
+    public String getWorkpiecePosition() {
+        if (workpieceData != null && workpieceData.isValid()) {
+            return workpieceData.toString();
+        }
+        return "invalid";
+    }
+
+    // ========== Program Execution Methods ==========
+
+    private void getNewWorkpiecePosition() {
+        if (!checkVisionConnection()) return;
+        
+        GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(
+                smartPickingThread.getProtocol(),
+                workpieceData
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Get New Workpiece Position", success);
+    }
+
+    private void executeCalibration() {
+        if (!checkVisionConnection()) return;
+        
+        CalibrationProgram program = new CalibrationProgram(
+                this, 
+                iiwa, 
+                smartPickingThread.getProtocol()
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Calibration", success);
+    }
+
+    private void testCalibration() {
+        if (!checkVisionConnection()) return;
+        
+        TestCalibrationProgram program = new TestCalibrationProgram(
+                this, 
+                iiwa, 
+                smartPickingThread.getProtocol()
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Test Calibration", success);
+    }
+
+    private void pickNewWorkpiece() {
+        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
+                this, 
+                iiwa, 
+                workpieceData
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Pick New Workpiece", success);
+    }
+
+    private void placeNewWorkpiece() {
+        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(
+                this, 
+                iiwa
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Place New Workpiece", success);
+    }
+
+    private void pickMeasuredWorkpiece() {
+        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(
+                this, 
+                iiwa
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Pick Measured Workpiece", success);
+    }
+
+    private void placeMeasuredWorkpiece() {
+        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(
+                this, 
+                iiwa
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Place Measured Workpiece", success);
+    }
+
+    // ========== Helper Methods ==========
+
+    private boolean checkVisionConnection() {
+        if (!smartPickingThread.isConnected()) {
+            log.error("Cannot execute program - not connected to vision server");
             return false;
         }
+        return true;
+    }
 
-
-        SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
-
-        // Create calibration routine
-        CalibrationRoutine calibration = new CalibrationRoutine(
-                this,
-                iiwa,
-                protocol,
-                iiwa.getFlange()
-        );
-
-        // Execute calibration
-        // Note: Pass null for test frame if not defined in RoboticsAPI.data.xml
-        // To use a test frame, define it in the XML (e.g., "/CalibrationPoints/Test")
-        boolean success = calibration.executeCalibration(
-                "/CalibrationPoints",
-                "/CalibrationPoints/P16"
-        );
-
-        // Clean up
-        visionClient.close();
-
-        if (success)
-        {
-            log.info("Calibration completed successfully");
-        } else
-        {
-            log.error("Calibration failed");
+    private void logProgramResult(String programName, boolean success) {
+        if (success) {
+            log.info(programName + " program completed successfully");
+        } else {
+            log.error(programName + " program failed");
         }
-
-        return success;
     }
 }
