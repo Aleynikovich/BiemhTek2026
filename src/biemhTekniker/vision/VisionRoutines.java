@@ -1,7 +1,6 @@
-package biemhTekniker.calibration;
+package biemhTekniker.vision;
 
 import biemhTekniker.logger.Logger;
-import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
 import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
 import com.kuka.common.ThreadUtil;
@@ -18,9 +17,10 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
  * Calibration routine for the SmartPicking vision system.
  * Moves robot to predefined calibration points and communicates with vision system.
  */
-public class CalibrationRoutine {
+public class VisionRoutines
+{
 
-    private static final Logger log = Logger.getLogger(CalibrationRoutine.class);
+    private static final Logger log = Logger.getLogger(VisionRoutines.class);
     
     /**
      * Number of calibration points to visit.
@@ -41,8 +41,8 @@ public class CalibrationRoutine {
     private final SmartPickingProtocol protocol;
     private final ObjectFrame flangeFrame;
 
-    public CalibrationRoutine(RoboticsAPIApplication application, LBR robot, 
-                             SmartPickingProtocol protocol, ObjectFrame flangeFrame) {
+    public VisionRoutines(RoboticsAPIApplication application, LBR robot,
+                          SmartPickingProtocol protocol, ObjectFrame flangeFrame) {
         this.application = application;
         this.robot = robot;
         this.protocol = protocol;
