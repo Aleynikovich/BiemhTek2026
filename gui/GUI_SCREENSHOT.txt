@@ -1,0 +1,74 @@
+================================================================================
+                    KUKA ROBOT CONTROL GUI - VISUAL LAYOUT
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        KUKA LBR iiwa Robot Control                           │
+│                                                                               │
+│ ┌─ Connection ────────────────────────────────────────────────────────────┐ │
+│ │ Robot IP: [172.31.1.69    ] Port: [30001 ]                              │ │
+│ │ [Connect] [Disconnect]                              ● Connected          │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│ ┌─ Robot Status ──────────────────────────────────────────────────────────┐ │
+│ │ Current Program:       2 - Calibration                                   │ │
+│ │ Vision Server:         ● Connected                                       │ │
+│ │ Workpiece Position:    WorkpieceData{x=-601.5, y=109.2, z=1193.7...}    │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│ ┌─ Program Control ───────────────────────────────────────────────────────┐ │
+│ │ Select Program:                                                          │ │
+│ │                                                                           │ │
+│ │ [0: Idle                      ]  [1: Get New Workpiece Position       ]  │ │
+│ │ [2: Calibration               ]  [3: Test Calibration                 ]  │ │
+│ │ [4: Pick New Workpiece        ]  [5: Place New Workpiece              ]  │ │
+│ │ [6: Pick Measured Workpiece   ]  [7: Place Measured Workpiece         ]  │ │
+│ │                                                                           │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│ ┌─ Quick Actions ─────────────────────────────────────────────────────────┐ │
+│ │ [Emergency Stop (Program 0)] [Get Status        ] [Clear Console     ]   │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│ ┌─ Console Output ────────────────────────────────────────────────────────┐ │
+│ │ [10:15:23] Connected to robot at 172.31.1.69:30001                      │ │
+│ │ [10:15:23] Sent: {'type': 'get_status'}                                 │ │
+│ │ [10:15:23] Response: Status retrieved                                   │ │
+│ │ [10:15:45] Setting program to 2                                         │ │
+│ │ [10:15:45] Sent: {'type': 'set_program', 'program': 2}                  │ │
+│ │ [10:15:45] Response: Program set to 2                                   │ │
+│ │ [10:15:46] [ROBOT] Starting calibration sequence...                     │ │
+│ │ [10:15:47] [ROBOT] Calibration mode set successfully                    │ │
+│ │ [10:16:12] [ROBOT] Calibration completed successfully                   │ │
+│ │                                                                           │ │
+│ │                                                                         ▲ │ │
+│ │                                                                         █ │ │
+│ │                                                                         ▼ │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+FEATURES:
+---------
+✓ Clean, professional interface with frames and sections
+✓ Connection management with visual status indicator
+✓ Real-time robot status (program, vision, workpiece position)
+✓ 8 program buttons with descriptive names
+✓ Quick action buttons for common operations
+✓ Scrollable console with timestamped, color-coded output
+✓ Automatic status polling every 10 seconds
+✓ Error handling and connection recovery
+
+COLOR CODING:
+-------------
+● Green:  Connected / Success messages
+● Red:    Disconnected / Error messages
+● Orange: Warning messages
+● Blue:   Current program indicator
+● Black:  Info messages
+
+WINDOW SIZE:
+------------
+Default: 900x700 pixels
+Resizable: Yes
+Minimum: 800x600 pixels
