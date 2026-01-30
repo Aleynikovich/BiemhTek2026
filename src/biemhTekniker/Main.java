@@ -32,7 +32,7 @@ public class Main extends RoboticsAPIApplication
      * Current program number to execute.
      * This should be updated based on PLC signals or other external input.
      */
-    private volatile int programNumber = 2;
+    private volatile int programNumber = 0;
 
     @Override
     public void initialize()
