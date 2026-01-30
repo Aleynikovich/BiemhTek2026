@@ -1,6 +1,9 @@
 package biemhTekniker.console;
 
+import biemhTekniker.logger.LogLevel;
+import biemhTekniker.logger.LogManager;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.logger.NetworkListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +21,7 @@ public class ConsoleCommandHandler implements Runnable {
     private PrintWriter out;
     private BufferedReader in;
     private boolean running = true;
+    private NetworkListener networkListener;
     
     public ConsoleCommandHandler(Socket socket, ConsoleServerInterface serverInterface) {
         this.clientSocket = socket;
@@ -32,7 +36,11 @@ public class ConsoleCommandHandler implements Runnable {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             
-            log.info("Client streams initialized: " + clientSocket.getInetAddress());
+            // Register network listener to forward logs to this client
+            networkListener = new NetworkListener(out);
+            LogManager.register(networkListener);
+            
+            log.info("Client streams initialized and network listener registered: " + clientSocket.getInetAddress());
             sendResponse("connection", "Connected to KUKA Robot Console", true);
             
             String inputLine;
@@ -68,6 +76,10 @@ public class ConsoleCommandHandler implements Runnable {
                 handleGetStatus();
             } else if ("stop".equals(type)) {
                 handleStop();
+            } else if ("set_log_level".equals(type)) {
+                handleSetLogLevel(json);
+            } else if ("get_log_level".equals(type)) {
+                handleGetLogLevel();
             } else {
                 sendError("Unknown command type: " + type);
             }
@@ -129,6 +141,56 @@ public class ConsoleCommandHandler implements Runnable {
         }
     }
     
+    private void handleSetLogLevel(SimpleJSON json) {
+        try {
+            String levelStr = json.getString("level", "DEBUG");
+            log.info("handleSetLogLevel called with level: " + levelStr);
+            
+            LogLevel level;
+            try {
+                level = LogLevel.valueOf(levelStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                sendError("Invalid log level: " + levelStr);
+                return;
+            }
+            
+            if (networkListener != null) {
+                networkListener.setMinimumLevel(level);
+                sendResponse("response", "Log level set to " + level, true);
+                log.info("Log level set successfully to: " + level);
+            } else {
+                sendError("Network listener not initialized");
+                log.error("Network listener is null in handleSetLogLevel");
+            }
+        } catch (Exception e) {
+            log.error("Error in handleSetLogLevel: " + e.getMessage());
+            e.printStackTrace();
+            sendError("Error setting log level: " + e.getMessage());
+        }
+    }
+    
+    private void handleGetLogLevel() {
+        try {
+            log.info("handleGetLogLevel called");
+            
+            if (networkListener != null) {
+                LogLevel currentLevel = networkListener.getMinimumLevel();
+                SimpleJSON response = new SimpleJSON();
+                response.put("type", "log_level");
+                response.put("level", currentLevel.toString());
+                sendJson(response);
+                log.info("Log level sent to client: " + currentLevel);
+            } else {
+                sendError("Network listener not initialized");
+                log.error("Network listener is null in handleGetLogLevel");
+            }
+        } catch (Exception e) {
+            log.error("Error in handleGetLogLevel: " + e.getMessage());
+            e.printStackTrace();
+            sendError("Error getting log level: " + e.getMessage());
+        }
+    }
+    
     private void sendResponse(String type, String message, boolean success) {
         try {
             SimpleJSON response = new SimpleJSON();
@@ -177,6 +239,13 @@ public class ConsoleCommandHandler implements Runnable {
     private void cleanup() {
         log.info("Cleaning up client handler for: " + clientSocket.getInetAddress());
         running = false;
+        
+        // Unregister network listener
+        if (networkListener != null) {
+            LogManager.unregister(networkListener);
+            log.info("Network listener unregistered");
+        }
+        
         try {
             if (in != null) in.close();
             if (out != null) out.close();
