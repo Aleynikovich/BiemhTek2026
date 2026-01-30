@@ -1,8 +1,9 @@
 package biemhTekniker;
 
+import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.managers.LoggingManager;
-import biemhTekniker.programs.CalibrationProgram;
+import biemhTekniker.programs.*;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -27,6 +28,9 @@ public class Main extends RoboticsAPIApplication
     // Managers and threads
     private LoggingManager loggingManager;
     private SmartPickingThread smartPickingThread;
+    
+    // Shared data
+    private WorkpieceData workpieceData;
 
     /**
      * Current program number to execute.
@@ -40,6 +44,9 @@ public class Main extends RoboticsAPIApplication
         // Initialize logging
         loggingManager = new LoggingManager();
         loggingManager.initialize();
+        
+        // Initialize shared data
+        workpieceData = new WorkpieceData();
         
         // Initialize and start SmartPicking thread (maintains connection to vision server)
         smartPickingThread = new SmartPickingThread(VISION_SERVER_IP, VISION_SERVER_PORT);
@@ -65,14 +72,49 @@ public class Main extends RoboticsAPIApplication
                 case 0:
                     // Program 0 - Idle
                     break;
+                    
                 case 1:
-                    // Program 1 - Reserved
+                    // Program 1 - Get New Workpiece Position
+                    getNewWorkpiecePosition();
+                    programNumber = 0;
                     break;
+                    
                 case 2:
                     // Program 2 - Calibration
                     executeCalibration();
-                    programNumber = 0; // Return to idle after calibration
+                    programNumber = 0;
                     break;
+                    
+                case 3:
+                    // Program 3 - Test Calibration
+                    testCalibration();
+                    programNumber = 0;
+                    break;
+                    
+                case 4:
+                    // Program 4 - Pick New Workpiece
+                    pickNewWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
+                case 5:
+                    // Program 5 - Place New Workpiece
+                    placeNewWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
+                case 6:
+                    // Program 6 - Pick Measured Workpiece
+                    pickMeasuredWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
+                case 7:
+                    // Program 7 - Place Measured Workpiece
+                    placeMeasuredWorkpiece();
+                    programNumber = 0;
+                    break;
+                    
                 default:
                     log.warn("Unknown program number: " + programNumber);
                     break;
@@ -90,7 +132,7 @@ public class Main extends RoboticsAPIApplication
         if (smartPickingThread != null) {
             smartPickingThread.shutdown();
             try {
-                smartPickingThread.join(5000); // Wait up to 5 seconds for thread to finish
+                smartPickingThread.join(5000);
             } catch (InterruptedException e) {
                 log.warn("Interrupted while waiting for SmartPicking thread to finish");
                 Thread.currentThread().interrupt();
@@ -105,26 +147,102 @@ public class Main extends RoboticsAPIApplication
         super.dispose();
     }
 
-    /**
-     * Executes calibration program using the SmartPicking connection.
-     */
-    private void executeCalibration() {
-        if (!smartPickingThread.isConnected()) {
-            log.error("Cannot execute calibration - not connected to vision server");
-            return;
-        }
+    // ========== Program Execution Methods ==========
+
+    private void getNewWorkpiecePosition() {
+        if (!checkVisionConnection()) return;
         
-        CalibrationProgram calibration = new CalibrationProgram(
+        GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(
+                smartPickingThread.getProtocol(),
+                workpieceData
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Get New Workpiece Position", success);
+    }
+
+    private void executeCalibration() {
+        if (!checkVisionConnection()) return;
+        
+        CalibrationProgram program = new CalibrationProgram(
                 this, 
                 iiwa, 
                 smartPickingThread.getProtocol()
         );
         
-        boolean success = calibration.execute();
+        boolean success = program.execute();
+        logProgramResult("Calibration", success);
+    }
+
+    private void testCalibration() {
+        if (!checkVisionConnection()) return;
+        
+        TestCalibrationProgram program = new TestCalibrationProgram(
+                this, 
+                iiwa, 
+                smartPickingThread.getProtocol()
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Test Calibration", success);
+    }
+
+    private void pickNewWorkpiece() {
+        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
+                this, 
+                iiwa, 
+                workpieceData
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Pick New Workpiece", success);
+    }
+
+    private void placeNewWorkpiece() {
+        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(
+                this, 
+                iiwa
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Place New Workpiece", success);
+    }
+
+    private void pickMeasuredWorkpiece() {
+        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(
+                this, 
+                iiwa
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Pick Measured Workpiece", success);
+    }
+
+    private void placeMeasuredWorkpiece() {
+        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(
+                this, 
+                iiwa
+        );
+        
+        boolean success = program.execute();
+        logProgramResult("Place Measured Workpiece", success);
+    }
+
+    // ========== Helper Methods ==========
+
+    private boolean checkVisionConnection() {
+        if (!smartPickingThread.isConnected()) {
+            log.error("Cannot execute program - not connected to vision server");
+            return false;
+        }
+        return true;
+    }
+
+    private void logProgramResult(String programName, boolean success) {
         if (success) {
-            log.info("Calibration program completed successfully");
+            log.info(programName + " program completed successfully");
         } else {
-            log.error("Calibration program failed");
+            log.error(programName + " program failed");
         }
     }
 }

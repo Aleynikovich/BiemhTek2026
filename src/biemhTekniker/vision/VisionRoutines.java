@@ -163,8 +163,10 @@ public class VisionRoutines
 
     /**
      * Tests the calibration by moving to a test frame and sending pose data.
+     * @param testFrameName Frame to use for calibration test
+     * @return true if test passed, false otherwise
      */
-    private boolean testCalibration(String testFrameName) {
+    public boolean testCalibration(String testFrameName) {
         log.info("Testing calibration at frame: " + testFrameName);
 
         // Move to test frame
