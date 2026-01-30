@@ -90,7 +90,7 @@ public class ConsoleCommandHandler implements Runnable {
     private void handleSetProgram(SimpleJSON json) {
         try {
             int programNumber = json.getInt("program", -1);
-            log.info("handleSetProgram called with program: " + programNumber);
+            log.debug("handleSetProgram called with program: " + programNumber);
             
             if (programNumber >= 0 && programNumber <= 7) {
                 serverInterface.setProgramNumber(programNumber);
