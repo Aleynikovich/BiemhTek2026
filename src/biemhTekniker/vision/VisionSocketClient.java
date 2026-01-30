@@ -56,7 +56,6 @@ public class VisionSocketClient {
         try {
             out.print(message);
             out.flush();
-            log.debug("Sending " + message);
             ThreadUtil.milliSleep(100);
             byte[] buffer = new byte[2048];
             
@@ -66,11 +65,9 @@ public class VisionSocketClient {
 	
 	            if (bytesRead > 0) {
 	                String result = new String(buffer, 0, bytesRead, "US-ASCII");
-	                log.debug("Received " + result);
 	                return result;
 	            } else {
 	                log.warn("No data returned from camera.");
-	                //close();
 	                return null;
 	            }
             }
@@ -80,7 +77,6 @@ public class VisionSocketClient {
             }
         } catch (IOException e) {
             log.error("Communication error: " + e.getMessage());
-            //close();
             return null;
         }
     }
