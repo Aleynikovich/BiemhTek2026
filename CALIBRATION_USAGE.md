@@ -43,56 +43,63 @@ You can also create a separate application class just for calibration:
 ```java
 package biemhTekniker;
 
-import biemhTekniker.calibration.CalibrationRoutine;
+import biemhTekniker.vision.VisionRoutines;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.VisionSocketClient;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+
 import javax.inject.Inject;
 
-public class CalibrationApp extends RoboticsAPIApplication {
-    
+public class CalibrationApp extends RoboticsAPIApplication
+{
+
     @Inject
     private LBR iiwa;
-    
+
     private static final Logger log = Logger.getLogger(CalibrationApp.class);
-    
+
     @Override
-    public void initialize() {
+    public void initialize()
+    {
         // Initialization code
     }
-    
+
     @Override
-    public void run() {
+    public void run()
+    {
         log.info("Starting calibration application");
-        
+
         // Connect to vision server
         VisionSocketClient visionClient = new VisionSocketClient("172.31.1.69", 59002);
-        if (!visionClient.connect()) {
+        if (!visionClient.connect())
+        {
             log.error("Failed to connect to vision server");
             return;
         }
-        
+
         SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
-        
+
         // Create calibration routine
-        CalibrationRoutine calibration = new CalibrationRoutine(
-            this,
-            iiwa,
-            protocol,
-            iiwa.getFlange()
+        VisionRoutines calibration = new VisionRoutines(
+                this,
+                iiwa,
+                protocol,
+                iiwa.getFlange()
         );
-        
+
         // Execute calibration
         boolean success = calibration.executeCalibration("/CalibrationPoints", null);
-        
+
         // Clean up
         visionClient.close();
-        
-        if (success) {
+
+        if (success)
+        {
             log.info("Calibration completed successfully");
-        } else {
+        } else
+        {
             log.error("Calibration failed");
         }
     }

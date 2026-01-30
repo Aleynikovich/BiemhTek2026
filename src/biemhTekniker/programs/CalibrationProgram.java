@@ -1,6 +1,6 @@
 package biemhTekniker.programs;
 
-import biemhTekniker.calibration.CalibrationRoutine;
+import biemhTekniker.vision.VisionRoutines;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -40,7 +40,7 @@ public class CalibrationProgram {
         log.info("Starting calibration program...");
         
         // Create calibration routine
-        CalibrationRoutine calibration = new CalibrationRoutine(
+        VisionRoutines calibration = new VisionRoutines(
                 application,
                 robot,
                 protocol,
