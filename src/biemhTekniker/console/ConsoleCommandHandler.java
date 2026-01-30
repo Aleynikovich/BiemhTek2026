@@ -109,14 +109,14 @@ public class ConsoleCommandHandler implements Runnable {
     
     private void handleGetStatus() {
         try {
-            log.info("handleGetStatus called");
+            log.debug("handleGetStatus called");
             SimpleJSON status = new SimpleJSON();
             status.put("type", "status");
             status.put("program", serverInterface.getCurrentProgram());
             status.put("vision_connected", serverInterface.isVisionConnected());
             status.put("workpiece_position", serverInterface.getWorkpiecePosition());
             sendJson(status);
-            log.info("Status sent to client");
+            log.debug("Status sent to client");
         } catch (Exception e) {
             log.error("Error in handleGetStatus: " + e.getMessage());
             e.printStackTrace();
@@ -126,7 +126,7 @@ public class ConsoleCommandHandler implements Runnable {
     
     private void handleStop() {
         try {
-            log.info("handleStop called");
+            log.debug("handleStop called");
             serverInterface.setProgramNumber(0);
             sendResponse("response", "Emergency stop - Program set to 0", true);
             log.info("Emergency stop executed");
