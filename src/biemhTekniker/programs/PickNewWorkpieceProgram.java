@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -42,6 +43,13 @@ public class PickNewWorkpieceProgram {
         // 2. Move down to pick position using workpieceData coordinates
         // 3. Close gripper
         // 4. Move back to safe position
+        
+        robot.move(ptp(workpieceData.getX(),
+        		workpieceData.getY(),
+        		workpieceData.getZ() + 200,
+        		Math.toRadians(workpieceData.getRx()),
+        		Math.toRadians(workpieceData.getRy()),
+        		Math.toRadians(workpieceData.getRz())));
         
         log.warn("PickNewWorkpieceProgram: Motion not yet implemented");
         return true;
