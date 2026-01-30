@@ -1,5 +1,7 @@
 package biemhTekniker;
 
+import biemhTekniker.console.ConsoleServer;
+import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.managers.LoggingManager;
@@ -13,8 +15,9 @@ import javax.inject.Inject;
 /**
  * Main robot application.
  * Manages program execution, logging, and vision system integration.
+ * Implements ConsoleServerInterface for GUI control.
  */
-public class Main extends RoboticsAPIApplication
+public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
 {
     private static final Logger log = Logger.getLogger(Main.class);
     
@@ -28,6 +31,7 @@ public class Main extends RoboticsAPIApplication
     // Managers and threads
     private LoggingManager loggingManager;
     private SmartPickingThread smartPickingThread;
+    private ConsoleServer consoleServer;
     
     // Shared data
     private WorkpieceData workpieceData;
@@ -52,6 +56,10 @@ public class Main extends RoboticsAPIApplication
         smartPickingThread = new SmartPickingThread(VISION_SERVER_IP, VISION_SERVER_PORT);
         smartPickingThread.initialize();
         smartPickingThread.start();
+        
+        // Initialize and start console server for GUI control
+        consoleServer = new ConsoleServer(this);
+        consoleServer.initialize();
         
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
@@ -128,6 +136,11 @@ public class Main extends RoboticsAPIApplication
     {
         log.info("Main application shutting down");
         
+        // Shutdown console server
+        if (consoleServer != null) {
+            consoleServer.dispose();
+        }
+        
         // Shutdown SmartPicking thread
         if (smartPickingThread != null) {
             smartPickingThread.shutdown();
@@ -145,6 +158,36 @@ public class Main extends RoboticsAPIApplication
         }
         
         super.dispose();
+    }
+
+    // ========== ConsoleServerInterface Implementation ==========
+
+    @Override
+    public void setProgramNumber(int programNumber) {
+        if (programNumber >= 0 && programNumber <= 7) {
+            this.programNumber = programNumber;
+            log.info("Program number set to: " + programNumber + " via console");
+        } else {
+            log.warn("Invalid program number requested: " + programNumber);
+        }
+    }
+
+    @Override
+    public int getCurrentProgram() {
+        return programNumber;
+    }
+
+    @Override
+    public boolean isVisionConnected() {
+        return smartPickingThread != null && smartPickingThread.isConnected();
+    }
+
+    @Override
+    public String getWorkpiecePosition() {
+        if (workpieceData != null && workpieceData.isValid()) {
+            return workpieceData.toString();
+        }
+        return "invalid";
     }
 
     // ========== Program Execution Methods ==========
