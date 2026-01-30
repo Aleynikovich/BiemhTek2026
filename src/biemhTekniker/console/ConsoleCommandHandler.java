@@ -45,7 +45,6 @@ public class ConsoleCommandHandler implements Runnable {
             
             String inputLine;
             while (running && (inputLine = in.readLine()) != null) {
-                log.debug("Received from client: " + inputLine);
                 handleCommand(inputLine);
             }
             
@@ -64,11 +63,8 @@ public class ConsoleCommandHandler implements Runnable {
     
     private void handleCommand(String command) {
         try {
-            log.debug("Parsing command: " + command);
             SimpleJSON json = new SimpleJSON(command);
             String type = json.getString("type", "unknown");
-            
-            log.debug("Received command: " + type);
             
             if ("set_program".equals(type)) {
                 handleSetProgram(json);
@@ -212,9 +208,7 @@ public class ConsoleCommandHandler implements Runnable {
     private void sendJson(SimpleJSON json) {
         try {
             if (out != null) {
-                String jsonStr = json.toString();
-                log.debug("Sending JSON to client: " + jsonStr);
-                out.println(jsonStr);
+                out.println(json.toString());
             } else {
                 log.error("Cannot send JSON - output stream is null");
             }

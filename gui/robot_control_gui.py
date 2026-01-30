@@ -19,7 +19,7 @@ class RobotControlGUI:
         self.root.geometry("900x700")
         
         # Connection settings
-        self.robot_ip = tk.StringVar(value="172.31.1.69")
+        self.robot_ip = tk.StringVar(value="172.31.1.147")
         self.robot_port = tk.IntVar(value=30001)
         self.connected = False
         self.socket = None
@@ -30,7 +30,7 @@ class RobotControlGUI:
         self.workpiece_position = tk.StringVar(value="Not retrieved")
         
         # Log level filtering
-        self.log_level = tk.StringVar(value="DEBUG")
+        self.log_level = tk.StringVar(value="INFO")
         self.log_levels = ["DEBUG", "INFO", "WARN", "ERROR"]
         self.log_level_ordinal = {"DEBUG": 0, "INFO": 1, "WARN": 2, "ERROR": 3}
         
