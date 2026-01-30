@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 public class NetworkListener implements ILogListener
 {
     private final PrintWriter _out;
-    private volatile LogLevel _minLevel = LogLevel.DEBUG;
+    private volatile LogLevel _minLevel = LogLevel.INFO;
 
     public NetworkListener(PrintWriter out)
     {
