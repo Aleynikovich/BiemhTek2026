@@ -19,7 +19,7 @@ class RobotControlGUI:
         self.root.geometry("900x700")
         
         # Connection settings
-        self.robot_ip = tk.StringVar(value="172.31.1.69")
+        self.robot_ip = tk.StringVar(value="172.31.1.147")
         self.robot_port = tk.IntVar(value=30001)
         self.connected = False
         self.socket = None
@@ -28,6 +28,11 @@ class RobotControlGUI:
         self.current_program = tk.IntVar(value=0)
         self.vision_connected = tk.BooleanVar(value=False)
         self.workpiece_position = tk.StringVar(value="Not retrieved")
+        
+        # Log level filtering
+        self.log_level = tk.StringVar(value="INFO")
+        self.log_levels = ["DEBUG", "INFO", "WARN", "ERROR"]
+        self.log_level_ordinal = {"DEBUG": 0, "INFO": 1, "WARN": 2, "ERROR": 3}
         
         self.create_widgets()
         self.update_connection_status()
@@ -167,21 +172,53 @@ class RobotControlGUI:
         frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
         parent.rowconfigure(5, weight=1)
         
+        # Log level control frame
+        level_frame = ttk.Frame(frame)
+        level_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
+        
+        ttk.Label(level_frame, text="Minimum Log Level:", 
+                 style='Status.TLabel').pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.log_level_combo = ttk.Combobox(level_frame, textvariable=self.log_level,
+                                           values=self.log_levels, width=10, state='readonly')
+        self.log_level_combo.pack(side=tk.LEFT, padx=(0, 10))
+        self.log_level_combo.bind('<<ComboboxSelected>>', self.on_log_level_changed)
+        
+        ttk.Label(level_frame, text="(filters logs displayed in console and sent from robot)",
+                 font=('Helvetica', 8), foreground='gray').pack(side=tk.LEFT)
+        
         self.console = scrolledtext.ScrolledText(frame, height=15, width=80, 
                                                  state=tk.DISABLED,
                                                  font=('Courier', 9))
-        self.console.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.console.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         frame.columnconfigure(0, weight=1)
-        frame.rowconfigure(0, weight=1)
+        frame.rowconfigure(1, weight=1)
         
         # Configure tags for colored output
         self.console.tag_config('info', foreground='black')
         self.console.tag_config('success', foreground='green')
         self.console.tag_config('error', foreground='red')
         self.console.tag_config('warning', foreground='orange')
+        self.console.tag_config('debug', foreground='gray')
         
     def log_console(self, message, level='info'):
-        """Add message to console with timestamp"""
+        """Add message to console with timestamp, filtered by log level"""
+        # Map level names
+        level_map = {
+            'info': 'INFO',
+            'success': 'INFO',
+            'error': 'ERROR',
+            'warning': 'WARN',
+            'debug': 'DEBUG'
+        }
+        
+        msg_level = level_map.get(level.lower(), 'INFO')
+        current_level = self.log_level.get()
+        
+        # Filter based on log level ordinal
+        if self.log_level_ordinal.get(msg_level, 1) < self.log_level_ordinal.get(current_level, 0):
+            return  # Don't display messages below the current log level
+        
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.console.config(state=tk.NORMAL)
         self.console.insert(tk.END, f"[{timestamp}] {message}\n", level)
@@ -212,6 +249,9 @@ class RobotControlGUI:
             # Start listening thread
             self.listen_thread = threading.Thread(target=self.listen_to_robot, daemon=True)
             self.listen_thread.start()
+            
+            # Send initial log level to robot
+            self.on_log_level_changed()
             
         except Exception as e:
             messagebox.showerror("Connection Error", f"Failed to connect: {str(e)}")
@@ -283,14 +323,45 @@ class RobotControlGUI:
             if data.get('type') == 'status':
                 self.update_status(data)
             elif data.get('type') == 'log':
-                level = data.get('level', 'info')
+                level = data.get('level', 'info').lower()
                 message = data.get('message', '')
                 self.log_console(f"[ROBOT] {message}", level)
+            elif data.get('type') == 'log_level':
+                current_level = data.get('level', 'DEBUG')
+                self.log_console(f"Robot log level: {current_level}", 'info')
             elif data.get('type') == 'response':
                 self.log_console(f"Response: {data.get('message', '')}", 'success')
                 
         except json.JSONDecodeError:
-            self.log_console(f"[ROBOT] {response}", 'info')
+            # Handle non-JSON log entries (from NetworkListener)
+            self.parse_log_entry(response)
+    
+    def parse_log_entry(self, log_line):
+        """Parse log entry from NetworkListener format: [HH:MM:SS.mmm] Source | LEVEL: message"""
+        import re
+        # Match pattern: [timestamp] source | LEVEL: message
+        pattern = r'\[([^\]]+)\]\s+([^\|]+)\|\s*(\w+)\s*:\s*(.*)'
+        match = re.match(pattern, log_line)
+        
+        if match:
+            timestamp, source, level, message = match.groups()
+            level_lower = level.strip().lower()
+            # Map log levels to console tags
+            if level_lower == 'debug':
+                tag = 'debug'
+            elif level_lower == 'info':
+                tag = 'info'
+            elif level_lower == 'warn':
+                tag = 'warning'
+            elif level_lower == 'error':
+                tag = 'error'
+            else:
+                tag = 'info'
+            
+            self.log_console(f"[ROBOT] {source.strip()}: {message}", tag)
+        else:
+            # Fallback for unparseable log lines
+            self.log_console(f"[ROBOT] {log_line}", 'info')
             
     def update_status(self, data):
         """Update status display from robot data"""
@@ -329,6 +400,19 @@ class RobotControlGUI:
         """Request status from robot"""
         command = {'type': 'get_status'}
         self.send_command(command)
+    
+    def on_log_level_changed(self, event=None):
+        """Handle log level selection change"""
+        new_level = self.log_level.get()
+        self.log_console(f"Log level changed to {new_level}", 'info')
+        
+        # Send log level change to robot if connected
+        if self.connected:
+            command = {
+                'type': 'set_log_level',
+                'level': new_level
+            }
+            self.send_command(command)
         
     def update_connection_status(self):
         """Periodic update of connection status"""
