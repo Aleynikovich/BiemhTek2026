@@ -1,11 +1,16 @@
 package biemhTekniker.programs;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
+import com.kuka.roboticsAPI.geometricModel.Tool;
 
 /**
  * Program to pick a new workpiece using position from GetNewWorkpiecePositionProgram.
@@ -17,6 +22,10 @@ public class PickNewWorkpieceProgram {
     private final RoboticsAPIApplication application;
     private final LBR robot;
     private final WorkpieceData workpieceData;
+    
+    @Inject
+    @Named ("Gripper/TCPA")
+    private Tool gripper;
     
     public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, 
                                    WorkpieceData workpieceData) {
@@ -44,8 +53,9 @@ public class PickNewWorkpieceProgram {
         // 2. Move down to pick position using workpieceData coordinates
         // 3. Close gripper
         // 4. Move back to safe position
+        gripper.attachTo(robot.getFlange());
         
-        robot.move(ptp(new Frame(workpieceData.getX(),
+        gripper.move(ptp(new Frame(workpieceData.getX(),
         		workpieceData.getY(),
         		workpieceData.getZ() + 200,
         		Math.toRadians(workpieceData.getRz()),
