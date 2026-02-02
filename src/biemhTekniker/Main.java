@@ -231,6 +231,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     }
 
     private void pickNewWorkpiece() {
+        workpieceData.set(300.0, 0, 600, 0.0, 0.0, 0, 0.95);
         PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
                 this, 
                 iiwa, 

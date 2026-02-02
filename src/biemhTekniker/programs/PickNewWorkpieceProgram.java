@@ -33,7 +33,6 @@ public class PickNewWorkpieceProgram {
         this.robot = robot;
         this.workpieceData = workpieceData;
         //TODO: Remove hardcode
-        this.workpieceData.set(300.0, 0, 600, 0.0, 0.0, 0, 0.95);
     }
     
     /**
