@@ -50,7 +50,7 @@ public class PickNewWorkpieceProgram {
         
         tcpA.move(ptp(new Frame(workpieceData.getX(),
         		workpieceData.getY(),
-        		workpieceData.getZ() + 200,
+        		workpieceData.getZ() + 100,
         		Math.toRadians(workpieceData.getRz()),
         		Math.toRadians(workpieceData.getRy()),
         		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
