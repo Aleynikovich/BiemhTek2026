@@ -68,11 +68,11 @@ public class PickNewWorkpieceProgram {
         //Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
         //prePickPosition.setZ(prePickPosition.getZ() + 100);
 
-        tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, 100, 0, 0, 0))).setJointVelocityRel(0.5));
+        tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, -100, 0, 0, 0))).setJointVelocityRel(0.5));
         tcp.move(lin(pickPosition).setJointVelocityRel(0.25));
         //tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, 100, 0, 0, 0))).setJointVelocityRel(0.5));
         tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, 0, 15, 0, 0))).setJointVelocityRel(0.5));
-        tcp.move(lin(pickPosition.transform(Transformation.ofDeg(0, 0, 50, 15, 0, 0))).setJointVelocityRel(0.5));
+        tcp.move(lin(pickPosition.transform(Transformation.ofDeg(0, 0, -50, 15, 0, 0))).setJointVelocityRel(0.5));
     	gripper.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
         
         return true;
