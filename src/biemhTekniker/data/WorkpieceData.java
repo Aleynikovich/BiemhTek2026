@@ -56,7 +56,7 @@ public class WorkpieceData {
     public Frame getWorkPiecePickFrame()
     {
     	Frame workPiecePickFrame;
-    	workPiecePickFrame = new Frame(x,y,z,rz,ry,rx);
+    	workPiecePickFrame = new Frame(x,y,z,Math.toRadians(rz),Math.toRadians(ry),Math.toRadians(rx));
     	return workPiecePickFrame;
     }
     
