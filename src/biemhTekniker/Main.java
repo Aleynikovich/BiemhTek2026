@@ -47,6 +47,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Inject
     private MediaFlangeIOGroup gripperIO;
     
+    @Inject
+    private RobotCartesianPositionIOGroup currentCartesianPosition;
+    
     // Shared data
     private WorkpieceData workpieceData;
 
@@ -90,6 +93,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public void run()
     {
         log.info("Main application running");
+        log.info("Current cartesian position: " + iiwa.getCurrentCartesianPosition(iiwa.getFlange()));
+        currentCartesianPosition.setX((long) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX());
 
         while (true)
         {

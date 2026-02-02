@@ -14,34 +14,16 @@
         <DigitalIO Name="MediaFlange.Gripper1_isClosed" Type="INPUT" Scope="USER_IO" StartBit="369" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper2_isClosed" Type="INPUT" Scope="USER_IO" StartBit="372" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_isOpen" Type="INPUT" Scope="USER_IO" StartBit="370" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper2_isOpen" Type="INPUT" Scope="USER_IO" StartBit="373" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_isClosed" Type="INPUT" Scope="USER_IO" StartBit="371" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper1_Close" Type="OUTPUT" Scope="USER_IO" StartBit="12728" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper1_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper1_Open" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper2_Close" Type="OUTPUT" Scope="USER_IO" StartBit="12730" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper2_Open" Type="OUTPUT" Scope="USER_IO" StartBit="12731" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Test1" Type="OUTPUT" Scope="USER_IO" StartBit="12732" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Test2" Type="OUTPUT" Scope="USER_IO" StartBit="12733" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Test3" Type="OUTPUT" Scope="USER_IO" StartBit="12734" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Test4" Type="OUTPUT" Scope="USER_IO" StartBit="12735" BitSize="1" Signed="false">
+        <DigitalIO Name="MediaFlange.Gripper2_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="12731" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
@@ -67,6 +49,9 @@
           <Description />
         </DigitalIO>
         <DigitalIO Name="VisionInputs.CalibrationRequest" Type="INPUT" Scope="USER_IO" StartBit="147" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotCartesianPosition.X" Type="OUTPUT" Scope="USER_IO" StartBit="2984" BitSize="64" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
