@@ -77,7 +77,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.00);
         
-        gripper.move(ptp(getApplicationData().getFrame("/P1")));
+        gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
         log.info("Main application initialized");
     }
 
@@ -257,6 +257,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         }*/
         
         //REMOVE HARDCODE IN PRODUCTION
+    	
+    	
         PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
                 this, 
                 iiwa, 

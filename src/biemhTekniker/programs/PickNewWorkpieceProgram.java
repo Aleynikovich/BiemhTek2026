@@ -56,14 +56,15 @@ public class PickNewWorkpieceProgram {
         
         log.debug("Using workpiece position: " + workpieceData.toString());
         
-        ObjectFrame tcpA = gripper.getFrame("TCPA");
+        ObjectFrame tcp = gripper.getFrame("TCPB");
         Frame pickPosition = workpieceData.getWorkPiecePickFrame();
         Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
         prePickPosition.setZ(prePickPosition.getZ()+100);
-        tcpA.move(ptp(prePickPosition).setJointVelocityRel(0.5));
-        tcpA.move(lin(pickPosition).setJointVelocityRel(0.25));
+        tcp.move(ptp(prePickPosition).setJointVelocityRel(0.5));
+        tcp.move(lin(pickPosition).setJointVelocityRel(0.25));
         application.getApplicationControl().halt();
-        tcpA.move(lin(prePickPosition).setJointVelocityRel(0.5));
+        tcp.move(lin(prePickPosition).setJointVelocityRel(0.5));
+    	gripper.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
         
         return true;
     }
