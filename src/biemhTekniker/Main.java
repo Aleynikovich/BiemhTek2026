@@ -231,7 +231,13 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     }
 
     private void pickNewWorkpiece() {
+    	//TODO REMOVE HARDCODE
+    	// Check if workpieceData is null; if so, create a new instance
+        if (this.workpieceData == null) {
+            this.workpieceData = new WorkpieceData();
+        }
         workpieceData.set(300.0, 0, 600, 0.0, 0.0, 0, 0.95);
+        //REMOVE HARDCODE
         PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
                 this, 
                 iiwa, 
