@@ -12,6 +12,7 @@ import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+import com.kuka.generated.ioAccess.*;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -37,10 +38,14 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private SmartPickingThread smartPickingThread;
     private ConsoleServer consoleServer;
     
-    //Gripper data
+    // Gripper data
     @Inject
     @Named("Gripper") // Matches the name defined in your Station Setup
     private Tool gripper;
+    
+    // Gripper IOs
+    @Inject
+    private MediaFlangeIOGroup gripperIO;
     
     // Shared data
     private WorkpieceData workpieceData;
@@ -263,7 +268,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 this, 
                 iiwa, 
                 workpieceData,
-                gripper
+                gripper,
+                gripperIO
         );
         
         boolean success = program.execute();
