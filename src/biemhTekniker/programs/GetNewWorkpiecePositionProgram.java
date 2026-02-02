@@ -42,9 +42,15 @@ public class GetNewWorkpiecePositionProgram {
         try {
             // Step 1: Set AUTO mode (101)
             log.debug("Step 1: Setting AUTO mode");
-            if (!protocol.setMode(Command.SET_AUTO_MODE)) {
-                log.error("Failed to set AUTO mode");
-                return false;
+            int attempts = 0;
+            while(!protocol.setMode(Command.SET_AUTO_MODE))
+    		{
+            	attempts++;
+            	if (attempts > 3)
+            	{
+            		log.error("Failed to set AUTO mode");
+            		return false;
+    			}
             }
             ThreadUtil.milliSleep(DELAY_MS);
             
