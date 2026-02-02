@@ -65,14 +65,18 @@ public class PickNewWorkpieceProgram {
         
         ObjectFrame tcp = gripper.getFrame("TCPA");
         Frame pickPosition = workpieceData.getWorkPiecePickFrame();
-        //Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
-        //prePickPosition.setZ(prePickPosition.getZ() + 100);
+        Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
+        Frame rotatePosition = workpieceData.getWorkPiecePickFrame();
+        prePickPosition.setZ(prePickPosition.getZ() + 100);
+        rotatePosition.setAlphaRad(rotatePosition.getAlphaRad() + Math.toRadians(10));
+        
 
-        tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, -100, 0, 0, 0))).setJointVelocityRel(0.5));
+        tcp.move(ptp(prePickPosition).setJointVelocityRel(0.5));
         tcp.move(lin(pickPosition).setJointVelocityRel(0.25));
         //tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, 100, 0, 0, 0))).setJointVelocityRel(0.5));
-        tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, 0, 15, 0, 0))).setJointVelocityRel(0.5));
-        tcp.move(lin(pickPosition.transform(Transformation.ofDeg(0, 0, -50, 15, 0, 0))).setJointVelocityRel(0.5));
+        tcp.move(ptp(rotatePosition).setJointVelocityRel(0.5));
+        rotatePosition.setZ(rotatePosition.getZ()+100);
+        tcp.move(lin(rotatePosition).setJointVelocityRel(0.25));
     	gripper.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
         
         return true;
