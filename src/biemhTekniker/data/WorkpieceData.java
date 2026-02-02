@@ -1,5 +1,7 @@
 package biemhTekniker.data;
 
+import com.kuka.roboticsAPI.geometricModel.Frame;
+
 /**
  * Data class to store workpiece position and orientation.
  * Shared across programs for pick and place operations.
@@ -39,6 +41,7 @@ public class WorkpieceData {
     public double getScore() { return score; }
     public boolean isValid() { return valid; }
     
+    
     public void set(double x, double y, double z, double rx, double ry, double rz, double score) {
         this.x = x;
         this.y = y;
@@ -50,6 +53,13 @@ public class WorkpieceData {
         this.valid = true;
     }
     
+    public Frame getWorkPiecePickFrame()
+    {
+    	Frame workPiecePickFrame;
+    	workPiecePickFrame = new Frame(x,y,z,rz,ry,rx);
+    	return workPiecePickFrame;
+    }
+    
     public void invalidate() {
         this.valid = false;
     }
@@ -59,7 +69,7 @@ public class WorkpieceData {
         if (!valid) {
             return "WorkpieceData{invalid}";
         }
-        return String.format("WorkpieceData{x=%.1f, y=%.1f, z=%.1f, rx=%.1f, ry=%.1f, rz=%.1f, score=%.1f}", 
+        return String.format("WorkpieceData{x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.1f}", 
                             x, y, z, rx, ry, rz, score);
     }
 }

@@ -26,8 +26,14 @@ public class PickNewWorkpieceProgram {
     private final WorkpieceData workpieceData;
     private Tool gripper;
     
-    public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, 
-                                   WorkpieceData workpieceData,Tool gripper) {
+    public PickNewWorkpieceProgram
+    (	
+		RoboticsAPIApplication application,
+		LBR robot, 
+		WorkpieceData workpieceData,
+		Tool gripper
+	) 
+    {
         this.application = application;
         this.iiwa = robot;
         this.workpieceData = workpieceData;
@@ -38,36 +44,26 @@ public class PickNewWorkpieceProgram {
      * Executes the pick operation for a new workpiece.
      * @return true if pick succeeded, false otherwise
      */
-    public boolean execute() {
+    public boolean execute()
+    {
         log.info("Picking new workpiece...");
         
-        if (!workpieceData.isValid()) {
+        if (!workpieceData.isValid()) 
+        {
             log.error("Cannot pick workpiece - no valid position data available");
             return false;
         }
         
         log.debug("Using workpiece position: " + workpieceData.toString());
-        ObjectFrame tcpA = gripper.getFrame("TCPA");
         
-        tcpA.move(ptp(new Frame(workpieceData.getX(),
-        		workpieceData.getY(),
-        		workpieceData.getZ() + 100,
-        		Math.toRadians(workpieceData.getRz()),
-        		Math.toRadians(workpieceData.getRy()),
-        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
-        tcpA.move(lin(new Frame(workpieceData.getX(),
-        		workpieceData.getY(),
-        		workpieceData.getZ(),
-        		Math.toRadians(workpieceData.getRz()),
-        		Math.toRadians(workpieceData.getRy()),
-        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
+        ObjectFrame tcpA = gripper.getFrame("TCPA");
+        Frame pickPosition = workpieceData.getWorkPiecePickFrame();
+        Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
+        prePickPosition.setZ(prePickPosition.getZ()+100);
+        tcpA.move(ptp(prePickPosition).setJointVelocityRel(0.5));
+        tcpA.move(lin(pickPosition).setJointVelocityRel(0.25));
         application.getApplicationControl().halt();
-        tcpA.move(lin(new Frame(workpieceData.getX(),
-        		workpieceData.getY(),
-        		workpieceData.getZ()+100,
-        		Math.toRadians(workpieceData.getRz()),
-        		Math.toRadians(workpieceData.getRy()),
-        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
+        tcpA.move(lin(prePickPosition).setJointVelocityRel(0.5));
         
         return true;
     }
