@@ -247,10 +247,14 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         if (this.workpieceData == null) {
         	log.warn("No workpiece data, generating dummy workpiece");
             this.workpieceData = new WorkpieceData();
+        }
+        if (this.workpieceData.getScore() == 0)
+        {
+        	log.warn("Workpiece has been instanced but contains no data, populating dummy workpiece");
             workpieceData.set(300.0, -320, 200,-180 , 0.0,45, 0.95);
         }
         
-        //REMOVE HARDCODE
+        //REMOVE HARDCODE IN PRODUCTION
         PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
                 this, 
                 iiwa, 
