@@ -48,7 +48,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private MediaFlangeIOGroup gripperIO;
     
     @Inject
-    private RobotCartesianPositionIOGroup currentCartesianPosition;
+    //private RobotCartesianPositionIOGroup currentCartesianPosition;
     
     // Shared data
     private WorkpieceData workpieceData;
