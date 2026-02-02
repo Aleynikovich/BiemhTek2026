@@ -24,7 +24,7 @@ public class PickNewWorkpieceProgram {
     private final WorkpieceData workpieceData;
     
     @Inject
-    @Named ("Gripper/TCPA")
+    @Named ("Gripper")
     private Tool gripper;
     
     public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, 

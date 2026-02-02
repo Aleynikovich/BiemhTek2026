@@ -276,7 +276,7 @@
         </frame>
     </world>
     <objectTemplates>
-        <toolTemplate class="" name="Gripper">
+        <toolTemplate class="" defaultMotionFrameRef="/TCPA" name="Gripper">
             <frames>
                 <frame id="_e7d278ca-75c4-42fa-ac1f-c643bc26e7dc" name="TCPA">
                     <transformation a="0.0" b="0.0" c="0.7853981633974483" x="0.0" y="-140.0" z="140.0"/>
