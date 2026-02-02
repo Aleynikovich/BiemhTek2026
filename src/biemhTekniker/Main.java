@@ -247,7 +247,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         if (this.workpieceData == null) {
         	log.warn("No workpiece data, generating dummy workpiece");
             this.workpieceData = new WorkpieceData();
-            workpieceData.set(300.0, -320, 200,-165 , 0.0,58, 0.95);
+            workpieceData.set(300.0, -320, 200,-180 , 0.0,45, 0.95);
         }
         
         //REMOVE HARDCODE
