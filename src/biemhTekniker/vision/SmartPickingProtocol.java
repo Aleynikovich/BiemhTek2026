@@ -48,12 +48,21 @@ public class SmartPickingProtocol {
      * Loads a specific reference by name.
      * Follows the sequence required by the manual: 15;ref -> 19 (reset) -> 15;ref
      */
+    
+    public boolean loadReference() {
+        //execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
+        //_client.sendAndReceive("19", false); // Internal cleanup/reset command
+        VisionResult res = execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
+        return res.isSuccess();
+    }
+    
     public boolean loadReference(String name) {
-        execute(Command.LOAD_REFERENCE, name, true);
-        _client.sendAndReceive("19", false); // Internal cleanup/reset command
+        //execute(Command.LOAD_REFERENCE, name, true);
+        //_client.sendAndReceive("19", false); // Internal cleanup/reset command
         VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
         return res.isSuccess();
     }
+
 
     /**
      * Changes the application's operating mode.

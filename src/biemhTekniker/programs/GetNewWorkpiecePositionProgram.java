@@ -45,6 +45,7 @@ public class GetNewWorkpiecePositionProgram {
             int attempts = 0;
             while(!protocol.setMode(Command.SET_AUTO_MODE))
     		{
+            	protocol.loadReference();
             	attempts++;
             	if (attempts > 3)
             	{

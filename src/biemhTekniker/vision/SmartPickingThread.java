@@ -72,7 +72,7 @@ public class SmartPickingThread extends Thread {
                     if (socketClient.isConnected()) {
                         log.info("Reconnected to vision server");
                         // Reload reference after reconnection
-                        protocol.loadReference(reference);
+                        protocol.loadReference();
                     }
                 }
                 consecutiveErrors = 0; // Reset on success
