@@ -63,7 +63,7 @@ public class PickNewWorkpieceProgram {
         
         log.debug("Using workpiece position: " + workpieceData.toString());
         
-        ObjectFrame tcp = gripper.getFrame("TCPB");
+        ObjectFrame tcp = gripper.getFrame("TCPA");
         Frame pickPosition = workpieceData.getWorkPiecePickFrame();
         Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
         Frame rotatePosition = workpieceData.getWorkPiecePickFrame();
