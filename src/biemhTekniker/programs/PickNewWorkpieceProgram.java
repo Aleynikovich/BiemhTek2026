@@ -47,7 +47,7 @@ public class PickNewWorkpieceProgram {
         }
         
         log.debug("Using workpiece position: " + workpieceData.toString());
-        ObjectFrame tcpA = gripper.getFrame("TCPA");
+        ObjectFrame tcpA = gripper.getFrame("TCPB");
         
         tcpA.move(ptp(new Frame(workpieceData.getX(),
         		workpieceData.getY(),
