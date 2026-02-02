@@ -42,16 +42,10 @@ public class GetNewWorkpiecePositionProgram {
         try {
             // Step 1: Set AUTO mode (101)
             log.debug("Step 1: Setting AUTO mode");
-            int attempts = 0;
-            while(!protocol.setMode(Command.SET_AUTO_MODE))
+            if(!protocol.setMode(Command.SET_AUTO_MODE))
     		{
-            	protocol.loadReference("BIEMH26_105055");
-            	attempts++;
-            	if (attempts > 3)
-            	{
-            		log.error("Failed to set AUTO mode");
-            		return false;
-    			}
+            	log.error("Failed to set AUTO mode");
+        		return false;
             }
             ThreadUtil.milliSleep(DELAY_MS);
             
