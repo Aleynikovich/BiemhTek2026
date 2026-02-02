@@ -1,5 +1,6 @@
 package biemhTekniker;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceData;
@@ -76,6 +77,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.00);
         
+        gripper.move(ptp(getApplicationData().getFrame("/P1")));
         log.info("Main application initialized");
     }
 
