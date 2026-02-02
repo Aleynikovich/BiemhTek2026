@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 import javax.inject.Inject;
@@ -54,6 +55,20 @@ public class PickNewWorkpieceProgram {
         		Math.toRadians(workpieceData.getRz()),
         		Math.toRadians(workpieceData.getRy()),
         		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
+        tcpA.move(lin(new Frame(workpieceData.getX(),
+        		workpieceData.getY(),
+        		workpieceData.getZ(),
+        		Math.toRadians(workpieceData.getRz()),
+        		Math.toRadians(workpieceData.getRy()),
+        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
+        application.getApplicationControl().halt();
+        tcpA.move(lin(new Frame(workpieceData.getX(),
+        		workpieceData.getY(),
+        		workpieceData.getZ()+100,
+        		Math.toRadians(workpieceData.getRz()),
+        		Math.toRadians(workpieceData.getRy()),
+        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
+        
         return true;
     }
 }
