@@ -10,7 +10,10 @@ import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.roboticsAPI.geometricModel.Tool;
+
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Main robot application.
@@ -33,6 +36,11 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private SmartPickingThread smartPickingThread;
     private ConsoleServer consoleServer;
     
+    //Gripper data
+    @Inject
+    @Named("Gripper") // Matches the name defined in your Station Setup
+    private Tool gripper;
+    
     // Shared data
     private WorkpieceData workpieceData;
 
@@ -51,6 +59,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         
         // Initialize shared data
         workpieceData = new WorkpieceData();
+        
+        // Gripper
+        gripper.attachTo(iiwa.getFlange());
         
         // Initialize and start SmartPicking thread (maintains connection to vision server)
         smartPickingThread = new SmartPickingThread(VISION_SERVER_IP, VISION_SERVER_PORT);
@@ -241,7 +252,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
                 this, 
                 iiwa, 
-                workpieceData
+                workpieceData,
+                gripper
         );
         
         boolean success = program.execute();

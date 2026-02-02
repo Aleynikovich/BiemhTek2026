@@ -10,6 +10,7 @@ import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
+import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
 /**
@@ -20,19 +21,16 @@ public class PickNewWorkpieceProgram {
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     
     private final RoboticsAPIApplication application;
-    private final LBR robot;
+    private final LBR iiwa;
     private final WorkpieceData workpieceData;
-    
-    @Inject
-    @Named ("Gripper")
     private Tool gripper;
     
     public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, 
-                                   WorkpieceData workpieceData) {
+                                   WorkpieceData workpieceData,Tool gripper) {
         this.application = application;
-        this.robot = robot;
+        this.iiwa = robot;
         this.workpieceData = workpieceData;
-        //TODO: Remove hardcode
+	    this.gripper = gripper;    
     }
     
     /**
@@ -54,14 +52,15 @@ public class PickNewWorkpieceProgram {
         // 2. Move down to pick position using workpieceData coordinates
         // 3. Close gripper
         // 4. Move back to safe position
-        gripper.attachTo(robot.getFlange());
+        ObjectFrame tcpA = gripper.getFrame("TCPA");
         
-        gripper.move(ptp(new Frame(workpieceData.getX(),
+        
+        tcpA.move(ptp(new Frame(workpieceData.getX(),
         		workpieceData.getY(),
         		workpieceData.getZ() + 200,
         		Math.toRadians(workpieceData.getRz()),
         		Math.toRadians(workpieceData.getRy()),
-        		Math.toRadians(workpieceData.getRx()))));
+        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.2));
         
         log.warn("PickNewWorkpieceProgram: Motion not yet implemented");
         return true;
