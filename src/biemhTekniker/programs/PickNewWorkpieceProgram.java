@@ -45,24 +45,15 @@ public class PickNewWorkpieceProgram {
             return false;
         }
         
-        log.info("Using workpiece position: " + workpieceData.toString());
-        
-        // TODO: Implement robot motion to pick workpiece
-        // 1. Move to approach position above workpiece
-        // 2. Move down to pick position using workpieceData coordinates
-        // 3. Close gripper
-        // 4. Move back to safe position
+        log.debug("Using workpiece position: " + workpieceData.toString());
         ObjectFrame tcpA = gripper.getFrame("TCPA");
-        
         
         tcpA.move(ptp(new Frame(workpieceData.getX(),
         		workpieceData.getY(),
         		workpieceData.getZ() + 200,
         		Math.toRadians(workpieceData.getRz()),
         		Math.toRadians(workpieceData.getRy()),
-        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.2));
-        
-        log.warn("PickNewWorkpieceProgram: Motion not yet implemented");
+        		Math.toRadians(workpieceData.getRx()))).setJointVelocityRel(0.5));
         return true;
     }
 }
