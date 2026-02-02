@@ -247,7 +247,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         if (this.workpieceData == null) {
             this.workpieceData = new WorkpieceData();
         }
-        workpieceData.set(300.0, 0, 600, 0.0, 0.0, 0, 0.95);
+        workpieceData.set(300.0, -320, 400, Math.toRadians(58), 0.0, Math.toRadians(-165), 0.95);
         //REMOVE HARDCODE
         PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
                 this, 
