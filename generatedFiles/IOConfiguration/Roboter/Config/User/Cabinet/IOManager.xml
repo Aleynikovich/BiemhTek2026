@@ -39,18 +39,6 @@
         <DigitalIO Name="VisionOutputs.CalibrationComplete" Type="OUTPUT" Scope="USER_IO" StartBit="2322" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="VisionInputs.CalibrationMode" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="VisionInputs.CalibrationRequest" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="VisionInputs.DataRequest" Type="INPUT" Scope="USER_IO" StartBit="146" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="VisionInputs.RunMode" Type="INPUT" Scope="USER_IO" StartBit="147" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
         <DigitalIO Name="RobotCartesianPosition.X" Type="OUTPUT" Scope="USER_IO" StartBit="2328" BitSize="16" Signed="true">
           <Description />
         </DigitalIO>
