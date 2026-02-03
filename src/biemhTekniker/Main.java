@@ -93,9 +93,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public void run()
     {
         log.info("Main application running");
-        //log.info("Current cartesian position: " + iiwa.getCurrentCartesianPosition(iiwa.getFlange()));
-        currentCartesianPosition.setX((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX());
-
         while (true)
         {
             switch (programNumber)

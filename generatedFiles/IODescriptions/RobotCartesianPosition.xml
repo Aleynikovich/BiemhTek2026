@@ -8,6 +8,21 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="X" DataType="INT" IOType="Output" UsedBitWidth="16" IsConnected="true">
         <Description />
       </DigitalIOItem>
+      <DigitalIOItem Name="Y" DataType="INT" IOType="Output" UsedBitWidth="16" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="Z" DataType="INT" IOType="Output" UsedBitWidth="16" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="A" DataType="INT" IOType="Output" UsedBitWidth="16" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="B" DataType="INT" IOType="Output" UsedBitWidth="16" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="C" DataType="INT" IOType="Output" UsedBitWidth="16" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
     </IOs>
     <Description />
   </IOGroup>

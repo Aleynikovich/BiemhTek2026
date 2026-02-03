@@ -54,6 +54,42 @@
         <DigitalIO Name="RobotCartesianPosition.X" Type="OUTPUT" Scope="USER_IO" StartBit="2328" BitSize="16" Signed="true">
           <Description />
         </DigitalIO>
+        <DigitalIO Name="RobotCartesianPosition.Y" Type="OUTPUT" Scope="USER_IO" StartBit="2344" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotCartesianPosition.Z" Type="OUTPUT" Scope="USER_IO" StartBit="2360" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotCartesianPosition.A" Type="OUTPUT" Scope="USER_IO" StartBit="2376" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotCartesianPosition.B" Type="OUTPUT" Scope="USER_IO" StartBit="2392" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotCartesianPosition.C" Type="OUTPUT" Scope="USER_IO" StartBit="2408" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A1" Type="OUTPUT" Scope="USER_IO" StartBit="2424" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A2" Type="OUTPUT" Scope="USER_IO" StartBit="2440" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A3" Type="OUTPUT" Scope="USER_IO" StartBit="2456" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A4" Type="OUTPUT" Scope="USER_IO" StartBit="2472" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A5" Type="OUTPUT" Scope="USER_IO" StartBit="2488" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A6" Type="OUTPUT" Scope="USER_IO" StartBit="2504" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotJointPosition.A7" Type="OUTPUT" Scope="USER_IO" StartBit="2520" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
       </IOList>
     </Bus>
   </BusList>
