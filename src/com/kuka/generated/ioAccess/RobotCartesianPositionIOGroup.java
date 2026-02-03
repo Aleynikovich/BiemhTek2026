@@ -29,7 +29,7 @@ public class RobotCartesianPositionIOGroup extends AbstractIOGroup
 	{
 		super(controller, "RobotCartesianPosition");
 
-		addDigitalOutput("X", IOTypes.INTEGER, 8);
+		addDigitalOutput("X", IOTypes.INTEGER, 16);
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class RobotCartesianPositionIOGroup extends AbstractIOGroup
 	 * ./.
 	 * <p>
 	 * <b>Range of the I/O value:</b><br>
-	 * [-128; 127]
+	 * [-32768; 32767]
 	 *
 	 * @return current value of the digital output 'X'
 	 */
@@ -63,7 +63,7 @@ public class RobotCartesianPositionIOGroup extends AbstractIOGroup
 	 * ./.
 	 * <p>
 	 * <b>Range of the I/O value:</b><br>
-	 * [-128; 127]
+	 * [-32768; 32767]
 	 *
 	 * @param value
 	 *            the value, which has to be written to the digital output 'X'
