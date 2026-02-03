@@ -15,14 +15,14 @@ public class TestCalibrationProgram
     private static final Logger log = Logger.getLogger(TestCalibrationProgram.class);
 
     private final RoboticsAPIApplication application;
-    private final LBR robot;
-    private final SmartPickingProtocol protocol;
+    private final LBR                    robot;
+    private final SmartPickingProtocol   protocol;
 
     public TestCalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol)
     {
         this.application = application;
-        this.robot = robot;
-        this.protocol = protocol;
+        this.robot       = robot;
+        this.protocol    = protocol;
     }
 
     /**
@@ -42,7 +42,8 @@ public class TestCalibrationProgram
         if (success)
         {
             log.info("Calibration test passed");
-        } else
+        }
+        else
         {
             log.error("Calibration test failed");
         }

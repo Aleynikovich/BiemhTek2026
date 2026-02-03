@@ -9,8 +9,8 @@ import biemhTekniker.logger.Logger;
 public class SmartPickingProtocol
 {
 
-    private static final Logger log = Logger.getLogger(SmartPickingProtocol.class);
-    private final VisionSocketClient _client;
+    private static final Logger             log = Logger.getLogger(SmartPickingProtocol.class);
+    private final        VisionSocketClient _client;
 
     public SmartPickingProtocol(VisionSocketClient client)
     {
@@ -44,8 +44,8 @@ public class SmartPickingProtocol
             message += ";" + args;
         }
         log.debug("Sending " + message + " to cam.");
-        String rawResponse = _client.sendAndReceive(message, expectReply);
-        VisionResult result = new VisionResult(rawResponse, cmd);
+        String       rawResponse = _client.sendAndReceive(message, expectReply);
+        VisionResult result      = new VisionResult(rawResponse, cmd);
         log.debug(result.toString());
 
         if (!result.isSuccess())
@@ -87,7 +87,20 @@ public class SmartPickingProtocol
      */
     public enum Command
     {
-        LOAD_REFERENCE("15"), SET_AUTO_MODE("101"), SET_CALIB_MODE("102"), CAPTURE_DATA("2"), LOCATE_CONTAINER("3"), GET_CONTAINER_POS("8"), LOCATE_PARTS("4"), GET_PART_POS("9"), GET_NEXT_PART_POS("11"), ADD_CALIB_POINT("5"), CALIBRATE("6"), TEST_CALIB("7"), SEND_ROBOT_POSE("14"), SEND_CUSTOM_MESSAGE("103");
+        LOAD_REFERENCE("15"),
+        SET_AUTO_MODE("101"),
+        SET_CALIB_MODE("102"),
+        CAPTURE_DATA("2"),
+        LOCATE_CONTAINER("3"),
+        GET_CONTAINER_POS("8"),
+        LOCATE_PARTS("4"),
+        GET_PART_POS("9"),
+        GET_NEXT_PART_POS("11"),
+        ADD_CALIB_POINT("5"),
+        CALIBRATE("6"),
+        TEST_CALIB("7"),
+        SEND_ROBOT_POSE("14"),
+        SEND_CUSTOM_MESSAGE("103");
 
         private final String code;
 
@@ -107,35 +120,36 @@ public class SmartPickingProtocol
      */
     public static class VisionResult
     {
-        private final boolean success;
-        private final Command _cmd;
+        private final boolean  success;
+        private final Command  _cmd;
         private final double[] data;
-        private final String raw;
+        private final String   raw;
 
         public VisionResult(String rawResponse, Command cmd)
         {
-            this.raw = rawResponse;
+            this.raw  = rawResponse;
             this._cmd = cmd;
             if (rawResponse == null || rawResponse.isEmpty())
             {
                 this.success = false;
-                this.data = new double[0];
+                this.data    = new double[0];
                 return;
             }
 
             // Cleanup characters: ( ) and whitespace
-            String cleaned = rawResponse.replace("(", "").replace(")", "").trim();
-            String[] parts = cleaned.split(",");
+            String   cleaned = rawResponse.replace("(", "").replace(")", "").trim();
+            String[] parts   = cleaned.split(",");
 
             this.success = parts[0].trim().equals("0");
-            this.data = new double[parts.length];
+            this.data    = new double[parts.length];
 
             for (int i = 0; i < parts.length; i++)
             {
                 try
                 {
                     this.data[i] = Double.parseDouble(parts[i].trim());
-                } catch (NumberFormatException e)
+                }
+                catch (NumberFormatException e)
                 {
                     this.data[i] = 0.0;
                 }
@@ -198,8 +212,7 @@ public class SmartPickingProtocol
             return getDataSafe(index);
         }
 
-        @Override
-        public String toString()
+        @Override public String toString()
         {
             return "VisionResult{success=" + success + ", raw='" + raw + "'}";
         }

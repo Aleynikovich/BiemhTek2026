@@ -21,18 +21,18 @@ public class PickNewWorkpieceProgram
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
 
     private final RoboticsAPIApplication application;
-    private final LBR iiwa;
-    private final WorkpieceData workpieceData;
-    private final Tool gripper;
-    private final MediaFlangeIOGroup gripperIO;
+    private final LBR                    iiwa;
+    private final WorkpieceData          workpieceData;
+    private final Tool                   gripper;
+    private final MediaFlangeIOGroup     gripperIO;
 
     public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, WorkpieceData workpieceData, Tool gripper, MediaFlangeIOGroup gripperIO)
     {
-        this.application = application;
-        this.iiwa = robot;
+        this.application   = application;
+        this.iiwa          = robot;
         this.workpieceData = workpieceData;
-        this.gripper = gripper;
-        this.gripperIO = gripperIO;
+        this.gripper       = gripper;
+        this.gripperIO     = gripperIO;
     }
 
     /**
@@ -52,10 +52,10 @@ public class PickNewWorkpieceProgram
 
         log.debug("Using workpiece position: " + workpieceData);
 
-        ObjectFrame tcp = gripper.getFrame("TCPA");
-        Frame pickPosition = workpieceData.getWorkPiecePickFrame();
-        Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
-        Frame rotatePosition = workpieceData.getWorkPiecePickFrame();
+        ObjectFrame tcp             = gripper.getFrame("TCPA");
+        Frame       pickPosition    = workpieceData.getWorkPiecePickFrame();
+        Frame       prePickPosition = workpieceData.getWorkPiecePickFrame();
+        Frame       rotatePosition  = workpieceData.getWorkPiecePickFrame();
         prePickPosition.setZ(prePickPosition.getZ() + 100);
         rotatePosition.setAlphaRad(rotatePosition.getAlphaRad() + Math.toRadians(10));
 

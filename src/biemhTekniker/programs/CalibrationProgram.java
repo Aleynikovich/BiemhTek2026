@@ -16,8 +16,8 @@ public class CalibrationProgram
     private static final Logger log = Logger.getLogger(CalibrationProgram.class);
 
     private final RoboticsAPIApplication application;
-    private final LBR robot;
-    private final SmartPickingProtocol protocol;
+    private final LBR                    robot;
+    private final SmartPickingProtocol   protocol;
 
     /**
      * Creates a calibration program.
@@ -29,8 +29,8 @@ public class CalibrationProgram
     public CalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol)
     {
         this.application = application;
-        this.robot = robot;
-        this.protocol = protocol;
+        this.robot       = robot;
+        this.protocol    = protocol;
     }
 
     /**
@@ -52,7 +52,8 @@ public class CalibrationProgram
         if (success)
         {
             log.info("Calibration program completed successfully");
-        } else
+        }
+        else
         {
             log.error("Calibration program failed");
         }

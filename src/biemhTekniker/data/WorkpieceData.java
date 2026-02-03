@@ -9,13 +9,13 @@ import com.kuka.roboticsAPI.geometricModel.Frame;
 public class WorkpieceData
 {
 
-    private double x;
-    private double y;
-    private double z;
-    private double rx;
-    private double ry;
-    private double rz;
-    private double score;
+    private double  x;
+    private double  y;
+    private double  z;
+    private double  rx;
+    private double  ry;
+    private double  rz;
+    private double  score;
     private boolean valid;
 
     public WorkpieceData()
@@ -25,12 +25,12 @@ public class WorkpieceData
 
     public WorkpieceData(double x, double y, double z, double rx, double ry, double rz, double score)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.rx = rx;
-        this.ry = ry;
-        this.rz = rz;
+        this.x     = x;
+        this.y     = y;
+        this.z     = z;
+        this.rx    = rx;
+        this.ry    = ry;
+        this.rz    = rz;
         this.score = score;
         this.valid = true;
     }
@@ -78,12 +78,12 @@ public class WorkpieceData
 
     public void set(double x, double y, double z, double rx, double ry, double rz, double score)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.rx = rx;
-        this.ry = ry;
-        this.rz = rz;
+        this.x     = x;
+        this.y     = y;
+        this.z     = z;
+        this.rx    = rx;
+        this.ry    = ry;
+        this.rz    = rz;
         this.score = score;
         this.valid = true;
     }
@@ -100,8 +100,7 @@ public class WorkpieceData
         this.valid = false;
     }
 
-    @Override
-    public String toString()
+    @Override public String toString()
     {
         if (!valid)
         {

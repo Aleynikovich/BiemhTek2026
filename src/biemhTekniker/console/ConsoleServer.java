@@ -15,18 +15,18 @@ import java.util.List;
  */
 public class ConsoleServer implements Runnable
 {
-    private static final Logger log = Logger.getLogger(ConsoleServer.class);
-    private final int PORT = 30001;
-    private final ConsoleServerInterface serverInterface;
-    private final List<ConsoleCommandHandler> handlers;
-    private ServerSocket serverSocket;
-    private volatile boolean running = false;
-    private Thread serverThread;
+    private static final Logger                      log     = Logger.getLogger(ConsoleServer.class);
+    private final        int                         PORT    = 30001;
+    private final        ConsoleServerInterface      serverInterface;
+    private final        List<ConsoleCommandHandler> handlers;
+    private              ServerSocket                serverSocket;
+    private volatile     boolean                     running = false;
+    private              Thread                      serverThread;
 
     public ConsoleServer(ConsoleServerInterface serverInterface)
     {
         this.serverInterface = serverInterface;
-        this.handlers = new ArrayList<ConsoleCommandHandler>();
+        this.handlers        = new ArrayList<ConsoleCommandHandler>();
         log.info("ConsoleServer instance created");
     }
 
@@ -44,21 +44,21 @@ public class ConsoleServer implements Runnable
             log.info("Console server socket bound to port " + PORT);
 
             // Start server thread
-            running = true;
+            running      = true;
             serverThread = new Thread(this, "ConsoleServerThread");
             serverThread.setDaemon(true);
             serverThread.start();
 
             log.info("Console server thread started and listening on port " + PORT);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             log.error("Failed to start console server on port " + PORT + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
         log.info("ConsoleServer thread running");
 
@@ -83,16 +83,19 @@ public class ConsoleServer implements Runnable
                 handlerThread.start();
 
                 log.info("Client handler thread started");
-            } catch (java.net.SocketTimeoutException e)
+            }
+            catch (java.net.SocketTimeoutException e)
             {
                 // Normal timeout, just continue
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 if (running)
                 {
                     log.error("Error accepting client: " + e.getMessage());
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 log.error("Unexpected error in ConsoleServer: " + e.getMessage());
                 e.printStackTrace();
@@ -118,7 +121,8 @@ public class ConsoleServer implements Runnable
                 try
                 {
                     handler.shutdown();
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     log.error("Error shutting down handler: " + e.getMessage());
                 }
@@ -133,7 +137,8 @@ public class ConsoleServer implements Runnable
             {
                 serverSocket.close();
                 log.info("Console server socket closed on port " + PORT);
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 log.error("Error closing console server socket: " + e.getMessage());
             }
@@ -146,7 +151,8 @@ public class ConsoleServer implements Runnable
             {
                 serverThread.join(2000); // Wait up to 2 seconds
                 log.info("ConsoleServer thread joined");
-            } catch (InterruptedException e)
+            }
+            catch (InterruptedException e)
             {
                 log.warn("Interrupted while waiting for server thread");
                 Thread.currentThread().interrupt();

@@ -4,8 +4,8 @@ import java.io.PrintWriter;
 
 public class NetworkListener implements ILogListener
 {
-    private final PrintWriter _out;
-    private volatile LogLevel _minLevel = LogLevel.INFO;
+    private final    PrintWriter _out;
+    private volatile LogLevel    _minLevel = LogLevel.INFO;
 
     public NetworkListener(PrintWriter out)
     {
@@ -33,8 +33,7 @@ public class NetworkListener implements ILogListener
         this._minLevel = minLevel;
     }
 
-    @Override
-    public void onNewLog(LogEntry entry)
+    @Override public void onNewLog(LogEntry entry)
     {
         if (_out != null && entry.getLevel().ordinal() >= _minLevel.ordinal())
         {

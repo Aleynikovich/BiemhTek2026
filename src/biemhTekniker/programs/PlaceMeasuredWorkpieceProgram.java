@@ -13,12 +13,12 @@ public class PlaceMeasuredWorkpieceProgram
     private static final Logger log = Logger.getLogger(PlaceMeasuredWorkpieceProgram.class);
 
     private final RoboticsAPIApplication application;
-    private final LBR robot;
+    private final LBR                    robot;
 
     public PlaceMeasuredWorkpieceProgram(RoboticsAPIApplication application, LBR robot)
     {
         this.application = application;
-        this.robot = robot;
+        this.robot       = robot;
     }
 
     /**

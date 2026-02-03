@@ -42,21 +42,24 @@ public class SimpleJSON
             String[] keyValue = pair.split(":", 2);
             if (keyValue.length == 2)
             {
-                String key = keyValue[0].trim().replaceAll("\"", "");
+                String key   = keyValue[0].trim().replaceAll("\"", "");
                 String value = keyValue[1].trim();
 
                 if (value.startsWith("\"") && value.endsWith("\""))
                 {
                     data.put(key, value.substring(1, value.length() - 1));
-                } else if (value.equals("true") || value.equals("false"))
+                }
+                else if (value.equals("true") || value.equals("false"))
                 {
                     data.put(key, Boolean.parseBoolean(value));
-                } else
+                }
+                else
                 {
                     try
                     {
                         data.put(key, Integer.parseInt(value));
-                    } catch (NumberFormatException e)
+                    }
+                    catch (NumberFormatException e)
                     {
                         data.put(key, value);
                     }
@@ -86,7 +89,8 @@ public class SimpleJSON
         try
         {
             return Integer.parseInt(value.toString());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             return defaultValue;
         }
@@ -119,10 +123,12 @@ public class SimpleJSON
             if (value instanceof String)
             {
                 sb.append("\"").append(escape((String) value)).append("\"");
-            } else if (value instanceof Boolean || value instanceof Number)
+            }
+            else if (value instanceof Boolean || value instanceof Number)
             {
                 sb.append(value);
-            } else
+            }
+            else
             {
                 sb.append("\"").append(value.toString()).append("\"");
             }

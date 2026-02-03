@@ -26,52 +26,43 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
  */
 public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
 {
-    private static final Logger log = Logger.getLogger(Main.class);
+    private static final Logger             log                = Logger.getLogger(Main.class);
     // Configuration
-    private static final String VISION_SERVER_IP = "172.31.1.69";
-    private static final int VISION_SERVER_PORT = 59002;
-    @Inject
-    private LBR iiwa;
+    private static final String             VISION_SERVER_IP   = "172.31.1.69";
+    private static final int                VISION_SERVER_PORT = 59002;
+    @Inject private      LBR                iiwa;
     // Managers and threads
-    private LoggingManager loggingManager;
-    private SmartPickingThread smartPickingThread;
-    private ConsoleServer consoleServer;
+    private              LoggingManager     loggingManager;
+    private              SmartPickingThread smartPickingThread;
+    private              ConsoleServer      consoleServer;
 
     // Gripper data
-    @Inject
-    @Named("Gripper") // Matches the name defined in your Station Setup
+    @Inject @Named("Gripper") // Matches the name defined in your Station Setup
     private Tool gripper;
 
     // Gripper IOs
-    @Inject
-    private MediaFlangeIOGroup gripperIO;
+    @Inject private MediaFlangeIOGroup gripperIO;
 
-    @Inject
-    private RobotCartesianPositionIOGroup currentCartesianPosition;
+    @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
 
     // Shared data
     private WorkpieceData workpieceData;
 
-    /**
-     * Current program number to execute.
-     * This should be updated based on PLC signals or other external input.
-     */
     private volatile int programNumber = 0;
 
-    @Override
-    public void initialize()
+    @Override public void initialize()
     {
         // Initialize logging
         loggingManager = new LoggingManager();
         loggingManager.initialize();
 
-        // Initialize shared data
+        // Initialize shared data, workpiece data from camera
         workpieceData = new WorkpieceData();
 
         // Gripper
         gripper.attachTo(iiwa.getFlange());
 
-        // Initialize and start SmartPicking thread (maintains connection to vision server)
+        // Initialize and start SmartPicking thread
         smartPickingThread = new SmartPickingThread(VISION_SERVER_IP, VISION_SERVER_PORT);
         smartPickingThread.initialize();
         smartPickingThread.start();
@@ -83,13 +74,10 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.30);
-
-        gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
         log.info("Main application initialized");
     }
 
-    @Override
-    public void dispose()
+    @Override public void dispose()
     {
         log.info("Main application shutting down");
 
@@ -106,7 +94,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             try
             {
                 smartPickingThread.join(5000);
-            } catch (InterruptedException e)
+            }
+            catch (InterruptedException e)
             {
                 log.warn("Interrupted while waiting for SmartPicking thread to finish");
                 Thread.currentThread().interrupt();
@@ -122,10 +111,10 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         super.dispose();
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
-        log.info("Main application running");
+        log.info("Main application running, moving home");
+        gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
         while (true)
         {
             switch (programNumber)
@@ -289,41 +278,39 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         if (success)
         {
             log.info(programName + " program completed successfully");
-        } else
+        }
+        else
         {
             log.error(programName + " program failed");
         }
     }
 
-    @Override
-    public void setProgramNumber(int programNumber)
+    @Override public void setProgramNumber(int programNumber)
     {
         if (programNumber >= 0 && programNumber <= 7)
         {
             this.programNumber = programNumber;
             log.info("Program number set to: " + programNumber + " via console");
-        } else
+        }
+        else
         {
             log.warn("Invalid program number requested: " + programNumber);
         }
     }
 
-    @Override
-    public int getCurrentProgram()
+    @Override public int getCurrentProgram()
     {
         return programNumber;
     }
 
     // ========== Helper Methods ==========
 
-    @Override
-    public boolean isVisionConnected()
+    @Override public boolean isVisionConnected()
     {
         return smartPickingThread != null && smartPickingThread.isConnected();
     }
 
-    @Override
-    public String getWorkpiecePosition()
+    @Override public String getWorkpiecePosition()
     {
         if (workpieceData != null && workpieceData.isValid())
         {

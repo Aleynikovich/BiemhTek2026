@@ -14,17 +14,17 @@ public class SmartPickingThread extends Thread
 
     private static final Logger log = Logger.getLogger(SmartPickingThread.class);
 
-    private final String visionServerIP;
-    private final int visionServerPort;
+    private final    String               visionServerIP;
+    private final    int                  visionServerPort;
     /**
      * Reference identifier for the part being picked.
      * Format: PROJECT_PARTNUMBER (e.g., "BIEMH26_105055")
      * This should match a reference loaded in the vision system.
      */
-    private final String reference = "BIEMH26_105055";
-    private VisionSocketClient socketClient;
-    private SmartPickingProtocol protocol;
-    private volatile boolean running = true;
+    private final    String               reference = "BIEMH26_105055";
+    private          VisionSocketClient   socketClient;
+    private          SmartPickingProtocol protocol;
+    private volatile boolean              running   = true;
 
     /**
      * Creates a SmartPicking thread.
@@ -35,7 +35,7 @@ public class SmartPickingThread extends Thread
     public SmartPickingThread(String visionServerIP, int visionServerPort)
     {
         super("SmartPickingThread");
-        this.visionServerIP = visionServerIP;
+        this.visionServerIP   = visionServerIP;
         this.visionServerPort = visionServerPort;
         setDaemon(true); // Thread will not prevent JVM shutdown
     }
@@ -47,12 +47,11 @@ public class SmartPickingThread extends Thread
     {
         log.info("SmartPickingThread initializing...");
         socketClient = new VisionSocketClient(visionServerIP, visionServerPort);
-        protocol = new SmartPickingProtocol(socketClient);
+        protocol     = new SmartPickingProtocol(socketClient);
         log.info("SmartPickingThread initialized.");
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
         log.info("SmartPickingThread started.");
 
@@ -63,7 +62,7 @@ public class SmartPickingThread extends Thread
             return;
         }
 
-        int consecutiveErrors = 0;
+        int       consecutiveErrors      = 0;
         final int MAX_CONSECUTIVE_ERRORS = 10;
 
         // Main thread loop - monitors connection and maintains it
@@ -84,7 +83,8 @@ public class SmartPickingThread extends Thread
                 }
                 consecutiveErrors = 0; // Reset on success
                 ThreadUtil.milliSleep(1000); // Check connection every second
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 consecutiveErrors++;
                 log.error("Connection monitor error (" + consecutiveErrors + "/" + MAX_CONSECUTIVE_ERRORS + "): " + e.getMessage());

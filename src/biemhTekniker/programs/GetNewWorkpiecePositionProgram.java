@@ -15,11 +15,11 @@ import com.kuka.common.ThreadUtil;
 public class GetNewWorkpiecePositionProgram
 {
 
-    private static final Logger log = Logger.getLogger(GetNewWorkpiecePositionProgram.class);
-    private static final int DELAY_MS = 200;
+    private static final Logger log      = Logger.getLogger(GetNewWorkpiecePositionProgram.class);
+    private static final int    DELAY_MS = 200;
 
     private final SmartPickingProtocol protocol;
-    private final WorkpieceData workpieceData;
+    private final WorkpieceData        workpieceData;
 
     /**
      * Creates a GetNewWorkpiecePosition program.
@@ -29,7 +29,7 @@ public class GetNewWorkpiecePositionProgram
      */
     public GetNewWorkpiecePositionProgram(SmartPickingProtocol protocol, WorkpieceData workpieceData)
     {
-        this.protocol = protocol;
+        this.protocol      = protocol;
         this.workpieceData = workpieceData;
     }
 
@@ -97,12 +97,12 @@ public class GetNewWorkpiecePositionProgram
             // Parse and store workpiece position
             // Response format: "0,0,-601.5,109.2,1193.7,-170.9,2.6,124.9,0,2"
             // Indices: [0]=success, [1]=?, [2]=X, [3]=Y, [4]=Z, [5]=Rx, [6]=Ry, [7]=Rz, [8]=?, [9]=score
-            double x = posResult.getX();
-            double y = posResult.getY();
-            double z = posResult.getZ();
-            double rx = posResult.getRx();
-            double ry = posResult.getRy();
-            double rz = posResult.getRz();
+            double x     = posResult.getX();
+            double y     = posResult.getY();
+            double z     = posResult.getZ();
+            double rx    = posResult.getRx();
+            double ry    = posResult.getRy();
+            double rz    = posResult.getRz();
             double score = posResult.getScore();
 
             workpieceData.set(x, y, z, rx, ry, rz, score);
@@ -110,7 +110,8 @@ public class GetNewWorkpiecePositionProgram
             log.info("Workpiece position retrieved: " + workpieceData);
             return true;
 
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             log.error("Error getting workpiece position: " + e.getMessage());
             return false;
