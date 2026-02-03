@@ -95,13 +95,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         log.info("Main application running");
         while (true)
         {
-    		currentCartesianPosition.setX((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX()*100);
-    		currentCartesianPosition.setY((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getY()*100);
-    		currentCartesianPosition.setZ((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getZ()*100);
-    		currentCartesianPosition.setA((int) Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getAlphaRad())*100);
-    		currentCartesianPosition.setB((int) Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getBetaRad())*100);
-    		currentCartesianPosition.setC((int) Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad())*100);
-
             switch (programNumber)
             {
                 case 0:
