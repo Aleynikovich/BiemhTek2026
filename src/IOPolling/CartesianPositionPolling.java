@@ -13,22 +13,17 @@ import java.util.concurrent.TimeUnit;
 public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
     int decimalMultiplier = 10;
-    @Inject
-    private Controller sunrise;
-    @Inject
-    private LBR iiwa;
-    @Inject
-    private RobotCartesianPositionIOGroup currentCartesianPosition;
+    @Inject private Controller                    sunrise;
+    @Inject private LBR                           iiwa;
+    @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
 
-    @Override
-    public void initialize()
+    @Override public void initialize()
     {
         // initialize your task here
         initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
-    @Override
-    public void runCyclic()
+    @Override public void runCyclic()
     {
         // XYZ
         currentCartesianPosition.setX((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX() * decimalMultiplier));

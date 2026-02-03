@@ -24,16 +24,14 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  */
 public class PositionAndGMSReferencing extends RoboticsAPIApplication
 {
-    private final static double sideOffset = Math.toRadians(5);       // offset in radians for side motion
-    private final static int[] axisId = {0, 1, 2, 3, 4, 5, 6};        // axes to be referenced
-    private final static int GMS_REFERENCING_COMMAND = 2;             // safety command for GMS referencing
-    private final static int COMMAND_SUCCESSFUL = 1;
-    @Inject
-    private Controller kukaController;
-    @Inject
-    private LBR lbr_iiwa;
-    private double joggingVelocity = 0.15;                            // relative velocity
-    private int positionCounter = 0;
+    private final static double     sideOffset = Math.toRadians(5);       // offset in radians for side motion
+    private final static int[]      axisId = {0, 1, 2, 3, 4, 5, 6};        // axes to be referenced
+    private final static int        GMS_REFERENCING_COMMAND = 2;             // safety command for GMS referencing
+    private final static int        COMMAND_SUCCESSFUL = 1;
+    @Inject private      Controller kukaController;
+    @Inject private      LBR        lbr_iiwa;
+    private              double     joggingVelocity = 0.15;                            // relative velocity
+    private              int        positionCounter = 0;
 
     public void initialize()
     {
@@ -60,7 +58,8 @@ public class PositionAndGMSReferencing extends RoboticsAPIApplication
         if (OperationMode.T1 == lbr_iiwa.getOperationMode())
         {
             joggingVelocity = 0.3;
-        } else
+        }
+        else
         {
             joggingVelocity = 0.15;
         }
@@ -77,45 +76,15 @@ public class PositionAndGMSReferencing extends RoboticsAPIApplication
             // will be reached from negative and from positive axis 
             // direction resulting 10 measurements. The safety needs 
             // exactly 10 measurements to perform the referencing.
-            performMotion(new JointPosition(Math.toRadians(0.0),
-                    Math.toRadians(16.18),
-                    Math.toRadians(23.04),
-                    Math.toRadians(37.35),
-                    Math.toRadians(-67.93),
-                    Math.toRadians(38.14),
-                    Math.toRadians(-2.13)));
+            performMotion(new JointPosition(Math.toRadians(0.0), Math.toRadians(16.18), Math.toRadians(23.04), Math.toRadians(37.35), Math.toRadians(-67.93), Math.toRadians(38.14), Math.toRadians(-2.13)));
 
-            performMotion(new JointPosition(Math.toRadians(18.51),
-                    Math.toRadians(9.08),
-                    Math.toRadians(-1.90),
-                    Math.toRadians(49.58),
-                    Math.toRadians(-2.92),
-                    Math.toRadians(18.60),
-                    Math.toRadians(-31.18)));
+            performMotion(new JointPosition(Math.toRadians(18.51), Math.toRadians(9.08), Math.toRadians(-1.90), Math.toRadians(49.58), Math.toRadians(-2.92), Math.toRadians(18.60), Math.toRadians(-31.18)));
 
-            performMotion(new JointPosition(Math.toRadians(-18.53),
-                    Math.toRadians(-25.76),
-                    Math.toRadians(-47.03),
-                    Math.toRadians(-49.55),
-                    Math.toRadians(30.76),
-                    Math.toRadians(-30.73),
-                    Math.toRadians(20.11)));
+            performMotion(new JointPosition(Math.toRadians(-18.53), Math.toRadians(-25.76), Math.toRadians(-47.03), Math.toRadians(-49.55), Math.toRadians(30.76), Math.toRadians(-30.73), Math.toRadians(20.11)));
 
-            performMotion(new JointPosition(Math.toRadians(-48.66),
-                    Math.toRadians(24.68),
-                    Math.toRadians(-11.52),
-                    Math.toRadians(10.48),
-                    Math.toRadians(-11.38),
-                    Math.toRadians(-20.70),
-                    Math.toRadians(20.87)));
+            performMotion(new JointPosition(Math.toRadians(-48.66), Math.toRadians(24.68), Math.toRadians(-11.52), Math.toRadians(10.48), Math.toRadians(-11.38), Math.toRadians(-20.70), Math.toRadians(20.87)));
 
-            performMotion(new JointPosition(Math.toRadians(9.01),
-                    Math.toRadians(-35.00),
-                    Math.toRadians(24.72),
-                    Math.toRadians(-82.04),
-                    Math.toRadians(14.65),
-                    Math.toRadians(-29.95),
-                    Math.toRadians(1.57)));
+            performMotion(new JointPosition(Math.toRadians(9.01), Math.toRadians(-35.00), Math.toRadians(24.72), Math.toRadians(-82.04), Math.toRadians(14.65), Math.toRadians(-29.95), Math.toRadians(1.57)));
 
             // Move to home position at the end
             getLogger().info("Moving to home position");
@@ -166,9 +135,9 @@ public class PositionAndGMSReferencing extends RoboticsAPIApplication
     private void sendSafetyCommand()
     {
         ISunriseRequestService requestService = (ISunriseRequestService) (kukaController.getRequestService());
-        SSR ssr = SSRFactory.createSafetyCommandSSR(GMS_REFERENCING_COMMAND);
-        Message response = requestService.sendSynchronousSSR(ssr);
-        int result = response.getParamInt(0);
+        SSR                    ssr            = SSRFactory.createSafetyCommandSSR(GMS_REFERENCING_COMMAND);
+        Message                response       = requestService.sendSynchronousSSR(ssr);
+        int                    result         = response.getParamInt(0);
         if (COMMAND_SUCCESSFUL != result)
         {
             getLogger().warn("Command did not execute successfully, response = " + result);

@@ -18,19 +18,25 @@ public class Impedance extends RoboticsAPIApplication
 
     final static double offsetAxis2And4 = Math.toRadians(10);
 
-    private static final int stiffnessZ = 2500;
-    private static final int stiffnessY = 700;
-    private static final int stiffnessX = 1500;
-    private final static String informationText =
-            "This application is intended for floor mounted robots!" + "\n" +
-                    "\n" +
-                    "The robot moves to the start position and holds the position in impedance control mode until you stops the motion " +
-                    "by confirming the modal dialog on the smartPAD." + "\n" +
-                    "The stiffness is set to " +
-                    "X=" + stiffnessX + " Y=" + stiffnessY + " Z=" + stiffnessZ + " in N/m.";
-    private static final double[] startPosition = new double[]{0, offsetAxis2And4, 0, offsetAxis2And4 - Math.toRadians(90), 0, Math.toRadians(90), 0};
-    @Inject
-    private LBR lbr;
+    private static final int      stiffnessZ      = 2500;
+    private static final int      stiffnessY      = 700;
+    private static final int      stiffnessX      = 1500;
+    private final static String   informationText = "This application is intended for floor mounted robots!"
+                                                    + "\n"
+                                                    + "\n"
+                                                    + "The robot moves to the start position and holds the position in impedance control mode until you stops the motion "
+                                                    + "by confirming the modal dialog on the smartPAD."
+                                                    + "\n"
+                                                    + "The stiffness is set to "
+                                                    + "X="
+                                                    + stiffnessX
+                                                    + " Y="
+                                                    + stiffnessY
+                                                    + " Z="
+                                                    + stiffnessZ
+                                                    + " in N/m.";
+    private static final double[] startPosition   = new double[]{0, offsetAxis2And4, 0, offsetAxis2And4 - Math.toRadians(90), 0, Math.toRadians(90), 0};
+    @Inject private      LBR      lbr;
 
     public void initialize()
     {
