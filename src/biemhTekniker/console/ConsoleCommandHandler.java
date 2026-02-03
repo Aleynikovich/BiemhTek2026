@@ -4,6 +4,7 @@ import biemhTekniker.logger.LogLevel;
 import biemhTekniker.logger.LogManager;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.logger.NetworkListener;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,102 +14,136 @@ import java.net.Socket;
 /**
  * Handles individual client connections and processes commands.
  */
-public class ConsoleCommandHandler implements Runnable {
-    
-    private static final Logger log = Logger.getLogger(ConsoleCommandHandler.class);
-    private final Socket clientSocket;
-    private final ConsoleServerInterface serverInterface;
-    private PrintWriter out;
-    private BufferedReader in;
-    private boolean running = true;
-    private NetworkListener networkListener;
-    
-    public ConsoleCommandHandler(Socket socket, ConsoleServerInterface serverInterface) {
-        this.clientSocket = socket;
+public class ConsoleCommandHandler implements Runnable
+{
+
+    private static final Logger                 log     = Logger.getLogger(ConsoleCommandHandler.class);
+    private final        Socket                 clientSocket;
+    private final        ConsoleServerInterface serverInterface;
+    private              PrintWriter            out;
+    private              BufferedReader         in;
+    private              boolean                running = true;
+    private              NetworkListener        networkListener;
+
+    public ConsoleCommandHandler(Socket socket, ConsoleServerInterface serverInterface)
+    {
+        this.clientSocket    = socket;
         this.serverInterface = serverInterface;
     }
-    
-    @Override
-    public void run() {
+
+    @Override public void run()
+    {
         log.info("ConsoleCommandHandler thread started for client: " + clientSocket.getInetAddress());
-        
-        try {
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        try
+        {
+            in  = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
-            
+
             // Register network listener to forward logs to this client
             networkListener = new NetworkListener(out);
             LogManager.register(networkListener);
-            
+
             log.info("Client streams initialized and network listener registered: " + clientSocket.getInetAddress());
             sendResponse("connection", "Connected to KUKA Robot Console", true);
-            
+
             String inputLine;
-            while (running && (inputLine = in.readLine()) != null) {
+            while (running && (inputLine = in.readLine()) != null)
+            {
                 handleCommand(inputLine);
             }
-            
+
             log.info("Client disconnected (EOF): " + clientSocket.getInetAddress());
-            
-        } catch (IOException e) {
+
+        }
+        catch (IOException e)
+        {
             log.error("Client handler I/O error for " + clientSocket.getInetAddress() + ": " + e.getMessage());
             e.printStackTrace();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Unexpected error in client handler for " + clientSocket.getInetAddress() + ": " + e.getMessage());
             e.printStackTrace();
-        } finally {
+        }
+        finally
+        {
             cleanup();
         }
     }
-    
-    private void handleCommand(String command) {
-        try {
+
+    private void handleCommand(String command)
+    {
+        try
+        {
             SimpleJSON json = new SimpleJSON(command);
-            String type = json.getString("type", "unknown");
-            
-            if ("set_program".equals(type)) {
+            String     type = json.getString("type", "unknown");
+
+            if ("set_program".equals(type))
+            {
                 handleSetProgram(json);
-            } else if ("get_status".equals(type)) {
+            }
+            else if ("get_status".equals(type))
+            {
                 handleGetStatus();
-            } else if ("stop".equals(type)) {
+            }
+            else if ("stop".equals(type))
+            {
                 handleStop();
-            } else if ("set_log_level".equals(type)) {
+            }
+            else if ("set_log_level".equals(type))
+            {
                 handleSetLogLevel(json);
-            } else if ("get_log_level".equals(type)) {
+            }
+            else if ("get_log_level".equals(type))
+            {
                 handleGetLogLevel();
-            } else {
+            }
+            else
+            {
                 sendError("Unknown command type: " + type);
             }
-            
-        } catch (Exception e) {
+
+        }
+        catch (Exception e)
+        {
             log.error("Command handling error: " + e.getMessage());
             e.printStackTrace();
             sendError("Invalid command format: " + e.getMessage());
         }
     }
-    
-    private void handleSetProgram(SimpleJSON json) {
-        try {
+
+    private void handleSetProgram(SimpleJSON json)
+    {
+        try
+        {
             int programNumber = json.getInt("program", -1);
             log.debug("handleSetProgram called with program: " + programNumber);
-            
-            if (programNumber >= 0 && programNumber <= 7) {
+
+            if (programNumber >= 0 && programNumber <= 7)
+            {
                 serverInterface.setProgramNumber(programNumber);
                 sendResponse("response", "Program set to " + programNumber, true);
                 log.info("Program set successfully to: " + programNumber);
-            } else {
+            }
+            else
+            {
                 sendError("Invalid program number: " + programNumber);
                 log.warn("Invalid program number requested: " + programNumber);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error in handleSetProgram: " + e.getMessage());
             e.printStackTrace();
             sendError("Error setting program: " + e.getMessage());
         }
     }
-    
-    private void handleGetStatus() {
-        try {
+
+    private void handleGetStatus()
+    {
+        try
+        {
             log.debug("handleGetStatus called");
             SimpleJSON status = new SimpleJSON();
             status.put("type", "status");
@@ -117,140 +152,194 @@ public class ConsoleCommandHandler implements Runnable {
             status.put("workpiece_position", serverInterface.getWorkpiecePosition());
             sendJson(status);
             log.debug("Status sent to client");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error in handleGetStatus: " + e.getMessage());
             e.printStackTrace();
             sendError("Error getting status: " + e.getMessage());
         }
     }
-    
-    private void handleStop() {
-        try {
+
+    private void handleStop()
+    {
+        try
+        {
             log.debug("handleStop called");
             serverInterface.setProgramNumber(0);
             sendResponse("response", "Emergency stop - Program set to 0", true);
             log.info("Emergency stop executed");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error in handleStop: " + e.getMessage());
             e.printStackTrace();
             sendError("Error executing stop: " + e.getMessage());
         }
     }
-    
-    private void handleSetLogLevel(SimpleJSON json) {
-        try {
+
+    private void handleSetLogLevel(SimpleJSON json)
+    {
+        try
+        {
             String levelStr = json.getString("level", "DEBUG");
             log.info("handleSetLogLevel called with level: " + levelStr);
-            
+
             LogLevel level;
-            try {
+            try
+            {
                 level = LogLevel.valueOf(levelStr.toUpperCase());
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e)
+            {
                 sendError("Invalid log level: " + levelStr);
                 return;
             }
-            
-            if (networkListener != null) {
+
+            if (networkListener != null)
+            {
                 networkListener.setMinimumLevel(level);
                 sendResponse("response", "Log level set to " + level, true);
                 log.info("Log level set successfully to: " + level);
-            } else {
+            }
+            else
+            {
                 sendError("Network listener not initialized");
                 log.error("Network listener is null in handleSetLogLevel");
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error in handleSetLogLevel: " + e.getMessage());
             e.printStackTrace();
             sendError("Error setting log level: " + e.getMessage());
         }
     }
-    
-    private void handleGetLogLevel() {
-        try {
+
+    private void handleGetLogLevel()
+    {
+        try
+        {
             log.info("handleGetLogLevel called");
-            
-            if (networkListener != null) {
-                LogLevel currentLevel = networkListener.getMinimumLevel();
-                SimpleJSON response = new SimpleJSON();
+
+            if (networkListener != null)
+            {
+                LogLevel   currentLevel = networkListener.getMinimumLevel();
+                SimpleJSON response     = new SimpleJSON();
                 response.put("type", "log_level");
                 response.put("level", currentLevel.toString());
                 sendJson(response);
                 log.info("Log level sent to client: " + currentLevel);
-            } else {
+            }
+            else
+            {
                 sendError("Network listener not initialized");
                 log.error("Network listener is null in handleGetLogLevel");
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error in handleGetLogLevel: " + e.getMessage());
             e.printStackTrace();
             sendError("Error getting log level: " + e.getMessage());
         }
     }
-    
-    private void sendResponse(String type, String message, boolean success) {
-        try {
+
+    private void sendResponse(String type, String message, boolean success)
+    {
+        try
+        {
             SimpleJSON response = new SimpleJSON();
             response.put("type", type);
             response.put("message", message);
             response.put("success", success);
             sendJson(response);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error sending response: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
-    private void sendError(String message) {
+
+    private void sendError(String message)
+    {
         log.warn("Sending error to client: " + message);
         sendResponse("error", message, false);
     }
-    
-    private void sendJson(SimpleJSON json) {
-        try {
-            if (out != null) {
-                out.println(json.toString());
-            } else {
-                log.error("Cannot send JSON - output stream is null");
-            }
-        } catch (Exception e) {
-            log.error("Error in sendJson: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-    public void sendLog(String level, String message) {
-        try {
+
+    public void sendLog(String level, String message)
+    {
+        try
+        {
             SimpleJSON logJson = new SimpleJSON();
             logJson.put("type", "log");
             logJson.put("level", level);
             logJson.put("message", message);
             sendJson(logJson);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error sending log message: " + e.getMessage());
         }
     }
-    
-    private void cleanup() {
+
+    private void sendJson(SimpleJSON json)
+    {
+        try
+        {
+            if (out != null)
+            {
+                out.println(json.toString());
+            }
+            else
+            {
+                log.error("Cannot send JSON - output stream is null");
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("Error in sendJson: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void cleanup()
+    {
         log.info("Cleaning up client handler for: " + clientSocket.getInetAddress());
         running = false;
-        
+
         // Unregister network listener
-        if (networkListener != null) {
+        if (networkListener != null)
+        {
             LogManager.unregister(networkListener);
             log.info("Network listener unregistered");
         }
-        
-        try {
-            if (in != null) in.close();
-            if (out != null) out.close();
-            if (clientSocket != null) clientSocket.close();
+
+        try
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+            if (out != null)
+            {
+                out.close();
+            }
+            if (clientSocket != null)
+            {
+                clientSocket.close();
+            }
             log.info("Client handler cleaned up successfully");
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.error("Cleanup error: " + e.getMessage());
         }
     }
-    
-    public void shutdown() {
+
+    public void shutdown()
+    {
         log.info("Shutdown requested for client handler");
         running = false;
     }

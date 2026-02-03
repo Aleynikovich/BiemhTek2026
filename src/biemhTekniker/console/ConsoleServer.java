@@ -15,39 +15,40 @@ import java.util.List;
  */
 public class ConsoleServer implements Runnable
 {
-    private static final Logger log = Logger.getLogger(ConsoleServer.class);
-    private ServerSocket serverSocket;
-    private final int PORT = 30001;
-    private ConsoleServerInterface serverInterface;
-    private List<ConsoleCommandHandler> handlers;
-    private volatile boolean running = false;
-    private Thread serverThread;
-    
-    public ConsoleServer(ConsoleServerInterface serverInterface) {
+    private static final Logger                      log     = Logger.getLogger(ConsoleServer.class);
+    private final        int                         PORT    = 30001;
+    private final        ConsoleServerInterface      serverInterface;
+    private final        List<ConsoleCommandHandler> handlers;
+    private              ServerSocket                serverSocket;
+    private volatile     boolean                     running = false;
+    private              Thread                      serverThread;
+
+    public ConsoleServer(ConsoleServerInterface serverInterface)
+    {
         this.serverInterface = serverInterface;
-        this.handlers = new ArrayList<ConsoleCommandHandler>();
+        this.handlers        = new ArrayList<ConsoleCommandHandler>();
         log.info("ConsoleServer instance created");
     }
-    
+
     /**
      * Initialize and start the console server.
      */
     public void initialize()
     {
         log.info("ConsoleServer initializing...");
-        
+
         try
         {
             serverSocket = new ServerSocket(PORT);
             serverSocket.setSoTimeout(1000); // 1 second timeout for accept
             log.info("Console server socket bound to port " + PORT);
-            
+
             // Start server thread
-            running = true;
+            running      = true;
             serverThread = new Thread(this, "ConsoleServerThread");
             serverThread.setDaemon(true);
             serverThread.start();
-            
+
             log.info("Console server thread started and listening on port " + PORT);
         }
         catch (IOException e)
@@ -57,29 +58,30 @@ public class ConsoleServer implements Runnable
         }
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
         log.info("ConsoleServer thread running");
-        
-        while (running) {
+
+        while (running)
+        {
             try
             {
                 // Accept client connections
                 Socket clientSocket = serverSocket.accept();
                 log.info("New client connection accepted from: " + clientSocket.getInetAddress());
-                
+
                 // Create handler for this client
                 ConsoleCommandHandler handler = new ConsoleCommandHandler(clientSocket, serverInterface);
-                synchronized (handlers) {
+                synchronized (handlers)
+                {
                     handlers.add(handler);
                 }
-                
+
                 // Start handler in new thread
                 Thread handlerThread = new Thread(handler, "ClientHandler-" + clientSocket.getInetAddress());
                 handlerThread.setDaemon(true);
                 handlerThread.start();
-                
+
                 log.info("Client handler thread started");
             }
             catch (java.net.SocketTimeoutException e)
@@ -88,7 +90,8 @@ public class ConsoleServer implements Runnable
             }
             catch (IOException e)
             {
-                if (running) {
+                if (running)
+                {
                     log.error("Error accepting client: " + e.getMessage());
                 }
             }
@@ -98,7 +101,7 @@ public class ConsoleServer implements Runnable
                 e.printStackTrace();
             }
         }
-        
+
         log.info("ConsoleServer thread stopped");
     }
 
@@ -109,50 +112,63 @@ public class ConsoleServer implements Runnable
     {
         log.info("ConsoleServer disposing...");
         running = false;
-        
+
         // Shutdown all handlers
-        synchronized (handlers) {
-            for (ConsoleCommandHandler handler : handlers) {
-                try {
+        synchronized (handlers)
+        {
+            for (ConsoleCommandHandler handler : handlers)
+            {
+                try
+                {
                     handler.shutdown();
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     log.error("Error shutting down handler: " + e.getMessage());
                 }
             }
             handlers.clear();
         }
-        
+
         // Close server socket
-        if (serverSocket != null) {
+        if (serverSocket != null)
+        {
             try
             {
                 serverSocket.close();
                 log.info("Console server socket closed on port " + PORT);
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 log.error("Error closing console server socket: " + e.getMessage());
             }
         }
-        
+
         // Wait for server thread to finish
-        if (serverThread != null) {
-            try {
+        if (serverThread != null)
+        {
+            try
+            {
                 serverThread.join(2000); // Wait up to 2 seconds
                 log.info("ConsoleServer thread joined");
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 log.warn("Interrupted while waiting for server thread");
                 Thread.currentThread().interrupt();
             }
         }
-        
+
         log.info("ConsoleServer disposed");
     }
-    
+
     /**
      * Check if the console server is running.
+     *
      * @return true if running, false otherwise
      */
-    public boolean isRunning() {
+    public boolean isRunning()
+    {
         return running && serverThread != null && serverThread.isAlive();
     }
 }

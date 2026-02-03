@@ -1,100 +1,130 @@
 package biemhTekniker.vision;
 
 import biemhTekniker.logger.Logger;
+import com.kuka.common.ThreadUtil;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-
-import com.kuka.common.ThreadUtil;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Standardized TCP Client for Vision System communication.
  * Compatible with Java 1.6.
  */
-public class VisionSocketClient {
-    private static final Logger log = Logger.getLogger(VisionSocketClient.class);
+public class VisionSocketClient
+{
+    private static final Logger      log     = Logger.getLogger(VisionSocketClient.class);
+    private final        String      ip;
+    private final        int         port;
+    private final        int         timeout = 5000;
+    private              Socket      socket;
+    private              InputStream in;
+    private              PrintWriter out;
 
-    private Socket socket;
-    private InputStream in;
-    private PrintWriter out;
-    private final String ip;
-    private final int port;
-    private final int timeout = 5000;
-
-    public VisionSocketClient(String ip, int port) {
-        this.ip = ip;
+    public VisionSocketClient(String ip, int port)
+    {
+        this.ip   = ip;
         this.port = port;
     }
 
-    public boolean connect() {
+    public boolean connect()
+    {
         close();
-        try {
+        try
+        {
             socket = new Socket();
             socket.setReuseAddress(true);
             socket.connect(new InetSocketAddress(ip, port), timeout);
             socket.setSoTimeout(10000);
 
-            in = socket.getInputStream();
-            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "US-ASCII"), true);
+            in  = socket.getInputStream();
+            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.US_ASCII), true);
 
             log.info("Connected to Vision Server at " + ip + ":" + port);
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Failed to connect to " + ip + ": " + e.getMessage());
             return false;
         }
     }
 
-    public String sendAndReceive(String message, boolean expectResponse) {
-        if (!isConnected()) {
+    public void close()
+    {
+        try
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+            if (out != null)
+            {
+                out.close();
+            }
+            if (socket != null)
+            {
+                socket.close();
+            }
+        }
+        catch (IOException ignored)
+        {
+        }
+        finally
+        {
+            in     = null;
+            out    = null;
+            socket = null;
+        }
+    }
+
+    public String sendAndReceive(String message, boolean expectResponse)
+    {
+        if (!isConnected())
+        {
             return null;
         }
 
-        try {
+        try
+        {
             out.print(message);
             out.flush();
             ThreadUtil.milliSleep(100);
             byte[] buffer = new byte[2048];
-            
+
             if (expectResponse)
             {
-	            int bytesRead = in.read(buffer);
-	
-	            if (bytesRead > 0) {
-	                String result = new String(buffer, 0, bytesRead, "US-ASCII");
-	                return result;
-	            } else {
-	                log.warn("No data returned from camera.");
-	                return null;
-	            }
+                int bytesRead = in.read(buffer);
+
+                if (bytesRead > 0)
+                {
+                    String result = new String(buffer, 0, bytesRead, StandardCharsets.US_ASCII);
+                    return result;
+                }
+                else
+                {
+                    log.warn("No data returned from camera.");
+                    return null;
+                }
             }
             else
             {
-            	return "0"; //Return 0 (success) if no expected response
+                return "0"; //Return 0 (success) if no expected response
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.error("Communication error: " + e.getMessage());
             return null;
         }
     }
 
-    public boolean isConnected() {
+    public boolean isConnected()
+    {
         return socket != null && socket.isConnected() && !socket.isClosed();
-    }
-
-    public void close() {
-        try {
-            if (in != null) in.close();
-            if (out != null) out.close();
-            if (socket != null) socket.close();
-        } catch (IOException ignored) {
-        } finally {
-            in = null;
-            out = null;
-            socket = null;
-        }
     }
 }

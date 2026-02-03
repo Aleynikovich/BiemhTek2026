@@ -11,12 +11,8 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 public class TransportPosition extends RoboticsAPIApplication
 {
-    private final static String informationText =
-            "This application is intended for floor mounted robots!" + "\n" +
-                    "\n" +
-                    "The robot moves to the transportation position.";
-    @Inject
-    private LBR lbr;
+    private final static String informationText = "This application is intended for floor mounted robots!" + "\n" + "\n" + "The robot moves to the transportation position.";
+    @Inject private      LBR    lbr;
 
     public void initialize()
     {

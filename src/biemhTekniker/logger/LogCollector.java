@@ -6,8 +6,7 @@ public class LogCollector implements ILogListener
 {
     private final ConcurrentLinkedQueue<LogEntry> entries = new ConcurrentLinkedQueue<LogEntry>();
 
-    @Override
-    public void onNewLog(LogEntry entry)
+    @Override public void onNewLog(LogEntry entry)
     {
         entries.add(entry);
     }
