@@ -6,82 +6,41 @@ import biemhTekniker.logger.Logger;
  * Communication protocol for the SmartPicking system.
  * Translates logical commands into TCP frames and parses complex responses.
  */
-public class SmartPickingProtocol {
+public class SmartPickingProtocol
+{
 
     private static final Logger log = Logger.getLogger(SmartPickingProtocol.class);
     private final VisionSocketClient _client;
 
-    /**
-     * Enum mapping English command names to their respective protocol codes.
-     */
-    public enum Command {
-        LOAD_REFERENCE("15"),
-        SET_AUTO_MODE("101"),
-        SET_CALIB_MODE("102"),
-        CAPTURE_DATA("2"),
-        LOCATE_CONTAINER("3"),
-        GET_CONTAINER_POS("8"),
-        LOCATE_PARTS("4"),
-        GET_PART_POS("9"),
-        GET_NEXT_PART_POS("11"),
-        ADD_CALIB_POINT("5"),
-        CALIBRATE("6"),
-        TEST_CALIB("7"),
-        SEND_ROBOT_POSE("14"),
-        SEND_CUSTOM_MESSAGE("103");
-
-        private final String code;
-        Command(String code) { this.code = code; }
-        public String getCode() { return code; }
-    }
-
-    public SmartPickingProtocol(VisionSocketClient client) {
+    public SmartPickingProtocol(VisionSocketClient client)
+    {
         this._client = client;
     }
-    
+
     public boolean sendCustomMessage(String message, boolean expectReply)
     {
-    	_client.sendAndReceive(message, expectReply);
-    	return true;
+        _client.sendAndReceive(message, expectReply);
+        return true;
     }
+
     /**
      * Loads a specific reference by name.
      * Follows the sequence required by the manual: 15;ref -> 19 (reset) -> 15;ref
      */
-    
-    public boolean loadReference() {
+
+    public boolean loadReference()
+    {
         //execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
         //_client.sendAndReceive("19", false); // Internal cleanup/reset command
         VisionResult res = execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
         return res.isSuccess();
     }
-    
-    public boolean loadReference(String name) {
-        execute(Command.LOAD_REFERENCE, name, true);
-        _client.sendAndReceive("19", false); // Internal cleanup/reset command
-        VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
-        return res.isSuccess();
-    }
 
-
-    /**
-     * Changes the application's operating mode.
-     */
-    public boolean setMode(Command mode) {
-        if (mode != Command.SET_AUTO_MODE && mode != Command.SET_CALIB_MODE) {
-            log.error("Invalid mode command requested.");
-            return false;
-        }
-        return execute(mode, true).isSuccess();
-    }
-
-    public VisionResult execute(Command cmd, boolean expectReply) {
-        return execute(cmd, null, expectReply);
-    }
-
-    public VisionResult execute(Command cmd, String args, boolean expectReply) {
+    public VisionResult execute(Command cmd, String args, boolean expectReply)
+    {
         String message = cmd.getCode();
-        if (args != null && !args.isEmpty()) {
+        if (args != null && !args.isEmpty())
+        {
             message += ";" + args;
         }
         log.debug("Sending " + message + " to cam.");
@@ -89,26 +48,76 @@ public class SmartPickingProtocol {
         VisionResult result = new VisionResult(rawResponse, cmd);
         log.debug(result.toString());
 
-        if (!result.isSuccess()) {
+        if (!result.isSuccess())
+        {
             log.warn("Command " + cmd + " failed or returned no data.");
         }
 
         return result;
     }
 
+    public boolean loadReference(String name)
+    {
+        execute(Command.LOAD_REFERENCE, name, true);
+        _client.sendAndReceive("19", false); // Internal cleanup/reset command
+        VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
+        return res.isSuccess();
+    }
+
+    /**
+     * Changes the application's operating mode.
+     */
+    public boolean setMode(Command mode)
+    {
+        if (mode != Command.SET_AUTO_MODE && mode != Command.SET_CALIB_MODE)
+        {
+            log.error("Invalid mode command requested.");
+            return false;
+        }
+        return execute(mode, true).isSuccess();
+    }
+
+    public VisionResult execute(Command cmd, boolean expectReply)
+    {
+        return execute(cmd, null, expectReply);
+    }
+
+    /**
+     * Enum mapping English command names to their respective protocol codes.
+     */
+    public enum Command
+    {
+        LOAD_REFERENCE("15"), SET_AUTO_MODE("101"), SET_CALIB_MODE("102"), CAPTURE_DATA("2"), LOCATE_CONTAINER("3"), GET_CONTAINER_POS("8"), LOCATE_PARTS("4"), GET_PART_POS("9"), GET_NEXT_PART_POS("11"), ADD_CALIB_POINT("5"), CALIBRATE("6"), TEST_CALIB("7"), SEND_ROBOT_POSE("14"), SEND_CUSTOM_MESSAGE("103");
+
+        private final String code;
+
+        Command(String code)
+        {
+            this.code = code;
+        }
+
+        public String getCode()
+        {
+            return code;
+        }
+    }
+
     /**
      * Internal class to handle and parse server responses.
      */
-    public static class VisionResult {
+    public static class VisionResult
+    {
         private final boolean success;
         private final Command _cmd;
         private final double[] data;
         private final String raw;
 
-        public VisionResult(String rawResponse, Command cmd) {
+        public VisionResult(String rawResponse, Command cmd)
+        {
             this.raw = rawResponse;
             this._cmd = cmd;
-            if (rawResponse == null || rawResponse.isEmpty()) {
+            if (rawResponse == null || rawResponse.isEmpty())
+            {
                 this.success = false;
                 this.data = new double[0];
                 return;
@@ -121,62 +130,77 @@ public class SmartPickingProtocol {
             this.success = parts[0].trim().equals("0");
             this.data = new double[parts.length];
 
-            for (int i = 0; i < parts.length; i++) {
-                try {
+            for (int i = 0; i < parts.length; i++)
+            {
+                try
+                {
                     this.data[i] = Double.parseDouble(parts[i].trim());
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException e)
+                {
                     this.data[i] = 0.0;
                 }
             }
         }
 
-        public boolean isSuccess() { return success; }
+        public boolean isSuccess()
+        {
+            return success;
+        }
 
         // --- Getters with Index Switching Logic ---
 
-        public double getX() {
+        public double getX()
+        {
             int index = (_cmd == Command.GET_CONTAINER_POS) ? 5 : 2;
             return getDataSafe(index);
         }
 
-        public double getY() {
+        private double getDataSafe(int index)
+        {
+            return (data.length > index) ? data[index] : 0.0;
+        }
+
+        public double getY()
+        {
             int index = (_cmd == Command.GET_CONTAINER_POS) ? 6 : 3;
             return getDataSafe(index);
         }
 
-        public double getZ() {
+        public double getZ()
+        {
             int index = (_cmd == Command.GET_CONTAINER_POS) ? 7 : 4;
             return getDataSafe(index);
         }
 
-        public double getRx() {
+        public double getRx()
+        {
             int index = (_cmd == Command.GET_CONTAINER_POS) ? 8 : 5;
             return getDataSafe(index);
         }
 
-        public double getRy() {
+        public double getRy()
+        {
             int index = (_cmd == Command.GET_CONTAINER_POS) ? 9 : 6;
             return getDataSafe(index);
         }
 
-        public double getRz() {
+        public double getRz()
+        {
             int index = (_cmd == Command.GET_CONTAINER_POS) ? 10 : 7;
             return getDataSafe(index);
         }
 
-        public double getScore() {
+        public double getScore()
+        {
             // Container score is at 11, Parts usually at 8 or similar depending on gripper count
             // Defaulting to Container index (11) if not specified, safe check applied.
             int index = 11;
             return getDataSafe(index);
         }
 
-        private double getDataSafe(int index) {
-            return (data.length > index) ? data[index] : 0.0;
-        }
-
         @Override
-        public String toString() {
+        public String toString()
+        {
             return "VisionResult{success=" + success + ", raw='" + raw + "'}";
         }
     }

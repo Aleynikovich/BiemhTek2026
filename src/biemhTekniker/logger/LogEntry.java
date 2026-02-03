@@ -22,8 +22,7 @@ public class LogEntry
     @Override
     public String toString()
     {
-        return String.format("[%s] %s | %-5s: %s",
-                sdf.format(new Date(timestamp)), source, level, message);
+        return String.format("[%s] %s | %-5s: %s", sdf.format(new Date(timestamp)), source, level, message);
     }
 
     public LogLevel getLevel()

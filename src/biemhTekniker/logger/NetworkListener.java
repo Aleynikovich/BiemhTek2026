@@ -13,22 +13,24 @@ public class NetworkListener implements ILogListener
     }
 
     /**
-     * Set the minimum log level to be sent over the network.
-     * Only logs with level >= minLevel will be sent.
-     * @param minLevel The minimum log level
-     */
-    public void setMinimumLevel(LogLevel minLevel)
-    {
-        this._minLevel = minLevel;
-    }
-
-    /**
      * Get the current minimum log level.
+     *
      * @return The current minimum log level
      */
     public LogLevel getMinimumLevel()
     {
         return _minLevel;
+    }
+
+    /**
+     * Set the minimum log level to be sent over the network.
+     * Only logs with level >= minLevel will be sent.
+     *
+     * @param minLevel The minimum log level
+     */
+    public void setMinimumLevel(LogLevel minLevel)
+    {
+        this._minLevel = minLevel;
     }
 
     @Override
