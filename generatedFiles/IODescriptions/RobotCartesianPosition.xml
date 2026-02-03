@@ -5,7 +5,7 @@ Automatically generated IO group description. Please do NOT modify!
 <SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
   <IOGroup DisplayName="RobotCartesianPosition" IconName="RobotCartesianPosition" SignalTypes="InOut" TemplateName="RobotCartesianPosition">
     <IOs>
-      <DigitalIOItem Name="X" DataType="LWORD" IOType="Output" UsedBitWidth="64" IsConnected="true">
+      <DigitalIOItem Name="X" DataType="SINT" IOType="Output" UsedBitWidth="8" IsConnected="true">
         <Description />
       </DigitalIOItem>
     </IOs>

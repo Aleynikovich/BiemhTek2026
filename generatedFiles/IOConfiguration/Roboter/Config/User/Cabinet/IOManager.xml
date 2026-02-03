@@ -17,13 +17,13 @@
         <DigitalIO Name="MediaFlange.Gripper2_isOpen" Type="INPUT" Scope="USER_IO" StartBit="370" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
+        <DigitalIO Name="MediaFlange.Gripper1_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="12728" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="MediaFlange.Gripper2_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
         <DigitalIO Name="MediaFlange.Gripper2_isClosed" Type="INPUT" Scope="USER_IO" StartBit="371" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper1_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="12729" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="MediaFlange.Gripper2_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="12731" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
@@ -39,19 +39,19 @@
         <DigitalIO Name="VisionOutputs.CalibrationComplete" Type="OUTPUT" Scope="USER_IO" StartBit="2322" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="VisionInputs.RunMode" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
+        <DigitalIO Name="VisionInputs.CalibrationMode" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="VisionInputs.CalibrationMode" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
+        <DigitalIO Name="VisionInputs.CalibrationRequest" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
         <DigitalIO Name="VisionInputs.DataRequest" Type="INPUT" Scope="USER_IO" StartBit="146" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="VisionInputs.CalibrationRequest" Type="INPUT" Scope="USER_IO" StartBit="147" BitSize="1" Signed="false">
+        <DigitalIO Name="VisionInputs.RunMode" Type="INPUT" Scope="USER_IO" StartBit="147" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="RobotCartesianPosition.X" Type="OUTPUT" Scope="USER_IO" StartBit="2984" BitSize="64" Signed="false">
+        <DigitalIO Name="RobotCartesianPosition.X" Type="OUTPUT" Scope="USER_IO" StartBit="2328" BitSize="8" Signed="true">
           <Description />
         </DigitalIO>
       </IOList>
