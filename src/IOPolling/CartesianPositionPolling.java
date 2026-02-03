@@ -32,7 +32,7 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask {
     private LBR iiwa;
     @Inject
     private RobotCartesianPositionIOGroup currentCartesianPosition;
-	
+    int decimalMultiplier = 10;
 
 	@Override
 	public void initialize() {
@@ -42,14 +42,15 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask {
 	}
 
 	@Override
-	public void runCyclic() {
-		int decimalMultiplier = 10;
+	public void runCyclic()
+    {
+        // XYZ
 		currentCartesianPosition.setX((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX()*decimalMultiplier));
 		currentCartesianPosition.setY((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getY()*decimalMultiplier));
 		currentCartesianPosition.setZ((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getZ()*decimalMultiplier));
+        // ABC
 		currentCartesianPosition.setA((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getAlphaRad())*decimalMultiplier));
 		currentCartesianPosition.setB((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getBetaRad())*decimalMultiplier));
 		currentCartesianPosition.setC((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad())*decimalMultiplier));
-
 	}
 }
