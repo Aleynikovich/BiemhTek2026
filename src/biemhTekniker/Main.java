@@ -48,7 +48,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private MediaFlangeIOGroup gripperIO;
     
     @Inject
-    //private RobotCartesianPositionIOGroup currentCartesianPosition;
+    private RobotCartesianPositionIOGroup currentCartesianPosition;
     
     // Shared data
     private WorkpieceData workpieceData;
@@ -83,7 +83,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
-        getApplicationControl().clipManualOverride(0.00);
+        getApplicationControl().clipManualOverride(0.30);
         
         gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
         log.info("Main application initialized");
@@ -94,7 +94,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         log.info("Main application running");
         //log.info("Current cartesian position: " + iiwa.getCurrentCartesianPosition(iiwa.getFlange()));
-        //currentCartesianPosition.setX((long) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX());
+        currentCartesianPosition.setX((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX());
 
         while (true)
         {
