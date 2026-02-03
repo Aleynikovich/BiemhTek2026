@@ -44,12 +44,12 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask {
 	@Override
 	public void runCyclic() {
 		int decimalMultiplier = 10;
-		currentCartesianPosition.setX((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX()*decimalMultiplier);
-		currentCartesianPosition.setY((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getY()*decimalMultiplier);
-		currentCartesianPosition.setZ((int) iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getZ()*decimalMultiplier);
-		currentCartesianPosition.setA((int) Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getAlphaRad())*decimalMultiplier);
-		currentCartesianPosition.setB((int) Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getBetaRad())*decimalMultiplier);
-		currentCartesianPosition.setC((int) Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad())*decimalMultiplier);
+		currentCartesianPosition.setX((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX()*decimalMultiplier));
+		currentCartesianPosition.setY((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getY()*decimalMultiplier));
+		currentCartesianPosition.setZ((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getZ()*decimalMultiplier));
+		currentCartesianPosition.setA((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getAlphaRad())*decimalMultiplier));
+		currentCartesianPosition.setB((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getBetaRad())*decimalMultiplier));
+		currentCartesianPosition.setC((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad())*decimalMultiplier));
 
 	}
 }
