@@ -122,6 +122,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             {
                 case 0:
                     // Program 0 - Idle
+                	getNewWorkpiecePosition();
+                	pickNewWorkpiece();
                     break;
 
                 case 1:
