@@ -1,6 +1,7 @@
 package IOPolling;
 
 
+import com.kuka.generated.ioAccess.RobotStateIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
@@ -18,6 +19,7 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
 {
     @Inject private Controller sunrise;
     @Inject private LBR        iiwa;
+    @Inject RobotStateIOGroup  robotStateIOGroup;
 
     ISafetyState safetyState = iiwa.getSafetyState();
     boolean motionReady, activeMotion;
@@ -29,6 +31,6 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
 
     @Override public void runCyclic()
     {
-
+        //robotStateIOGroup.setHasActiveMotion(safetyState.getOperatorSafetyState());
     }
 }
