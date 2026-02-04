@@ -12,11 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
-    int decimalMultiplier = 10;
     @Inject private Controller                    sunrise;
     @Inject private LBR                           iiwa;
     @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
-
+    private int decimalMultiplier = 10;
+    
     @Override public void initialize()
     {
         // initialize your task here
