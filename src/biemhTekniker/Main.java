@@ -123,6 +123,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 case 0:
                     // Program 0 - Idle
                 	getNewWorkpiecePosition();
+                	ThreadUtil.milliSleep(5000);
                 	pickNewWorkpiece();
                     break;
 
