@@ -299,7 +299,7 @@
                     <measurementTranslation calculationError="1.2146705978455128" method="XYZ4Point" timestamp="1770033357288"/>
                 </frame>
                 <frame id="_e3763e42-1593-48dd-90be-4068608c7a97" name="TCPB">
-                    <transformation a="0.0" b="0.0" c="2.356194490192345" x="0.0" y="124.5" z="129.2"/>
+                    <transformation a="0.0" b="-0.7853981633974483" c="0.0" x="0.0" y="124.5" z="129.2"/>
                 </frame>
             </frames>
             <additionalInformation>
