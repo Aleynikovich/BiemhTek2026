@@ -115,16 +115,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         log.info("Main application running, moving home");
         gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
-        
-        float decimalMultiplier = 10;
-        // XYZ
-        currentCartesianPosition.setX((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getX() * decimalMultiplier));
-        currentCartesianPosition.setY((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getY() * decimalMultiplier));
-        currentCartesianPosition.setZ((int) Math.round(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getZ() * decimalMultiplier));
-        // ABC
-        currentCartesianPosition.setA((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getAlphaRad()) * decimalMultiplier));
-        currentCartesianPosition.setB((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getBetaRad()) * decimalMultiplier));
-        currentCartesianPosition.setC((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad()) * decimalMultiplier));
+
         while (true)
         {
             switch (programNumber)
