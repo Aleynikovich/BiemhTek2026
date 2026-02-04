@@ -2,7 +2,7 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
-import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
+import biemhTekniker.toolcontrol.ToolControl;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
@@ -24,15 +24,15 @@ public class PickNewWorkpieceProgram
     private final LBR                    iiwa;
     private final WorkpieceData          workpieceData;
     private final Tool                   gripper;
-    private final MediaFlangeIOGroup     gripperIO;
+    private final ToolControl            toolControl;
 
-    public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, WorkpieceData workpieceData, Tool gripper, MediaFlangeIOGroup gripperIO)
+    public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, WorkpieceData workpieceData, Tool gripper, ToolControl toolControl)
     {
         this.application   = application;
         this.iiwa          = robot;
         this.workpieceData = workpieceData;
         this.gripper       = gripper;
-        this.gripperIO     = gripperIO;
+        this.toolControl   = toolControl;
     }
 
     /**

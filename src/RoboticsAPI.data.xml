@@ -308,4 +308,10 @@
             <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="3.884487255951194" cogY="-6.717026972060215" cogZ="71.44449641775539" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="2.424001076407311"/>
         </toolTemplate>
     </objectTemplates>
+    <processDataContainer>
+        <!-- HMI Buttons for Gripper Control -->
+        <processData displayName="Gripper 1 Switch" dataType="java.lang.Boolean" defaultValue="false" id="gripper1_switch" value="false" comment="Button 1: Toggle Gripper 1"/>
+        <processData displayName="Gripper 2 Switch" dataType="java.lang.Boolean" defaultValue="false" id="gripper2_switch" value="false" comment="Button 2: Toggle Gripper 2"/>
+        <processData displayName="Schunk Gripper Switch" dataType="java.lang.Boolean" defaultValue="false" id="schunkgripper_switch" value="false" comment="Button 3: Toggle Schunk Gripper"/>
+    </processDataContainer>
 </RoboticsAPIData>
