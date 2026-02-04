@@ -38,3 +38,5 @@ __pycache__/
 *.so
 .Python
 
+/.metadata/.lock
+/.metadata/.log
