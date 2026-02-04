@@ -11,10 +11,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Standardized TCP Client for Vision System communication.
- * Compatible with Java 1.6.
- */
 public class VisionSocketClient
 {
     private static final Logger      log     = Logger.getLogger(VisionSocketClient.class);

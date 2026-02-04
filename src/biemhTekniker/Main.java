@@ -73,7 +73,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
-        getApplicationControl().clipManualOverride(0.30);
+        getApplicationControl().clipManualOverride(0.0);
         log.info("Main application initialized");
     }
 
@@ -115,6 +115,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         log.info("Main application running, moving home");
         gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
+
         while (true)
         {
             switch (programNumber)

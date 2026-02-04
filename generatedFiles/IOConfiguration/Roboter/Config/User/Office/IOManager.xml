@@ -39,18 +39,6 @@
         <DigitalIO Name="VisionOutputs.CalibrationComplete" Type="OUTPUT" Scope="USER_IO" StartBit="2322" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="VisionInputs.CalibrationMode" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="VisionInputs.CalibrationRequest" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="VisionInputs.DataRequest" Type="INPUT" Scope="USER_IO" StartBit="146" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
-        <DigitalIO Name="VisionInputs.RunMode" Type="INPUT" Scope="USER_IO" StartBit="147" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
         <DigitalIO Name="RobotCartesianPosition.X" Type="OUTPUT" Scope="USER_IO" StartBit="2328" BitSize="16" Signed="true">
           <Description />
         </DigitalIO>
@@ -88,6 +76,57 @@
           <Description />
         </DigitalIO>
         <DigitalIO Name="RobotJointPosition.A7" Type="OUTPUT" Scope="USER_IO" StartBit="2520" BitSize="16" Signed="true">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotState.HasActiveMotion" Type="OUTPUT" Scope="USER_IO" StartBit="2536" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotState.IsGMSReferenced" Type="OUTPUT" Scope="USER_IO" StartBit="2537" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotState.IsInHome" Type="OUTPUT" Scope="USER_IO" StartBit="2538" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotState.IsMastered" Type="OUTPUT" Scope="USER_IO" StartBit="2539" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotState.IsReadyToMove" Type="OUTPUT" Scope="USER_IO" StartBit="2540" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotState.IsReferenced" Type="OUTPUT" Scope="USER_IO" StartBit="2541" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.IsExternalEStop" Type="OUTPUT" Scope="USER_IO" StartBit="2544" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.IsLocalEStop" Type="OUTPUT" Scope="USER_IO" StartBit="2545" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.IsOperatorSafety" Type="OUTPUT" Scope="USER_IO" StartBit="2546" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.IsSafetyStopActive" Type="OUTPUT" Scope="USER_IO" StartBit="2547" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.ModeT1" Type="OUTPUT" Scope="USER_IO" StartBit="2548" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.ModeT2" Type="OUTPUT" Scope="USER_IO" StartBit="2549" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="RobotSafety.MoveEnable" Type="OUTPUT" Scope="USER_IO" StartBit="2550" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="VisionInputs.CalibrationMode" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="VisionInputs.CalibrationRequest" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="VisionInputs.DataRequest" Type="INPUT" Scope="USER_IO" StartBit="146" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="VisionInputs.RunMode" Type="INPUT" Scope="USER_IO" StartBit="147" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
