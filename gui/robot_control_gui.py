@@ -35,7 +35,7 @@ class RobotControlGUI:
         self.log_level_ordinal = {"DEBUG": 0, "INFO": 1, "WARN": 2, "ERROR": 3}
         
         self.create_widgets()
-        self.update_connection_status()
+        #self.update_connection_status()
         
     def create_widgets(self):
         # Style configuration
