@@ -125,6 +125,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 	getNewWorkpiecePosition();
                 	ThreadUtil.milliSleep(500);
                 	pickNewWorkpiece();
+                	placeNewWorkpiece();
                     break;
 
                 case 1:
