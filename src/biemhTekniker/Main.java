@@ -6,7 +6,6 @@ import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.managers.LoggingManager;
 import biemhTekniker.programs.*;
-import biemhTekniker.toolcontrol.ToolControl;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -44,9 +43,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     // Gripper IOs
     @Inject private MediaFlangeIOGroup gripperIO;
 
-    // Tool Control
-    @Inject private ToolControl toolControl;
-
     @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
 
     // Shared data
@@ -74,9 +70,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         // Initialize and start console server for GUI control
         consoleServer = new ConsoleServer(this);
         consoleServer.initialize();
-
-        // Initialize HMI buttons for gripper control
-        initializeHMIButtons();
 
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
@@ -125,13 +118,13 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         while (true)
         {
-            // Check HMI buttons for gripper control
-            checkHMIButtons();
-
             switch (programNumber)
             {
                 case 0:
                     // Program 0 - Idle
+                	getNewWorkpiecePosition();
+                	ThreadUtil.milliSleep(5000);
+                	pickNewWorkpiece();
                     break;
 
                 case 1:
@@ -242,7 +235,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         //REMOVE HARDCODE IN PRODUCTION
 
 
-        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(this, iiwa, workpieceData, gripper, toolControl);
+        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(this, iiwa, workpieceData, gripper, gripperIO);
 
         boolean success = program.execute();
         logProgramResult("Pick New Workpiece", success);
@@ -252,7 +245,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     private void placeNewWorkpiece()
     {
-        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa, gripper, toolControl);
+        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa);
 
         boolean success = program.execute();
         logProgramResult("Place New Workpiece", success);
@@ -260,7 +253,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     private void pickMeasuredWorkpiece()
     {
-        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(this, iiwa, gripper, toolControl);
+        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(this, iiwa);
 
         boolean success = program.execute();
         logProgramResult("Pick Measured Workpiece", success);
@@ -268,7 +261,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     private void placeMeasuredWorkpiece()
     {
-        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(this, iiwa, gripper, toolControl);
+        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(this, iiwa);
 
         boolean success = program.execute();
         logProgramResult("Place Measured Workpiece", success);
@@ -328,87 +321,5 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return workpieceData.toString();
         }
         return "invalid";
-    }
-
-    // ========== HMI Button Management ==========
-
-    // Track previous button states to detect press events
-    private boolean prevButton1State = false;
-    private boolean prevButton2State = false;
-    private boolean prevButton3State = false;
-
-    /**
-     * Initializes HMI buttons for gripper control.
-     * Sets up process data for button 1 (Gripper1), button 2 (Gripper2), and button 3 (SchunkGripper).
-     */
-    private void initializeHMIButtons()
-    {
-        try
-        {
-            // Initialize process data for HMI buttons
-            // Button 1 - Gripper 1 Switch
-            getApplicationData().getProcessData("gripper1_switch").setValue(false);
-
-            // Button 2 - Gripper 2 Switch
-            getApplicationData().getProcessData("gripper2_switch").setValue(false);
-
-            // Button 3 - Schunk Gripper Switch
-            getApplicationData().getProcessData("schunkgripper_switch").setValue(false);
-
-            log.info("HMI buttons initialized successfully");
-        }
-        catch (Exception e)
-        {
-            log.error("Failed to initialize HMI buttons: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Checks HMI button states and triggers gripper actions on button press.
-     * Uses edge detection to trigger only on button press (not while held).
-     */
-    private void checkHMIButtons()
-    {
-        try
-        {
-            // Read current button states
-            Boolean button1 = (Boolean) getApplicationData().getProcessData("gripper1_switch").getValue();
-            Boolean button2 = (Boolean) getApplicationData().getProcessData("gripper2_switch").getValue();
-            Boolean button3 = (Boolean) getApplicationData().getProcessData("schunkgripper_switch").getValue();
-
-            // Button 1 - Toggle Gripper 1
-            if (button1 != null && button1 && !prevButton1State)
-            {
-                log.info("HMI Button 1 pressed - Toggling Gripper 1");
-                toolControl.toggleGripper1();
-                // Reset button state
-                getApplicationData().getProcessData("gripper1_switch").setValue(false);
-            }
-            prevButton1State = (button1 != null && button1);
-
-            // Button 2 - Toggle Gripper 2
-            if (button2 != null && button2 && !prevButton2State)
-            {
-                log.info("HMI Button 2 pressed - Toggling Gripper 2");
-                toolControl.toggleGripper2();
-                // Reset button state
-                getApplicationData().getProcessData("gripper2_switch").setValue(false);
-            }
-            prevButton2State = (button2 != null && button2);
-
-            // Button 3 - Toggle Schunk Gripper
-            if (button3 != null && button3 && !prevButton3State)
-            {
-                log.info("HMI Button 3 pressed - Toggling Schunk Gripper");
-                toolControl.toggleSchunkGripper();
-                // Reset button state
-                getApplicationData().getProcessData("schunkgripper_switch").setValue(false);
-            }
-            prevButton3State = (button3 != null && button3);
-        }
-        catch (Exception e)
-        {
-            log.warn("Error checking HMI buttons: " + e.getMessage());
-        }
     }
 }

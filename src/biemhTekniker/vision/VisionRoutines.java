@@ -11,6 +11,7 @@ import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.motionModel.LIN;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Calibration routine for the SmartPicking vision system.
@@ -69,7 +70,7 @@ public class VisionRoutines
 
         log.info("Calibration mode set successfully");
         ThreadUtil.milliSleep(DELAY_MS);
-
+    	robot.move(ptp(application.getApplicationData().getFrame("/CalibrationPoints/P1")));
         // Visit all calibration points
         for (int i = 1; i <= NUM_CALIBRATION_POINTS - 1; i++)
         {
