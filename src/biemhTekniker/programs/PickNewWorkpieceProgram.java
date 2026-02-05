@@ -2,7 +2,7 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
-import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
+import biemhTekniker.toolcontrol.ToolControl;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
@@ -24,15 +24,15 @@ public class PickNewWorkpieceProgram
     private final LBR                    iiwa;
     private final WorkpieceData          workpieceData;
     private final Tool                   gripper;
-    private final MediaFlangeIOGroup     gripperIO;
+    private final ToolControl            toolControl;
 
-    public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, WorkpieceData workpieceData, Tool gripper, MediaFlangeIOGroup gripperIO)
+    public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, WorkpieceData workpieceData, Tool gripper, ToolControl toolControl)
     {
         this.application   = application;
         this.iiwa          = robot;
         this.workpieceData = workpieceData;
         this.gripper       = gripper;
-        this.gripperIO     = gripperIO;
+        this.toolControl   = toolControl;
     }
 
     /**
@@ -52,15 +52,20 @@ public class PickNewWorkpieceProgram
 
         log.debug("Using workpiece position: " + workpieceData);
 
-        ObjectFrame tcp             = gripper.getFrame("TCPB");
+        ObjectFrame tcp             = gripper.getFrame("TCPA");
         Frame       pickPosition    = workpieceData.getWorkPiecePickFrame();
         Frame       prePickPosition = workpieceData.getWorkPiecePickFrame();
-        
+        Frame       rotatePosition  = workpieceData.getWorkPiecePickFrame();
         prePickPosition.setZ(prePickPosition.getZ() + 100);
+        rotatePosition.setAlphaRad(rotatePosition.getAlphaRad() + Math.toRadians(10));
+
 
         tcp.move(ptp(prePickPosition).setJointVelocityRel(0.5));
         tcp.move(lin(pickPosition).setJointVelocityRel(0.25));
-        tcp.move(lin(prePickPosition).setJointVelocityRel(0.25));
+        //tcp.move(ptp(pickPosition.transform(Transformation.ofDeg(0, 0, 100, 0, 0, 0))).setJointVelocityRel(0.5));
+        tcp.move(ptp(rotatePosition).setJointVelocityRel(0.5));
+        rotatePosition.setZ(rotatePosition.getZ() + 100);
+        tcp.move(lin(rotatePosition).setJointVelocityRel(0.25));
         gripper.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
 
         return true;
