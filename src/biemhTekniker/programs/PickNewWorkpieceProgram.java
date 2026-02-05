@@ -53,13 +53,18 @@ public class PickNewWorkpieceProgram
 
         log.debug("Using workpiece position: " + workpieceData);
 
-        ObjectFrame tcpA = gripper.getFrame("TCPB");
-        ObjectFrame tcpB = gripper.getFrame("TCPA");
+        // Gripper TCP declaration A=1, B=2
+        ObjectFrame tcpA = gripper.getFrame("TCPA");
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
 
+        // Frame sent by camera
         Frame pickPosition    = workpieceData.getWorkPiecePickFrame();
         Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
+
+        // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + 100);
 
+        // Alternate picking positions, 180deg
         Frame alternatePickPosition    = pickPosition;
         Frame alternatePrePickPosition = prePickPosition;
         alternatePickPosition.setAlphaRad(alternatePickPosition.getAlphaRad() + Math.PI);
@@ -102,10 +107,6 @@ public class PickNewWorkpieceProgram
 
 
             }
-        }
-        finally
-        {
-            log.error("Unable to pick");
         }
 
         gripper.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
