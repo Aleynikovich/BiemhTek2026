@@ -3,6 +3,8 @@ package biemhTekniker.programs;
 import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
+import com.kuka.roboticsAPI.geometricModel.Tool;
 
 /**
  * Program to place a new workpiece at a predefined location.
@@ -14,6 +16,7 @@ public class PlaceNewWorkpieceProgram
 
     private final RoboticsAPIApplication application;
     private final LBR                    robot;
+    private final Tool                   gripper;
 
     public PlaceNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot)
     {
@@ -30,10 +33,7 @@ public class PlaceNewWorkpieceProgram
     {
         log.info("Placing new workpiece...");
 
-        // TODO: Implement robot motion to place workpiece
-        // 1. Move to place position
-        // 2. Open gripper
-        // 3. Move to safe position
+        ObjectFrame tcpA = gripper.getFrame("TCPA");
 
         log.warn("PlaceNewWorkpieceProgram: Motion not yet implemented");
         return true;
