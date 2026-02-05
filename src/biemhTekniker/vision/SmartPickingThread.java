@@ -78,6 +78,7 @@ public class SmartPickingThread extends Thread
                     {
                         log.info("Reconnected to vision server");
                         // Reload reference after reconnection
+                        log.info("Loading reference BIEMH26_105055");
                         protocol.loadReference("BIEMH26_105055");
                     }
                 }

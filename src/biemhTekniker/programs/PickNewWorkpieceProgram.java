@@ -63,7 +63,7 @@ public class PickNewWorkpieceProgram
 
         // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + 100);
-        prePickPosition.setRedundancyInformation(iiwa, );
+
 
         // Alternate picking positions, 180deg
         Frame alternatePickPosition    = pickPosition;
