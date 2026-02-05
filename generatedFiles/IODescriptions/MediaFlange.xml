@@ -11,34 +11,34 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="Gripper2_Switch" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper1_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="Gripper1_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper1_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="Gripper1_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper2_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="Gripper2_isOpen" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Gripper2_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="false">
+      <DigitalIOItem Name="Gripper2_isClosed" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Test1" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="SecuritySwitch" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Test2" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="TestIN" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Test3" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="TESTIN2" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Test4" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="TESTIN3" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Test5" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="TESTIN4" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Test6" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="TESTIN5" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
     </IOs>

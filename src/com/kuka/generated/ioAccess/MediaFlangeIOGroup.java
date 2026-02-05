@@ -31,16 +31,16 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 
 		addDigitalOutput("Gripper1_Switch", IOTypes.BOOLEAN, 1);
 		addDigitalOutput("Gripper2_Switch", IOTypes.BOOLEAN, 1);
-		addMockedInput("Gripper1_isOpen", IOTypes.BOOLEAN, 1, false);
-		addMockedInput("Gripper1_isClosed", IOTypes.BOOLEAN, 1, false);
-		addMockedInput("Gripper2_isOpen", IOTypes.BOOLEAN, 1, false);
-		addMockedInput("Gripper2_isClosed", IOTypes.BOOLEAN, 1, false);
-		addDigitalOutput("Test1", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("Test2", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("Test3", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("Test4", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("Test5", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("Test6", IOTypes.BOOLEAN, 1);
+		addInput("Gripper1_isOpen", IOTypes.BOOLEAN, 1);
+		addInput("Gripper1_isClosed", IOTypes.BOOLEAN, 1);
+		addInput("Gripper2_isOpen", IOTypes.BOOLEAN, 1);
+		addInput("Gripper2_isClosed", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("SecuritySwitch", IOTypes.BOOLEAN, 1);
+		addInput("TestIN", IOTypes.BOOLEAN, 1);
+		addInput("TESTIN2", IOTypes.BOOLEAN, 1);
+		addInput("TESTIN3", IOTypes.BOOLEAN, 1);
+		addInput("TESTIN4", IOTypes.BOOLEAN, 1);
+		addInput("TESTIN5", IOTypes.BOOLEAN, 1);
 	}
 
 	/**
@@ -139,37 +139,10 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital input 'Gripper1_isOpen'
-	* 
-	 * @deprecated The output 'Gripper1_isOpen' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
 	 */
-	@Deprecated
 	public boolean getGripper1_isOpen()
 	{
 		return getBooleanIOValue("Gripper1_isOpen", false);
-	}
-
-	/**
-	 * Sets the value of the <b>mocked digital input '<i>Gripper1_isOpen</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the mocked digital input 'Gripper1_isOpen'
-	* 
-	 * @deprecated The output 'Gripper1_isOpen' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
-	 */
-	@Deprecated
-	public void setMockedGripper1_isOpenValue(java.lang.Boolean value)
-	{
-		setMockedInput("Gripper1_isOpen", value);
 	}
 
 	/**
@@ -186,37 +159,10 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital input 'Gripper1_isClosed'
-	* 
-	 * @deprecated The output 'Gripper1_isClosed' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
 	 */
-	@Deprecated
 	public boolean getGripper1_isClosed()
 	{
 		return getBooleanIOValue("Gripper1_isClosed", false);
-	}
-
-	/**
-	 * Sets the value of the <b>mocked digital input '<i>Gripper1_isClosed</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the mocked digital input 'Gripper1_isClosed'
-	* 
-	 * @deprecated The output 'Gripper1_isClosed' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
-	 */
-	@Deprecated
-	public void setMockedGripper1_isClosedValue(java.lang.Boolean value)
-	{
-		setMockedInput("Gripper1_isClosed", value);
 	}
 
 	/**
@@ -233,37 +179,10 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital input 'Gripper2_isOpen'
-	* 
-	 * @deprecated The output 'Gripper2_isOpen' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
 	 */
-	@Deprecated
 	public boolean getGripper2_isOpen()
 	{
 		return getBooleanIOValue("Gripper2_isOpen", false);
-	}
-
-	/**
-	 * Sets the value of the <b>mocked digital input '<i>Gripper2_isOpen</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the mocked digital input 'Gripper2_isOpen'
-	* 
-	 * @deprecated The output 'Gripper2_isOpen' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
-	 */
-	@Deprecated
-	public void setMockedGripper2_isOpenValue(java.lang.Boolean value)
-	{
-		setMockedInput("Gripper2_isOpen", value);
 	}
 
 	/**
@@ -280,17 +199,55 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital input 'Gripper2_isClosed'
-	* 
-	 * @deprecated The output 'Gripper2_isClosed' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
 	 */
-	@Deprecated
 	public boolean getGripper2_isClosed()
 	{
 		return getBooleanIOValue("Gripper2_isClosed", false);
 	}
 
 	/**
-	 * Sets the value of the <b>mocked digital input '<i>Gripper2_isClosed</i>'</b>.<br>
+	 * Gets the value of the <b>digital output '<i>SecuritySwitch</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'SecuritySwitch'
+	 */
+	public boolean getSecuritySwitch()
+	{
+		return getBooleanIOValue("SecuritySwitch", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>SecuritySwitch</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'SecuritySwitch'
+	 */
+	public void setSecuritySwitch(java.lang.Boolean value)
+	{
+		setDigitalOutput("SecuritySwitch", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>TestIN</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -302,23 +259,19 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @param value
-	 *            the value, which has to be written to the mocked digital input 'Gripper2_isClosed'
-	* 
-	 * @deprecated The output 'Gripper2_isClosed' has not been assigned to a field bus address - thus this operation will be <b>simulated</b> only.
+	 * @return current value of the digital input 'TestIN'
 	 */
-	@Deprecated
-	public void setMockedGripper2_isClosedValue(java.lang.Boolean value)
+	public boolean getTestIN()
 	{
-		setMockedInput("Gripper2_isClosed", value);
+		return getBooleanIOValue("TestIN", false);
 	}
 
 	/**
-	 * Gets the value of the <b>digital output '<i>Test1</i>'</b>.<br>
+	 * Gets the value of the <b>digital input '<i>TESTIN2</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
-	 * digital output
+	 * digital input
 	 * <p>
 	 * <b>User description of the I/O:</b><br>
 	 * ./.
@@ -326,19 +279,19 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @return current value of the digital output 'Test1'
+	 * @return current value of the digital input 'TESTIN2'
 	 */
-	public boolean getTest1()
+	public boolean getTESTIN2()
 	{
-		return getBooleanIOValue("Test1", true);
+		return getBooleanIOValue("TESTIN2", false);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>Test1</i>'</b>.<br>
+	 * Gets the value of the <b>digital input '<i>TESTIN3</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
-	 * digital output
+	 * digital input
 	 * <p>
 	 * <b>User description of the I/O:</b><br>
 	 * ./.
@@ -346,20 +299,19 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @param value
-	 *            the value, which has to be written to the digital output 'Test1'
+	 * @return current value of the digital input 'TESTIN3'
 	 */
-	public void setTest1(java.lang.Boolean value)
+	public boolean getTESTIN3()
 	{
-		setDigitalOutput("Test1", value);
+		return getBooleanIOValue("TESTIN3", false);
 	}
 
 	/**
-	 * Gets the value of the <b>digital output '<i>Test2</i>'</b>.<br>
+	 * Gets the value of the <b>digital input '<i>TESTIN4</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
-	 * digital output
+	 * digital input
 	 * <p>
 	 * <b>User description of the I/O:</b><br>
 	 * ./.
@@ -367,19 +319,19 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @return current value of the digital output 'Test2'
+	 * @return current value of the digital input 'TESTIN4'
 	 */
-	public boolean getTest2()
+	public boolean getTESTIN4()
 	{
-		return getBooleanIOValue("Test2", true);
+		return getBooleanIOValue("TESTIN4", false);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>Test2</i>'</b>.<br>
+	 * Gets the value of the <b>digital input '<i>TESTIN5</i>'</b>.<br>
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
-	 * digital output
+	 * digital input
 	 * <p>
 	 * <b>User description of the I/O:</b><br>
 	 * ./.
@@ -387,176 +339,11 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	 * <b>Range of the I/O value:</b><br>
 	 * [false; true]
 	 *
-	 * @param value
-	 *            the value, which has to be written to the digital output 'Test2'
+	 * @return current value of the digital input 'TESTIN5'
 	 */
-	public void setTest2(java.lang.Boolean value)
+	public boolean getTESTIN5()
 	{
-		setDigitalOutput("Test2", value);
-	}
-
-	/**
-	 * Gets the value of the <b>digital output '<i>Test3</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital output 'Test3'
-	 */
-	public boolean getTest3()
-	{
-		return getBooleanIOValue("Test3", true);
-	}
-
-	/**
-	 * Sets the value of the <b>digital output '<i>Test3</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the digital output 'Test3'
-	 */
-	public void setTest3(java.lang.Boolean value)
-	{
-		setDigitalOutput("Test3", value);
-	}
-
-	/**
-	 * Gets the value of the <b>digital output '<i>Test4</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital output 'Test4'
-	 */
-	public boolean getTest4()
-	{
-		return getBooleanIOValue("Test4", true);
-	}
-
-	/**
-	 * Sets the value of the <b>digital output '<i>Test4</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the digital output 'Test4'
-	 */
-	public void setTest4(java.lang.Boolean value)
-	{
-		setDigitalOutput("Test4", value);
-	}
-
-	/**
-	 * Gets the value of the <b>digital output '<i>Test5</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital output 'Test5'
-	 */
-	public boolean getTest5()
-	{
-		return getBooleanIOValue("Test5", true);
-	}
-
-	/**
-	 * Sets the value of the <b>digital output '<i>Test5</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the digital output 'Test5'
-	 */
-	public void setTest5(java.lang.Boolean value)
-	{
-		setDigitalOutput("Test5", value);
-	}
-
-	/**
-	 * Gets the value of the <b>digital output '<i>Test6</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital output 'Test6'
-	 */
-	public boolean getTest6()
-	{
-		return getBooleanIOValue("Test6", true);
-	}
-
-	/**
-	 * Sets the value of the <b>digital output '<i>Test6</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital output
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @param value
-	 *            the value, which has to be written to the digital output 'Test6'
-	 */
-	public void setTest6(java.lang.Boolean value)
-	{
-		setDigitalOutput("Test6", value);
+		return getBooleanIOValue("TESTIN5", false);
 	}
 
 }
