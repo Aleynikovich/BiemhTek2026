@@ -245,7 +245,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     private void placeNewWorkpiece()
     {
-        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa);
+        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa,gripper,gripperIO);
 
         boolean success = program.execute();
         logProgramResult("Place New Workpiece", success);
