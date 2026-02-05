@@ -309,9 +309,8 @@
         </toolTemplate>
     </objectTemplates>
     <processDataContainer>
-        <!-- HMI Buttons for Gripper Control -->
-        <processData displayName="Gripper 1 Switch" dataType="java.lang.Boolean" defaultValue="false" id="gripper1_switch" value="false" comment="Button 1: Toggle Gripper 1"/>
-        <processData displayName="Gripper 2 Switch" dataType="java.lang.Boolean" defaultValue="false" id="gripper2_switch" value="false" comment="Button 2: Toggle Gripper 2"/>
-        <processData displayName="Schunk Gripper Switch" dataType="java.lang.Boolean" defaultValue="false" id="schunkgripper_switch" value="false" comment="Button 3: Toggle Schunk Gripper"/>
+        <processData comment="Button 1: Toggle Gripper 1" dataType="java.lang.Boolean" defaultValue="false" displayName="Gripper 1 Switch" id="gripper1_switch" value="false"/>
+        <processData comment="Button 2: Toggle Gripper 2" dataType="java.lang.Boolean" defaultValue="false" displayName="Gripper 2 Switch" id="gripper2_switch" value="false"/>
+        <processData comment="Button 3: Toggle Schunk Gripper" dataType="java.lang.Boolean" defaultValue="false" displayName="Schunk Gripper Switch" id="schunkgripper_switch" value="false"/>
     </processDataContainer>
 </RoboticsAPIData>
