@@ -49,7 +49,7 @@ public class PlaceNewWorkpieceProgram
         gripperIO.setGripper1_Switch(false);
         ThreadUtil.milliSleep(500);
         tcpA.move(lin(application.getApplicationData().getFrame("/SchunkBase/Exit")));
-        iiwa.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
+        tcpA.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
         
 
         log.warn("PlaceNewWorkpieceProgram: Motion not yet implemented");
