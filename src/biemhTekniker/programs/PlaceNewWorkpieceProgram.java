@@ -47,6 +47,7 @@ public class PlaceNewWorkpieceProgram
         tcpA.move(ptp(application.getApplicationData().getFrame("/SchunkBase/App2")));
         tcpA.move(lin(application.getApplicationData().getFrame("/SchunkBase/PickPlace")));
         gripperIO.setGripper1_Switch(false);
+        gripperIO.setGripper2_Switch(false);
         ThreadUtil.milliSleep(500);
         tcpA.move(lin(application.getApplicationData().getFrame("/SchunkBase/Exit")));
         tcpA.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));

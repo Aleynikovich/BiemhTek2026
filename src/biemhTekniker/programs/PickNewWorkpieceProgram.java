@@ -71,8 +71,8 @@ public class PickNewWorkpieceProgram
         // Alternate picking positions, 180deg
         Frame alternatePickPosition    = pickPosition;
         Frame alternatePrePickPosition = prePickPosition;
-        alternatePickPosition.setAlphaRad(alternatePickPosition.getAlphaRad() + Math.PI);
-        alternatePrePickPosition.setAlphaRad(alternatePrePickPosition.getAlphaRad() + Math.PI);
+        //alternatePickPosition.setAlphaRad(alternatePickPosition.getAlphaRad() + Math.PI);
+        //alternatePrePickPosition.setAlphaRad(alternatePrePickPosition.getAlphaRad() + Math.PI);
 
         try
         {
