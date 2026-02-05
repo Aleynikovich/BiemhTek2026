@@ -36,11 +36,6 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 		addInput("Gripper2_isOpen", IOTypes.BOOLEAN, 1);
 		addInput("Gripper2_isClosed", IOTypes.BOOLEAN, 1);
 		addDigitalOutput("SecuritySwitch", IOTypes.BOOLEAN, 1);
-		addInput("TestIN", IOTypes.BOOLEAN, 1);
-		addInput("TESTIN2", IOTypes.BOOLEAN, 1);
-		addInput("TESTIN3", IOTypes.BOOLEAN, 1);
-		addInput("TESTIN4", IOTypes.BOOLEAN, 1);
-		addInput("TESTIN5", IOTypes.BOOLEAN, 1);
 	}
 
 	/**
@@ -244,106 +239,6 @@ public class MediaFlangeIOGroup extends AbstractIOGroup
 	public void setSecuritySwitch(java.lang.Boolean value)
 	{
 		setDigitalOutput("SecuritySwitch", value);
-	}
-
-	/**
-	 * Gets the value of the <b>digital input '<i>TestIN</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital input 'TestIN'
-	 */
-	public boolean getTestIN()
-	{
-		return getBooleanIOValue("TestIN", false);
-	}
-
-	/**
-	 * Gets the value of the <b>digital input '<i>TESTIN2</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital input 'TESTIN2'
-	 */
-	public boolean getTESTIN2()
-	{
-		return getBooleanIOValue("TESTIN2", false);
-	}
-
-	/**
-	 * Gets the value of the <b>digital input '<i>TESTIN3</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital input 'TESTIN3'
-	 */
-	public boolean getTESTIN3()
-	{
-		return getBooleanIOValue("TESTIN3", false);
-	}
-
-	/**
-	 * Gets the value of the <b>digital input '<i>TESTIN4</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital input 'TESTIN4'
-	 */
-	public boolean getTESTIN4()
-	{
-		return getBooleanIOValue("TESTIN4", false);
-	}
-
-	/**
-	 * Gets the value of the <b>digital input '<i>TESTIN5</i>'</b>.<br>
-	 * <i>This method is automatically generated. Please, do not modify!</i>
-	 * <p>
-	 * <b>I/O direction and type:</b><br>
-	 * digital input
-	 * <p>
-	 * <b>User description of the I/O:</b><br>
-	 * ./.
-	 * <p>
-	 * <b>Range of the I/O value:</b><br>
-	 * [false; true]
-	 *
-	 * @return current value of the digital input 'TESTIN5'
-	 */
-	public boolean getTESTIN5()
-	{
-		return getBooleanIOValue("TESTIN5", false);
 	}
 
 }

@@ -26,21 +26,6 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="SecuritySwitch" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="TestIN" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
-        <Description />
-      </DigitalIOItem>
-      <DigitalIOItem Name="TESTIN2" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
-        <Description />
-      </DigitalIOItem>
-      <DigitalIOItem Name="TESTIN3" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
-        <Description />
-      </DigitalIOItem>
-      <DigitalIOItem Name="TESTIN4" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
-        <Description />
-      </DigitalIOItem>
-      <DigitalIOItem Name="TESTIN5" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
-        <Description />
-      </DigitalIOItem>
     </IOs>
     <Description />
   </IOGroup>
