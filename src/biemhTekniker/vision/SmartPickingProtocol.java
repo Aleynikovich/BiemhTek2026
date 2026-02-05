@@ -30,8 +30,6 @@ public class SmartPickingProtocol
 
     public boolean loadReference()
     {
-        //execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
-        //_client.sendAndReceive("19", false); // Internal cleanup/reset command
         VisionResult res = execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
         return res.isSuccess();
     }
@@ -58,8 +56,6 @@ public class SmartPickingProtocol
 
     public boolean loadReference(String name)
     {
-        execute(Command.LOAD_REFERENCE, name, true);
-        _client.sendAndReceive("19", false); // Internal cleanup/reset command
         VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
         return res.isSuccess();
     }
