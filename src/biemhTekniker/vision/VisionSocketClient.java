@@ -148,8 +148,8 @@ public class VisionSocketClient
             
             // Check if input stream is still functional by calling available()
             // This method throws IOException if the stream is closed or connection is broken
-            // The return value doesn't matter - we just need to verify no exception is thrown
-            int bytesAvailable = in.available();
+            // We call it for its side effect - the return value doesn't matter
+            in.available();
             return true;
         }
         catch (Exception e)

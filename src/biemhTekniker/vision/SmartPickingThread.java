@@ -131,6 +131,8 @@ public class SmartPickingThread extends Thread
 
     /**
      * Loads all configured references into the vision system.
+     * Note: This method attempts to load ALL references, even if some fail.
+     * Partial success (loading some but not all) is acceptable for operation.
      *
      * @return true if at least one reference was loaded successfully, false otherwise
      */
