@@ -2,6 +2,7 @@ package biemhTekniker.programs;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+
 import biemhTekniker.logger.Logger;
 
 import com.kuka.common.ThreadUtil;
@@ -27,7 +28,7 @@ public class PlaceNewWorkpieceProgram
     public PlaceNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO)
     {
         this.application = application;
-        this.iiwa       = robot;
+        this.iiwa        = robot;
         this.gripper     = gripper;
         this.gripperIO   = gripperIO;
     }
@@ -51,7 +52,7 @@ public class PlaceNewWorkpieceProgram
         ThreadUtil.milliSleep(500);
         tcpA.move(lin(application.getApplicationData().getFrame("/SchunkBase/Exit")));
         tcpA.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
-        
+
 
         log.warn("PlaceNewWorkpieceProgram: Motion not yet implemented");
         return true;
