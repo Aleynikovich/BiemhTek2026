@@ -2,10 +2,8 @@
 <RoboticsAPI>
     <Engine Class="com.kuka.roboticsAPI.persistenceModel.PersistenceEngine"/>
     <Engine Class="com.kuka.roboticsAPI.uiModel.UIEngine"/>
-    <DataSource Class="com.kuka.roboticsAPI.persistenceModel.XmlApplicationDataSource" DataFile="RoboticsAPI.data.xml"
-                Name="robotApplicationDataSource"/>
-    <Controller Class="com.kuka.roboticsAPI.controllerModel.sunrise.SunriseController" KeepAliveSendTimeout="5000"
-                Name="Sunrise" NameserverAddress="192.168.0.2" NameserverPort="23456">
+    <DataSource Class="com.kuka.roboticsAPI.persistenceModel.XmlApplicationDataSource" DataFile="RoboticsAPI.data.xml" Name="robotApplicationDataSource"/>
+    <Controller Class="com.kuka.roboticsAPI.controllerModel.sunrise.SunriseController" KeepAliveSendTimeout="5000" Name="Sunrise" NameserverAddress="192.168.0.2" NameserverPort="23456">
         <Mapper Class="com.kuka.roboticsAPI.controllerModel.sunrise.mapping.HandGuidingControlModeMapper"/>
         <Mapper Class="com.kuka.roboticsAPI.controllerModel.sunrise.mapping.HandGuidingMapper"/>
     </Controller>
