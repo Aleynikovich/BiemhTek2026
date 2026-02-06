@@ -391,10 +391,10 @@
         <toolTemplate class="" defaultMotionFrameRef="/TCPA" name="Gripper">
             <frames>
                 <frame id="_e7d278ca-75c4-42fa-ac1f-c643bc26e7dc" name="TCPA">
-                    <transformation a="-1.5707963267948966" b="0.0" c="0.7853981633974483" x="-0.23246564003171438" y="-124.4964066933245" z="129.2"/>
+                    <transformation a="-1.5707963267948966" b="0.0" c="0.7853981633974483" x="-124.5" y="0.0" z="130.0"/>
                 </frame>
                 <frame id="_e3763e42-1593-48dd-90be-4068608c7a97" name="TCPB">
-                    <transformation a="-1.5707963267948966" b="0.0" c="-0.7853981633974483" x="124.5" y="0.0" z="129.2"/>
+                    <transformation a="-1.5707963267948966" b="0.0" c="-0.7853981633974483" x="124.5" y="0.0" z="130.0"/>
                 </frame>
             </frames>
             <additionalInformation>
