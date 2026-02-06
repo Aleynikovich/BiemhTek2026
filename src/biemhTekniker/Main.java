@@ -146,7 +146,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
                 case 2:
                     // Program 2 - Calibration
-                	gripper.move(ptp(getApplicationData().getFrame("/HomeCalibration")));
+                	gripper.move(ptp(getApplicationData().getFrame("/P1")));
                     executeCalibration();
                     programNumber = 0;
                     break;
