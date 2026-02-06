@@ -10,7 +10,10 @@ import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.generated.ioAccess.RobotCartesianPositionIOGroup;
+import com.kuka.generated.ioAccess.RobotSafetyIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
+import com.kuka.roboticsAPI.controllerModel.sunrise.ISafetyState;
+import com.kuka.roboticsAPI.controllerModel.sunrise.SunriseSafetyState;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
@@ -31,15 +34,16 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private static final String             VISION_SERVER_IP   = "172.31.1.69";
     private static final int                VISION_SERVER_PORT = 59002;
     @Inject private      LBR                iiwa;
+    @Inject private RobotSafetyIOGroup safetyIO;
     // Managers and threads
     private              LoggingManager     loggingManager;
     private              SmartPickingThread smartPickingThread;
     private              ConsoleServer      consoleServer;
-
+    
     // Gripper data
     @Inject @Named("Gripper") // Matches the name defined in your Station Setup
     private Tool gripper;
-
+    
     // Gripper IOs
     @Inject private MediaFlangeIOGroup gripperIO;
 
@@ -52,6 +56,11 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     @Override public void initialize()
     {
+    	//TODO: Remove safety polling in main
+    	ISafetyState safetyState = iiwa.getSafetyState();
+    	safetyIO.setIsExternalEStop(safetyState.getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
+        safetyIO.setIsOperatorSafety(safetyState.getOperatorSafetyState() == SunriseSafetyState.OperatorSafety.OPERATOR_SAFETY_CLOSED );
+        
         // Initialize logging
         loggingManager = new LoggingManager();
         loggingManager.initialize();
