@@ -57,10 +57,16 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Override public void initialize()
     {
     	//TODO: Remove safety polling in main
+    	try
+    	{
     	ISafetyState safetyState = iiwa.getSafetyState();
     	safetyIO.setIsExternalEStop(safetyState.getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
         safetyIO.setIsOperatorSafety(safetyState.getOperatorSafetyState() == SunriseSafetyState.OperatorSafety.OPERATOR_SAFETY_CLOSED );
-        
+    	}
+    	catch (Exception e)
+    	{
+    		log.error(e.getMessage());
+    	}
         // Initialize logging
         loggingManager = new LoggingManager();
         loggingManager.initialize();
