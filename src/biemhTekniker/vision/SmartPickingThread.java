@@ -89,15 +89,13 @@ public class SmartPickingThread extends Thread
                     {
                         log.info("Reconnected to vision server");
                         // Reload all references after reconnection
-                        loadAllReferences();
-                        referencesLoaded = true;
+                        referencesLoaded = loadAllReferences();
                     }
                 }
                 else if (!referencesLoaded)
                 {
                     // If connected but references not loaded, load them
-                    loadAllReferences();
-                    referencesLoaded = true;
+                    referencesLoaded = loadAllReferences();
                 }
                 consecutiveErrors = 0; // Reset on success
                 ThreadUtil.milliSleep(1000); // Check connection every second
@@ -133,9 +131,12 @@ public class SmartPickingThread extends Thread
 
     /**
      * Loads all configured references into the vision system.
+     *
+     * @return true if at least one reference was loaded successfully, false otherwise
      */
-    private void loadAllReferences()
+    private boolean loadAllReferences()
     {
+        boolean atLeastOneSuccess = false;
         for (String reference : references)
         {
             log.info("Loading reference " + reference);
@@ -143,12 +144,20 @@ public class SmartPickingThread extends Thread
             if (success)
             {
                 log.info("Successfully loaded reference " + reference);
+                atLeastOneSuccess = true;
             }
             else
             {
                 log.warn("Failed to load reference " + reference);
             }
         }
+        
+        if (!atLeastOneSuccess)
+        {
+            log.error("Failed to load any references");
+        }
+        
+        return atLeastOneSuccess;
     }
 
     /**

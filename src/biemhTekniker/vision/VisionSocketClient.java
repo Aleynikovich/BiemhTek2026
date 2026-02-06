@@ -126,7 +126,7 @@ public class VisionSocketClient
     }
 
     /**
-     * Tests connection health by attempting to send a simple command.
+     * Tests connection health by checking if socket is still valid.
      * This helps detect cases where socket appears connected but server has restarted.
      *
      * @return true if connection is healthy, false otherwise
@@ -140,9 +140,16 @@ public class VisionSocketClient
 
         try
         {
-            // Try to check if the socket is still valid by checking input stream availability
-            // If server restarted, the socket will appear connected but won't be functional
-            return in != null && out != null;
+            // Check if streams are available and socket is not closed
+            if (in == null || out == null || socket.isClosed())
+            {
+                return false;
+            }
+            
+            // Check if there's data available without blocking (0 means no data, which is fine)
+            // If an exception occurs, the connection is likely stale
+            in.available();
+            return true;
         }
         catch (Exception e)
         {
