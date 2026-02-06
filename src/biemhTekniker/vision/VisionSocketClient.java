@@ -13,10 +13,11 @@ import java.nio.charset.StandardCharsets;
 
 public class VisionSocketClient
 {
-    private static final Logger      log     = Logger.getLogger(VisionSocketClient.class);
+    private static final Logger      log            = Logger.getLogger(VisionSocketClient.class);
     private final        String      ip;
     private final        int         port;
-    private final        int         timeout = 5000;
+    private final        int         timeout        = 5000;
+    private final        int         socketTimeout  = 30000; // 30s for operations like loading references
     private              Socket      socket;
     private              InputStream in;
     private              PrintWriter out;
@@ -35,7 +36,7 @@ public class VisionSocketClient
             socket = new Socket();
             socket.setReuseAddress(true);
             socket.connect(new InetSocketAddress(ip, port), timeout);
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(socketTimeout);
 
             in  = socket.getInputStream();
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.US_ASCII), true);
@@ -122,5 +123,39 @@ public class VisionSocketClient
     public boolean isConnected()
     {
         return socket != null && socket.isConnected() && !socket.isClosed();
+    }
+
+    /**
+     * Tests connection health by checking if socket is still valid.
+     * This helps detect cases where socket appears connected but server has restarted.
+     *
+     * @return true if connection is healthy, false otherwise
+     */
+    public boolean testConnection()
+    {
+        if (!isConnected())
+        {
+            return false;
+        }
+
+        try
+        {
+            // Check if streams are available and socket is not closed
+            if (in == null || out == null || socket.isClosed())
+            {
+                return false;
+            }
+            
+            // Check if input stream is still functional by calling available()
+            // This method throws IOException if the stream is closed or connection is broken
+            // We call it for its side effect - the return value doesn't matter
+            in.available();
+            return true;
+        }
+        catch (Exception e)
+        {
+            log.error("Connection test failed: " + e.getMessage());
+            return false;
+        }
     }
 }
