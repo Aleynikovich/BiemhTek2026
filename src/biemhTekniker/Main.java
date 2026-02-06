@@ -211,7 +211,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return;
         }
 
-        CalibrationProgram program = new CalibrationProgram(this, iiwa, smartPickingThread.getProtocol());
+        CalibrationProgram program = new CalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
 
         boolean success = program.execute();
         logProgramResult("Calibration", success);
@@ -224,7 +224,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return;
         }
 
-        TestCalibrationProgram program = new TestCalibrationProgram(this, iiwa, smartPickingThread.getProtocol());
+        TestCalibrationProgram program = new TestCalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
 
         boolean success = program.execute();
         logProgramResult("Test Calibration", success);

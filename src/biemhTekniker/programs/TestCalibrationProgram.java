@@ -5,6 +5,7 @@ import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.VisionRoutines;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.roboticsAPI.geometricModel.Tool;
 
 /**
  * Program to test the calibration of the vision system.
@@ -17,12 +18,14 @@ public class TestCalibrationProgram
     private final RoboticsAPIApplication application;
     private final LBR                    robot;
     private final SmartPickingProtocol   protocol;
+    private final Tool gripper;
 
-    public TestCalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol)
+    public TestCalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, Tool gripper)
     {
         this.application = application;
         this.robot       = robot;
         this.protocol    = protocol;
+        this.gripper	= gripper;
     }
 
     /**
@@ -34,7 +37,7 @@ public class TestCalibrationProgram
     {
         log.info("Testing calibration...");
 
-        VisionRoutines routines = new VisionRoutines(application, robot, protocol, robot.getFlange());
+        VisionRoutines routines = new VisionRoutines(application, robot, protocol, robot.getFlange(),gripper);
 
         // Test calibration at a specific point
         boolean success = routines.testCalibration("/CalibrationPoints/P16");

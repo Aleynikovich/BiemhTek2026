@@ -5,6 +5,7 @@ import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.VisionRoutines;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.roboticsAPI.geometricModel.Tool;
 
 /**
  * Calibration program for the vision system.
@@ -18,6 +19,7 @@ public class CalibrationProgram
     private final RoboticsAPIApplication application;
     private final LBR                    robot;
     private final SmartPickingProtocol   protocol;
+    private final Tool gripper;
 
     /**
      * Creates a calibration program.
@@ -26,11 +28,12 @@ public class CalibrationProgram
      * @param robot       The LBR robot
      * @param protocol    SmartPicking protocol connected to vision server
      */
-    public CalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol)
+    public CalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, Tool gripper)
     {
         this.application = application;
         this.robot       = robot;
         this.protocol    = protocol;
+        this.gripper = gripper;
     }
 
     /**
@@ -44,7 +47,7 @@ public class CalibrationProgram
         log.info("Starting calibration program...");
 
         // Create calibration routine
-        VisionRoutines calibration = new VisionRoutines(application, robot, protocol, robot.getFlange());
+        VisionRoutines calibration = new VisionRoutines(application, robot, protocol, robot.getFlange(), gripper);
 
         // Execute calibration
         boolean success = calibration.executeCalibration("/CalibrationPoints", "/CalibrationPoints/P16");

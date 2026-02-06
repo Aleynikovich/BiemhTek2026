@@ -8,6 +8,7 @@ import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
+import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.roboticsAPI.motionModel.LIN;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
@@ -40,13 +41,15 @@ public class VisionRoutines
     private final LBR                    robot;
     private final SmartPickingProtocol   protocol;
     private final ObjectFrame            flangeFrame;
+    private final Tool gripper;
 
-    public VisionRoutines(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, ObjectFrame flangeFrame)
+    public VisionRoutines(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, ObjectFrame flangeFrame, Tool gripper)
     {
         this.application = application;
         this.robot       = robot;
         this.protocol    = protocol;
         this.flangeFrame = flangeFrame;
+        this.gripper = gripper;
     }
 
     /**
@@ -59,7 +62,7 @@ public class VisionRoutines
     public boolean executeCalibration(String calibrationPointsRoot, String testCalibrationFrame)
     {
         log.info("Starting calibration routine...");
-
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
 
         // Set calibration mode
         if (!protocol.setMode(Command.SET_CALIB_MODE))
@@ -70,7 +73,7 @@ public class VisionRoutines
 
         log.info("Calibration mode set successfully");
         ThreadUtil.milliSleep(DELAY_MS);
-    	robot.move(ptp(application.getApplicationData().getFrame("/CalibrationPoints/P1")));
+    	tcpB.move(ptp(application.getApplicationData().getFrame("/CalibrationPoints/P1")));
         // Visit all calibration points
         for (int i = 1; i <= NUM_CALIBRATION_POINTS - 1; i++)
         {
@@ -117,6 +120,7 @@ public class VisionRoutines
     {
         String frameName = root + "/P" + pointNumber;
         log.info("Moving to calibration point: " + frameName);
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
 
         // Get the frame from the data file
         ObjectFrame targetFrame;
@@ -135,7 +139,7 @@ public class VisionRoutines
         {
             LIN linMotion = lin(targetFrame);
             linMotion.setJointVelocityRel(JOINT_VELOCITY);
-            robot.move(linMotion);
+            tcpB.move(linMotion);
         }
         catch (Exception e)
         {
@@ -188,7 +192,7 @@ public class VisionRoutines
     public boolean testCalibration(String testFrameName)
     {
         log.info("Testing calibration at frame: " + testFrameName);
-
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
         // Move to test frame
         ObjectFrame testFrame;
         try
@@ -205,7 +209,7 @@ public class VisionRoutines
         {
             LIN linMotion = lin(testFrame);
             linMotion.setJointVelocityRel(JOINT_VELOCITY);
-            robot.move(linMotion);
+            tcpB.move(linMotion);
         }
         catch (Exception e)
         {
