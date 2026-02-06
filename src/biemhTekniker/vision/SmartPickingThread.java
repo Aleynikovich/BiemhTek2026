@@ -64,7 +64,7 @@ public class SmartPickingThread extends Thread
 
         int       consecutiveErrors      = 0;
         final int MAX_CONSECUTIVE_ERRORS = 10;
-        boolean   referencesLoaded       = false;
+        boolean   referencesLoaded       = true;
 
         // Main thread loop - monitors connection and maintains it
         while (running && !Thread.currentThread().isInterrupted())
