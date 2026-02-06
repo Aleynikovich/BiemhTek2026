@@ -128,7 +128,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Override public void run()
     {
         log.info("Main application running, moving home");
-        gripper.move(ptp(getApplicationData().getFrame("/P1")));
+        iiwa.move(ptp(getApplicationData().getFrame("/P1")));
 
         while (true)
         {
