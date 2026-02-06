@@ -128,7 +128,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Override public void run()
     {
         log.info("Main application running, moving home");
-        iiwa.move(ptp(getApplicationData().getFrame("/P1")));
+        iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
 
         while (true)
         {
@@ -146,7 +146,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
                 case 2:
                     // Program 2 - Calibration
-                	iiwa.move(ptp(getApplicationData().getFrame("/P1")));
+                	iiwa.getFlange().move(ptp(getApplicationData().getFrame("/P1")));
                     executeCalibration();
                     programNumber = 0;
                     break;
