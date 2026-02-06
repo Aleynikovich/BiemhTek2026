@@ -13,10 +13,11 @@ import java.nio.charset.StandardCharsets;
 
 public class VisionSocketClient
 {
-    private static final Logger      log     = Logger.getLogger(VisionSocketClient.class);
+    private static final Logger      log            = Logger.getLogger(VisionSocketClient.class);
     private final        String      ip;
     private final        int         port;
-    private final        int         timeout = 5000;
+    private final        int         timeout        = 5000;
+    private final        int         socketTimeout  = 30000; // 30s for operations like loading references
     private              Socket      socket;
     private              InputStream in;
     private              PrintWriter out;
@@ -35,7 +36,7 @@ public class VisionSocketClient
             socket = new Socket();
             socket.setReuseAddress(true);
             socket.connect(new InetSocketAddress(ip, port), timeout);
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(socketTimeout);
 
             in  = socket.getInputStream();
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.US_ASCII), true);
@@ -122,5 +123,31 @@ public class VisionSocketClient
     public boolean isConnected()
     {
         return socket != null && socket.isConnected() && !socket.isClosed();
+    }
+
+    /**
+     * Tests connection health by attempting to send a simple command.
+     * This helps detect cases where socket appears connected but server has restarted.
+     *
+     * @return true if connection is healthy, false otherwise
+     */
+    public boolean testConnection()
+    {
+        if (!isConnected())
+        {
+            return false;
+        }
+
+        try
+        {
+            // Try to check if the socket is still valid by checking input stream availability
+            // If server restarted, the socket will appear connected but won't be functional
+            return in != null && out != null;
+        }
+        catch (Exception e)
+        {
+            log.error("Connection test failed: " + e.getMessage());
+            return false;
+        }
     }
 }

@@ -17,14 +17,14 @@ public class SmartPickingThread extends Thread
     private final    String               visionServerIP;
     private final    int                  visionServerPort;
     /**
-     * Reference identifier for the part being picked.
+     * Reference identifiers for the parts being picked.
      * Format: PROJECT_PARTNUMBER (e.g., "BIEMH26_105055")
-     * This should match a reference loaded in the vision system.
+     * These should match references loaded in the vision system.
      */
-    private final    String               reference = "BIEMH26_105055";
+    private final    String[]             references = {"BIEMH26_105053", "BIEMH26_105055", "BIEMH26_105060"};
     private          VisionSocketClient   socketClient;
     private          SmartPickingProtocol protocol;
-    private volatile boolean              running   = true;
+    private volatile boolean              running    = true;
 
     /**
      * Creates a SmartPicking thread.
@@ -64,23 +64,40 @@ public class SmartPickingThread extends Thread
 
         int       consecutiveErrors      = 0;
         final int MAX_CONSECUTIVE_ERRORS = 10;
+        boolean   referencesLoaded       = false;
 
         // Main thread loop - monitors connection and maintains it
-        while (running)
+        while (running && !Thread.interrupted())
         {
             try
             {
-                if (!socketClient.isConnected())
+                if (!socketClient.isConnected() || !socketClient.testConnection())
                 {
-                    log.info("Connection lost, attempting to reconnect...");
+                    if (socketClient.isConnected())
+                    {
+                        log.info("Connection health check failed, reconnecting...");
+                        socketClient.close();
+                    }
+                    else
+                    {
+                        log.info("Connection lost, attempting to reconnect...");
+                    }
+                    
+                    referencesLoaded = false;
                     socketClient.connect();
                     if (socketClient.isConnected())
                     {
                         log.info("Reconnected to vision server");
-                        // Reload reference after reconnection
-                        log.info("Loading reference BIEMH26_105055");
-                        protocol.loadReference("BIEMH26_105055");
+                        // Reload all references after reconnection
+                        loadAllReferences();
+                        referencesLoaded = true;
                     }
+                }
+                else if (!referencesLoaded)
+                {
+                    // If connected but references not loaded, load them
+                    loadAllReferences();
+                    referencesLoaded = true;
                 }
                 consecutiveErrors = 0; // Reset on success
                 ThreadUtil.milliSleep(1000); // Check connection every second
@@ -111,6 +128,26 @@ public class SmartPickingThread extends Thread
         if (socketClient != null)
         {
             socketClient.close();
+        }
+    }
+
+    /**
+     * Loads all configured references into the vision system.
+     */
+    private void loadAllReferences()
+    {
+        for (String reference : references)
+        {
+            log.info("Loading reference " + reference);
+            boolean success = protocol.loadReference(reference);
+            if (success)
+            {
+                log.info("Successfully loaded reference " + reference);
+            }
+            else
+            {
+                log.warn("Failed to load reference " + reference);
+            }
         }
     }
 
