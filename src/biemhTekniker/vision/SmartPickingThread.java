@@ -67,7 +67,7 @@ public class SmartPickingThread extends Thread
         boolean   referencesLoaded       = false;
 
         // Main thread loop - monitors connection and maintains it
-        while (running && !Thread.interrupted())
+        while (running && !Thread.currentThread().isInterrupted())
         {
             try
             {

@@ -146,9 +146,10 @@ public class VisionSocketClient
                 return false;
             }
             
-            // Check if there's data available without blocking (0 means no data, which is fine)
-            // If an exception occurs, the connection is likely stale
-            in.available();
+            // Check if input stream is still functional by calling available()
+            // This method throws IOException if the stream is closed or connection is broken
+            // The return value doesn't matter - we just need to verify no exception is thrown
+            int bytesAvailable = in.available();
             return true;
         }
         catch (Exception e)
