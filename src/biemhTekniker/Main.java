@@ -18,6 +18,11 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
@@ -50,7 +55,10 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     // Shared data
     private WorkpieceData workpieceData;
 
-    private volatile int programNumber = 0;
+    // Program dispatch
+    private final BlockingQueue<RobotProgram> programQueue    = new LinkedBlockingQueue<RobotProgram>();
+    private final Map<Integer, ProgramFactory> programRegistry = new HashMap<Integer, ProgramFactory>();
+    private       ProgramContext               programContext;
 
     @Override public void initialize()
     {
@@ -73,10 +81,206 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         consoleServer = new ConsoleServer(this);
         consoleServer.initialize();
 
+        // Create program context with shared dependencies
+        programContext = new ProgramContext(
+            this,
+            iiwa,
+            gripper,
+            gripperIO,
+            workpieceData,
+            smartPickingThread.getProtocol()
+        );
+
+        // Register programs using factories
+        registerPrograms();
+
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.0);
         log.info("Main application initialized");
+    }
+
+    /**
+     * Registers all available programs with their factory methods.
+     * Uses anonymous inner classes for Java 1.7 compatibility.
+     */
+    private void registerPrograms()
+    {
+        // Program 1: Get New Workpiece Position
+        programRegistry.put(1, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                final GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(
+                    ctx.getProtocol(),
+                    ctx.getWorkpieceData()
+                );
+                return new ProgramAdapter("Get New Workpiece Position", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return executeWithVisionCheck(program);
+                    }
+                });
+            }
+        });
+
+        // Program 2: Calibration
+        programRegistry.put(2, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                // Pre-move to P1 frame before calibration
+                try
+                {
+                    ctx.getIiwa().getFlange().move(ptp(getApplicationData().getFrame("/P1")));
+                }
+                catch (Exception e)
+                {
+                    log.error("Failed to move to P1 frame: " + e.getMessage());
+                }
+
+                final CalibrationProgram program = new CalibrationProgram(
+                    ctx.getApplication(),
+                    ctx.getIiwa(),
+                    ctx.getProtocol(),
+                    ctx.getGripper()
+                );
+                return new ProgramAdapter("Calibration", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return executeWithVisionCheck(program);
+                    }
+                });
+            }
+        });
+
+        // Program 3: Test Calibration
+        programRegistry.put(3, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                final TestCalibrationProgram program = new TestCalibrationProgram(
+                    ctx.getApplication(),
+                    ctx.getIiwa(),
+                    ctx.getProtocol(),
+                    ctx.getGripper()
+                );
+                return new ProgramAdapter("Test Calibration", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return executeWithVisionCheck(program);
+                    }
+                });
+            }
+        });
+
+        // Program 4: Pick New Workpiece
+        programRegistry.put(4, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                final PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(
+                    ctx.getApplication(),
+                    ctx.getIiwa(),
+                    ctx.getWorkpieceData(),
+                    ctx.getGripper(),
+                    ctx.getGripperIO()
+                );
+                return new ProgramAdapter("Pick New Workpiece", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return program.execute();
+                    }
+                });
+            }
+        });
+
+        // Program 5: Place New Workpiece
+        programRegistry.put(5, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                final PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(
+                    ctx.getApplication(),
+                    ctx.getIiwa(),
+                    ctx.getGripper(),
+                    ctx.getGripperIO()
+                );
+                return new ProgramAdapter("Place New Workpiece", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return program.execute();
+                    }
+                });
+            }
+        });
+
+        // Program 6: Pick Measured Workpiece
+        programRegistry.put(6, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                final PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(
+                    ctx.getApplication(),
+                    ctx.getIiwa()
+                );
+                return new ProgramAdapter("Pick Measured Workpiece", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return program.execute();
+                    }
+                });
+            }
+        });
+
+        // Program 7: Place Measured Workpiece
+        programRegistry.put(7, new ProgramFactory()
+        {
+            public RobotProgram create(ProgramContext ctx)
+            {
+                final PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(
+                    ctx.getApplication(),
+                    ctx.getIiwa()
+                );
+                return new ProgramAdapter("Place Measured Workpiece", new ProgramAdapter.Action()
+                {
+                    public boolean run()
+                    {
+                        return program.execute();
+                    }
+                });
+            }
+        });
+
+        log.info("Registered " + programRegistry.size() + " programs");
+    }
+
+    /**
+     * Helper to execute a program with vision connection check.
+     * Wraps the common pattern used by vision-dependent programs.
+     */
+    private boolean executeWithVisionCheck(Object program)
+    {
+        if (!checkVisionConnection())
+        {
+            return false;
+        }
+        // Use reflection to call execute() on any program object
+        try
+        {
+            return ((Boolean) program.getClass().getMethod("execute").invoke(program)).booleanValue();
+        }
+        catch (Exception e)
+        {
+            log.error("Failed to execute program: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override public void dispose()
@@ -123,154 +327,83 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         log.info("Main application running, moving home");
         iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
 
+        // Queue-based program dispatcher
         while (true)
         {
-            switch (programNumber)
+            try
             {
-                case 0:
-                    // Program 0 - Idle
-                    break;
-
-                case 1:
-                    // Program 1 - Get New Workpiece Position
-                    getNewWorkpiecePosition();
-                    programNumber = 0;
-                    break;
-
-                case 2:
-                    // Program 2 - Calibration
-                    iiwa.getFlange().move(ptp(getApplicationData().getFrame("/P1")));
-                    executeCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 3:
-                    // Program 3 - Test Calibration
-                    testCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 4:
-                    // Program 4 - Pick New Workpiece
-                    pickNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 5:
-                    // Program 5 - Place New Workpiece
-                    placeNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 6:
-                    // Program 6 - Pick Measured Workpiece
-                    pickMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 7:
-                    // Program 7 - Place Measured Workpiece
-                    placeMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                default:
-                    log.warn("Unknown program number: " + programNumber);
-                    break;
+                // Poll the queue with timeout to allow checking for shutdown
+                RobotProgram program = programQueue.poll(200, java.util.concurrent.TimeUnit.MILLISECONDS);
+                
+                if (program != null)
+                {
+                    log.info("Executing program: " + program.getName());
+                    boolean success = program.execute();
+                    logProgramResult(program.getName(), success);
+                }
             }
-            ThreadUtil.milliSleep(200);
+            catch (InterruptedException e)
+            {
+                log.warn("Program dispatcher interrupted");
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
     }
 
     // ========== ConsoleServerInterface Implementation ==========
 
-    private void getNewWorkpiecePosition()
+    @Override public void setProgramNumber(int programNumber)
     {
-        if (!checkVisionConnection())
+        if (programNumber == 0)
         {
+            // Program 0 is idle - do nothing
+            log.info("Program 0 (idle) requested via console");
             return;
         }
 
-        GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(smartPickingThread.getProtocol(), workpieceData);
-
-        boolean success = program.execute();
-        logProgramResult("Get New Workpiece Position", success);
-    }
-
-    private void executeCalibration()
-    {
-        if (!checkVisionConnection())
+        ProgramFactory factory = programRegistry.get(Integer.valueOf(programNumber));
+        if (factory != null)
         {
-            return;
+            RobotProgram program = factory.create(programContext);
+            boolean added = programQueue.offer(program);
+            if (added)
+            {
+                log.info("Program " + programNumber + " (" + program.getName() + ") enqueued via console");
+            }
+            else
+            {
+                log.error("Failed to enqueue program " + programNumber + " - queue full");
+            }
         }
-
-        CalibrationProgram program = new CalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
-
-        boolean success = program.execute();
-        logProgramResult("Calibration", success);
-    }
-
-    private void testCalibration()
-    {
-        if (!checkVisionConnection())
+        else
         {
-            return;
+            log.warn("Invalid program number requested: " + programNumber);
         }
-
-        TestCalibrationProgram program = new TestCalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
-
-        boolean success = program.execute();
-        logProgramResult("Test Calibration", success);
     }
 
-    private void pickNewWorkpiece()
+    @Override public int getCurrentProgram()
     {
-        //TODO REMOVE HARDCODE
-        // Check if workpieceData is null; if so, create a new instance
-/*        if (this.workpieceData == null) {
-        	log.warn("No workpiece data, generating dummy workpiece");
-            this.workpieceData = new WorkpieceData();
-        }
-        if (this.workpieceData.getScore() == 0)
+        // Return the queue size as an indication of pending programs
+        // This maintains backward compatibility with the console interface
+        return programQueue.size();
+    }
+
+    @Override public boolean isVisionConnected()
+    {
+        return smartPickingThread != null && smartPickingThread.isConnected();
+    }
+
+    @Override public String getWorkpiecePosition()
+    {
+        if (workpieceData != null && workpieceData.isValid())
         {
-        	log.warn("Workpiece has been instanced but contains no data, populating dummy workpiece.");
-            workpieceData.set(300.0, -320, 200,-180 , 0.0,45, 0.95);
-        }*/
-
-        //REMOVE HARDCODE IN PRODUCTION
-
-
-        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(this, iiwa, workpieceData, gripper, gripperIO);
-
-        boolean success = program.execute();
-        logProgramResult("Pick New Workpiece", success);
+            return workpieceData.toString();
+        }
+        return "invalid";
     }
 
-    // ========== Program Execution Methods ==========
-
-    private void placeNewWorkpiece()
-    {
-        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa, gripper, gripperIO);
-
-        boolean success = program.execute();
-        logProgramResult("Place New Workpiece", success);
-    }
-
-    private void pickMeasuredWorkpiece()
-    {
-        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(this, iiwa);
-
-        boolean success = program.execute();
-        logProgramResult("Pick Measured Workpiece", success);
-    }
-
-    private void placeMeasuredWorkpiece()
-    {
-        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(this, iiwa);
-
-        boolean success = program.execute();
-        logProgramResult("Place Measured Workpiece", success);
-    }
+    // ========== Helper Methods ==========
 
     private boolean checkVisionConnection()
     {
@@ -292,39 +425,5 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         {
             log.error(programName + " program failed");
         }
-    }
-
-    @Override public void setProgramNumber(int programNumber)
-    {
-        if (programNumber >= 0 && programNumber <= 7)
-        {
-            this.programNumber = programNumber;
-            log.info("Program number set to: " + programNumber + " via console");
-        }
-        else
-        {
-            log.warn("Invalid program number requested: " + programNumber);
-        }
-    }
-
-    @Override public int getCurrentProgram()
-    {
-        return programNumber;
-    }
-
-    // ========== Helper Methods ==========
-
-    @Override public boolean isVisionConnected()
-    {
-        return smartPickingThread != null && smartPickingThread.isConnected();
-    }
-
-    @Override public String getWorkpiecePosition()
-    {
-        if (workpieceData != null && workpieceData.isValid())
-        {
-            return workpieceData.toString();
-        }
-        return "invalid";
     }
 }
