@@ -37,6 +37,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private              LoggingManager     loggingManager;
     private              SmartPickingThread smartPickingThread;
     private              ConsoleServer      consoleServer;
+    private              ProgramRegistry    programRegistry;
 
     // Gripper data
     @Inject @Named("Gripper") // Matches the name defined in your Station Setup
@@ -72,6 +73,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         // Initialize and start console server for GUI control
         consoleServer = new ConsoleServer(this);
         consoleServer.initialize();
+
+        // Initialize program registry for factory-based program loading
+        programRegistry = new ProgramRegistry();
 
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
@@ -125,60 +129,129 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         while (true)
         {
-            switch (programNumber)
+            if (programNumber != 0)
             {
-                case 0:
-                    // Program 0 - Idle
-                    break;
+                // Try to execute via ProgramRegistry first
+                boolean executed = executeProgramViaRegistry(programNumber);
 
-                case 1:
-                    // Program 1 - Get New Workpiece Position
-                    getNewWorkpiecePosition();
-                    programNumber = 0;
-                    break;
+                if (!executed)
+                {
+                    // Fallback to hard-coded program execution
+                    executeProgramDirect(programNumber);
+                }
 
-                case 2:
-                    // Program 2 - Calibration
-                    iiwa.getFlange().move(ptp(getApplicationData().getFrame("/P1")));
-                    executeCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 3:
-                    // Program 3 - Test Calibration
-                    testCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 4:
-                    // Program 4 - Pick New Workpiece
-                    pickNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 5:
-                    // Program 5 - Place New Workpiece
-                    placeNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 6:
-                    // Program 6 - Pick Measured Workpiece
-                    pickMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 7:
-                    // Program 7 - Place Measured Workpiece
-                    placeMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                default:
-                    log.warn("Unknown program number: " + programNumber);
-                    break;
+                programNumber = 0;
             }
+
             ThreadUtil.milliSleep(200);
+        }
+    }
+
+    /**
+     * Attempts to execute a program via ProgramRegistry.
+     *
+     * @param programId The program ID to execute
+     * @return true if program was executed via registry, false if registry doesn't have mapping
+     */
+    private boolean executeProgramViaRegistry(int programId)
+    {
+        if (programRegistry == null || !programRegistry.hasMapping(programId))
+        {
+            log.debug("No registry mapping for program " + programId + ", using fallback");
+            return false;
+        }
+
+        // Special pre-execution handling for program 2 (Calibration)
+        if (programId == 2)
+        {
+            iiwa.getFlange().move(ptp(getApplicationData().getFrame("/P1")));
+        }
+
+        // Check vision connection for programs that need it
+        if (programId == 1 || programId == 2 || programId == 3)
+        {
+            if (!checkVisionConnection())
+            {
+                return true; // Return true to prevent fallback execution
+            }
+        }
+
+        try
+        {
+            log.info("Executing program " + programId + " via ProgramRegistry");
+            ProgramFactory factory = programRegistry.lookup(programId);
+            if (factory == null)
+            {
+                log.error("Failed to instantiate factory for program " + programId);
+                return false;
+            }
+
+            // Create program context with all dependencies
+            ProgramContext context = new ProgramContext(this, iiwa, gripper, gripperIO, workpieceData, smartPickingThread != null ? smartPickingThread.getProtocol() : null);
+
+            // Create and execute program
+            ProgramAdapter program = factory.create(context);
+            boolean success = program.execute();
+
+            // Log result
+            logProgramResult("Program " + programId, success);
+            return true;
+        }
+        catch (Exception e)
+        {
+            log.error("Exception executing program " + programId + " via registry: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Executes a program using the original hard-coded method (fallback).
+     *
+     * @param programId The program ID to execute
+     */
+    private void executeProgramDirect(int programId)
+    {
+        switch (programId)
+        {
+            case 1:
+                // Program 1 - Get New Workpiece Position
+                getNewWorkpiecePosition();
+                break;
+
+            case 2:
+                // Program 2 - Calibration
+                iiwa.getFlange().move(ptp(getApplicationData().getFrame("/P1")));
+                executeCalibration();
+                break;
+
+            case 3:
+                // Program 3 - Test Calibration
+                testCalibration();
+                break;
+
+            case 4:
+                // Program 4 - Pick New Workpiece
+                pickNewWorkpiece();
+                break;
+
+            case 5:
+                // Program 5 - Place New Workpiece
+                placeNewWorkpiece();
+                break;
+
+            case 6:
+                // Program 6 - Pick Measured Workpiece
+                pickMeasuredWorkpiece();
+                break;
+
+            case 7:
+                // Program 7 - Place Measured Workpiece
+                placeMeasuredWorkpiece();
+                break;
+
+            default:
+                log.warn("Unknown program number: " + programId);
+                break;
         }
     }
 
