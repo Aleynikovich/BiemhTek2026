@@ -4,37 +4,58 @@ import com.kuka.generated.ioAccess.RobotJointPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
-import com.kuka.roboticsAPI.deviceModel.JointPosition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.roboticsAPI.deviceModel.JointPosition;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
-    private final   int                       decimalMultiplier = 10;
-    @Inject private Controller                sunrise;
-    @Inject private LBR                       iiwa;
+    private final int decimalMultiplier = 10;
+
+    @Inject private Controller sunrise;
+    @Inject private LBR iiwa;
     @Inject private RobotJointPositionIOGroup currentAxisPosition;
 
-    @Override public void initialize()
-    {
-        // initialize your task here
-        initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+    private interface AxisSetter {
+        void set(int value);
     }
 
-    @Override public void runCyclic()
+    private AxisSetter[] axisSetters;
+
+    @Override
+    public void initialize()
+    {
+        axisSetters = new AxisSetter[] {
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA1(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA2(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA3(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA4(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA5(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA6(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA7(v); } }
+        };
+
+        initializeCyclic(0, 1, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+    }
+
+    @Override
+    public void runCyclic()
     {
         try
         {
-            for (int i = 0;i < iiwa.getCurrentJointPosition().getAxisCount(); i++)
+            JointPosition jointPos = iiwa.getCurrentJointPosition();
+
+            for (int i = 0; i < axisSetters.length; i++)
             {
-                currentAxisPosition.setA1((int) Math.round(Math.toDegrees(iiwa.getCurrentJointPosition().get(i)) * decimalMultiplier));
+                int scaledValue = (int) Math.round(Math.toDegrees(jointPos.get(i)) * decimalMultiplier);
+                axisSetters[i].set(scaledValue);
             }
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            getLogger().error(e.getMessage());
         }
     }
 }

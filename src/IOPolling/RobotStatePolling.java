@@ -1,15 +1,10 @@
 package IOPolling;
 
-
 import com.kuka.generated.ioAccess.RobotStateIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
-import com.kuka.roboticsAPI.controllerModel.DispatchedEventData;
-import com.kuka.roboticsAPI.controllerModel.IControllerStateListener;
-import com.kuka.roboticsAPI.controllerModel.StatePortData;
 import com.kuka.roboticsAPI.controllerModel.sunrise.ISafetyState;
-import com.kuka.roboticsAPI.deviceModel.Device;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 
 import javax.inject.Inject;
@@ -17,20 +12,25 @@ import java.util.concurrent.TimeUnit;
 
 public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
 {
+    @Inject RobotStateIOGroup robotStateIOGroup;
+    boolean motionReady, activeMotion;
     @Inject private Controller sunrise;
     @Inject private LBR        iiwa;
-    @Inject RobotStateIOGroup  robotStateIOGroup;
-
-    ISafetyState safetyState = iiwa.getSafetyState();
-    boolean motionReady, activeMotion;
 
     @Override public void initialize()
     {
-        initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+        initializeCyclic(0, 1, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+
     }
 
     @Override public void runCyclic()
     {
-        //robotStateIOGroup.setHasActiveMotion(safetyState.getOperatorSafetyState());
+        ISafetyState safetyState = iiwa.getSafetyState();
+        robotStateIOGroup.setHasActiveMotion(iiwa.hasActiveMotionCommand());
+        robotStateIOGroup.setIsInHome(iiwa.isInHome());
+        robotStateIOGroup.setIsMastered(iiwa.isMastered());
+        robotStateIOGroup.setIsReadyToMove(iiwa.isReadyToMove());
+        robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
+        robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
     }
 }
