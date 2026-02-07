@@ -30,7 +30,7 @@ public class CalibrationFactory implements ProgramFactory
         {
             public boolean execute()
             {
-                CalibrationProgram program = new CalibrationProgram(ctx.getApplication(), ctx.getIiwa(), ctx.getVisionProtocol(), ctx.getGripper());
+                CalibrationProgram program = new CalibrationProgram(ctx.application(), ctx.iiwa(), ctx.visionProtocol(), ctx.gripper());
                 return program.execute();
             }
         };

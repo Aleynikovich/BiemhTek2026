@@ -30,7 +30,7 @@ public class GetNewWorkpieceFactory implements ProgramFactory
         {
             public boolean execute()
             {
-                GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(ctx.getVisionProtocol(), ctx.getWorkpieceData());
+                GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(ctx.visionProtocol(), ctx.workpieceData());
                 return program.execute();
             }
         };

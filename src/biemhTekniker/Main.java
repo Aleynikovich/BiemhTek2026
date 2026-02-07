@@ -191,7 +191,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
             // Create and execute program
             ProgramAdapter program = factory.create(context);
-            boolean success = program.execute();
+            boolean        success = program.execute();
 
             // Log result
             logProgramResult("Program " + programId, success);
@@ -257,6 +257,28 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     // ========== ConsoleServerInterface Implementation ==========
 
+    private boolean checkVisionConnection()
+    {
+        if (!smartPickingThread.isConnected())
+        {
+            log.error("Cannot execute program - not connected to vision server");
+            return false;
+        }
+        return true;
+    }
+
+    private void logProgramResult(String programName, boolean success)
+    {
+        if (success)
+        {
+            log.info(programName + " program completed successfully");
+        }
+        else
+        {
+            log.error(programName + " program failed");
+        }
+    }
+
     private void getNewWorkpiecePosition()
     {
         if (!checkVisionConnection())
@@ -282,6 +304,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         boolean success = program.execute();
         logProgramResult("Calibration", success);
     }
+
+    // ========== Program Execution Methods ==========
 
     private void testCalibration()
     {
@@ -319,8 +343,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         logProgramResult("Pick New Workpiece", success);
     }
 
-    // ========== Program Execution Methods ==========
-
     private void placeNewWorkpiece()
     {
         PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa, gripper, gripperIO);
@@ -343,28 +365,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         boolean success = program.execute();
         logProgramResult("Place Measured Workpiece", success);
-    }
-
-    private boolean checkVisionConnection()
-    {
-        if (!smartPickingThread.isConnected())
-        {
-            log.error("Cannot execute program - not connected to vision server");
-            return false;
-        }
-        return true;
-    }
-
-    private void logProgramResult(String programName, boolean success)
-    {
-        if (success)
-        {
-            log.info(programName + " program completed successfully");
-        }
-        else
-        {
-            log.error(programName + " program failed");
-        }
     }
 
     @Override public void setProgramNumber(int programNumber)

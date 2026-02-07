@@ -30,7 +30,7 @@ public class PlaceNewWorkpieceFactory implements ProgramFactory
         {
             public boolean execute()
             {
-                PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(ctx.getApplication(), ctx.getIiwa(), ctx.getGripper(), ctx.getGripperIO());
+                PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(ctx.application(), ctx.iiwa(), ctx.gripper(), ctx.gripperIO());
                 return program.execute();
             }
         };

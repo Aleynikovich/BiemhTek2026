@@ -68,18 +68,20 @@ import biemhTekniker.programs.ProgramAdapter;
 import biemhTekniker.programs.ProgramContext;
 import biemhTekniker.programs.ProgramFactory;
 
-public class MyNewProgramFactory implements ProgramFactory {
+public class MyNewProgramFactory implements ProgramFactory
+{
     // Required: public no-arg constructor for reflection
-    public MyNewProgramFactory() {
+    public MyNewProgramFactory()
+    {
     }
-    
-    public ProgramAdapter create(final ProgramContext ctx) {
-        return new ProgramAdapter() {
-            public boolean execute() {
-                MyNewProgram program = new MyNewProgram(
-                    ctx.getApplication(), 
-                    ctx.getIiwa()
-                );
+
+    public ProgramAdapter create(final ProgramContext ctx)
+    {
+        return new ProgramAdapter()
+        {
+            public boolean execute()
+            {
+                MyNewProgram program = new MyNewProgram(ctx.application(), ctx.iiwa());
                 return program.execute();
             }
         };

@@ -41,7 +41,7 @@ public class VisionRoutines
     private final LBR                    robot;
     private final SmartPickingProtocol   protocol;
     private final ObjectFrame            flangeFrame;
-    private final Tool gripper;
+    private final Tool                   gripper;
 
     public VisionRoutines(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, ObjectFrame flangeFrame, Tool gripper)
     {
@@ -49,7 +49,7 @@ public class VisionRoutines
         this.robot       = robot;
         this.protocol    = protocol;
         this.flangeFrame = flangeFrame;
-        this.gripper = gripper;
+        this.gripper     = gripper;
     }
 
     /**
@@ -73,7 +73,7 @@ public class VisionRoutines
 
         log.info("Calibration mode set successfully");
         ThreadUtil.milliSleep(DELAY_MS);
-    	tcpB.move(ptp(application.getApplicationData().getFrame("/CalibrationPoints/P1")));
+        tcpB.move(ptp(application.getApplicationData().getFrame("/CalibrationPoints/P1")));
         // Visit all calibration points
         for (int i = 1; i <= NUM_CALIBRATION_POINTS - 1; i++)
         {

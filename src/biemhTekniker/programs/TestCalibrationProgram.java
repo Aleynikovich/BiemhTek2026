@@ -18,14 +18,14 @@ public class TestCalibrationProgram
     private final RoboticsAPIApplication application;
     private final LBR                    robot;
     private final SmartPickingProtocol   protocol;
-    private final Tool gripper;
+    private final Tool                   gripper;
 
     public TestCalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, Tool gripper)
     {
         this.application = application;
         this.robot       = robot;
         this.protocol    = protocol;
-        this.gripper	= gripper;
+        this.gripper     = gripper;
     }
 
     /**
@@ -37,7 +37,7 @@ public class TestCalibrationProgram
     {
         log.info("Testing calibration...");
 
-        VisionRoutines routines = new VisionRoutines(application, robot, protocol, robot.getFlange(),gripper);
+        VisionRoutines routines = new VisionRoutines(application, robot, protocol, robot.getFlange(), gripper);
 
         // Test calibration at a specific point
         boolean success = routines.testCalibration("/CalibrationPoints/P16");

@@ -16,10 +16,10 @@ import java.util.Properties;
  */
 public class ProgramRegistry
 {
-    private static final Logger log                     = Logger.getLogger(ProgramRegistry.class);
-    private static final String CONFIG_SYSTEM_PROPERTY  = "biemh.programs.config";
-    private static final String DEFAULT_CONFIG_PATH     = "./programs.properties";
-    private final        Map    factoryCache            = new HashMap();
+    private static final Logger     log                    = Logger.getLogger(ProgramRegistry.class);
+    private static final String     CONFIG_SYSTEM_PROPERTY = "biemh.programs.config";
+    private static final String     DEFAULT_CONFIG_PATH    = "./programs.properties";
+    private final        Map        factoryCache           = new HashMap();
     private final        Properties properties;
 
     /**
@@ -99,8 +99,8 @@ public class ProgramRegistry
         try
         {
             log.info("Instantiating factory for program ID " + programId + ": " + factoryClassName);
-            Class factoryClass = Class.forName(factoryClassName);
-            ProgramFactory factory = (ProgramFactory) factoryClass.newInstance();
+            Class          factoryClass = Class.forName(factoryClassName);
+            ProgramFactory factory      = (ProgramFactory) factoryClass.newInstance();
 
             // Cache the factory instance
             factoryCache.put(programKey, factory);

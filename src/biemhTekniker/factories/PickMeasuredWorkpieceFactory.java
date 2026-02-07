@@ -30,7 +30,7 @@ public class PickMeasuredWorkpieceFactory implements ProgramFactory
         {
             public boolean execute()
             {
-                PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(ctx.getApplication(), ctx.getIiwa());
+                PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(ctx.application(), ctx.iiwa());
                 return program.execute();
             }
         };

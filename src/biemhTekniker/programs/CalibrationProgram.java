@@ -19,7 +19,7 @@ public class CalibrationProgram
     private final RoboticsAPIApplication application;
     private final LBR                    robot;
     private final SmartPickingProtocol   protocol;
-    private final Tool gripper;
+    private final Tool                   gripper;
 
     /**
      * Creates a calibration program.
@@ -33,7 +33,7 @@ public class CalibrationProgram
         this.application = application;
         this.robot       = robot;
         this.protocol    = protocol;
-        this.gripper = gripper;
+        this.gripper     = gripper;
     }
 
     /**

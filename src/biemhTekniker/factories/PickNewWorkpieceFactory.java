@@ -1,9 +1,9 @@
 package biemhTekniker.factories;
 
+import biemhTekniker.programs.PickNewWorkpieceProgram;
 import biemhTekniker.programs.ProgramAdapter;
 import biemhTekniker.programs.ProgramContext;
 import biemhTekniker.programs.ProgramFactory;
-import biemhTekniker.programs.PickNewWorkpieceProgram;
 
 /**
  * Factory for creating PickNewWorkpieceProgram instances.
@@ -31,7 +31,7 @@ public class PickNewWorkpieceFactory implements ProgramFactory
         {
             public boolean execute()
             {
-                PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(ctx.getApplication(), ctx.getIiwa(), ctx.getWorkpieceData(), ctx.getGripper(), ctx.getGripperIO());
+                PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(ctx.application(), ctx.iiwa(), ctx.workpieceData(), ctx.gripper(), ctx.gripperIO());
                 return program.execute();
             }
         };
