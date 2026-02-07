@@ -37,7 +37,7 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
             new AxisSetter() { public void set(int v) { currentAxisPosition.setA7(v); } }
         };
 
-        initializeCyclic(0, 2000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+        initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
     @Override

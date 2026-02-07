@@ -24,7 +24,7 @@ public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
 
     @Override public void initialize()
     {
-        initializeCyclic(0, 2000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+        initializeCyclic(0, 10, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
     @Override public void runCyclic()
