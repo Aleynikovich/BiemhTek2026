@@ -24,18 +24,28 @@ public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
 
     @Override public void initialize()
     {
-        initializeCyclic(0, 1, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+        initializeCyclic(0, 2000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
     @Override public void runCyclic()
     {
-        ISafetyState safetyState = iiwa.getSafetyState();
-        safetyIO.setIsExternalEStop(safetyState.getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
-        safetyIO.setIsOperatorSafety(safetyState.getOperatorSafetyState() == SunriseSafetyState.OperatorSafety.OPERATOR_SAFETY_CLOSED );
-        safetyIO.setModeT1(safetyState.getOperationMode() == OperationMode.T1);
-        safetyIO.setModeT2(safetyState.getOperationMode() == OperationMode.AUT);
-        safetyIO.setMoveEnable(safetyState.getEnablingDeviceState() == SunriseSafetyState.EnablingDeviceState.NORMAL);
-        safetyIO.setIsLocalEStop(safetyState.getEmergencyStopInt() == SunriseSafetyState.EmergencyStop.ACTIVE);
-        safetyIO.setIsExternalEStop(safetyState.getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
+        safetyIO.setIsExternalEStop(iiwa.getSafetyState().getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
+        safetyIO.setIsOperatorSafety(iiwa.getSafetyState().getOperatorSafetyState() == SunriseSafetyState.OperatorSafety.OPERATOR_SAFETY_CLOSED );
+        safetyIO.setModeT1(iiwa.getSafetyState().getOperationMode() == OperationMode.T1);
+        safetyIO.setModeT2(iiwa.getSafetyState().getOperationMode() == OperationMode.AUT);
+        safetyIO.setMoveEnable(iiwa.getSafetyState().getEnablingDeviceState() == SunriseSafetyState.EnablingDeviceState.NORMAL);
+        safetyIO.setIsLocalEStop(iiwa.getSafetyState().getEmergencyStopInt() == SunriseSafetyState.EmergencyStop.ACTIVE);
+        safetyIO.setIsExternalEStop(iiwa.getSafetyState().getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
+    }
+
+    @Override public void dispose()
+    {
+        safetyIO.setIsExternalEStop(true);
+        safetyIO.setIsOperatorSafety(false);
+        safetyIO.setModeT1(false);
+        safetyIO.setModeT2(false);
+        safetyIO.setMoveEnable(false);
+        safetyIO.setIsLocalEStop(true);
+        safetyIO.setIsExternalEStop(true);
     }
 }

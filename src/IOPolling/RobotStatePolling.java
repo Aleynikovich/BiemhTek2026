@@ -33,4 +33,14 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
         robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
         robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
     }
+
+    @Override public void dispose()
+    {
+        robotStateIOGroup.setHasActiveMotion(true);
+        robotStateIOGroup.setIsInHome(false);
+        robotStateIOGroup.setIsMastered(false);
+        robotStateIOGroup.setIsReadyToMove(false);
+        robotStateIOGroup.setIsGMSReferenced(false);
+        robotStateIOGroup.setIsReferenced(false);
+    }
 }

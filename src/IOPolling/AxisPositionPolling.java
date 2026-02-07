@@ -58,4 +58,9 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
             getLogger().error(e.getMessage());
         }
     }
+
+    @Override public void dispose()
+    {
+
+    }
 }
