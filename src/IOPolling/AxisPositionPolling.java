@@ -26,13 +26,13 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
     {
         try
         {
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(1)));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(2)));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(3)));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(4)));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(5)));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(6)));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(7)));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(0) * decimalMultiplier));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(1) * decimalMultiplier));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(2) * decimalMultiplier));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(3) * decimalMultiplier));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(4) * decimalMultiplier));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(5) * decimalMultiplier));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(6) * decimalMultiplier));
         }
         catch (Exception e)
         {
