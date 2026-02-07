@@ -104,6 +104,24 @@
         <DigitalIO Name="VisionState.VisionServerOnline" Type="OUTPUT" Scope="USER_IO" StartBit="2565" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
+        <DigitalIO Name="AutExt.ExtStart" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.MoveEnable" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.AutExtActive" Type="OUTPUT" Scope="USER_IO" StartBit="2320" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.AutExtReady" Type="OUTPUT" Scope="USER_IO" StartBit="2321" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.DefaultAppError" Type="OUTPUT" Scope="USER_IO" StartBit="2322" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.StationError" Type="OUTPUT" Scope="USER_IO" StartBit="2323" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
       </IOList>
     </Bus>
     <Bus BusDriverName="ECatIODriver" BusInstanceName="SYS-X48">
