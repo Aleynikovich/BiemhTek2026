@@ -5,45 +5,57 @@ import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.roboticsAPI.deviceModel.JointPosition;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
 
 public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
-    private final   int                       decimalMultiplier = 10;
-    @Inject private Controller                sunrise;
-    @Inject private LBR                       iiwa;
+    private final int decimalMultiplier = 10;
+
+    @Inject private Controller sunrise;
+    @Inject private LBR iiwa;
     @Inject private RobotJointPositionIOGroup currentAxisPosition;
 
-    // Cache the setters here so they are only created once
-    private List<Consumer<Integer>> axisSetters;
-
-    @Override public void initialize()
-    {
-        axisSetters = Arrays.asList(currentAxisPosition::setA1, currentAxisPosition::setA2, currentAxisPosition::setA3, currentAxisPosition::setA4, currentAxisPosition::setA5, currentAxisPosition::setA6, currentAxisPosition::setA7);
-        initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+    private interface AxisSetter {
+        void set(int value);
     }
 
-    @Override public void runCyclic()
+    private AxisSetter[] axisSetters;
+
+    @Override
+    public void initialize()
+    {
+        axisSetters = new AxisSetter[] {
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA1(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA2(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA3(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA4(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA5(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA6(v); } },
+            new AxisSetter() { public void set(int v) { currentAxisPosition.setA7(v); } }
+        };
+
+        initializeCyclic(0, 4, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
+    }
+
+    @Override
+    public void runCyclic()
     {
         try
         {
-            var jointPos = iiwa.getCurrentJointPosition();
+            JointPosition jointPos = iiwa.getCurrentJointPosition();
 
-            for (int i = 0; i < axisSetters.size(); i++)
+            for (int i = 0; i < axisSetters.length; i++)
             {
                 int scaledValue = (int) Math.round(Math.toDegrees(jointPos.get(i)) * decimalMultiplier);
-                axisSetters.get(i).accept(scaledValue);
+                axisSetters[i].set(scaledValue);
             }
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            getLogger().error(e.getMessage());
         }
     }
 }
