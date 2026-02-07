@@ -4,6 +4,7 @@ import com.kuka.generated.ioAccess.RobotJointPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
+import com.kuka.roboticsAPI.deviceModel.JointPosition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 
 import javax.inject.Inject;
@@ -26,13 +27,10 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
     {
         try
         {
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(0) * decimalMultiplier));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(1) * decimalMultiplier));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(2) * decimalMultiplier));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(3) * decimalMultiplier));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(4) * decimalMultiplier));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(5) * decimalMultiplier));
-            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(6) * decimalMultiplier));
+            for (int i = 0;i < iiwa.getCurrentJointPosition().getAxisCount(); i++)
+            {
+                currentAxisPosition.setA1((int) Math.round(Math.toDegrees(iiwa.getCurrentJointPosition().get(i)) * decimalMultiplier));
+            }
         }
         catch (Exception e)
         {
