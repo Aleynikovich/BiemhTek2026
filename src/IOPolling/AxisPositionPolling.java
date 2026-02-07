@@ -4,11 +4,14 @@ import com.kuka.generated.ioAccess.RobotJointPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
-import com.kuka.roboticsAPI.deviceModel.JointPosition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 
 public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
@@ -17,9 +20,12 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
     @Inject private LBR                       iiwa;
     @Inject private RobotJointPositionIOGroup currentAxisPosition;
 
+    // Cache the setters here so they are only created once
+    private List<Consumer<Integer>> axisSetters;
+
     @Override public void initialize()
     {
-        // initialize your task here
+        axisSetters = Arrays.asList(currentAxisPosition::setA1, currentAxisPosition::setA2, currentAxisPosition::setA3, currentAxisPosition::setA4, currentAxisPosition::setA5, currentAxisPosition::setA6, currentAxisPosition::setA7);
         initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
@@ -27,14 +33,17 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
     {
         try
         {
-            for (int i = 0;i < iiwa.getCurrentJointPosition().getAxisCount(); i++)
+            var jointPos = iiwa.getCurrentJointPosition();
+
+            for (int i = 0; i < axisSetters.size(); i++)
             {
-                currentAxisPosition.setA1((int) Math.round(Math.toDegrees(iiwa.getCurrentJointPosition().get(i)) * decimalMultiplier));
+                int scaledValue = (int) Math.round(Math.toDegrees(jointPos.get(i)) * decimalMultiplier);
+                axisSetters.get(i).accept(scaledValue);
             }
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
