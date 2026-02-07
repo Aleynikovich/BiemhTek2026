@@ -27,7 +27,12 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
         try
         {
             currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(1)));
-
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(2)));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(3)));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(4)));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(5)));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(6)));
+            currentAxisPosition.setA1((int) Math.round(iiwa.getCurrentJointPosition().get(7)));
         }
         catch (Exception e)
         {
