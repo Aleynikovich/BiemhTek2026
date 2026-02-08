@@ -67,7 +67,7 @@ public class VisionRoutines
         // Set calibration mode
         if (!protocol.setMode(Command.SET_CALIB_MODE))
         {
-            log.error("Failed to set calibration mode", e);
+            log.error("Failed to set calibration mode");
             return false;
         }
 
@@ -79,7 +79,7 @@ public class VisionRoutines
         {
             if (!visitCalibrationPoint(calibrationPointsRoot, i))
             {
-                log.error("Calibration failed at point " + i, e);
+                log.error("Calibration failed at point " + i);
                 return false;
             }
         }
@@ -89,7 +89,7 @@ public class VisionRoutines
         VisionResult calibResult = protocol.execute(Command.CALIBRATE, true);
         if (!calibResult.isSuccess())
         {
-            log.error("Calibration execution failed", e);
+            log.error("Calibration execution failed");
             return false;
         }
 
@@ -130,7 +130,7 @@ public class VisionRoutines
         }
         catch (Exception e)
         {
-            log.error("Failed to get frame " + frameName + ": " + e.getMessage(), e);
+            log.error("Failed to get frame " + frameName + ": " + e.getMessage());
             return false;
         }
 
@@ -143,7 +143,7 @@ public class VisionRoutines
         }
         catch (Exception e)
         {
-            log.error("Failed to move to " + frameName + ": " + e.getMessage(), e);
+            log.error("Failed to move to " + frameName + ": " + e.getMessage());
             return false;
         }
 
@@ -172,7 +172,7 @@ public class VisionRoutines
 
         if (!addResult.isSuccess())
         {
-            log.error("Failed to add calibration point " + pointNumber, e);
+            log.error("Failed to add calibration point " + pointNumber);
             return false;
         }
 
@@ -201,7 +201,7 @@ public class VisionRoutines
         }
         catch (Exception e)
         {
-            log.error("Failed to get test frame " + testFrameName + ": " + e.getMessage(), e);
+            log.error("Failed to get test frame " + testFrameName + ": " + e.getMessage());
             return false;
         }
 
@@ -213,7 +213,7 @@ public class VisionRoutines
         }
         catch (Exception e)
         {
-            log.error("Failed to move to test frame: " + e.getMessage(), e);
+            log.error("Failed to move to test frame: " + e.getMessage());
             return false;
         }
 
@@ -233,7 +233,7 @@ public class VisionRoutines
 
         if (!poseResult.isSuccess())
         {
-            log.error("Failed to send test pose", e);
+            log.error("Failed to send test pose");
             return false;
         }
 
@@ -244,7 +244,7 @@ public class VisionRoutines
 
         if (!testResult.isSuccess())
         {
-            log.error("Test calibration failed", e);
+            log.error("Test calibration failed");
             return false;
         }
 

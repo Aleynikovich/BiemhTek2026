@@ -60,7 +60,7 @@ public class IndividualVisionCommandTask implements VisionTask
         }
         else
         {
-            log.error("Vision command failed: " + command, e);
+            log.error("Vision command failed: " + command);
             throw new Exception("Vision command failed: " + command);
         }
     }

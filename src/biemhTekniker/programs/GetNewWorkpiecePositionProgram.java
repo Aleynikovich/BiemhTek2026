@@ -98,7 +98,7 @@ public class GetNewWorkpiecePositionProgram implements VisionTask
         // Create workpiece data and add to queue
         WorkpieceData workpiece = new WorkpieceData();
         workpiece.set(x, y, z, rx, ry, rz, score);
-        queue.add(workpiece);
+        queue.addWorkpiece(workpiece);
 
         log.info("Workpiece position retrieved and added to queue: " + workpiece);
     }
