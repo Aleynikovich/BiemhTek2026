@@ -40,3 +40,11 @@ __pycache__/
 
 /.metadata/.lock
 /.metadata/.log
+
+### Config Service (Spring Boot/Maven) ###
+config-service/target/
+config-service/.mvn/
+config-service/mvnw
+config-service/mvnw.cmd
+config-service/.idea/
+config-service/*.iml

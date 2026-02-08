@@ -1,0 +1,12 @@
+# .dockerignore for config-service
+target/
+!target/*.jar
+*.log
+.mvn/
+.git
+.gitignore
+README.md
+*.md
+.idea
+.vscode
+*.iml
