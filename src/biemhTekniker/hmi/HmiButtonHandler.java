@@ -56,19 +56,19 @@ public class HmiButtonHandler implements IUserKeyListener
         try
         {
             button1 = keyBar.addUserKey(0, this, true);
-            button1.setText(UserKeyAlignment.TopMiddle, "Gripper Open/Close");
+            button1.setText(UserKeyAlignment.TopMiddle, "Gripper1: switch");
             button1.setEnabled(true);
 
             button2 = keyBar.addUserKey(1, this, true);
-            button2.setText(UserKeyAlignment.TopMiddle, "Reserved");
+            button2.setText(UserKeyAlignment.TopMiddle, "Gripper2: switch");
             button2.setEnabled(true);
 
             button3 = keyBar.addUserKey(2, this, true);
-            button3.setText(UserKeyAlignment.TopMiddle, "Print Position");
+            button3.setText(UserKeyAlignment.TopMiddle, "Gripper3: switch");
             button3.setEnabled(true);
 
             button4 = keyBar.addUserKey(3, this, true);
-            button4.setText(UserKeyAlignment.TopMiddle, "Reserved");
+            button4.setText(UserKeyAlignment.TopMiddle, "Null");
             button4.setEnabled(true);
 
             keyBar.publish();

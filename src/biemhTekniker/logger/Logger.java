@@ -30,6 +30,7 @@ public class Logger
     {
         LogManager.broadcast(new LogEntry(LogLevel.ERROR, _source, msg));
     }
+
     public void error(String msg, Exception e)
     {
         LogManager.broadcast(new LogEntry(LogLevel.ERROR, _source, msg));

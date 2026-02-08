@@ -2,10 +2,10 @@ package biemhTekniker.logger;
 
 public class LogPublisher implements Runnable
 {
-    private final    LogCollector _logCollector;
-    private          Thread       _workerThread;
-    private volatile boolean      _running     = false;
-    private          LogLevel     _filterLevel = LogLevel.INFO;
+    private final LogCollector _logCollector;
+    private Thread _workerThread;
+    private volatile boolean _running = false;
+    private LogLevel _filterLevel = LogLevel.INFO;
 
     public LogPublisher(LogCollector collector)
     {
@@ -23,7 +23,7 @@ public class LogPublisher implements Runnable
         {
             return;
         }
-        _running      = true;
+        _running = true;
         _workerThread = new Thread(this, "LogPublisher-Thread");
         _workerThread.setDaemon(true);
         _workerThread.start();
@@ -38,7 +38,8 @@ public class LogPublisher implements Runnable
         }
     }
 
-    @Override public void run()
+    @Override
+    public void run()
     {
         while (_running)
         {
@@ -49,14 +50,12 @@ public class LogPublisher implements Runnable
                 {
                     System.out.println(entry);
                 }
-            }
-            else
+            } else
             {
                 try
                 {
                     Thread.sleep(100);
-                }
-                catch (InterruptedException e)
+                } catch (InterruptedException e)
                 {
                     break;
                 }

@@ -10,19 +10,19 @@ public class WorkpieceData
 {
     private static long idCounter = 0;
 
-    private final long  id;
-    private       int   referenceIndex;
-    private       WorkpieceState state;
-    
-    private double  x;
-    private double  y;
-    private double  z;
-    private double  rx;
-    private double  ry;
-    private double  rz;
-    private double  score;
+    private final long id;
+    private int referenceIndex;
+    private WorkpieceState state;
+
+    private double x;
+    private double y;
+    private double z;
+    private double rx;
+    private double ry;
+    private double rz;
+    private double score;
     private boolean valid;
-    
+
     // Origin position (where workpiece was first found)
     private double originX;
     private double originY;
@@ -33,7 +33,7 @@ public class WorkpieceData
 
     public WorkpieceData()
     {
-        this.id    = generateId();
+        this.id = generateId();
         this.valid = false;
         this.state = WorkpieceState.AVAILABLE;
         this.referenceIndex = 1;
@@ -41,27 +41,27 @@ public class WorkpieceData
 
     public WorkpieceData(double x, double y, double z, double rx, double ry, double rz, double score)
     {
-        this.id    = generateId();
-        this.x     = x;
-        this.y     = y;
-        this.z     = z;
-        this.rx    = rx;
-        this.ry    = ry;
-        this.rz    = rz;
+        this.id = generateId();
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rx = rx;
+        this.ry = ry;
+        this.rz = rz;
         this.score = score;
         this.valid = true;
         this.state = WorkpieceState.AVAILABLE;
         this.referenceIndex = 1;
-        
+
         // Save origin position
-        this.originX  = x;
-        this.originY  = y;
-        this.originZ  = z;
+        this.originX = x;
+        this.originY = y;
+        this.originZ = z;
         this.originRx = rx;
         this.originRy = ry;
         this.originRz = rz;
     }
-    
+
     /**
      * Generates a unique ID using timestamp and counter.
      * Thread-safe.
@@ -138,19 +138,19 @@ public class WorkpieceData
 
     public synchronized void set(double x, double y, double z, double rx, double ry, double rz, double score)
     {
-        this.x     = x;
-        this.y     = y;
-        this.z     = z;
-        this.rx    = rx;
-        this.ry    = ry;
-        this.rz    = rz;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rx = rx;
+        this.ry = ry;
+        this.rz = rz;
         this.score = score;
         this.valid = true;
-        
+
         // Save origin position
-        this.originX  = x;
-        this.originY  = y;
-        this.originZ  = z;
+        this.originX = x;
+        this.originY = y;
+        this.originZ = z;
         this.originRx = rx;
         this.originRy = ry;
         this.originRz = rz;
@@ -181,13 +181,13 @@ public class WorkpieceData
         this.valid = false;
     }
 
-    @Override public synchronized String toString()
+    @Override
+    public synchronized String toString()
     {
         if (!valid)
         {
             return "WorkpieceData{id=" + id + ", invalid}";
         }
-        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", 
-                             id, referenceIndex, state, x, y, z, rx, ry, rz, score);
+        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", id, referenceIndex, state, x, y, z, rx, ry, rz, score);
     }
 }

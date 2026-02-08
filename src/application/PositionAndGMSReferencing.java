@@ -24,14 +24,16 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  */
 public class PositionAndGMSReferencing extends RoboticsAPIApplication
 {
-    private final static double     sideOffset              = Math.toRadians(5);       // offset in radians for side motion
-    private final static int[]      axisId                  = {0, 1, 2, 3, 4, 5, 6};        // axes to be referenced
-    private final static int        GMS_REFERENCING_COMMAND = 2;             // safety command for GMS referencing
-    private final static int        COMMAND_SUCCESSFUL      = 1;
-    @Inject private      Controller kukaController;
-    @Inject private      LBR        lbr_iiwa;
-    private              double     joggingVelocity         = 0.15;                            // relative velocity
-    private              int        positionCounter         = 0;
+    private final static double sideOffset = Math.toRadians(5);       // offset in radians for side motion
+    private final static int[] axisId = {0, 1, 2, 3, 4, 5, 6};        // axes to be referenced
+    private final static int GMS_REFERENCING_COMMAND = 2;             // safety command for GMS referencing
+    private final static int COMMAND_SUCCESSFUL = 1;
+    @Inject
+    private Controller kukaController;
+    @Inject
+    private LBR lbr_iiwa;
+    private double joggingVelocity = 0.15;                            // relative velocity
+    private int positionCounter = 0;
 
     public void initialize()
     {
@@ -58,8 +60,7 @@ public class PositionAndGMSReferencing extends RoboticsAPIApplication
         if (OperationMode.T1 == lbr_iiwa.getOperationMode())
         {
             joggingVelocity = 0.3;
-        }
-        else
+        } else
         {
             joggingVelocity = 0.15;
         }
@@ -135,9 +136,9 @@ public class PositionAndGMSReferencing extends RoboticsAPIApplication
     private void sendSafetyCommand()
     {
         ISunriseRequestService requestService = (ISunriseRequestService) (kukaController.getRequestService());
-        SSR                    ssr            = SSRFactory.createSafetyCommandSSR(GMS_REFERENCING_COMMAND);
-        Message                response       = requestService.sendSynchronousSSR(ssr);
-        int                    result         = response.getParamInt(0);
+        SSR ssr = SSRFactory.createSafetyCommandSSR(GMS_REFERENCING_COMMAND);
+        Message response = requestService.sendSynchronousSSR(ssr);
+        int result = response.getParamInt(0);
         if (COMMAND_SUCCESSFUL != result)
         {
             getLogger().warn("Command did not execute successfully, response = " + result);

@@ -10,7 +10,7 @@ import biemhTekniker.vision.SmartPickingProtocol;
 public class VisionContext
 {
     private final SmartPickingProtocol protocol;
-    private final WorkpieceQueue       workpieceQueue;
+    private final WorkpieceQueue workpieceQueue;
 
     /**
      * Creates a new vision context.
@@ -20,7 +20,7 @@ public class VisionContext
      */
     public VisionContext(SmartPickingProtocol protocol, WorkpieceQueue workpieceQueue)
     {
-        this.protocol       = protocol;
+        this.protocol = protocol;
         this.workpieceQueue = workpieceQueue;
     }
 

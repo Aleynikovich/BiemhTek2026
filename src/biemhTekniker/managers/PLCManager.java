@@ -12,7 +12,8 @@ import com.kuka.generated.ioAccess.VisionStateIOGroup;
  * Manages communication and synchronization with the PLC.
  * Handles program selection handshakes and status updates.
  */
-public class PLCManager {
+public class PLCManager
+{
     private static final Logger log = Logger.getLogger(PLCManager.class);
 
     private final AutExtIOGroup AutExtIO;
@@ -21,9 +22,8 @@ public class PLCManager {
     private final SmartPickingThread smartPickingThread;
     private final WorkpieceQueue workpieceQueue;
 
-    public PLCManager(AutExtIOGroup AutExtIO, VisionStateIOGroup visionIO, 
-                      ProgramDispatcher programDispatcher, SmartPickingThread smartPickingThread,
-                      WorkpieceQueue workpieceQueue) {
+    public PLCManager(AutExtIOGroup AutExtIO, VisionStateIOGroup visionIO, ProgramDispatcher programDispatcher, SmartPickingThread smartPickingThread, WorkpieceQueue workpieceQueue)
+    {
         this.AutExtIO = AutExtIO;
         this.visionIO = visionIO;
         this.programDispatcher = programDispatcher;
@@ -34,7 +34,8 @@ public class PLCManager {
     /**
      * Updates all status IOs for the PLC.
      */
-    public void updateStatus() {
+    public void updateStatus()
+    {
         updateVisionStatus();
         // Add other status updates here if needed (e.g. robot state)
     }
@@ -42,8 +43,10 @@ public class PLCManager {
     /**
      * Updates vision system status IOs for the PLC.
      */
-    private void updateVisionStatus() {
-        if (visionIO == null) return;
+    private void updateVisionStatus()
+    {
+        if (visionIO == null)
+            return;
 
         // 1. Connection status
         boolean isConnected = smartPickingThread != null && smartPickingThread.isConnected();
@@ -67,17 +70,19 @@ public class PLCManager {
 
     /**
      * Checks if PLC is providing a program number via handshake.
-     * 
+     *
      * @return The program number received from PLC, or 0 if none.
      */
-    public int checkProgramRequest() {
+    public int checkProgramRequest()
+    {
         // 1. Set request signal to PLC
         AutExtIO.setProgramNumberRequest(true);
 
         // 2. Read program number from PLC
         int plcProgram = AutExtIO.getProgramNumberIN();
 
-        if (ProgramRange.isValid(plcProgram) && plcProgram != ProgramRange.IDLE) {
+        if (ProgramRange.isValid(plcProgram) && plcProgram != ProgramRange.IDLE)
+        {
             log.info("Program " + plcProgram + " received from PLC");
             // 3. Handshake complete: Reset request signal
             AutExtIO.setProgramNumberRequest(false);
@@ -92,7 +97,8 @@ public class PLCManager {
      *
      * @param programNumber Current active program number
      */
-    public void echoProgramNumber(int programNumber) {
+    public void echoProgramNumber(int programNumber)
+    {
         AutExtIO.setCurrentProgramNumber(programNumber);
     }
 
@@ -101,7 +107,8 @@ public class PLCManager {
      *
      * @param programNumber Program number that failed
      */
-    public void signalProgramError(int programNumber) {
+    public void signalProgramError(int programNumber)
+    {
         log.error("Signaling program error to PLC for program: " + programNumber);
         // Set error flag to PLC (assuming there's an error output available)
         // This would need to be mapped to actual PLC I/O

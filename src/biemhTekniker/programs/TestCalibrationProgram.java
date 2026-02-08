@@ -55,8 +55,7 @@ public class TestCalibrationProgram implements RobotProgram
         if (success)
         {
             log.info("Calibration test passed");
-        }
-        else
+        } else
         {
             log.error("Calibration test failed");
             throw new Exception("Calibration test failed");

@@ -11,18 +11,23 @@ import java.util.concurrent.TimeUnit;
 
 public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
-    private final   int                           decimalMultiplier = 10;
-    @Inject private Controller                    sunrise;
-    @Inject private LBR                           iiwa;
-    @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
+    private final int decimalMultiplier = 10;
+    @Inject
+    private Controller sunrise;
+    @Inject
+    private LBR iiwa;
+    @Inject
+    private RobotCartesianPositionIOGroup currentCartesianPosition;
 
-    @Override public void initialize()
+    @Override
+    public void initialize()
     {
         // initialize your task here
         initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
-    @Override public void runCyclic()
+    @Override
+    public void runCyclic()
     {
         try
         {
@@ -34,8 +39,7 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
             currentCartesianPosition.setA((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getAlphaRad()) * decimalMultiplier));
             currentCartesianPosition.setB((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getBetaRad()) * decimalMultiplier));
             currentCartesianPosition.setC((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad()) * decimalMultiplier));
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             throw new RuntimeException(e);
         }

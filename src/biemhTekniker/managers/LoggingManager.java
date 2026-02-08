@@ -12,8 +12,8 @@ import biemhTekniker.logger.Logger;
 public class LoggingManager
 {
 
-    private static final Logger       log = Logger.getLogger(LoggingManager.class);
-    private              LogPublisher logPublisher;
+    private static final Logger log = Logger.getLogger(LoggingManager.class);
+    private LogPublisher logPublisher;
 
     /**
      * Initializes the logging system with collector and publisher.
@@ -31,8 +31,7 @@ public class LoggingManager
             logPublisher.start();
 
             log.info("Logging initialized");
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             throw new RuntimeException("Failed to initialize logging: " + e.getMessage(), e);
         }

@@ -30,8 +30,8 @@ public class HomePositionManager
     /**
      * Checks if a home move should be executed based on current conditions.
      *
-     * @param currentProgram   Current program number (0 = idle)
-     * @param isVisionRunning  Whether a vision task is currently running
+     * @param currentProgram  Current program number (0 = idle)
+     * @param isVisionRunning Whether a vision task is currently running
      * @return true if home move should be executed now
      */
     public boolean shouldMoveHome(int currentProgram, boolean isVisionRunning)
@@ -63,8 +63,7 @@ public class HomePositionManager
             robot.move(ptpHome());
             needsHomeMove = false;
             log.info("Home position reached successfully");
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Failed to move home: " + e.getMessage(), e);
             throw new HomePositionException("Failed to move to home position", e);

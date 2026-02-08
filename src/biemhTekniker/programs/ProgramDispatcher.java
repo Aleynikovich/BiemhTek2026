@@ -1,7 +1,7 @@
 package biemhTekniker.programs;
 
-import biemhTekniker.vision.SmartPickingThread;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.vision.SmartPickingThread;
 import biemhTekniker.vision.VisionManager;
 
 import java.util.HashMap;
@@ -14,11 +14,11 @@ import java.util.Map;
  */
 public class ProgramDispatcher
 {
-    private static final Logger                         log = Logger.getLogger(ProgramDispatcher.class);
-    private final        Map<Integer, RobotProgram>     robotPrograms;
-    private final        Map<Integer, VisionTask>       visionTasks;
-    private final        RobotContext                   robotContext;
-    private final        VisionManager                  visionManager;
+    private static final Logger log = Logger.getLogger(ProgramDispatcher.class);
+    private final Map<Integer, RobotProgram> robotPrograms;
+    private final Map<Integer, VisionTask> visionTasks;
+    private final RobotContext robotContext;
+    private final VisionManager visionManager;
 
     /**
      * Creates a program dispatcher.
@@ -28,10 +28,10 @@ public class ProgramDispatcher
      */
     public ProgramDispatcher(RobotContext robotContext, VisionManager visionManager)
     {
-        this.robotContext  = robotContext;
+        this.robotContext = robotContext;
         this.visionManager = visionManager;
         this.robotPrograms = new HashMap<Integer, RobotProgram>();
-        this.visionTasks   = new HashMap<Integer, VisionTask>();
+        this.visionTasks = new HashMap<Integer, VisionTask>();
     }
 
     /**
@@ -78,12 +78,12 @@ public class ProgramDispatcher
         registerRobotProgram(2, new PlaceNewWorkpieceProgram());
         registerRobotProgram(3, new PickMeasuredWorkpieceProgram());
         registerRobotProgram(4, new PlaceMeasuredWorkpieceProgram());
-        
+
         // Calibration programs (coordinated - need protocol access)
         CalibrationProgram calibProgram = new CalibrationProgram();
         calibProgram.setProtocol(smartPickingThread.getProtocol());
         registerRobotProgram(5, calibProgram);
-        
+
         TestCalibrationProgram testCalibProgram = new TestCalibrationProgram();
         testCalibProgram.setProtocol(smartPickingThread.getProtocol());
         registerRobotProgram(6, testCalibProgram);
@@ -159,8 +159,7 @@ public class ProgramDispatcher
                 program.execute(robotContext);
                 log.info("Robot program " + programNumber + " completed successfully");
                 return true;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 log.error("Robot program " + programNumber + " failed: " + e.getMessage(), e);
                 return false;

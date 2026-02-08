@@ -58,8 +58,7 @@ public class CalibrationProgram implements RobotProgram
         if (success)
         {
             log.info("Calibration program completed successfully");
-        }
-        else
+        } else
         {
             log.error("Calibration program failed");
             throw new Exception("Calibration failed");

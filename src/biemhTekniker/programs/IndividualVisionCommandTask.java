@@ -14,7 +14,7 @@ public class IndividualVisionCommandTask implements VisionTask
     private static final Logger log = Logger.getLogger(IndividualVisionCommandTask.class);
 
     private final Command command;
-    private final String  customMessage;
+    private final String customMessage;
 
     /**
      * Creates a task for a specific command.
@@ -23,7 +23,7 @@ public class IndividualVisionCommandTask implements VisionTask
      */
     public IndividualVisionCommandTask(Command command)
     {
-        this.command       = command;
+        this.command = command;
         this.customMessage = null;
     }
 
@@ -35,7 +35,7 @@ public class IndividualVisionCommandTask implements VisionTask
      */
     public IndividualVisionCommandTask(Command command, String customMessage)
     {
-        this.command       = command;
+        this.command = command;
         this.customMessage = customMessage;
     }
 
@@ -56,9 +56,8 @@ public class IndividualVisionCommandTask implements VisionTask
         if (result.isSuccess())
         {
             log.info("Vision command completed successfully: " + command);
-            log.debug("Result: " + result.toString());
-        }
-        else
+            log.debug("Result: " + result);
+        } else
         {
             log.error("Vision command failed: " + command);
             throw new Exception("Vision command failed: " + command);

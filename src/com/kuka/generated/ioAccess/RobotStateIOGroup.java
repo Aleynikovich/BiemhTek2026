@@ -14,7 +14,8 @@ import javax.inject.Singleton;
  * <b>I/O group description:</b><br>
  * ./.
  */
-@Singleton public class RobotStateIOGroup extends AbstractIOGroup
+@Singleton
+public class RobotStateIOGroup extends AbstractIOGroup
 {
     /**
      * Constructor to create an instance of class 'RobotState'.<br>
@@ -22,7 +23,8 @@ import javax.inject.Singleton;
      *
      * @param controller the controller, which has access to the I/O group 'RobotState'
      */
-    @Inject public RobotStateIOGroup(Controller controller)
+    @Inject
+    public RobotStateIOGroup(Controller controller)
     {
         super(controller, "RobotState");
 

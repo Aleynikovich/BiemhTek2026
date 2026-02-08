@@ -18,19 +18,19 @@ import java.util.List;
  */
 public class FullScanTask implements VisionTask
 {
-    private static final Logger log      = Logger.getLogger(FullScanTask.class);
-    private static final int    DELAY_MS = 200;
+    private static final Logger log = Logger.getLogger(FullScanTask.class);
+    private static final int DELAY_MS = 200;
 
     public void execute(VisionContext context) throws Exception
     {
         log.info("Starting full scan sequence...");
 
         SmartPickingProtocol protocol = context.getProtocol();
-        WorkpieceQueue       queue    = context.getWorkpieceQueue();
-        ConfigManager        config   = ConfigManager.getInstance();
+        WorkpieceQueue queue = context.getWorkpieceQueue();
+        ConfigManager config = ConfigManager.getInstance();
 
         int referenceCount = config.getInt("vision.reference.count", 3);
-        int zone           = config.getInt("vision.zone", 1);
+        int zone = config.getInt("vision.zone", 1);
 
         // Step 1: Set AUTO mode (101)
         log.debug("Step 1: Setting AUTO mode");

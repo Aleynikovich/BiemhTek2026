@@ -1,7 +1,6 @@
 package biemhTekniker;
 
 import biemhTekniker.config.ConfigManager;
-import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.HomePositionException;
@@ -10,26 +9,22 @@ import biemhTekniker.managers.AppController;
 import biemhTekniker.managers.HomePositionManager;
 import biemhTekniker.managers.LoggingManager;
 import biemhTekniker.managers.PLCManager;
-import biemhTekniker.programs.*;
-import biemhTekniker.vision.SmartPickingProtocol.Command;
+import biemhTekniker.programs.ProgramDispatcher;
+import biemhTekniker.programs.ProgramRange;
+import biemhTekniker.programs.RobotContext;
+import biemhTekniker.programs.VisionContext;
 import biemhTekniker.vision.SmartPickingThread;
 import biemhTekniker.vision.VisionManager;
 import com.kuka.common.ThreadUtil;
-import com.kuka.generated.ioAccess.AutExtIOGroup;
-import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
-import com.kuka.generated.ioAccess.VisionStateIOGroup;
-import com.kuka.generated.ioAccess.RobotCartesianPositionIOGroup;
-import com.kuka.generated.ioAccess.RobotSafetyIOGroup;
+import com.kuka.generated.ioAccess.*;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
-import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
 
 /**
  * Main robot application.
@@ -42,35 +37,42 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private static final int MAIN_LOOP_DELAY_MS = 200;
     private static final int SMARTPICKING_SHUTDOWN_TIMEOUT_MS = 15000;
 
-    @Inject private      LBR                iiwa;
-    @Inject private      RobotSafetyIOGroup safetyIO;
+    @Inject
+    private LBR iiwa;
+    @Inject
+    private RobotSafetyIOGroup safetyIO;
 
     // Gripper
-    @Inject @Named("Gripper")
+    @Inject
+    @Named("Gripper")
     private Tool gripper;
 
-    @Inject private MediaFlangeIOGroup           gripperIO;
-    @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
-    @Inject private AutExtIOGroup AutExtIO;
-    @Inject private VisionStateIOGroup visionIO;
+    @Inject
+    private MediaFlangeIOGroup gripperIO;
+    @Inject
+    private RobotCartesianPositionIOGroup currentCartesianPosition;
+    @Inject
+    private AutExtIOGroup AutExtIO;
+    @Inject
+    private VisionStateIOGroup visionIO;
 
     // Managers and threads
-    private LoggingManager        loggingManager;
-    private PLCManager            plcManager;
-    private AppController         appController;
-    private HomePositionManager   homePositionManager;
-    private SmartPickingThread    smartPickingThread;
-    private IUserKeyBar hmiKeyBar;
+    private LoggingManager loggingManager;
+    private PLCManager plcManager;
+    private AppController appController;
+    private HomePositionManager homePositionManager;
+    private SmartPickingThread smartPickingThread;
 
     // Shared data and dispatching
-    private WorkpieceQueue    workpieceQueue;
+    private WorkpieceQueue workpieceQueue;
     private ProgramDispatcher programDispatcher;
-    private RobotContext      robotContext;
-    private VisionContext     visionContext;
+    private RobotContext robotContext;
+    private VisionContext visionContext;
 
     private int lastProgramNumber = 0;
 
-    @Override public void initialize()
+    @Override
+    public void initialize()
     {
         log.info("Main application initializing...");
 
@@ -88,14 +90,14 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         gripper.attachTo(iiwa.getFlange());
 
         // Initialize and start SmartPicking thread
-        String visionIP   = config.getString("vision.server.ip", "172.31.1.69");
-        int    visionPort = config.getInt("vision.server.port", 59002);
+        String visionIP = config.getString("vision.server.ip", "172.31.1.69");
+        int visionPort = config.getInt("vision.server.port", 59002);
         smartPickingThread = new SmartPickingThread(visionIP, visionPort);
         smartPickingThread.initialize();
         smartPickingThread.start();
 
         // Initialize contexts
-        robotContext  = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue);
+        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue);
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
 
         // Initialize vision manager
@@ -108,8 +110,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize PLC manager
         plcManager = new PLCManager(AutExtIO, visionIO, programDispatcher, smartPickingThread, workpieceQueue);
-
-
 
         // Initialize home position manager
         homePositionManager = new HomePositionManager();
@@ -130,7 +130,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         log.info("Main application initialized successfully");
     }
 
-    @Override public void run() throws Exception
+    @Override
+    public void run() throws Exception
     {
         log.info("Main application running, entering main loop.");
 
@@ -148,7 +149,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             if (programNumber == 0 && !appController.hasActiveClients())
             {
                 programNumber = plcManager.checkProgramRequest();
-                if (programNumber != 0) {
+                if (programNumber != 0)
+                {
                     appController.setProgramNumberFromPLC(programNumber);
                 }
             }
@@ -162,8 +164,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 try
                 {
                     homePositionManager.executeHomeMove(iiwa);
-                }
-                catch (HomePositionException e)
+                } catch (HomePositionException e)
                 {
                     log.error("Home position move failed: " + e.getMessage(), e);
                 }
@@ -179,8 +180,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 if (success)
                 {
                     log.info("Program " + currentProgram + (isVisionProgram ? " submitted successfully" : " completed successfully"));
-                }
-                else
+                } else
                 {
                     log.error("Program " + currentProgram + (isVisionProgram ? " submission failed" : " failed during execution"));
                     plcManager.signalProgramError(currentProgram);
@@ -206,7 +206,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         log.warn("MoveEnable signal lost. Exiting main loop.");
     }
 
-    @Override public void dispose()
+    @Override
+    public void dispose()
     {
         log.info("Main application shutting down");
 
@@ -234,8 +235,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                     log.warn("SmartPicking thread did not stop gracefully, interrupting");
                     smartPickingThread.interrupt();
                 }
-            }
-            catch (InterruptedException e)
+            } catch (InterruptedException e)
             {
                 log.warn("Interrupted while waiting for SmartPicking thread to finish");
                 Thread.currentThread().interrupt();
@@ -253,55 +253,40 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     // ========== ConsoleServerInterface Implementation ==========
 
-    @Override public void setProgramNumber(int programNumber)
+    @Override
+    public void setProgramNumber(int programNumber)
     {
         appController.setProgramNumber(programNumber);
     }
 
-    @Override public int getCurrentProgram()
+    @Override
+    public int getCurrentProgram()
     {
         return appController.getCurrentProgram();
     }
 
-    @Override public boolean isVisionConnected()
+    @Override
+    public boolean isVisionConnected()
     {
         return appController.isVisionConnected();
     }
 
-    @Override public String getWorkpiecePosition()
+    @Override
+    public String getWorkpiecePosition()
     {
         return appController.getWorkpiecePosition();
     }
 
-    @Override public String getQueueStatus()
+    @Override
+    public String getQueueStatus()
     {
         return appController.getQueueStatus();
     }
 
-    @Override public boolean hasActiveClients()
+    @Override
+    public boolean hasActiveClients()
     {
         return appController.hasActiveClients();
     }
 
-    /**
-     * Initializes the HMI programmable buttons on the SmartPad.
-     */
-    private void initializeHmiButtons()
-    {
-        try
-        {
-            log.info("Initializing HMI programmable buttons...");
-            hmiKeyBar = getApplicationUI().createUserKeyBar("BiemhTek_HMI");
-
-            biemhTekniker.hmi.HmiButtonHandler buttonHandler =
-                    new biemhTekniker.hmi.HmiButtonHandler(iiwa, gripper, gripperIO);
-
-            buttonHandler.registerUserKeys(hmiKeyBar);
-            log.info("HMI programmable buttons initialized successfully");
-        }
-        catch (Exception e)
-        {
-            log.error("Failed to initialize HMI buttons: " + e.getMessage(), e);
-        }
-    }
 }

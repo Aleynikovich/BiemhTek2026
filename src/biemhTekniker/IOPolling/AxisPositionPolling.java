@@ -14,21 +14,24 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
     private final int decimalMultiplier = 10;
 
-    @Inject private Controller                sunrise;
-    @Inject private LBR                       iiwa;
-    @Inject private RobotJointPositionIOGroup currentAxisPosition;
-    private         AxisSetter[]              axisSetters;
+    @Inject
+    private Controller sunrise;
+    @Inject
+    private LBR iiwa;
+    @Inject
+    private RobotJointPositionIOGroup currentAxisPosition;
+    private AxisSetter[] axisSetters;
 
-    @Override public void initialize()
+    @Override
+    public void initialize()
     {
-        axisSetters = new AxisSetter[]{
-                new AxisSetter()
-                {
-                    public void set(int v)
-                    {
-                        currentAxisPosition.setA1(v);
-                    }
-                }, new AxisSetter()
+        axisSetters = new AxisSetter[]{new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA1(v);
+            }
+        }, new AxisSetter()
         {
             public void set(int v)
             {
@@ -64,13 +67,13 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
             {
                 currentAxisPosition.setA7(v);
             }
-        }
-        };
+        }};
 
         initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
-    @Override public void runCyclic()
+    @Override
+    public void runCyclic()
     {
         try
         {
@@ -81,14 +84,14 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
                 int scaledValue = (int) Math.round(Math.toDegrees(jointPos.get(i)) * decimalMultiplier);
                 axisSetters[i].set(scaledValue);
             }
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             getLogger().error(e.getMessage());
         }
     }
 
-    @Override public void dispose()
+    @Override
+    public void dispose()
     {
 
     }

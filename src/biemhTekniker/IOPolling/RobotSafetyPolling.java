@@ -12,15 +12,19 @@ import java.util.concurrent.TimeUnit;
 
 public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
 {
-    @Inject RobotSafetyIOGroup safetyIO;
-    @Inject LBR                iiwa;
+    @Inject
+    RobotSafetyIOGroup safetyIO;
+    @Inject
+    LBR iiwa;
 
-    @Override public void initialize()
+    @Override
+    public void initialize()
     {
         initializeCyclic(0, 10, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
-    @Override public void runCyclic()
+    @Override
+    public void runCyclic()
     {
         safetyIO.setIsExternalEStop(iiwa.getSafetyState().getEmergencyStopEx() == SunriseSafetyState.EmergencyStop.ACTIVE);
         safetyIO.setIsLocalEStop(iiwa.getSafetyState().getEmergencyStopInt() == SunriseSafetyState.EmergencyStop.ACTIVE);
@@ -30,7 +34,8 @@ public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
         safetyIO.setMoveEnable(iiwa.getSafetyState().getEnablingDeviceState() == SunriseSafetyState.EnablingDeviceState.NONE);
     }
 
-    @Override public void dispose()
+    @Override
+    public void dispose()
     {
         safetyIO.setIsExternalEStop(true);
         safetyIO.setIsOperatorSafety(false);

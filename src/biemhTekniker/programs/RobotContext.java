@@ -12,11 +12,11 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
  */
 public class RobotContext
 {
-    private final LBR                  robot;
-    private final Tool                 gripper;
-    private final MediaFlangeIOGroup   gripperIO;
+    private final LBR robot;
+    private final Tool gripper;
+    private final MediaFlangeIOGroup gripperIO;
     private final RoboticsAPIApplication application;
-    private final WorkpieceQueue       workpieceQueue;
+    private final WorkpieceQueue workpieceQueue;
 
     /**
      * Creates a new robot context.
@@ -27,13 +27,12 @@ public class RobotContext
      * @param application    Main application instance (for getFrame, getApplicationData, etc.)
      * @param workpieceQueue Shared workpiece queue
      */
-    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO,
-                        RoboticsAPIApplication application, WorkpieceQueue workpieceQueue)
+    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, RoboticsAPIApplication application, WorkpieceQueue workpieceQueue)
     {
-        this.robot          = robot;
-        this.gripper        = gripper;
-        this.gripperIO      = gripperIO;
-        this.application    = application;
+        this.robot = robot;
+        this.gripper = gripper;
+        this.gripperIO = gripperIO;
+        this.application = application;
         this.workpieceQueue = workpieceQueue;
     }
 

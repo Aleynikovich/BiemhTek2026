@@ -13,18 +13,18 @@ import java.nio.charset.StandardCharsets;
 
 public class VisionSocketClient
 {
-    private static final Logger      log           = Logger.getLogger(VisionSocketClient.class);
-    private final        String      ip;
-    private final        int         port;
-    private final        int         timeout       = 5000;
-    private final        int         socketTimeout = 30000; // 30s for operations like loading references
-    private              Socket      socket;
-    private              InputStream in;
-    private              PrintWriter out;
+    private static final Logger log = Logger.getLogger(VisionSocketClient.class);
+    private final String ip;
+    private final int port;
+    private final int timeout = 5000;
+    private final int socketTimeout = 30000; // 30s for operations like loading references
+    private Socket socket;
+    private InputStream in;
+    private PrintWriter out;
 
     public VisionSocketClient(String ip, int port)
     {
-        this.ip   = ip;
+        this.ip = ip;
         this.port = port;
     }
 
@@ -38,13 +38,12 @@ public class VisionSocketClient
             socket.connect(new InetSocketAddress(ip, port), timeout);
             socket.setSoTimeout(socketTimeout);
 
-            in  = socket.getInputStream();
+            in = socket.getInputStream();
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.US_ASCII), true);
 
             log.info("Connected to Vision Server at " + ip + ":" + port);
             return true;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Failed to connect to " + ip + ": " + e.getMessage());
             return false;
@@ -67,14 +66,12 @@ public class VisionSocketClient
             {
                 socket.close();
             }
-        }
-        catch (IOException ignored)
+        } catch (IOException ignored)
         {
-        }
-        finally
+        } finally
         {
-            in     = null;
-            out    = null;
+            in = null;
+            out = null;
             socket = null;
         }
     }
@@ -101,19 +98,16 @@ public class VisionSocketClient
                 {
                     String result = new String(buffer, 0, bytesRead, StandardCharsets.US_ASCII);
                     return result;
-                }
-                else
+                } else
                 {
                     log.warn("No data returned from camera.");
                     return null;
                 }
-            }
-            else
+            } else
             {
                 return "0"; //Return 0 (success) if no expected response
             }
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             log.error("Communication error: " + e.getMessage());
             return null;
@@ -151,8 +145,7 @@ public class VisionSocketClient
             // We call it for its side effect - the return value doesn't matter
             in.available();
             return true;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Connection test failed: " + e.getMessage());
             return false;

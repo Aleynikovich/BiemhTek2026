@@ -29,9 +29,9 @@ public class PickStrategy
     /**
      * Creates a pick strategy.
      *
-     * @param tcp                 Tool center point frame
+     * @param tcp                  Tool center point frame
      * @param useAlternatePosition If true, rotate position by 180 degrees
-     * @param isGripperB          If true, use gripper B (2), otherwise gripper A (1)
+     * @param isGripperB           If true, use gripper B (2), otherwise gripper A (1)
      */
     public PickStrategy(ObjectFrame tcp, boolean useAlternatePosition, boolean isGripperB)
     {
@@ -62,8 +62,7 @@ public class PickStrategy
             // Currently commented out in original code
         }
 
-        String strategyDesc = "gripper" + (isGripperB ? "B" : "A") + gripperNumber +
-                              (useAlternatePosition ? " (alternate)" : " (regular)");
+        String strategyDesc = "gripper" + (isGripperB ? "B" : "A") + gripperNumber + (useAlternatePosition ? " (alternate)" : " (regular)");
 
         try
         {
@@ -79,8 +78,7 @@ public class PickStrategy
             if (isGripperB)
             {
                 gripperIO.setGripper2_Switch(true);
-            }
-            else
+            } else
             {
                 gripperIO.setGripper1_Switch(true);
             }
@@ -92,8 +90,7 @@ public class PickStrategy
 
             log.info("Pick succeeded with " + strategyDesc);
             return true;
-        }
-        catch (CommandInvalidException e)
+        } catch (CommandInvalidException e)
         {
             log.warn("Pick failed with " + strategyDesc + ": " + e.getMessage());
             return false;
@@ -103,8 +100,6 @@ public class PickStrategy
     @Override
     public String toString()
     {
-        return "PickStrategy{tcp=" + tcp.getName() +
-               ", gripper=" + (isGripperB ? "B" : "A") + gripperNumber +
-               ", alternate=" + useAlternatePosition + "}";
+        return "PickStrategy{tcp=" + tcp.getName() + ", gripper=" + (isGripperB ? "B" : "A") + gripperNumber + ", alternate=" + useAlternatePosition + "}";
     }
 }

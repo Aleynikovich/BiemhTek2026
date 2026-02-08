@@ -14,15 +14,15 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class VisionManager
 {
-    private static final Logger                        log = Logger.getLogger(VisionManager.class);
-    private static final int                           TASK_POLL_INTERVAL_MS = 100;
+    private static final Logger log = Logger.getLogger(VisionManager.class);
+    private static final int TASK_POLL_INTERVAL_MS = 100;
 
-    private final        SmartPickingThread            smartPickingThread;
-    private final        VisionContext                 visionContext;
-    private final        AtomicReference<VisionTask>   pendingTask;
-    private final        AtomicBoolean                 taskRunning;
-    private              Thread                        visionExecutorThread;
-    private volatile     boolean                       running;
+    private final SmartPickingThread smartPickingThread;
+    private final VisionContext visionContext;
+    private final AtomicReference<VisionTask> pendingTask;
+    private final AtomicBoolean taskRunning;
+    private Thread visionExecutorThread;
+    private volatile boolean running;
 
     /**
      * Creates a vision manager.
@@ -33,10 +33,10 @@ public class VisionManager
     public VisionManager(SmartPickingThread smartPickingThread, VisionContext visionContext)
     {
         this.smartPickingThread = smartPickingThread;
-        this.visionContext      = visionContext;
-        this.pendingTask        = new AtomicReference<VisionTask>(null);
-        this.taskRunning        = new AtomicBoolean(false);
-        this.running            = true;
+        this.visionContext = visionContext;
+        this.pendingTask = new AtomicReference<VisionTask>(null);
+        this.taskRunning = new AtomicBoolean(false);
+        this.running = true;
     }
 
     /**
@@ -79,20 +79,17 @@ public class VisionManager
                             log.debug("Executing vision task: " + task.getClass().getSimpleName());
                             task.execute(visionContext);
                             log.debug("Vision task completed: " + task.getClass().getSimpleName());
-                        }
-                        catch (Exception e)
+                        } catch (Exception e)
                         {
                             log.error("Vision task failed: " + task.getClass().getSimpleName() + " - " + e.getMessage(), e);
-                        }
-                        finally
+                        } finally
                         {
                             taskRunning.set(false);
                         }
                     }
                 }
                 ThreadUtil.milliSleep(TASK_POLL_INTERVAL_MS);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 log.error("VisionExecutorThread error: " + e.getMessage(), e);
             }
@@ -159,8 +156,7 @@ public class VisionManager
             try
             {
                 visionExecutorThread.join(5000);
-            }
-            catch (InterruptedException e)
+            } catch (InterruptedException e)
             {
                 log.warn("Interrupted while waiting for vision executor thread to stop");
                 Thread.currentThread().interrupt();

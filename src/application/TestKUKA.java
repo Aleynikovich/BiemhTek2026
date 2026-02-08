@@ -30,11 +30,13 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
  */
 public class TestKUKA extends RoboticsAPIApplication
 {
-    private final   PTP P_inicio = ptp(Math.toRadians(36), Math.toRadians(-47), Math.toRadians(10), Math.toRadians(-54), Math.toRadians(78), Math.toRadians(97), Math.toRadians(-140));
-    private final   PTP P_final  = ptp(Math.toRadians(-35), Math.toRadians(76), Math.toRadians(62), Math.toRadians(93), Math.toRadians(-38), Math.toRadians(-88), Math.toRadians(-61));
-    @Inject private LBR lbr;
+    private final PTP P_inicio = ptp(Math.toRadians(36), Math.toRadians(-47), Math.toRadians(10), Math.toRadians(-54), Math.toRadians(78), Math.toRadians(97), Math.toRadians(-140));
+    private final PTP P_final = ptp(Math.toRadians(-35), Math.toRadians(76), Math.toRadians(62), Math.toRadians(93), Math.toRadians(-38), Math.toRadians(-88), Math.toRadians(-61));
+    @Inject
+    private LBR lbr;
 
-    @Override public void initialize()
+    @Override
+    public void initialize()
     {
         // initialize your application here
 
@@ -43,7 +45,8 @@ public class TestKUKA extends RoboticsAPIApplication
 
     }
 
-    @Override public void run()
+    @Override
+    public void run()
     {
         // your application execution starts here
 

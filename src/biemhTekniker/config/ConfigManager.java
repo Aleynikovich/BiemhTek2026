@@ -13,10 +13,10 @@ import java.util.Properties;
  */
 public class ConfigManager
 {
-    private static final Logger         log            = Logger.getLogger(ConfigManager.class);
-    private static final String         CONFIG_PATH    = "configs/application.properties";
-    private static       ConfigManager  instance;
-    private final        Properties     properties;
+    private static final Logger log = Logger.getLogger(ConfigManager.class);
+    private static final String CONFIG_PATH = "configs/application.properties";
+    private static ConfigManager instance;
+    private final Properties properties;
 
     /**
      * Private constructor for singleton.
@@ -52,20 +52,17 @@ public class ConfigManager
             input = new FileInputStream(CONFIG_PATH);
             properties.load(input);
             log.info("Configuration loaded from " + CONFIG_PATH);
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             log.error("Failed to load configuration from " + CONFIG_PATH + ": " + e.getMessage(), e);
-        }
-        finally
+        } finally
         {
             if (input != null)
             {
                 try
                 {
                     input.close();
-                }
-                catch (IOException e)
+                } catch (IOException e)
                 {
                     log.warn("Failed to close config file: " + e.getMessage());
                 }
@@ -102,8 +99,7 @@ public class ConfigManager
         try
         {
             return Integer.parseInt(value.trim());
-        }
-        catch (NumberFormatException e)
+        } catch (NumberFormatException e)
         {
             log.warn("Invalid integer for key " + key + ": " + value);
             return defaultValue;
@@ -127,8 +123,7 @@ public class ConfigManager
         try
         {
             return Double.parseDouble(value.trim());
-        }
-        catch (NumberFormatException e)
+        } catch (NumberFormatException e)
         {
             log.warn("Invalid double for key " + key + ": " + value);
             return defaultValue;

@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class WorkpieceQueue
 {
-    private static final Logger              log        = Logger.getLogger(WorkpieceQueue.class);
-    private final        List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
+    private static final Logger log = Logger.getLogger(WorkpieceQueue.class);
+    private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
 
     /**
      * Adds a workpiece to the queue with AVAILABLE state.
@@ -50,8 +50,7 @@ public class WorkpieceQueue
         {
             best.setState(WorkpieceState.PICKED);
             log.info("Selected workpiece for picking: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", score=" + best.getScore());
-        }
-        else
+        } else
         {
             log.debug("No AVAILABLE workpieces to pick");
         }
@@ -70,8 +69,7 @@ public class WorkpieceQueue
         {
             wp.setState(WorkpieceState.MEASURING);
             log.info("Marked workpiece as MEASURING: id=" + workpieceId);
-        }
-        else
+        } else
         {
             log.warn("Cannot mark MEASURING - workpiece not found: id=" + workpieceId);
         }
@@ -89,8 +87,7 @@ public class WorkpieceQueue
         {
             wp.setState(WorkpieceState.MEASURED);
             log.info("Marked workpiece as MEASURED: id=" + workpieceId);
-        }
-        else
+        } else
         {
             log.warn("Cannot mark MEASURED - workpiece not found: id=" + workpieceId);
         }
@@ -131,8 +128,7 @@ public class WorkpieceQueue
         {
             wp.setState(WorkpieceState.RETURNED);
             log.info("Marked workpiece as RETURNED: id=" + workpieceId);
-        }
-        else
+        } else
         {
             log.warn("Cannot mark RETURNED - workpiece not found: id=" + workpieceId);
         }
@@ -192,11 +188,7 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            sb.append("  [").append(i).append("] ID:").append(wp.getId())
-              .append(" Ref:").append(wp.getReferenceIndex())
-              .append(" State:").append(wp.getState())
-              .append(" Score:").append(String.format("%.2f", wp.getScore()))
-              .append("\n");
+            sb.append("  [").append(i).append("] ID:").append(wp.getId()).append(" Ref:").append(wp.getReferenceIndex()).append(" State:").append(wp.getState()).append(" Score:").append(String.format("%.2f", wp.getScore())).append("\n");
         }
         return sb.toString();
     }

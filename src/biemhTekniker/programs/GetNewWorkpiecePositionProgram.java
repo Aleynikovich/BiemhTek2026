@@ -11,21 +11,21 @@ import com.kuka.common.ThreadUtil;
  * Vision task to get the position of a new workpiece from the vision system.
  * This is the legacy 5-step sequence maintained for backward compatibility.
  * Sends sequence: 101, 2, 3, 4, 9 to camera.
- * 
+ * <p>
  * NOTE: New code should use FullScanTask (Program 109) instead, which handles
  * the complete scan sequence and queue management automatically.
  */
 public class GetNewWorkpiecePositionProgram implements VisionTask
 {
 
-    private static final Logger log      = Logger.getLogger(GetNewWorkpiecePositionProgram.class);
-    private static final int    DELAY_MS = 200;
+    private static final Logger log = Logger.getLogger(GetNewWorkpiecePositionProgram.class);
+    private static final int DELAY_MS = 200;
 
     /**
      * Executes the legacy 5-step sequence to get new workpiece position from camera.
      * Sequence: SET_AUTO_MODE(101) -> CAPTURE_DATA(2) -> LOCATE_CONTAINER(3) ->
      * LOCATE_PARTS(4) -> GET_PART_POS(9)
-     * 
+     * <p>
      * Results are added to the workpiece queue.
      */
     public void execute(VisionContext context) throws Exception
@@ -87,12 +87,12 @@ public class GetNewWorkpiecePositionProgram implements VisionTask
         // Parse and store workpiece position
         // Response format: "0,0,-601.5,109.2,1193.7,-170.9,2.6,124.9,0,2"
         // Indices: [0]=success, [1]=?, [2]=X, [3]=Y, [4]=Z, [5]=Rx, [6]=Ry, [7]=Rz, [8]=?, [9]=score
-        double x     = posResult.getX();
-        double y     = posResult.getY();
-        double z     = posResult.getZ();
-        double rx    = posResult.getRx();
-        double ry    = posResult.getRy();
-        double rz    = posResult.getRz();
+        double x = posResult.getX();
+        double y = posResult.getY();
+        double z = posResult.getZ();
+        double rx = posResult.getRx();
+        double ry = posResult.getRy();
+        double rz = posResult.getRz();
         double score = posResult.getScore();
 
         // Create workpiece data and add to queue

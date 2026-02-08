@@ -34,8 +34,7 @@ public class LoadReferencesTask implements VisionTask
             {
                 log.info("Successfully loaded reference: " + refName);
                 successCount++;
-            }
-            else
+            } else
             {
                 log.error("Failed to load reference: " + refName);
             }

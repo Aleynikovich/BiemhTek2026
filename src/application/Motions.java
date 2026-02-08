@@ -15,23 +15,14 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 
 public class Motions extends RoboticsAPIApplication
 {
-    final static         double radiusOfCircMove = 120;
-    final static         int    nullSpaceAngle   = 80;
-    final static         double offsetAxis2And4  = Math.toRadians(20);
-    final static         double offsetAxis4And6  = Math.toRadians(-40);
-    private final static String informationText  = "This application is intended for floor mounted robots!"
-                                                   + "\n"
-                                                   + "\n"
-                                                   + "The robot moves to the start position and based on this position, a motion that "
-                                                   + "describes the symbol of lemniscate (a 'horizontal eight') will be executed."
-                                                   + "\n"
-                                                   + "In a next step the robot will move in nullspace by "
-                                                   + nullSpaceAngle
-                                                   + "? in both directions.";
-    double[] loopCenterPosition = new double[]{
-            0, offsetAxis2And4, 0, offsetAxis2And4 + offsetAxis4And6 - Math.toRadians(90), 0, offsetAxis4And6, Math.toRadians(90)
-    };
-    @Inject private LBR lbr;
+    final static double radiusOfCircMove = 120;
+    final static int nullSpaceAngle = 80;
+    final static double offsetAxis2And4 = Math.toRadians(20);
+    final static double offsetAxis4And6 = Math.toRadians(-40);
+    private final static String informationText = "This application is intended for floor mounted robots!" + "\n" + "\n" + "The robot moves to the start position and based on this position, a motion that " + "describes the symbol of lemniscate (a 'horizontal eight') will be executed." + "\n" + "In a next step the robot will move in nullspace by " + nullSpaceAngle + "? in both directions.";
+    double[] loopCenterPosition = new double[]{0, offsetAxis2And4, 0, offsetAxis2And4 + offsetAxis4And6 - Math.toRadians(90), 0, offsetAxis4And6, Math.toRadians(90)};
+    @Inject
+    private LBR lbr;
 
     public void initialize()
     {
@@ -52,7 +43,7 @@ public class Motions extends RoboticsAPIApplication
         lbr.move(ptpToLoopCenter);
 
         getLogger().info("Compute spline for lemniscate motion");
-        Frame  startFrame       = lbr.getCurrentCartesianPosition(lbr.getFlange());
+        Frame startFrame = lbr.getCurrentCartesianPosition(lbr.getFlange());
         Spline lemniscateSpline = createLemniscateSpline(startFrame).setJointJerkRel(0.5).setCartVelocity(250);
 
         getLogger().info("Execute lemniscate motion");
@@ -61,13 +52,13 @@ public class Motions extends RoboticsAPIApplication
 
         getLogger().info("Move in nullspace -" + nullSpaceAngle + "?");
         Frame centerFrameWithChangedE1_1 = createChildFrameAndSetE1Offset(startFrame, Math.toRadians(-nullSpaceAngle));
-        LIN   linToCenterFrameWithE1_1   = lin(centerFrameWithChangedE1_1);
+        LIN linToCenterFrameWithE1_1 = lin(centerFrameWithChangedE1_1);
         linToCenterFrameWithE1_1.setJointVelocityRel(0.25);
         lbr.move(linToCenterFrameWithE1_1);
 
         getLogger().info("Move in nullspace " + nullSpaceAngle + "?");
         Frame centerFrameWithChangedE1_2 = createChildFrameAndSetE1Offset(startFrame, Math.toRadians(nullSpaceAngle));
-        LIN   linToCenterFrameWithE1_2   = lin(centerFrameWithChangedE1_2);
+        LIN linToCenterFrameWithE1_2 = lin(centerFrameWithChangedE1_2);
         linToCenterFrameWithE1_2.setJointVelocityRel(0.25);
         lbr.move(linToCenterFrameWithE1_2);
 

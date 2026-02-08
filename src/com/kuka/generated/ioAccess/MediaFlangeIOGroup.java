@@ -14,7 +14,8 @@ import javax.inject.Singleton;
  * <b>I/O group description:</b><br>
  * ./.
  */
-@Singleton public class MediaFlangeIOGroup extends AbstractIOGroup
+@Singleton
+public class MediaFlangeIOGroup extends AbstractIOGroup
 {
     /**
      * Constructor to create an instance of class 'MediaFlange'.<br>
@@ -22,7 +23,8 @@ import javax.inject.Singleton;
      *
      * @param controller the controller, which has access to the I/O group 'MediaFlange'
      */
-    @Inject public MediaFlangeIOGroup(Controller controller)
+    @Inject
+    public MediaFlangeIOGroup(Controller controller)
     {
         super(controller, "MediaFlange");
 

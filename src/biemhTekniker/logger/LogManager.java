@@ -8,8 +8,8 @@ public class LogManager
 {
     private static final List<ILogListener> listeners = new CopyOnWriteArrayList<ILogListener>();
 
-    private static final LinkedList<LogEntry> startupBuffer   = new LinkedList<LogEntry>();
-    private static final int                  MAX_BUFFER_SIZE = 50;
+    private static final LinkedList<LogEntry> startupBuffer = new LinkedList<LogEntry>();
+    private static final int MAX_BUFFER_SIZE = 50;
 
     public static synchronized void broadcast(LogEntry entry)
     {
@@ -20,8 +20,7 @@ public class LogManager
                 startupBuffer.removeFirst();
             }
             startupBuffer.addLast(entry);
-        }
-        else
+        } else
         {
             for (ILogListener listener : listeners)
             {

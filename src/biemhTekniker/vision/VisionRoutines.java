@@ -38,18 +38,18 @@ public class VisionRoutines
     private static final int DELAY_MS = 500;
 
     private final RoboticsAPIApplication application;
-    private final LBR                    robot;
-    private final SmartPickingProtocol   protocol;
-    private final ObjectFrame            flangeFrame;
-    private final Tool                   gripper;
+    private final LBR robot;
+    private final SmartPickingProtocol protocol;
+    private final ObjectFrame flangeFrame;
+    private final Tool gripper;
 
     public VisionRoutines(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, ObjectFrame flangeFrame, Tool gripper)
     {
         this.application = application;
-        this.robot       = robot;
-        this.protocol    = protocol;
+        this.robot = robot;
+        this.protocol = protocol;
         this.flangeFrame = flangeFrame;
-        this.gripper     = gripper;
+        this.gripper = gripper;
     }
 
     /**
@@ -103,8 +103,7 @@ public class VisionRoutines
             {
                 log.warn("Calibration test failed - calibration may still be valid");
             }
-        }
-        else
+        } else
         {
             log.info("Skipping calibration test (no test frame provided)");
         }
@@ -127,8 +126,7 @@ public class VisionRoutines
         try
         {
             targetFrame = application.getFrame(frameName);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Failed to get frame " + frameName + ": " + e.getMessage());
             return false;
@@ -140,8 +138,7 @@ public class VisionRoutines
             LIN linMotion = lin(targetFrame);
             linMotion.setJointVelocityRel(JOINT_VELOCITY);
             tcpB.move(linMotion);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Failed to move to " + frameName + ": " + e.getMessage());
             return false;
@@ -157,7 +154,7 @@ public class VisionRoutines
 
         // Send robot pose
 
-        String[]     poseParts  = buildPoseMessage(currentPose);
+        String[] poseParts = buildPoseMessage(currentPose);
         VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE, false);
 
         for (int i = 0; i < poseParts.length; i++)
@@ -198,8 +195,7 @@ public class VisionRoutines
         try
         {
             testFrame = application.getFrame(testFrameName);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Failed to get test frame " + testFrameName + ": " + e.getMessage());
             return false;
@@ -210,8 +206,7 @@ public class VisionRoutines
             LIN linMotion = lin(testFrame);
             linMotion.setJointVelocityRel(JOINT_VELOCITY);
             tcpB.move(linMotion);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error("Failed to move to test frame: " + e.getMessage());
             return false;
@@ -223,7 +218,7 @@ public class VisionRoutines
         Frame currentPose = robot.getCurrentCartesianPosition(flangeFrame);
 
         // Send robot pose
-        String[]     poseParts  = buildPoseMessage(currentPose);
+        String[] poseParts = buildPoseMessage(currentPose);
         VisionResult poseResult = protocol.execute(Command.SEND_ROBOT_POSE, false);
 
         for (int i = 0; i < 6; i++)
