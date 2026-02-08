@@ -4,13 +4,14 @@ KUKA Robot Control GUI
 Connects to the robot's console server and allows controlling program execution.
 """
 
-import tkinter as tk
-from tkinter import ttk, scrolledtext, messagebox
+import json
 import socket
 import threading
 import time
-import json
+import tkinter as tk
 from datetime import datetime
+from tkinter import ttk, scrolledtext, messagebox
+
 
 class RobotControlGUI:
     def __init__(self, root):

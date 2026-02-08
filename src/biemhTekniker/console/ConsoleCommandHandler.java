@@ -356,4 +356,14 @@ public class ConsoleCommandHandler implements Runnable
         log.info("Shutdown requested for client handler");
         running = false;
     }
+
+    /**
+     * Check if the handler is still active.
+     *
+     * @return true if running and socket is connected
+     */
+    public boolean isActive()
+    {
+        return running && clientSocket != null && !clientSocket.isClosed() && clientSocket.isConnected();
+    }
 }

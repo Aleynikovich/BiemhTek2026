@@ -203,37 +203,96 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         log.info("Main application running, entering main loop.");
 
-        while (AutExtIO.getMoveEnable())
+        while (true)
         {
+            // Check MoveEnable only if not currently executing a program
+            // This prevents sudden stops in the middle of a motion which might be dangerous or unwanted 
+            // unless handled by the controller's safety stop.
+            if (!AutExtIO.getMoveEnable() && programNumber == 0)
+            {
+                log.warn("MoveEnable signal lost while idle. Exiting main loop.");
+                break;
+            }
+
+            // Update current program echo to PLC
+            AutExtIO.setCurrentProgramNumber(programNumber);
+
+            // Handle program selection via PLC if no console is connected
+            if (programNumber == 0 && !hasActiveClients())
+            {
+                checkPlcProgramRequest();
+            }
+
             int currentProgram = programNumber;
 
             // Only move home when transitioning from active program to idle
             if (needsHomeMove && currentProgram == 0)
             {
-                iiwa.move(ptpHome());
-                needsHomeMove = false;
+                log.info("Moving to Home position...");
+                try
+                {
+                    iiwa.move(ptpHome());
+                    needsHomeMove = false;
+                }
+                catch (Exception e)
+                {
+                    log.error("Failed to move home: " + e.getMessage());
+                }
             }
 
             if (currentProgram != 0)
             {
                 // Dispatch program
+                log.info("Starting execution of Program " + currentProgram);
                 boolean success = programDispatcher.dispatch(currentProgram);
+                
                 if (success)
                 {
-                    log.info("Program " + currentProgram + " completed");
+                    log.info("Program " + currentProgram + " completed successfully");
                 }
                 else
                 {
-                    log.error("Program " + currentProgram + " failed");
+                    log.error("Program " + currentProgram + " failed during execution");
                 }
 
                 // Reset to idle after execution
                 programNumber = 0;
                 lastProgramNumber = currentProgram;
                 needsHomeMove = true;
+
+                // Echo back the reset to PLC immediately
+                AutExtIO.setCurrentProgramNumber(0);
             }
 
             ThreadUtil.milliSleep(200);
+        }
+    }
+
+    /**
+     * Checks if PLC is providing a program number via handshake.
+     */
+    private void checkPlcProgramRequest()
+    {
+        // 1. Set request signal to PLC
+        AutExtIO.setProgramNumberRequest(true);
+
+        // 2. Read program number from PLC
+        int plcProgram = AutExtIO.getProgramNumberIN();
+
+        if (plcProgram > 0 && plcProgram <= 199)
+        {
+            log.info("Program " + plcProgram + " received from PLC");
+            this.programNumber = plcProgram;
+
+            // 3. Handshake complete: Reset request signal
+            AutExtIO.setProgramNumberRequest(false);
+            
+            // Wait for PLC to see the echo (handled by next loop iteration)
+        }
+        else
+        {
+            // If no valid program from PLC, we keep requesting but don't set programNumber
+            // Valid programs are 1-199. 0 means no program selected by PLC yet.
         }
     }
 
@@ -279,5 +338,10 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return workpieceQueue.getQueueStatus();
         }
         return "Queue not initialized";
+    }
+
+    @Override public boolean hasActiveClients()
+    {
+        return consoleServer != null && consoleServer.hasActiveClients();
     }
 }
