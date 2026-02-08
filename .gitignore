@@ -42,3 +42,4 @@ __pycache__/
 
 /.metadata/.lock
 /.metadata/.log
+!bin/
