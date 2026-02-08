@@ -7,26 +7,21 @@ import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 /**
  * Program to test the calibration of the vision system.
+ * This program requires BOTH robot access and vision protocol access for coordinated operations.
  */
-public class TestCalibrationProgram extends RoboticsAPIApplication
+public class TestCalibrationProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(TestCalibrationProgram.class);
-
-    @Inject private LBR iiwa;
-
-    @Inject @Named("Gripper") private Tool gripper;
 
     private SmartPickingProtocol protocol;
 
     /**
      * Sets the SmartPicking protocol dependency.
-     * Called from Main before run() is invoked.
+     * Must be called before execute() is invoked.
+     * This is a special case - calibration test needs both robot and vision access.
      *
      * @param protocol SmartPicking protocol connected to vision server
      */
@@ -38,11 +33,21 @@ public class TestCalibrationProgram extends RoboticsAPIApplication
     /**
      * Executes the calibration test routine.
      */
-    @Override public void run() throws Exception
+    public void execute(RobotContext context) throws Exception
     {
         log.info("Testing calibration...");
 
-        VisionRoutines routines = new VisionRoutines(this, iiwa, protocol, iiwa.getFlange(), gripper);
+        if (protocol == null)
+        {
+            throw new Exception("Protocol not set - call setProtocol() before execute()");
+        }
+
+        // Get dependencies from context
+        LBR robot = context.getRobot();
+        Tool gripper = context.getGripper();
+        RoboticsAPIApplication app = context.getApplication();
+
+        VisionRoutines routines = new VisionRoutines(app, robot, protocol, robot.getFlange(), gripper);
 
         // Test calibration at a specific point
         boolean success = routines.testCalibration("/CalibrationPoints/P16");

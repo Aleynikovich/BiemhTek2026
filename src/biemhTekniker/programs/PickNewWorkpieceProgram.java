@@ -1,6 +1,7 @@
 package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
+import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -11,45 +12,38 @@ import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
- * Program to pick a new workpiece using position from GetNewWorkpiecePositionProgram.
+ * Program to pick a new workpiece using position from the workpiece queue.
  */
-public class PickNewWorkpieceProgram extends RoboticsAPIApplication
+public class PickNewWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
 
-    @Inject private LBR iiwa;
-
-    @Inject @Named("Gripper") private Tool gripper;
-
-    @Inject private MediaFlangeIOGroup gripperIO;
-
-    private WorkpieceData workpieceData;
-
-    /**
-     * Sets the workpiece data dependency.
-     * Called from Main before run() is invoked.
-     *
-     * @param workpieceData Shared workpiece data object
-     */
-    public void setWorkpieceData(WorkpieceData workpieceData)
-    {
-        this.workpieceData = workpieceData;
-    }
-
     /**
      * Executes the pick operation for a new workpiece.
      */
-    @Override public void run() throws Exception
+    public void execute(RobotContext context) throws Exception
     {
         log.info("Picking new workpiece...");
+
+        // Get dependencies from context
+        LBR robot = context.getRobot();
+        Tool gripper = context.getGripper();
+        MediaFlangeIOGroup gripperIO = context.getGripperIO();
+        RoboticsAPIApplication app = context.getApplication();
+        WorkpieceQueue queue = context.getWorkpieceQueue();
+
+        // Get next workpiece from queue
+        WorkpieceData workpieceData = queue.takeNextForPicking();
+        if (workpieceData == null)
+        {
+            log.error("No workpieces available to pick");
+            throw new Exception("No workpieces available");
+        }
 
         if (!workpieceData.isValid())
         {
@@ -125,6 +119,6 @@ public class PickNewWorkpieceProgram extends RoboticsAPIApplication
             }
         }
 
-        gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
+        gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
     }
 }
