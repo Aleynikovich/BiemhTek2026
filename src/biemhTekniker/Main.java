@@ -3,9 +3,13 @@ package biemhTekniker;
 import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceData;
+import biemhTekniker.dispatcher.DefaultProgramTaskFactory;
+import biemhTekniker.dispatcher.ProgramDispatcher;
+import biemhTekniker.dispatcher.ProgramTaskFactory;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.managers.LoggingManager;
 import biemhTekniker.programs.*;
+import biemhTekniker.registry.ProgramRegistry;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -25,19 +29,38 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  * Main robot application.
  * Manages program execution, logging, and vision system integration.
  * Implements ConsoleServerInterface for GUI control.
+ * 
+ * UPDATED: Now uses ProgramDispatcher for dynamic program execution.
+ * Vision tasks run asynchronously, robot tasks run synchronously on main thread.
+ * 
+ * Configuration:
+ * - Set CONFIG_SERVICE_URL to enable dynamic program loading from config service.
+ * - If CONFIG_SERVICE_URL is empty/null, falls back to hardcoded program definitions.
  */
 public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
 {
     private static final Logger             log                = Logger.getLogger(Main.class);
-    // Configuration
+    
+    // Configuration - set this to your config service URL (e.g., "http://172.31.1.100:8080")
+    // Leave empty or null to use fallback mode with hardcoded programs
+    private static final String CONFIG_SERVICE_URL = ""; // TODO: Configure config service URL
+    
+    // Vision server configuration
     private static final String             VISION_SERVER_IP   = "172.31.1.69";
     private static final int                VISION_SERVER_PORT = 59002;
+    
     @Inject private      LBR                iiwa;
     @Inject private      RobotSafetyIOGroup safetyIO;
+    
     // Managers and threads
     private              LoggingManager     loggingManager;
     private              SmartPickingThread smartPickingThread;
     private              ConsoleServer      consoleServer;
+
+    // Dispatcher components
+    private ProgramRegistry    programRegistry;
+    private ProgramTaskFactory taskFactory;
+    private ProgramDispatcher  dispatcher;
 
     // Gripper data
     @Inject @Named("Gripper") // Matches the name defined in your Station Setup
@@ -70,6 +93,25 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         smartPickingThread.initialize();
         smartPickingThread.start();
 
+        // Initialize program dispatcher
+        log.info("Initializing program dispatcher...");
+        programRegistry = new ProgramRegistry(CONFIG_SERVICE_URL);
+        taskFactory = new DefaultProgramTaskFactory(
+            smartPickingThread.getProtocol(),
+            workpieceData,
+            CONFIG_SERVICE_URL
+        );
+        dispatcher = new ProgramDispatcher(programRegistry, taskFactory);
+        
+        if (CONFIG_SERVICE_URL != null && !CONFIG_SERVICE_URL.isEmpty())
+        {
+            log.info("Config service URL: " + CONFIG_SERVICE_URL);
+        }
+        else
+        {
+            log.warn("Config service URL not configured - using fallback mode");
+        }
+
         // Initialize and start console server for GUI control
         consoleServer = new ConsoleServer(this);
         consoleServer.initialize();
@@ -86,6 +128,12 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Override public void dispose()
     {
         log.info("Main application shutting down");
+
+        // Shutdown dispatcher
+        if (dispatcher != null)
+        {
+            dispatcher.shutdown();
+        }
 
         // Shutdown console server
         if (consoleServer != null)
@@ -129,64 +177,69 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         while (true)
         {
             iiwa.move(ptpHome());
-            switch (programNumber)
+            
+            if (programNumber != 0)
             {
-                case 0:
-                    // Program 0 - Idle
-                    break;
-
-                case 1:
-                    // Program 1 - Get New Workpiece Position
-                    getNewWorkpiecePosition();
+                // Check vision connection for vision-dependent programs
+                if (!checkVisionConnectionIfNeeded(programNumber))
+                {
                     programNumber = 0;
-                    break;
-
-                case 2:
-                    // Program 2 - Calibration
-                    executeCalibration();
+                    ThreadUtil.milliSleep(200);
+                    continue;
+                }
+                
+                // Dispatch program using the dispatcher
+                // The dispatcher will handle VISION (async) vs ROBOT (sync) execution
+                boolean success = dispatcher.dispatch(programNumber, new Runnable()
+                {
+                    public void run()
+                    {
+                        programNumber = 0;
+                    }
+                });
+                
+                if (!success)
+                {
+                    log.warn("Failed to dispatch program " + programNumber);
                     programNumber = 0;
-                    break;
-
-                case 3:
-                    // Program 3 - Test Calibration
-                    testCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 4:
-                    // Program 4 - Pick New Workpiece
-                    pickNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 5:
-                    // Program 5 - Place New Workpiece
-                    placeNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 6:
-                    // Program 6 - Pick Measured Workpiece
-                    pickMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 7:
-                    // Program 7 - Place Measured Workpiece
-                    placeMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                default:
-                    log.warn("Unknown program number: " + programNumber);
-                    break;
+                }
             }
+            
             ThreadUtil.milliSleep(200);
         }
     }
 
     // ========== ConsoleServerInterface Implementation ==========
 
+    /**
+     * Check vision connection if the program requires it.
+     * Programs 1, 2, 3 require vision connection.
+     */
+    private boolean checkVisionConnectionIfNeeded(int programNumber)
+    {
+        // Vision-dependent programs: 1, 2, 3
+        if (programNumber >= 1 && programNumber <= 3)
+        {
+            return checkVisionConnection();
+        }
+        return true; // Other programs don't require vision connection
+    }
+
+    private boolean checkVisionConnection()
+    {
+        if (!smartPickingThread.isConnected())
+        {
+            log.error("Cannot execute program - not connected to vision server");
+            return false;
+        }
+        return true;
+    }
+
+    // ========== Legacy Program Methods (kept for reference, now unused) ==========
+    // The following methods are kept for reference but are no longer called.
+    // They have been replaced by the dispatcher/task system.
+
+    /*
     private void getNewWorkpiecePosition()
     {
         if (!checkVisionConnection())
@@ -254,7 +307,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         //TODO REMOVE HARDCODE
         // Check if workpieceData is null; if so, create a new instance
-/*        if (this.workpieceData == null) {
+*//*        if (this.workpieceData == null) {
         	log.warn("No workpiece data, generating dummy workpiece");
             this.workpieceData = new WorkpieceData();
         }
@@ -262,7 +315,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         {
         	log.warn("Workpiece has been instanced but contains no data, populating dummy workpiece.");
             workpieceData.set(300.0, -320, 200,-180 , 0.0,45, 0.95);
-        }*/
+        }*//*
 
         //REMOVE HARDCODE IN PRODUCTION
 
@@ -337,6 +390,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         }
         return true;
     }
+    */
+
+    // ========== ConsoleServerInterface Implementation (continued) ==========
 
     @Override public void setProgramNumber(int programNumber)
     {
