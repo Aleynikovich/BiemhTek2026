@@ -26,7 +26,7 @@ public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
         safetyIO.setIsLocalEStop(iiwa.getSafetyState().getEmergencyStopInt() == SunriseSafetyState.EmergencyStop.ACTIVE);
         safetyIO.setIsOperatorSafety(iiwa.getSafetyState().getOperatorSafetyState() == SunriseSafetyState.OperatorSafety.OPERATOR_SAFETY_CLOSED);
         safetyIO.setModeT1(iiwa.getSafetyState().getOperationMode() == OperationMode.T1);
-        safetyIO.setModeT2(iiwa.getSafetyState().getOperationMode() == OperationMode.AUT);
+        safetyIO.setModeAut(iiwa.getSafetyState().getOperationMode() == OperationMode.AUT);
         safetyIO.setMoveEnable(iiwa.getSafetyState().getEnablingDeviceState() == SunriseSafetyState.EnablingDeviceState.NONE);
     }
 
@@ -35,7 +35,7 @@ public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
         safetyIO.setIsExternalEStop(true);
         safetyIO.setIsOperatorSafety(false);
         safetyIO.setModeT1(false);
-        safetyIO.setModeT2(false);
+        safetyIO.setModeAut(false);
         safetyIO.setMoveEnable(false);
         safetyIO.setIsLocalEStop(true);
     }

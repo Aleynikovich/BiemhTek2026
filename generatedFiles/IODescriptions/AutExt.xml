@@ -23,6 +23,15 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="StationError" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
+      <DigitalIOItem Name="ProgramNumberRequest" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="ProgramNumberIN" DataType="USINT" IOType="Input" UsedBitWidth="8" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="CurrentProgramNumber" DataType="USINT" IOType="Output" UsedBitWidth="8" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
     </IOs>
     <Description />
   </IOGroup>

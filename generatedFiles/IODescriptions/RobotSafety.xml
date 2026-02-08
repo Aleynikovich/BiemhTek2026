@@ -20,7 +20,7 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="ModeT1" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="ModeT2" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="ModeAut" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
       <DigitalIOItem Name="MoveEnable" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">

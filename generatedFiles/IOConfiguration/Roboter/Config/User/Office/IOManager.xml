@@ -80,9 +80,6 @@
         <DigitalIO Name="RobotSafety.ModeT1" Type="OUTPUT" Scope="USER_IO" StartBit="2556" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="RobotSafety.ModeT2" Type="OUTPUT" Scope="USER_IO" StartBit="2557" BitSize="1" Signed="false">
-          <Description />
-        </DigitalIO>
         <DigitalIO Name="RobotSafety.MoveEnable" Type="OUTPUT" Scope="USER_IO" StartBit="2558" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
@@ -104,22 +101,34 @@
         <DigitalIO Name="VisionState.VisionServerOnline" Type="OUTPUT" Scope="USER_IO" StartBit="2565" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.ExtStart" Type="INPUT" Scope="USER_IO" StartBit="144" BitSize="1" Signed="false">
+        <DigitalIO Name="RobotSafety.ModeAut" Type="OUTPUT" Scope="USER_IO" StartBit="2557" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.MoveEnable" Type="INPUT" Scope="USER_IO" StartBit="145" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.AutExtActive" Type="OUTPUT" Scope="USER_IO" StartBit="2576" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.AutExtActive" Type="OUTPUT" Scope="USER_IO" StartBit="2320" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.AutExtReady" Type="OUTPUT" Scope="USER_IO" StartBit="2577" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.AutExtReady" Type="OUTPUT" Scope="USER_IO" StartBit="2321" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.DefaultAppError" Type="OUTPUT" Scope="USER_IO" StartBit="2578" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.DefaultAppError" Type="OUTPUT" Scope="USER_IO" StartBit="2322" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.ProgramNumberRequest" Type="OUTPUT" Scope="USER_IO" StartBit="2579" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.StationError" Type="OUTPUT" Scope="USER_IO" StartBit="2323" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.StationError" Type="OUTPUT" Scope="USER_IO" StartBit="2580" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.CurrentProgramNumber" Type="OUTPUT" Scope="USER_IO" StartBit="2584" BitSize="8" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.ExtStart" Type="INPUT" Scope="USER_IO" StartBit="400" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.MoveEnable" Type="INPUT" Scope="USER_IO" StartBit="401" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.ProgramNumberIN" Type="INPUT" Scope="USER_IO" StartBit="408" BitSize="8" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
