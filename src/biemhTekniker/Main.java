@@ -4,8 +4,10 @@ import biemhTekniker.config.ConfigManager;
 import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
+import biemhTekniker.exceptions.HomePositionException;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.managers.AppController;
+import biemhTekniker.managers.HomePositionManager;
 import biemhTekniker.managers.LoggingManager;
 import biemhTekniker.managers.PLCManager;
 import biemhTekniker.programs.*;
@@ -35,7 +37,9 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  */
 public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
 {
-    private static final Logger             log = Logger.getLogger(Main.class);
+    private static final Logger log = Logger.getLogger(Main.class);
+    private static final int MAIN_LOOP_DELAY_MS = 200;
+    private static final int SMARTPICKING_SHUTDOWN_TIMEOUT_MS = 15000;
 
     @Inject private      LBR                iiwa;
     @Inject private      RobotSafetyIOGroup safetyIO;
@@ -50,10 +54,11 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Inject private VisionStateIOGroup visionIO;
 
     // Managers and threads
-    private LoggingManager     loggingManager;
-    private PLCManager         plcManager;
-    private AppController      appController;
-    private SmartPickingThread smartPickingThread;
+    private LoggingManager        loggingManager;
+    private PLCManager            plcManager;
+    private AppController         appController;
+    private HomePositionManager   homePositionManager;
+    private SmartPickingThread    smartPickingThread;
 
     // Shared data and dispatching
     private WorkpieceQueue    workpieceQueue;
@@ -61,8 +66,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private RobotContext      robotContext;
     private VisionContext     visionContext;
 
-    private          int     lastProgramNumber  = 0;
-    private          boolean needsHomeMove      = false;
+    private int lastProgramNumber = 0;
 
     @Override public void initialize()
     {
@@ -102,6 +106,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize PLC manager
         plcManager = new PLCManager(AutExtIO, visionIO, programDispatcher, smartPickingThread, workpieceQueue);
+
+        // Initialize home position manager
+        homePositionManager = new HomePositionManager();
 
         // Initialize app controller
         int consolePort = config.getInt("console.server.port", 30001);
@@ -145,19 +152,16 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             int currentProgram = programNumber;
             boolean isVisionRunning = programDispatcher.isVisionTaskRunning();
 
-            // Only move home when transitioning from active program to idle
-            // and no vision task is running (to avoid potential collisions or state issues)
-            if (needsHomeMove && currentProgram == 0 && !isVisionRunning)
+            // Check if home position move should be executed
+            if (homePositionManager.shouldMoveHome(currentProgram, isVisionRunning))
             {
-                log.info("Moving to Home position...");
                 try
                 {
-                    iiwa.move(ptpHome());
-                    needsHomeMove = false;
+                    homePositionManager.executeHomeMove(iiwa);
                 }
-                catch (Exception e)
+                catch (HomePositionException e)
                 {
-                    log.error("Failed to move home: " + e.getMessage());
+                    log.error("Home position move failed: " + e.getMessage(), e);
                 }
             }
 
@@ -165,9 +169,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             {
                 // Dispatch program
                 log.info("Starting execution of Program " + currentProgram);
-                boolean isVisionProgram = (currentProgram >= 100 && currentProgram <= 199);
+                boolean isVisionProgram = ProgramRange.isVisionProgram(currentProgram);
                 boolean success = programDispatcher.dispatch(currentProgram);
-                
+
                 if (success)
                 {
                     log.info("Program " + currentProgram + (isVisionProgram ? " submitted successfully" : " completed successfully"));
@@ -175,23 +179,24 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 else
                 {
                     log.error("Program " + currentProgram + (isVisionProgram ? " submission failed" : " failed during execution"));
+                    plcManager.signalProgramError(currentProgram);
                 }
 
                 // Reset to idle after execution (or submission for vision)
                 appController.resetProgramNumber();
                 lastProgramNumber = currentProgram;
-                
+
                 // Only request home move if it was a robot program
-                if (!isVisionProgram)
+                if (ProgramRange.isRobotProgram(currentProgram))
                 {
-                    needsHomeMove = true;
+                    homePositionManager.requestHomeMove();
                 }
 
                 // Echo back the reset to PLC immediately
                 plcManager.echoProgramNumber(0);
             }
 
-            com.kuka.common.ThreadUtil.milliSleep(200);
+            ThreadUtil.milliSleep(MAIN_LOOP_DELAY_MS);
         }
 
         log.warn("MoveEnable signal lost. Exiting main loop.");
@@ -219,7 +224,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             smartPickingThread.shutdown();
             try
             {
-                smartPickingThread.join(15000);
+                smartPickingThread.join(SMARTPICKING_SHUTDOWN_TIMEOUT_MS);
                 if (smartPickingThread.isAlive())
                 {
                     log.warn("SmartPicking thread did not stop gracefully, interrupting");

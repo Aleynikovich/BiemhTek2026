@@ -3,6 +3,7 @@ package biemhTekniker.managers;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.programs.ProgramDispatcher;
+import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.VisionStateIOGroup;
@@ -76,22 +77,35 @@ public class PLCManager {
         // 2. Read program number from PLC
         int plcProgram = AutExtIO.getProgramNumberIN();
 
-        if (plcProgram > 0 && plcProgram <= 199) {
+        if (ProgramRange.isValid(plcProgram) && plcProgram != ProgramRange.IDLE) {
             log.info("Program " + plcProgram + " received from PLC");
             // 3. Handshake complete: Reset request signal
             AutExtIO.setProgramNumberRequest(false);
             return plcProgram;
         }
-        
+
         return 0;
     }
 
     /**
      * Echoes the current program number to the PLC.
-     * 
+     *
      * @param programNumber Current active program number
      */
     public void echoProgramNumber(int programNumber) {
         AutExtIO.setCurrentProgramNumber(programNumber);
+    }
+
+    /**
+     * Signals a program execution error to the PLC.
+     *
+     * @param programNumber Program number that failed
+     */
+    public void signalProgramError(int programNumber) {
+        log.error("Signaling program error to PLC for program: " + programNumber);
+        // Set error flag to PLC (assuming there's an error output available)
+        // This would need to be mapped to actual PLC I/O
+        // For now, just log the error
+        // TODO: Add actual PLC error signaling once I/O is configured
     }
 }
