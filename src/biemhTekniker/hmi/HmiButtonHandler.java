@@ -148,14 +148,14 @@ public class HmiButtonHandler implements IUserKeyListener
                 // Close gripper - activate digital output
                 gripperIO.setGripper2_Switch(true);
                 gripperOpen = false;
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper 2: Closed");
+                button2.setText(UserKeyAlignment.TopMiddle, "Gripper 2: Closed");
                 log.debug("HMI Button 2: Gripper closed");
             } else
             {
                 // Open gripper - deactivate digital output
                 gripperIO.setGripper2_Switch(false);
                 gripperOpen = true;
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper 2: Open");
+                button2.setText(UserKeyAlignment.TopMiddle, "Gripper 2: Open");
                 log.debug("HMI Button 2: Gripper opened");
             }
         } catch (Exception e)
@@ -178,14 +178,14 @@ public class HmiButtonHandler implements IUserKeyListener
                 // Close gripper - activate digital output
                 gripperIO.setGripper2_Switch(true);
                 gripperOpen = false;
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Closed");
+                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Closed");
                 log.debug("HMI Button 2: Gripper closed");
             } else
             {
                 // Open gripper - deactivate digital output
                 gripperIO.setGripper2_Switch(false);
                 gripperOpen = true;
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Open");
+                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Open");
                 log.debug("HMI Button 2: Gripper opened");
             }
         } catch (Exception e)
