@@ -58,13 +58,11 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (IOException e)
         {
-            log.error("Client handler I/O error for " + clientSocket.getInetAddress() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("Client handler I/O error for " + clientSocket.getInetAddress() + ": " + e.getMessage(), e);
         }
         catch (Exception e)
         {
-            log.error("Unexpected error in client handler for " + clientSocket.getInetAddress() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("Unexpected error in client handler for " + clientSocket.getInetAddress() + ": " + e.getMessage(), e);
         }
         finally
         {
@@ -87,6 +85,10 @@ public class ConsoleCommandHandler implements Runnable
             {
                 handleGetStatus();
             }
+            else if ("get_queue_status".equals(type))
+            {
+                handleGetQueueStatus();
+            }
             else if ("stop".equals(type))
             {
                 handleStop();
@@ -107,8 +109,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Command handling error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Command handling error: " + e.getMessage(), e);
             sendError("Invalid command format: " + e.getMessage());
         }
     }
@@ -120,7 +121,7 @@ public class ConsoleCommandHandler implements Runnable
             int programNumber = json.getInt("program", -1);
             log.debug("handleSetProgram called with program: " + programNumber);
 
-            if (programNumber >= 0 && programNumber <= 7)
+            if (programNumber >= 0 && programNumber <= 199)
             {
                 serverInterface.setProgramNumber(programNumber);
                 sendResponse("response", "Program set to " + programNumber, true);
@@ -128,14 +129,13 @@ public class ConsoleCommandHandler implements Runnable
             }
             else
             {
-                sendError("Invalid program number: " + programNumber);
+                sendError("Invalid program number: " + programNumber + " (valid range: 0-199)");
                 log.warn("Invalid program number requested: " + programNumber);
             }
         }
         catch (Exception e)
         {
-            log.error("Error in handleSetProgram: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in handleSetProgram: " + e.getMessage(), e);
             sendError("Error setting program: " + e.getMessage());
         }
     }
@@ -155,9 +155,27 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error in handleGetStatus: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in handleGetStatus: " + e.getMessage(), e);
             sendError("Error getting status: " + e.getMessage());
+        }
+    }
+
+    private void handleGetQueueStatus()
+    {
+        try
+        {
+            log.debug("handleGetQueueStatus called");
+            String     queueStatus = serverInterface.getQueueStatus();
+            SimpleJSON response    = new SimpleJSON();
+            response.put("type", "queue_status");
+            response.put("status", queueStatus);
+            sendJson(response);
+            log.debug("Queue status sent to client");
+        }
+        catch (Exception e)
+        {
+            log.error("Error in handleGetQueueStatus: " + e.getMessage(), e);
+            sendError("Error getting queue status: " + e.getMessage());
         }
     }
 
@@ -172,8 +190,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error in handleStop: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in handleStop: " + e.getMessage(), e);
             sendError("Error executing stop: " + e.getMessage());
         }
     }
@@ -210,8 +227,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error in handleSetLogLevel: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in handleSetLogLevel: " + e.getMessage(), e);
             sendError("Error setting log level: " + e.getMessage());
         }
     }
@@ -239,8 +255,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error in handleGetLogLevel: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in handleGetLogLevel: " + e.getMessage(), e);
             sendError("Error getting log level: " + e.getMessage());
         }
     }
@@ -257,8 +272,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error sending response: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error sending response: " + e.getMessage(), e);
         }
     }
 
@@ -280,7 +294,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error sending log message: " + e.getMessage());
+            log.error("Error sending log message: " + e.getMessage(), e);
         }
     }
 
@@ -299,8 +313,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error in sendJson: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in sendJson: " + e.getMessage(), e);
         }
     }
 
@@ -334,7 +347,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (IOException e)
         {
-            log.error("Cleanup error: " + e.getMessage());
+            log.error("Cleanup error: " + e.getMessage(), e);
         }
     }
 

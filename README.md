@@ -1,256 +1,198 @@
-# KUKA Robot Configuration Service Integration
+# BiemhTek2026 - KUKA LBR iiwa Robot Application
 
-This repository contains both the KUKA robot application and a Spring Boot configuration service for managing robot programs and workpiece positions.
+Advanced bin-picking application for the KUKA LBR iiwa 14 R820 robot with SmartPicking vision system integration.
 
-## Architecture Overview
+## Overview
 
-The system is split into two main components:
+This application implements an automated pick-measure-return workflow with full vision system integration. The architecture separates robot motion control from vision processing, enabling asynchronous operation for maximum efficiency.
 
-1. **Config Service** - A Spring Boot REST API backed by PostgreSQL that manages:
-   - Program configurations (program number, name, type, description)
-   - Workpiece positions captured from the vision system
+## Key Features
 
-2. **Robot Application** - KUKA Sunrise application that:
-   - Loads program descriptors from the config service
-   - Dispatches programs based on type (VISION vs ROBOT)
-   - Executes VISION tasks asynchronously (non-blocking)
-   - Executes ROBOT tasks synchronously on the main thread
+- **Async Robot/Vision Architecture**: Robot and camera operate independently
+- **Multi-Reference Support**: Handles 3 different part references simultaneously
+- **Workpiece Queue System**: Thread-safe queue manages up to 6 workpieces (2 per reference)
+- **Pick-Measure-Return Lifecycle**: Automated workflow for part inspection
+- **External Configuration**: All settings in `configs/application.properties`
+- **TCP/IP Console**: Remote control and monitoring via GUI
 
-## Quick Start
+## Architecture
 
-### 1. Start the Config Service
+### Robot Thread (Main)
+Executes physical robot motions and gripper operations. Programs 1-99 run on this thread and access the shared `WorkpieceQueue` for coordination.
 
-From the repository root:
+### Vision Thread
+Sends commands to the SmartPicking camera system. Programs 100-199 run asynchronously on this thread, populating the `WorkpieceQueue` with found workpieces.
+
+### WorkpieceQueue (Shared State)
+Thread-safe queue that stores workpiece data with lifecycle states:
+- `AVAILABLE`: Camera found it, ready to pick
+- `PICKED`: Robot picked it up
+- `MEASURING`: Placed on measuring machine
+- `MEASURED`: Ready to be removed from machine
+- `RETURNED`: Returned to origin position in bin
+
+## Program Numbers
+
+### Robot Programs (1-99)
+| Number | Name | Description |
+|--------|------|-------------|
+| 0 | Idle | No operation |
+| 1 | Pick New Workpiece | Pick next available from queue |
+| 2 | Place on Measuring Machine | Place held workpiece on machine |
+| 3 | Remove Measured Workpiece | Remove measured part from machine |
+| 4 | Return Measured to Bin | Return to original pick location |
+| 5 | Calibration | Robot-vision calibration sequence |
+| 6 | Test Calibration | Verify calibration accuracy |
+
+### Vision Programs (100-199)
+| Number | Name | Description |
+|--------|------|-------------|
+| 100 | Load References | Load all references from config |
+| 101 | Set Auto Mode | Switch camera to auto mode |
+| 102 | Set Calibration Mode | Switch camera to calibration mode |
+| 103 | Capture Data | Capture image from camera |
+| 104 | Locate Container | Find bin/container position |
+| 105 | Get Container Position | Retrieve container coordinates |
+| 106 | Locate Parts | Find parts for specific reference |
+| 107 | Get Part Position | Get first part position |
+| 108 | Get Next Part Position | Get next part in sequence |
+| 109 | Full Scan Sequence | Complete scan across all references |
+| 111 | Get New Workpiece Position | Legacy single-reference scan |
+
+## Configuration
+
+All settings are in `configs/application.properties`:
+
+```properties
+# Vision Server
+vision.server.ip=172.31.1.69
+vision.server.port=59002
+
+# Vision References (3 part types)
+vision.references=BIEMH26_105053,BIEMH26_105055,BIEMH26_105060
+vision.reference.count=3
+vision.zone=1
+
+# Console Server
+console.server.port=30001
+
+# Motion Parameters
+motion.joint.velocity=0.25
+motion.delay.ms=500
+motion.delay.minor.ms=200
+
+# Calibration
+calibration.points.count=16
+calibration.points.root=/CalibrationPoints
+
+# Pre-pick approach offset (mm)
+pick.prepick.offset.z=100
+```
+
+## Workflow
+
+### Typical Pick-Measure-Return Cycle
+
+1. **Vision Scan** (Program 109): Camera scans bin, finds 6 workpieces (2 per reference)
+2. **Pick Best** (Program 1): Robot picks highest-score available workpiece
+3. **Place on Machine** (Program 2): Place workpiece on measuring machine
+4. **Scan Again** (Program 109): Camera scans for next batch while measuring
+5. **Pick Next** (Program 1): Robot picks next workpiece
+6. **Remove Measured** (Program 3): Remove first workpiece from machine
+7. **Place New on Machine** (Program 2): Place second workpiece on machine
+8. **Return Measured** (Program 4): Return first workpiece to origin position in bin
+9. **Repeat**: Continue cycle indefinitely
+
+## Package Structure
+
+```
+src/biemhTekniker/
+├── Main.java                      # Main application orchestrator
+├── config/
+│   └── ConfigManager.java         # Configuration loader (singleton)
+├── console/
+│   ├── ConsoleServer.java         # TCP/IP command server
+│   ├── ConsoleServerInterface.java
+│   └── ConsoleCommandHandler.java # Command processor
+├── data/
+│   ├── WorkpieceData.java         # Single workpiece data
+│   ├── WorkpieceState.java        # Lifecycle state enum
+│   └── WorkpieceQueue.java        # Thread-safe queue
+├── logger/
+│   └── ...                        # Logging infrastructure
+├── managers/
+│   └── LoggingManager.java        # Log system manager
+├── programs/
+│   ├── RobotProgram.java          # Robot program interface
+│   ├── VisionTask.java            # Vision task interface
+│   ├── RobotContext.java          # Robot dependencies
+│   ├── VisionContext.java         # Vision dependencies
+│   ├── ProgramDispatcher.java     # Program router (0-199)
+│   ├── Pick*.java                 # Pick programs
+│   ├── Place*.java                # Place programs
+│   ├── Calibration*.java          # Calibration programs
+│   ├── LoadReferencesTask.java    # Vision task implementations
+│   ├── FullScanTask.java
+│   └── IndividualVisionCommandTask.java
+└── vision/
+    ├── SmartPickingProtocol.java  # Camera protocol (multi-ref support)
+    ├── SmartPickingThread.java    # Camera connection thread
+    ├── VisionManager.java         # Vision task executor
+    └── VisionSocketClient.java    # TCP socket client
+```
+
+## GUI Control
+
+Use `gui/robot_control_gui.py` for remote control:
 
 ```bash
-docker-compose up -d
+python3 gui/robot_control_gui.py
 ```
 
-This starts:
-- PostgreSQL database on port 5432
-- Config Service API on port 8080
-
-The database is automatically initialized with the schema and sample programs (1-7).
-
-### 2. Verify the Config Service
-
-Check the health endpoint:
-
-```bash
-curl http://localhost:8080/health
-```
-
-List all programs:
-
-```bash
-curl http://localhost:8080/api/programs
-```
-
-### 3. Configure the Robot
-
-In `src/biemhTekniker/Main.java`, update the `CONFIG_SERVICE_BASE_URL` constant:
-
-```java
-private static final String CONFIG_SERVICE_BASE_URL = "http://172.31.1.100:8080";
-```
-
-Replace `172.31.1.100` with the IP address of the machine running the config service.
-
-**Note:** To disable the config service integration and use the legacy switch-based program execution, set this to an empty string:
-
-```java
-private static final String CONFIG_SERVICE_BASE_URL = "";
-```
-
-### 4. Deploy to Robot
-
-Build and sync the robot application to the KUKA controller using Sunrise.Workbench as usual.
-
-## How It Works
-
-### Dispatcher Pattern
-
-The robot application now uses a dispatcher/registry pattern instead of the old switch statement:
-
-**Old Approach:**
-```java
-switch (programNumber) {
-    case 1: getNewWorkpiecePosition(); break;
-    case 2: executeCalibration(); break;
-    // ...
-}
-```
-
-**New Approach:**
-```java
-programDispatcher.dispatch(programNumber, () -> programNumber = 0);
-```
-
-The dispatcher:
-1. Loads the program descriptor from the config service registry
-2. Determines the program type (VISION or ROBOT)
-3. Creates the appropriate task using registered factories
-4. Executes VISION tasks asynchronously (returns immediately)
-5. Executes ROBOT tasks synchronously (blocks until complete)
-
-### Program Types
-
-- **VISION Programs** (1-3): Interact with the vision system without robot motion
-  - Executed asynchronously on a background thread
-  - Do not block the main robot control loop
-  - Example: `GetNewWorkpiecePositionTask`
-
-- **ROBOT Programs** (4-7): Perform physical robot movements
-  - Executed synchronously on the main thread
-  - Block until the motion is complete
-  - Example: Pick/Place operations
-
-### Legacy Fallback
-
-If the config service is not configured or not reachable, the robot application falls back to the legacy switch statement for backward compatibility.
-
-## Config Service API
-
-See [config-service/README.md](config-service/README.md) for detailed API documentation.
-
-### Example: Adding a New Program
-
-```bash
-curl -X POST http://localhost:8080/api/programs \
-  -H "Content-Type: application/json" \
-  -d '{
-    "programNumber": 10,
-    "programName": "Custom Vision Task",
-    "programType": "VISION",
-    "description": "Custom vision processing task",
-    "enabled": true
-  }'
-```
-
-### Example: Viewing Latest Workpiece Position
-
-```bash
-curl http://localhost:8080/api/workpieces/latest
-```
+Features:
+- Connect to robot console server
+- Execute robot programs (1-6)
+- Execute vision commands (100-111)
+- View queue status
+- Monitor robot logs in real-time
+- Emergency stop (Program 0)
 
 ## Development
 
-### Adding New Program Tasks
+### Requirements
+- KUKA Sunrise.Workbench
+- Java 1.7 (strict - no Java 8+ features)
+- KUKA LBR iiwa robot controller
+- SmartPicking vision system
 
-To add a new program task:
+### Java 1.7 Constraints
+This codebase must maintain Java 1.7 compatibility:
+- No lambda expressions
+- No try-with-resources
+- No diamond operator for anonymous classes
+- No Streams API
+- Use `java.util.concurrent.atomic` for thread safety
 
-1. Create a new class extending `VisionTask` or `RobotTask`:
+### Building
+Projects are built and deployed through Sunrise.Workbench. No external build tools (Maven, Gradle) are used.
 
-```java
-public class MyCustomTask extends VisionTask {
-    public MyCustomTask(ProgramDescriptor descriptor) {
-        super(descriptor);
-    }
-    
-    @Override
-    public TaskResult execute() {
-        // Your task implementation
-        return TaskResult.success("Task completed");
-    }
-}
-```
+### Testing
+Testing occurs on actual hardware or in Sunrise simulation environment. Unit tests are not applicable due to hardware dependencies.
 
-2. Register it in a custom factory or extend `DefaultProgramTaskFactory`:
+## Thread Safety
 
-```java
-@Override
-public ProgramTask createTask(ProgramDescriptor descriptor) {
-    if (descriptor.getProgramNumber() == 10) {
-        return new MyCustomTask(descriptor);
-    }
-    return super.createTask(descriptor); // Fallback to default
-}
-```
+Critical thread-safe components:
+- `WorkpieceQueue`: All methods `synchronized`
+- `WorkpieceData`: All getters/setters `synchronized`
+- `programNumber` in Main: declared `volatile`
+- Vision tasks: Serialized through `VisionManager`
 
-3. Register your factory in `Main.initialize()`:
+## License
 
-```java
-CustomFactory factory = new CustomFactory(...);
-programDispatcher.registerFactory(factory);
-```
+Proprietary - BiemhTek2026 Project
 
-### Java 7 Compatibility
+## Contact
 
-The robot-side code is strictly Java 7 compatible for the KUKA Sunrise environment:
-- No lambdas (use anonymous classes)
-- No streams
-- No diamond operators
-- Simple HTTP client using `HttpURLConnection`
-- Basic JSON parsing without external libraries
-
-## File Structure
-
-```
-BiemhTek2026/
-├── config-service/              # Spring Boot config service
-│   ├── src/main/java/
-│   │   └── com/biemh/configservice/
-│   │       ├── ConfigServiceApplication.java
-│   │       ├── controller/
-│   │       ├── domain/
-│   │       └── repository/
-│   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   └── db/migration/
-│   ├── Dockerfile
-│   └── pom.xml
-├── docker-compose.yml           # Docker Compose for local dev
-├── src/biemhTekniker/           # Robot application
-│   ├── Main.java               # Main entry point (modified)
-│   ├── dispatcher/             # Dispatcher pattern
-│   ├── registry/               # Program registry & HTTP client
-│   ├── tasks/                  # Task implementations
-│   ├── model/                  # Data models
-│   ├── programs/               # Legacy programs (gradual migration)
-│   └── ...
-└── README.md                    # This file
-```
-
-## Troubleshooting
-
-### Config Service Not Reachable
-
-If the robot application logs show connection errors to the config service:
-
-1. Verify the config service is running: `docker-compose ps`
-2. Check the IP address in `CONFIG_SERVICE_BASE_URL` is correct
-3. Test connectivity from the robot controller: `ping 172.31.1.100`
-4. Check firewall rules allow port 8080
-
-### Vision Task Not Executing
-
-1. Check the program descriptor has `programType: VISION` in the database
-2. Verify vision server connection is active
-3. Check logs for task execution errors
-
-### Database Migration Errors
-
-If Flyway migration fails:
-
-```bash
-# Stop services
-docker-compose down
-
-# Remove volumes
-docker volume rm biemhtek2026_postgres-data
-
-# Restart
-docker-compose up -d
-```
-
-## Security Note
-
-The current implementation includes placeholder comments for API key authentication (`X-API-KEY` header) but does not enforce it. For production deployment, implement proper authentication and authorization.
-
-## Contributing
-
-When contributing to the robot application:
-- Maintain Java 7 compatibility
-- Follow existing code style
-- Keep VISION tasks free of robot motion code
-- Test with both config service enabled and disabled (legacy fallback)
+Project: BiemhTek2026
+Robot: KUKA LBR iiwa 14 R820
+Vision: SmartPicking System

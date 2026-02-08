@@ -67,6 +67,9 @@ class RobotControlGUI:
         # Program Control Frame
         self.create_program_control_frame(main_frame)
         
+        # Vision Commands Frame
+        self.create_vision_commands_frame(main_frame)
+        
         # Quick Actions Frame
         self.create_quick_actions_frame(main_frame)
         
@@ -126,34 +129,62 @@ class RobotControlGUI:
         self.workpiece_label.grid(row=2, column=1, sticky=tk.W, pady=(5, 0))
         
     def create_program_control_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Program Control", padding="10")
+        frame = ttk.LabelFrame(parent, text="Robot Programs", padding="10")
         frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
         
-        ttk.Label(frame, text="Select Program:", style='Header.TLabel').grid(
-            row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
+        ttk.Label(frame, text="Robot Motion Programs (1-99):", style='Header.TLabel').grid(
+            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
         
-        programs = [
+        robot_programs = [
             (0, "Idle"),
-            (1, "Get New Workpiece Position"),
-            (2, "Calibration"),
-            (3, "Test Calibration"),
-            (4, "Pick New Workpiece"),
-            (5, "Place New Workpiece"),
-            (6, "Pick Measured Workpiece"),
-            (7, "Place Measured Workpiece"),
+            (1, "Pick New Workpiece"),
+            (2, "Place New Workpiece"),
+            (3, "Pick Measured Workpiece"),
+            (4, "Place Measured Workpiece"),
+            (5, "Calibration"),
+            (6, "Test Calibration"),
         ]
         
-        for i, (prog_num, prog_name) in enumerate(programs):
-            row = 1 + (i // 2)
-            col = i % 2
+        for i, (prog_num, prog_name) in enumerate(robot_programs):
+            row = 1 + (i // 3)
+            col = i % 3
             btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
                            command=lambda p=prog_num: self.set_program(p),
-                           width=30)
+                           width=25)
+            btn.grid(row=row, column=col, padx=5, pady=5, sticky=tk.W)
+    
+    def create_vision_commands_frame(self, parent):
+        frame = ttk.LabelFrame(parent, text="Vision Commands", padding="10")
+        frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        ttk.Label(frame, text="Vision System Commands (100-199):", style='Header.TLabel').grid(
+            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
+        
+        vision_commands = [
+            (100, "Load References"),
+            (101, "Set Auto Mode"),
+            (102, "Set Calibration Mode"),
+            (103, "Capture Data"),
+            (104, "Locate Container"),
+            (105, "Get Container Position"),
+            (106, "Locate Parts"),
+            (107, "Get Part Position"),
+            (108, "Get Next Part Position"),
+            (109, "Full Scan Sequence"),
+            (111, "Get New Workpiece Position (Legacy)"),
+        ]
+        
+        for i, (prog_num, prog_name) in enumerate(vision_commands):
+            row = 1 + (i // 3)
+            col = i % 3
+            btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
+                           command=lambda p=prog_num: self.set_program(p),
+                           width=25)
             btn.grid(row=row, column=col, padx=5, pady=5, sticky=tk.W)
         
     def create_quick_actions_frame(self, parent):
         frame = ttk.LabelFrame(parent, text="Quick Actions", padding="10")
-        frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
         
         ttk.Button(frame, text="Emergency Stop (Program 0)", 
                   command=lambda: self.set_program(0),
@@ -163,14 +194,18 @@ class RobotControlGUI:
                   command=self.get_status,
                   width=25).grid(row=0, column=1, padx=5, pady=5)
         
+        ttk.Button(frame, text="Get Queue Status", 
+                  command=self.get_queue_status,
+                  width=25).grid(row=0, column=2, padx=5, pady=5)
+        
         ttk.Button(frame, text="Clear Console", 
                   command=self.clear_console,
-                  width=25).grid(row=0, column=2, padx=5, pady=5)
+                  width=25).grid(row=0, column=3, padx=5, pady=5)
         
     def create_console_frame(self, parent):
         frame = ttk.LabelFrame(parent, text="Console Output", padding="10")
-        frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
-        parent.rowconfigure(5, weight=1)
+        frame.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
+        parent.rowconfigure(6, weight=1)
         
         # Log level control frame
         level_frame = ttk.Frame(frame)
@@ -322,6 +357,9 @@ class RobotControlGUI:
             
             if data.get('type') == 'status':
                 self.update_status(data)
+            elif data.get('type') == 'queue_status':
+                status = data.get('status', 'No status available')
+                self.log_console("Queue Status:\n" + status, 'info')
             elif data.get('type') == 'log':
                 level = data.get('level', 'info').lower()
                 message = data.get('message', '')
@@ -368,9 +406,16 @@ class RobotControlGUI:
         if 'program' in data:
             prog_num = data['program']
             self.current_program.set(prog_num)
-            prog_names = ["Idle", "Get Position", "Calibration", "Test Calib", 
-                         "Pick New", "Place New", "Pick Measured", "Place Measured"]
-            prog_name = prog_names[prog_num] if prog_num < len(prog_names) else "Unknown"
+            # Updated program names for new numbering
+            if prog_num == 0:
+                prog_name = "Idle"
+            elif prog_num <= 6:
+                prog_names = ["", "Pick New", "Place New", "Pick Measured", "Place Measured", "Calibration", "Test Calib"]
+                prog_name = prog_names[prog_num]
+            elif 100 <= prog_num <= 199:
+                prog_name = f"Vision Task"
+            else:
+                prog_name = "Unknown"
             self.current_prog_label.config(text=f"{prog_num} - {prog_name}")
             
         if 'vision_connected' in data:
@@ -400,6 +445,12 @@ class RobotControlGUI:
         """Request status from robot"""
         command = {'type': 'get_status'}
         self.send_command(command)
+    
+    def get_queue_status(self):
+        """Request queue status from robot"""
+        command = {'type': 'get_queue_status'}
+        if self.send_command(command):
+            self.log_console("Requesting queue status...", 'info')
     
     def on_log_level_changed(self, event=None):
         """Handle log level selection change"""

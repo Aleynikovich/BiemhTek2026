@@ -55,19 +55,16 @@ import javax.inject.Inject;
 public class CalibrationApp extends RoboticsAPIApplication
 {
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
     private static final Logger log = Logger.getLogger(CalibrationApp.class);
 
-    @Override
-    public void initialize()
+    @Override public void initialize()
     {
         // Initialization code
     }
 
-    @Override
-    public void run()
+    @Override public void run()
     {
         log.info("Starting calibration application");
 
@@ -75,19 +72,14 @@ public class CalibrationApp extends RoboticsAPIApplication
         VisionSocketClient visionClient = new VisionSocketClient("172.31.1.69", 59002);
         if (!visionClient.connect())
         {
-            log.error("Failed to connect to vision server");
+            log.error("Failed to connect to vision server", e);
             return;
         }
 
         SmartPickingProtocol protocol = new SmartPickingProtocol(visionClient);
 
         // Create calibration routine
-        VisionRoutines calibration = new VisionRoutines(
-                this,
-                iiwa,
-                protocol,
-                iiwa.getFlange()
-        );
+        VisionRoutines calibration = new VisionRoutines(this, iiwa, protocol, iiwa.getFlange());
 
         // Execute calibration
         boolean success = calibration.executeCalibration("/CalibrationPoints", null);
@@ -98,9 +90,10 @@ public class CalibrationApp extends RoboticsAPIApplication
         if (success)
         {
             log.info("Calibration completed successfully");
-        } else
+        }
+        else
         {
-            log.error("Calibration failed");
+            log.error("Calibration failed", e);
         }
     }
 }

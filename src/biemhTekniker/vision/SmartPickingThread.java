@@ -16,12 +16,6 @@ public class SmartPickingThread extends Thread
 
     private final    String               visionServerIP;
     private final    int                  visionServerPort;
-    /**
-     * Reference identifiers for the parts being picked.
-     * Format: PROJECT_PARTNUMBER (e.g., "BIEMH26_105055")
-     * These should match references loaded in the vision system.
-     */
-    private final    String[]             references = {"BIEMH26_105053", "BIEMH26_105055", "BIEMH26_105060"};
     private          VisionSocketClient   socketClient;
     private          SmartPickingProtocol protocol;
     private volatile boolean              running    = true;
@@ -64,7 +58,6 @@ public class SmartPickingThread extends Thread
 
         int       consecutiveErrors      = 0;
         final int MAX_CONSECUTIVE_ERRORS = 10;
-        boolean   referencesLoaded       = true;
 
         // Main thread loop - monitors connection and maintains it
         while (running && !Thread.currentThread().isInterrupted())
@@ -83,19 +76,11 @@ public class SmartPickingThread extends Thread
                         log.info("Connection lost, attempting to reconnect...");
                     }
 
-                    referencesLoaded = false;
                     socketClient.connect();
                     if (socketClient.isConnected())
                     {
                         log.info("Reconnected to vision server");
-                        // Reload all references after reconnection
-                        referencesLoaded = loadAllReferences();
                     }
-                }
-                else if (!referencesLoaded)
-                {
-                    // If connected but references not loaded, load them
-                    referencesLoaded = loadAllReferences();
                 }
                 consecutiveErrors = 0; // Reset on success
                 ThreadUtil.milliSleep(1000); // Check connection every second
@@ -116,39 +101,6 @@ public class SmartPickingThread extends Thread
 
         cleanup();
         log.info("SmartPickingThread stopped.");
-    }
-
-    /**
-     * Loads all configured references into the vision system.
-     * Note: This method attempts to load ALL references, even if some fail.
-     * Partial success (loading some but not all) is acceptable for operation.
-     *
-     * @return true if at least one reference was loaded successfully, false otherwise
-     */
-    private boolean loadAllReferences()
-    {
-        boolean atLeastOneSuccess = false;
-        for (String reference : references)
-        {
-            log.info("Loading reference " + reference);
-            boolean success = protocol.loadReference(reference);
-            if (success)
-            {
-                log.info("Successfully loaded reference " + reference);
-                atLeastOneSuccess = true;
-            }
-            else
-            {
-                log.warn("Failed to load reference " + reference);
-            }
-        }
-
-        if (!atLeastOneSuccess)
-        {
-            log.error("Failed to load any references");
-        }
-
-        return atLeastOneSuccess;
     }
 
     /**

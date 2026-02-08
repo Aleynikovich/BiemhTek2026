@@ -3,6 +3,12 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
+.idea/
+.metadata/
+*.iml
+.Sunrise/
+._*
+*.tmp
 
 ### Eclipse ###
 .apt_generated
@@ -28,8 +34,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/bin/
-!bin/
 
 ### Python ###
 __pycache__/
@@ -40,3 +44,4 @@ __pycache__/
 
 /.metadata/.lock
 /.metadata/.log
+!bin/

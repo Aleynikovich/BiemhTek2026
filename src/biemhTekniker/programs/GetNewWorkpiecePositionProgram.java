@@ -1,48 +1,40 @@
 package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
+import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
 import com.kuka.common.ThreadUtil;
-import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 
 /**
- * Program to get the position of a new workpiece from the vision system.
+ * Vision task to get the position of a new workpiece from the vision system.
+ * This is the legacy 5-step sequence maintained for backward compatibility.
  * Sends sequence: 101, 2, 3, 4, 9 to camera.
- * Camera replies with: "0,0,-601.5,109.2,1193.7,-170.9,2.6,124.9,0,2"
- * Where positions are at indices: [2]=X, [3]=Y, [4]=Z, [5]=Rx, [6]=Ry, [7]=Rz
+ * 
+ * NOTE: New code should use FullScanTask (Program 109) instead, which handles
+ * the complete scan sequence and queue management automatically.
  */
-public class GetNewWorkpiecePositionProgram extends RoboticsAPIApplication
+public class GetNewWorkpiecePositionProgram implements VisionTask
 {
 
     private static final Logger log      = Logger.getLogger(GetNewWorkpiecePositionProgram.class);
     private static final int    DELAY_MS = 200;
 
-    private SmartPickingProtocol protocol;
-    private WorkpieceData        workpieceData;
-
     /**
-     * Sets the dependencies for this program.
-     * Called from Main before run() is invoked.
-     *
-     * @param protocol      SmartPicking protocol connected to vision server
-     * @param workpieceData Shared workpiece data object to store results
-     */
-    public void setDependencies(SmartPickingProtocol protocol, WorkpieceData workpieceData)
-    {
-        this.protocol      = protocol;
-        this.workpieceData = workpieceData;
-    }
-
-    /**
-     * Executes the sequence to get new workpiece position from camera.
+     * Executes the legacy 5-step sequence to get new workpiece position from camera.
      * Sequence: SET_AUTO_MODE(101) -> CAPTURE_DATA(2) -> LOCATE_CONTAINER(3) ->
      * LOCATE_PARTS(4) -> GET_PART_POS(9)
+     * 
+     * Results are added to the workpiece queue.
      */
-    @Override public void run() throws Exception
+    public void execute(VisionContext context) throws Exception
     {
-        log.info("Getting new workpiece position from camera...");
+        log.info("Getting new workpiece position from camera (legacy mode)...");
+
+        // Get dependencies from context
+        SmartPickingProtocol protocol = context.getProtocol();
+        WorkpieceQueue queue = context.getWorkpieceQueue();
 
         // Step 1: Set AUTO mode (101)
         log.debug("Step 1: Setting AUTO mode");
@@ -103,8 +95,11 @@ public class GetNewWorkpiecePositionProgram extends RoboticsAPIApplication
         double rz    = posResult.getRz();
         double score = posResult.getScore();
 
-        workpieceData.set(x, y, z, rx, ry, rz, score);
+        // Create workpiece data and add to queue
+        WorkpieceData workpiece = new WorkpieceData();
+        workpiece.set(x, y, z, rx, ry, rz, score);
+        queue.addWorkpiece(workpiece);
 
-        log.info("Workpiece position retrieved: " + workpieceData);
+        log.info("Workpiece position retrieved and added to queue: " + workpiece);
     }
 }
