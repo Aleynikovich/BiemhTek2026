@@ -34,8 +34,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/bin/
-!bin/
 
 ### Python ###
 __pycache__/
