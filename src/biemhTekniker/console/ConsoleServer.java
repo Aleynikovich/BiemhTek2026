@@ -16,16 +16,17 @@ import java.util.List;
 public class ConsoleServer implements Runnable
 {
     private static final Logger                      log     = Logger.getLogger(ConsoleServer.class);
-    private final        int                         PORT    = 30001;
+    private final        int                         port;
     private final        ConsoleServerInterface      serverInterface;
     private final        List<ConsoleCommandHandler> handlers;
     private              ServerSocket                serverSocket;
     private volatile     boolean                     running = false;
     private              Thread                      serverThread;
 
-    public ConsoleServer(ConsoleServerInterface serverInterface)
+    public ConsoleServer(ConsoleServerInterface serverInterface, int port)
     {
         this.serverInterface = serverInterface;
+        this.port            = port;
         this.handlers        = new ArrayList<ConsoleCommandHandler>();
         log.info("ConsoleServer instance created");
     }
@@ -39,9 +40,9 @@ public class ConsoleServer implements Runnable
 
         try
         {
-            serverSocket = new ServerSocket(PORT);
+            serverSocket = new ServerSocket(port);
             serverSocket.setSoTimeout(1000); // 1 second timeout for accept
-            log.info("Console server socket bound to port " + PORT);
+            log.info("Console server socket bound to port " + port);
 
             // Start server thread
             running      = true;
@@ -53,8 +54,7 @@ public class ConsoleServer implements Runnable
         }
         catch (IOException e)
         {
-            log.error("Failed to start console server on port " + PORT + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("Failed to start console server on port " + port + ": " + e.getMessage(), e);
         }
     }
 
@@ -97,8 +97,7 @@ public class ConsoleServer implements Runnable
             }
             catch (Exception e)
             {
-                log.error("Unexpected error in ConsoleServer: " + e.getMessage());
-                e.printStackTrace();
+                log.error("Unexpected error in ConsoleServer: " + e.getMessage(), e);
             }
         }
 

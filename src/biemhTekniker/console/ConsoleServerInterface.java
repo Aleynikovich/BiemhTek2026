@@ -9,7 +9,7 @@ public interface ConsoleServerInterface
     /**
      * Set the program number.
      *
-     * @param programNumber Program number to execute (0-7)
+     * @param programNumber Program number to execute (0-199)
      */
     void setProgramNumber(int programNumber);
 
@@ -30,7 +30,14 @@ public interface ConsoleServerInterface
     /**
      * Get the current workpiece position as string.
      *
-     * @return Workpiece position string or "invalid" if not set
+     * @return Workpiece position string or status message
      */
     String getWorkpiecePosition();
+
+    /**
+     * Get the formatted queue status.
+     *
+     * @return Queue status string
+     */
+    String getQueueStatus();
 }

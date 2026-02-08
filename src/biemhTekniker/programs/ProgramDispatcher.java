@@ -100,7 +100,7 @@ public class ProgramDispatcher
             }
             catch (Exception e)
             {
-                log.error("Robot program " + programNumber + " failed: " + e.getMessage());
+                log.error("Robot program " + programNumber + " failed: " + e.getMessage(), e);
                 return false;
             }
         }

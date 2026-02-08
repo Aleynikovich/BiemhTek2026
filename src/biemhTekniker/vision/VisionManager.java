@@ -76,7 +76,7 @@ public class VisionManager
                     }
                     catch (Exception e)
                     {
-                        log.error("Vision task failed: " + task.getClass().getSimpleName() + " - " + e.getMessage());
+                        log.error("Vision task failed: " + task.getClass().getSimpleName() + " - " + e.getMessage(), e);
                     }
                     finally
                     {
@@ -87,7 +87,7 @@ public class VisionManager
             }
             catch (Exception e)
             {
-                log.error("VisionExecutorThread error: " + e.getMessage());
+                log.error("VisionExecutorThread error: " + e.getMessage(), e);
             }
         }
         log.info("VisionExecutorThread stopped.");
