@@ -42,9 +42,9 @@ public class ProgramDispatcher
      */
     public void registerRobotProgram(int programNumber, RobotProgram program)
     {
-        if (programNumber < 1 || programNumber > 99)
+        if (!ProgramRange.isRobotProgram(programNumber))
         {
-            throw new IllegalArgumentException("Robot program number must be 1-99, got: " + programNumber);
+            throw new IllegalArgumentException("Robot program number must be " + ProgramRange.ROBOT_MIN + "-" + ProgramRange.ROBOT_MAX + ", got: " + programNumber);
         }
         robotPrograms.put(Integer.valueOf(programNumber), program);
         log.debug("Registered robot program " + programNumber + ": " + program.getClass().getSimpleName());
@@ -58,9 +58,9 @@ public class ProgramDispatcher
      */
     public void registerVisionTask(int programNumber, VisionTask task)
     {
-        if (programNumber < 100 || programNumber > 199)
+        if (!ProgramRange.isVisionProgram(programNumber))
         {
-            throw new IllegalArgumentException("Vision task number must be 100-199, got: " + programNumber);
+            throw new IllegalArgumentException("Vision task number must be " + ProgramRange.VISION_MIN + "-" + ProgramRange.VISION_MAX + ", got: " + programNumber);
         }
         visionTasks.put(Integer.valueOf(programNumber), task);
         log.debug("Registered vision task " + programNumber + ": " + task.getClass().getSimpleName());
@@ -137,14 +137,14 @@ public class ProgramDispatcher
      */
     public boolean dispatch(int programNumber)
     {
-        if (programNumber == 0)
+        if (programNumber == ProgramRange.IDLE)
         {
             // Program 0 is idle, do nothing
             return true;
         }
 
         // Robot programs (1-99)
-        if (programNumber >= 1 && programNumber <= 99)
+        if (ProgramRange.isRobotProgram(programNumber))
         {
             RobotProgram program = robotPrograms.get(Integer.valueOf(programNumber));
             if (program == null)
@@ -168,7 +168,7 @@ public class ProgramDispatcher
         }
 
         // Vision programs (100-199)
-        if (programNumber >= 100 && programNumber <= 199)
+        if (ProgramRange.isVisionProgram(programNumber))
         {
             VisionTask task = visionTasks.get(Integer.valueOf(programNumber));
             if (task == null)
@@ -182,7 +182,7 @@ public class ProgramDispatcher
             return true;
         }
 
-        log.warn("Invalid program number: " + programNumber + " (valid range: 0-199)");
+        log.warn("Invalid program number: " + programNumber + " (valid range: " + ProgramRange.IDLE + "-" + ProgramRange.VISION_MAX + ")");
         return false;
     }
 }

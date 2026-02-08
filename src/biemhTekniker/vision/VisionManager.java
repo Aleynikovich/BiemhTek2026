@@ -5,19 +5,24 @@ import biemhTekniker.programs.VisionContext;
 import biemhTekniker.programs.VisionTask;
 import com.kuka.common.ThreadUtil;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Manages vision tasks execution on the vision thread.
  * Provides non-blocking vision task submission from the robot thread.
  */
 public class VisionManager
 {
-    private static final Logger              log = Logger.getLogger(VisionManager.class);
-    private final        SmartPickingThread  smartPickingThread;
-    private final        VisionContext       visionContext;
-    private volatile     VisionTask          pendingTask;
-    private volatile     boolean             taskRunning;
-    private              Thread              visionExecutorThread;
-    private volatile     boolean             running;
+    private static final Logger                        log = Logger.getLogger(VisionManager.class);
+    private static final int                           TASK_POLL_INTERVAL_MS = 100;
+
+    private final        SmartPickingThread            smartPickingThread;
+    private final        VisionContext                 visionContext;
+    private final        AtomicReference<VisionTask>   pendingTask;
+    private final        AtomicBoolean                 taskRunning;
+    private              Thread                        visionExecutorThread;
+    private volatile     boolean                       running;
 
     /**
      * Creates a vision manager.
@@ -29,7 +34,8 @@ public class VisionManager
     {
         this.smartPickingThread = smartPickingThread;
         this.visionContext      = visionContext;
-        this.taskRunning        = false;
+        this.pendingTask        = new AtomicReference<VisionTask>(null);
+        this.taskRunning        = new AtomicBoolean(false);
         this.running            = true;
     }
 
@@ -62,28 +68,29 @@ public class VisionManager
         {
             try
             {
-                if (pendingTask != null && !taskRunning)
+                VisionTask task = pendingTask.get();
+                if (task != null && !taskRunning.get())
                 {
-                    VisionTask task = pendingTask;
-                    pendingTask = null;
-                    taskRunning = true;
-
-                    try
+                    // Atomically acquire the task
+                    if (pendingTask.compareAndSet(task, null) && taskRunning.compareAndSet(false, true))
                     {
-                        log.debug("Executing vision task: " + task.getClass().getSimpleName());
-                        task.execute(visionContext);
-                        log.debug("Vision task completed: " + task.getClass().getSimpleName());
-                    }
-                    catch (Exception e)
-                    {
-                        log.error("Vision task failed: " + task.getClass().getSimpleName() + " - " + e.getMessage(), e);
-                    }
-                    finally
-                    {
-                        taskRunning = false;
+                        try
+                        {
+                            log.debug("Executing vision task: " + task.getClass().getSimpleName());
+                            task.execute(visionContext);
+                            log.debug("Vision task completed: " + task.getClass().getSimpleName());
+                        }
+                        catch (Exception e)
+                        {
+                            log.error("Vision task failed: " + task.getClass().getSimpleName() + " - " + e.getMessage(), e);
+                        }
+                        finally
+                        {
+                            taskRunning.set(false);
+                        }
                     }
                 }
-                ThreadUtil.milliSleep(100);
+                ThreadUtil.milliSleep(TASK_POLL_INTERVAL_MS);
             }
             catch (Exception e)
             {
@@ -101,13 +108,13 @@ public class VisionManager
      */
     public void submitVisionTask(VisionTask task)
     {
-        if (taskRunning)
+        if (taskRunning.get())
         {
             log.warn("Vision task already running, cannot submit new task: " + task.getClass().getSimpleName());
             return;
         }
         log.info("Submitting vision task: " + task.getClass().getSimpleName());
-        pendingTask = task;
+        pendingTask.set(task);
     }
 
     /**
@@ -137,7 +144,7 @@ public class VisionManager
      */
     public boolean isTaskRunning()
     {
-        return taskRunning || pendingTask != null;
+        return taskRunning.get() || pendingTask.get() != null;
     }
 
     /**

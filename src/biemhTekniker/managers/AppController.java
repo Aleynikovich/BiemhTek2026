@@ -4,6 +4,7 @@ import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.vision.VisionManager;
 
 /**
@@ -36,11 +37,11 @@ public class AppController implements ConsoleServerInterface {
 
     @Override
     public void setProgramNumber(int programNumber) {
-        if (programNumber >= 0 && programNumber <= 199) {
+        if (ProgramRange.isValid(programNumber)) {
             this.programNumber = programNumber;
             log.info("Program number set to: " + programNumber + " via console");
         } else {
-            log.warn("Invalid program number requested: " + programNumber + " (valid range: 0-199)");
+            log.warn("Invalid program number requested: " + programNumber + " (valid range: " + ProgramRange.IDLE + "-" + ProgramRange.VISION_MAX + ")");
         }
     }
 

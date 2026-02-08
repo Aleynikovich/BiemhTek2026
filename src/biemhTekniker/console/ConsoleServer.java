@@ -5,8 +5,8 @@ import biemhTekniker.logger.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Console command server for GUI integration.
@@ -16,6 +16,8 @@ import java.util.List;
 public class ConsoleServer implements Runnable
 {
     private static final Logger                      log     = Logger.getLogger(ConsoleServer.class);
+    private static final int                         ACCEPT_TIMEOUT_MS = 1000;
+
     private final        int                         port;
     private final        ConsoleServerInterface      serverInterface;
     private final        List<ConsoleCommandHandler> handlers;
@@ -27,7 +29,7 @@ public class ConsoleServer implements Runnable
     {
         this.serverInterface = serverInterface;
         this.port            = port;
-        this.handlers        = new ArrayList<ConsoleCommandHandler>();
+        this.handlers        = new CopyOnWriteArrayList<ConsoleCommandHandler>();
         log.info("ConsoleServer instance created");
     }
 
@@ -41,7 +43,7 @@ public class ConsoleServer implements Runnable
         try
         {
             serverSocket = new ServerSocket(port);
-            serverSocket.setSoTimeout(1000); // 1 second timeout for accept
+            serverSocket.setSoTimeout(ACCEPT_TIMEOUT_MS);
             log.info("Console server socket bound to port " + port);
 
             // Start server thread
@@ -72,10 +74,7 @@ public class ConsoleServer implements Runnable
 
                 // Create handler for this client
                 ConsoleCommandHandler handler = new ConsoleCommandHandler(clientSocket, serverInterface);
-                synchronized (handlers)
-                {
-                    handlers.add(handler);
-                }
+                handlers.add(handler);
 
                 // Start handler in new thread
                 Thread handlerThread = new Thread(handler, "ClientHandler-" + clientSocket.getInetAddress());
@@ -113,21 +112,18 @@ public class ConsoleServer implements Runnable
         running = false;
 
         // Shutdown all handlers
-        synchronized (handlers)
+        for (ConsoleCommandHandler handler : handlers)
         {
-            for (ConsoleCommandHandler handler : handlers)
+            try
             {
-                try
-                {
-                    handler.shutdown();
-                }
-                catch (Exception e)
-                {
-                    log.error("Error shutting down handler: " + e.getMessage(), e);
-                }
+                handler.shutdown();
             }
-            handlers.clear();
+            catch (Exception e)
+            {
+                log.error("Error shutting down handler: " + e.getMessage(), e);
+            }
         }
+        handlers.clear();
 
         // Close server socket
         if (serverSocket != null)
@@ -178,18 +174,16 @@ public class ConsoleServer implements Runnable
      */
     public boolean hasActiveClients()
     {
-        synchronized (handlers)
+        List<ConsoleCommandHandler> inactive = new java.util.ArrayList<ConsoleCommandHandler>();
+        for (ConsoleCommandHandler handler : handlers)
         {
-            // Clean up finished handlers before checking
-            for (int i = handlers.size() - 1; i >= 0; i--)
+            if (!handler.isActive())
             {
-                if (!handlers.get(i).isActive())
-                {
-                    handlers.remove(i);
-                }
+                inactive.add(handler);
             }
-            return !handlers.isEmpty();
         }
+        handlers.removeAll(inactive);
+        return !handlers.isEmpty();
     }
 }
 
