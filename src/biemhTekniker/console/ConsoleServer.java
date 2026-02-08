@@ -50,7 +50,7 @@ public class ConsoleServer implements Runnable
             serverThread.setDaemon(true);
             serverThread.start();
 
-            log.info("Console server thread started and listening on port " + PORT);
+            log.info("Console server thread started and listening on port " + port);
         }
         catch (IOException e)
         {
@@ -92,7 +92,7 @@ public class ConsoleServer implements Runnable
             {
                 if (running)
                 {
-                    log.error("Error accepting client: " + e.getMessage());
+                    log.error("Error accepting client: " + e.getMessage(), e);
                 }
             }
             catch (Exception e)
@@ -123,7 +123,7 @@ public class ConsoleServer implements Runnable
                 }
                 catch (Exception e)
                 {
-                    log.error("Error shutting down handler: " + e.getMessage());
+                    log.error("Error shutting down handler: " + e.getMessage(), e);
                 }
             }
             handlers.clear();
@@ -135,11 +135,11 @@ public class ConsoleServer implements Runnable
             try
             {
                 serverSocket.close();
-                log.info("Console server socket closed on port " + PORT);
+                log.info("Console server socket closed on port " + port);
             }
             catch (IOException e)
             {
-                log.error("Error closing console server socket: " + e.getMessage());
+                log.error("Error closing console server socket: " + e.getMessage(), e);
             }
         }
 

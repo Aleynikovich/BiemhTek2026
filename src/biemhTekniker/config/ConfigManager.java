@@ -55,7 +55,7 @@ public class ConfigManager
         }
         catch (IOException e)
         {
-            log.error("Failed to load configuration from " + CONFIG_PATH + ": " + e.getMessage());
+            log.error("Failed to load configuration from " + CONFIG_PATH + ": " + e.getMessage(), e);
         }
         finally
         {

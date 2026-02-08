@@ -294,7 +294,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (Exception e)
         {
-            log.error("Error sending log message: " + e.getMessage());
+            log.error("Error sending log message: " + e.getMessage(), e);
         }
     }
 
@@ -347,7 +347,7 @@ public class ConsoleCommandHandler implements Runnable
         }
         catch (IOException e)
         {
-            log.error("Cleanup error: " + e.getMessage());
+            log.error("Cleanup error: " + e.getMessage(), e);
         }
     }
 

@@ -20,7 +20,7 @@ public class LoadReferencesTask implements VisionTask
 
         if (references.length == 0)
         {
-            log.error("No references configured in application.properties");
+            log.error("No references configured in application.properties", e);
             throw new Exception("No references configured");
         }
 
@@ -37,7 +37,7 @@ public class LoadReferencesTask implements VisionTask
             }
             else
             {
-                log.error("Failed to load reference: " + refName);
+                log.error("Failed to load reference: " + refName, e);
             }
         }
 

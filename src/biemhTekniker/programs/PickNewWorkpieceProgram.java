@@ -83,7 +83,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
         catch (CommandInvalidException e)
         {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             try
             {
                 log.info("Attempting to pick with alternate position, gripperA1: " + alternatePickPosition);
@@ -95,7 +95,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             catch (CommandInvalidException e2)
             {
-                log.error(e.getMessage());
+                log.error(e.getMessage(), e);
                 try
                 {
                     log.info("Attempting to pick with regular position, gripperB2: " + pickPosition);
