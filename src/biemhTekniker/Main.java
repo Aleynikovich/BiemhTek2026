@@ -132,7 +132,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             switch (programNumber)
             {
                 case 0:
-                    new TestProgram().run();
                     // Program 0 - Idle
                     break;
 
@@ -195,10 +194,18 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return;
         }
 
-        GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram(smartPickingThread.getProtocol(), workpieceData);
+        GetNewWorkpiecePositionProgram program = new GetNewWorkpiecePositionProgram();
+        program.setDependencies(smartPickingThread.getProtocol(), workpieceData);
 
-        boolean success = program.execute();
-        logProgramResult("Get New Workpiece Position", success);
+        try
+        {
+            program.run();
+            log.info("Get New Workpiece Position program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Get New Workpiece Position program failed: " + e.getMessage());
+        }
     }
 
     private void executeCalibration()
@@ -208,10 +215,18 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return;
         }
 
-        CalibrationProgram program = new CalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
+        CalibrationProgram program = new CalibrationProgram();
+        program.setProtocol(smartPickingThread.getProtocol());
 
-        boolean success = program.execute();
-        logProgramResult("Calibration", success);
+        try
+        {
+            program.run();
+            log.info("Calibration program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Calibration program failed: " + e.getMessage());
+        }
     }
 
     private void testCalibration()
@@ -221,10 +236,18 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return;
         }
 
-        TestCalibrationProgram program = new TestCalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
+        TestCalibrationProgram program = new TestCalibrationProgram();
+        program.setProtocol(smartPickingThread.getProtocol());
 
-        boolean success = program.execute();
-        logProgramResult("Test Calibration", success);
+        try
+        {
+            program.run();
+            log.info("Test Calibration program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Test Calibration program failed: " + e.getMessage());
+        }
     }
 
     private void pickNewWorkpiece()
@@ -244,36 +267,65 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         //REMOVE HARDCODE IN PRODUCTION
 
 
-        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram(this, iiwa, workpieceData, gripper, gripperIO);
+        PickNewWorkpieceProgram program = new PickNewWorkpieceProgram();
+        program.setWorkpieceData(workpieceData);
 
-        boolean success = program.execute();
-        logProgramResult("Pick New Workpiece", success);
+        try
+        {
+            program.run();
+            log.info("Pick New Workpiece program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Pick New Workpiece program failed: " + e.getMessage());
+        }
     }
 
     // ========== Program Execution Methods ==========
 
     private void placeNewWorkpiece()
     {
-        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram(this, iiwa, gripper, gripperIO);
+        PlaceNewWorkpieceProgram program = new PlaceNewWorkpieceProgram();
 
-        boolean success = program.execute();
-        logProgramResult("Place New Workpiece", success);
+        try
+        {
+            program.run();
+            log.info("Place New Workpiece program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Place New Workpiece program failed: " + e.getMessage());
+        }
     }
 
     private void pickMeasuredWorkpiece()
     {
-        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram(this, iiwa);
+        PickMeasuredWorkpieceProgram program = new PickMeasuredWorkpieceProgram();
 
-        boolean success = program.execute();
-        logProgramResult("Pick Measured Workpiece", success);
+        try
+        {
+            program.run();
+            log.info("Pick Measured Workpiece program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Pick Measured Workpiece program failed: " + e.getMessage());
+        }
     }
 
     private void placeMeasuredWorkpiece()
     {
-        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram(this, iiwa);
+        PlaceMeasuredWorkpieceProgram program = new PlaceMeasuredWorkpieceProgram();
 
-        boolean success = program.execute();
-        logProgramResult("Place Measured Workpiece", success);
+        try
+        {
+            program.run();
+            log.info("Place Measured Workpiece program completed successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Place Measured Workpiece program failed: " + e.getMessage());
+        }
     }
 
     private boolean checkVisionConnection()
@@ -284,18 +336,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             return false;
         }
         return true;
-    }
-
-    private void logProgramResult(String programName, boolean success)
-    {
-        if (success)
-        {
-            log.info(programName + " program completed successfully");
-        }
-        else
-        {
-            log.error(programName + " program failed");
-        }
     }
 
     @Override public void setProgramNumber(int programNumber)

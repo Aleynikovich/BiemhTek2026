@@ -1,6 +1,5 @@
 package IOPolling;
 
-
 import com.kuka.generated.ioAccess.RobotCartesianPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
@@ -15,8 +14,8 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
     @Inject private Controller                    sunrise;
     @Inject private LBR                           iiwa;
     @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
-    private int decimalMultiplier = 10;
-    
+    private final   int                           decimalMultiplier = 10;
+
     @Override public void initialize()
     {
         // initialize your task here

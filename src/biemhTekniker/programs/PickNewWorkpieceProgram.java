@@ -2,7 +2,6 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
-
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -12,45 +11,50 @@ import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Program to pick a new workpiece using position from GetNewWorkpiecePositionProgram.
  */
-public class PickNewWorkpieceProgram
+public class PickNewWorkpieceProgram extends RoboticsAPIApplication
 {
 
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
 
-    private final RoboticsAPIApplication application;
-    private final LBR                    iiwa;
-    private final WorkpieceData          workpieceData;
-    private final Tool                   gripper;
-    private final MediaFlangeIOGroup     gripperIO;
+    @Inject private LBR iiwa;
 
-    public PickNewWorkpieceProgram(RoboticsAPIApplication application, LBR robot, WorkpieceData workpieceData, Tool gripper, MediaFlangeIOGroup gripperIO)
+    @Inject @Named("Gripper") private Tool gripper;
+
+    @Inject private MediaFlangeIOGroup gripperIO;
+
+    private WorkpieceData workpieceData;
+
+    /**
+     * Sets the workpiece data dependency.
+     * Called from Main before run() is invoked.
+     *
+     * @param workpieceData Shared workpiece data object
+     */
+    public void setWorkpieceData(WorkpieceData workpieceData)
     {
-        this.application   = application;
-        this.iiwa          = robot;
         this.workpieceData = workpieceData;
-        this.gripper       = gripper;
-        this.gripperIO     = gripperIO;
     }
 
     /**
      * Executes the pick operation for a new workpiece.
-     *
-     * @return true if pick succeeded, false otherwise
      */
-    public boolean execute()
+    @Override public void run() throws Exception
     {
         log.info("Picking new workpiece...");
 
         if (!workpieceData.isValid())
         {
             log.error("Cannot pick workpiece - no valid position data available");
-            return false;
+            throw new Exception("Invalid workpiece data");
         }
 
         log.debug("Using workpiece position: " + workpieceData);
@@ -121,8 +125,6 @@ public class PickNewWorkpieceProgram
             }
         }
 
-        gripper.move(ptp(application.getApplicationData().getFrame("/BiemhHome")));
-
-        return true;
+        gripper.move(ptp(getApplicationData().getFrame("/BiemhHome")));
     }
 }

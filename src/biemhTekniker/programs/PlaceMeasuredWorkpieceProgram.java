@@ -4,29 +4,22 @@ import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 
+import javax.inject.Inject;
+
 /**
  * Program to place a measured workpiece back at its location.
  */
-public class PlaceMeasuredWorkpieceProgram
+public class PlaceMeasuredWorkpieceProgram extends RoboticsAPIApplication
 {
 
     private static final Logger log = Logger.getLogger(PlaceMeasuredWorkpieceProgram.class);
 
-    private final RoboticsAPIApplication application;
-    private final LBR                    robot;
-
-    public PlaceMeasuredWorkpieceProgram(RoboticsAPIApplication application, LBR robot)
-    {
-        this.application = application;
-        this.robot       = robot;
-    }
+    @Inject private LBR iiwa;
 
     /**
      * Executes the place operation for a measured workpiece.
-     *
-     * @return true if place succeeded, false otherwise
      */
-    public boolean execute()
+    @Override public void run() throws Exception
     {
         log.info("Placing measured workpiece...");
 
@@ -36,6 +29,5 @@ public class PlaceMeasuredWorkpieceProgram
         // 3. Move to safe position
 
         log.warn("PlaceMeasuredWorkpieceProgram: Motion not yet implemented");
-        return true;
     }
 }
