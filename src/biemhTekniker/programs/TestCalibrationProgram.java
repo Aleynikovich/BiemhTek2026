@@ -18,12 +18,9 @@ public class TestCalibrationProgram extends RoboticsAPIApplication
 
     private static final Logger log = Logger.getLogger(TestCalibrationProgram.class);
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
-    @Inject
-    @Named("Gripper")
-    private Tool gripper;
+    @Inject @Named("Gripper") private Tool gripper;
 
     private SmartPickingProtocol protocol;
 
@@ -41,8 +38,7 @@ public class TestCalibrationProgram extends RoboticsAPIApplication
     /**
      * Executes the calibration test routine.
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Testing calibration...");
 

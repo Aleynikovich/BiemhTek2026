@@ -77,7 +77,6 @@ public class Motions extends RoboticsAPIApplication
         lbr.move(linToStartFrame);
     }
 
-
     private Spline createLemniscateSpline(Frame centerFrame)
     {
 
@@ -103,7 +102,6 @@ public class Motions extends RoboticsAPIApplication
         Spline spline = new Spline(spl(bottomLeftFrame), spl(leftFrame), spl(topLeftFrame), spl(centerFrame), spl(bottomRightFrame), spl(rightFrame), spl(topRightFrame), spl(centerFrame));
         return spline;
     }
-
 
     private Frame createChildFrameAndSetE1Offset(Frame parent, double offset)
     {

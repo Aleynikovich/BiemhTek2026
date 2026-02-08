@@ -4,8 +4,8 @@ import com.kuka.generated.ioAccess.RobotJointPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.controllerModel.Controller;
-import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.deviceModel.JointPosition;
+import com.kuka.roboticsAPI.deviceModel.LBR;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -14,34 +14,63 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
     private final int decimalMultiplier = 10;
 
-    @Inject private Controller sunrise;
-    @Inject private LBR iiwa;
+    @Inject private Controller                sunrise;
+    @Inject private LBR                       iiwa;
     @Inject private RobotJointPositionIOGroup currentAxisPosition;
-
-    private interface AxisSetter {
-        void set(int value);
-    }
-
     private AxisSetter[] axisSetters;
 
-    @Override
-    public void initialize()
+    @Override public void initialize()
     {
-        axisSetters = new AxisSetter[] {
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA1(v); } },
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA2(v); } },
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA3(v); } },
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA4(v); } },
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA5(v); } },
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA6(v); } },
-            new AxisSetter() { public void set(int v) { currentAxisPosition.setA7(v); } }
+        axisSetters = new AxisSetter[]{
+                new AxisSetter()
+                {
+                    public void set(int v)
+                    {
+                        currentAxisPosition.setA1(v);
+                    }
+                }, new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA2(v);
+            }
+        }, new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA3(v);
+            }
+        }, new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA4(v);
+            }
+        }, new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA5(v);
+            }
+        }, new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA6(v);
+            }
+        }, new AxisSetter()
+        {
+            public void set(int v)
+            {
+                currentAxisPosition.setA7(v);
+            }
+        }
         };
 
         initializeCyclic(0, 500, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
     }
 
-    @Override
-    public void runCyclic()
+    @Override public void runCyclic()
     {
         try
         {
@@ -62,5 +91,10 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
     @Override public void dispose()
     {
 
+    }
+
+    private interface AxisSetter
+    {
+        void set(int value);
     }
 }

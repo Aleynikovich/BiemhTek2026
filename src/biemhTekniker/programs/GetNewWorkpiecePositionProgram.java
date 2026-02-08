@@ -40,8 +40,7 @@ public class GetNewWorkpiecePositionProgram extends RoboticsAPIApplication
      * Sequence: SET_AUTO_MODE(101) -> CAPTURE_DATA(2) -> LOCATE_CONTAINER(3) ->
      * LOCATE_PARTS(4) -> GET_PART_POS(9)
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Getting new workpiece position from camera...");
 

@@ -1,10 +1,6 @@
 package biemhTekniker.programs;
 
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
-
 import biemhTekniker.logger.Logger;
-
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -15,6 +11,9 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+
 /**
  * Program to place a new workpiece at a predefined location.
  */
@@ -23,21 +22,16 @@ public class PlaceNewWorkpieceProgram extends RoboticsAPIApplication
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
-    @Inject
-    @Named("Gripper")
-    private Tool gripper;
+    @Inject @Named("Gripper") private Tool gripper;
 
-    @Inject
-    private MediaFlangeIOGroup gripperIO;
+    @Inject private MediaFlangeIOGroup gripperIO;
 
     /**
      * Executes the place operation for a new workpiece.
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Placing new workpiece...");
 

@@ -2,7 +2,6 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.logger.Logger;
-
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -26,15 +25,11 @@ public class PickNewWorkpieceProgram extends RoboticsAPIApplication
 
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
-    @Inject
-    @Named("Gripper")
-    private Tool gripper;
+    @Inject @Named("Gripper") private Tool gripper;
 
-    @Inject
-    private MediaFlangeIOGroup gripperIO;
+    @Inject private MediaFlangeIOGroup gripperIO;
 
     private WorkpieceData workpieceData;
 
@@ -52,8 +47,7 @@ public class PickNewWorkpieceProgram extends RoboticsAPIApplication
     /**
      * Executes the pick operation for a new workpiece.
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Picking new workpiece...");
 

@@ -75,7 +75,6 @@ public class WorkpieceData
         return valid;
     }
 
-
     public void set(double x, double y, double z, double rx, double ry, double rz, double score)
     {
         this.x     = x;
