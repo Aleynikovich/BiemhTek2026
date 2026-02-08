@@ -82,7 +82,7 @@ public class SmartPickingThread extends Thread
                     {
                         log.info("Connection lost, attempting to reconnect...");
                     }
-                    
+
                     referencesLoaded = false;
                     socketClient.connect();
                     if (socketClient.isConnected())
@@ -119,17 +119,6 @@ public class SmartPickingThread extends Thread
     }
 
     /**
-     * Cleans up resources.
-     */
-    private void cleanup()
-    {
-        if (socketClient != null)
-        {
-            socketClient.close();
-        }
-    }
-
-    /**
      * Loads all configured references into the vision system.
      * Note: This method attempts to load ALL references, even if some fail.
      * Partial success (loading some but not all) is acceptable for operation.
@@ -153,13 +142,24 @@ public class SmartPickingThread extends Thread
                 log.warn("Failed to load reference " + reference);
             }
         }
-        
+
         if (!atLeastOneSuccess)
         {
             log.error("Failed to load any references");
         }
-        
+
         return atLeastOneSuccess;
+    }
+
+    /**
+     * Cleans up resources.
+     */
+    private void cleanup()
+    {
+        if (socketClient != null)
+        {
+            socketClient.close();
+        }
     }
 
     /**

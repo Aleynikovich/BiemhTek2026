@@ -14,14 +14,12 @@ public class PlaceMeasuredWorkpieceProgram extends RoboticsAPIApplication
 
     private static final Logger log = Logger.getLogger(PlaceMeasuredWorkpieceProgram.class);
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
     /**
      * Executes the place operation for a measured workpiece.
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Placing measured workpiece...");
 

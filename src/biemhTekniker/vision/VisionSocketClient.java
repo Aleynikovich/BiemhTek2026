@@ -13,11 +13,11 @@ import java.nio.charset.StandardCharsets;
 
 public class VisionSocketClient
 {
-    private static final Logger      log            = Logger.getLogger(VisionSocketClient.class);
+    private static final Logger      log           = Logger.getLogger(VisionSocketClient.class);
     private final        String      ip;
     private final        int         port;
-    private final        int         timeout        = 5000;
-    private final        int         socketTimeout  = 30000; // 30s for operations like loading references
+    private final        int         timeout       = 5000;
+    private final        int         socketTimeout = 30000; // 30s for operations like loading references
     private              Socket      socket;
     private              InputStream in;
     private              PrintWriter out;
@@ -145,7 +145,7 @@ public class VisionSocketClient
             {
                 return false;
             }
-            
+
             // Check if input stream is still functional by calling available()
             // This method throws IOException if the stream is closed or connection is broken
             // We call it for its side effect - the return value doesn't matter

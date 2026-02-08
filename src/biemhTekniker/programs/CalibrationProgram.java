@@ -19,12 +19,9 @@ public class CalibrationProgram extends RoboticsAPIApplication
 
     private static final Logger log = Logger.getLogger(CalibrationProgram.class);
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
-    @Inject
-    @Named("Gripper")
-    private Tool gripper;
+    @Inject @Named("Gripper") private Tool gripper;
 
     private SmartPickingProtocol protocol;
 
@@ -43,8 +40,7 @@ public class CalibrationProgram extends RoboticsAPIApplication
      * Executes the calibration routine for the vision system.
      * Uses the existing connection maintained by SmartPickingThread.
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Starting calibration program...");
 

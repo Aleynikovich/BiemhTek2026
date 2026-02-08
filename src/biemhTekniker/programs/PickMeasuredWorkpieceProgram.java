@@ -14,14 +14,12 @@ public class PickMeasuredWorkpieceProgram extends RoboticsAPIApplication
 
     private static final Logger log = Logger.getLogger(PickMeasuredWorkpieceProgram.class);
 
-    @Inject
-    private LBR iiwa;
+    @Inject private LBR iiwa;
 
     /**
      * Executes the pick operation for a measured workpiece.
      */
-    @Override
-    public void run() throws Exception
+    @Override public void run() throws Exception
     {
         log.info("Picking measured workpiece...");
 

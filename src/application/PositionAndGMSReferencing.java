@@ -24,14 +24,14 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  */
 public class PositionAndGMSReferencing extends RoboticsAPIApplication
 {
-    private final static double     sideOffset = Math.toRadians(5);       // offset in radians for side motion
-    private final static int[]      axisId = {0, 1, 2, 3, 4, 5, 6};        // axes to be referenced
+    private final static double     sideOffset              = Math.toRadians(5);       // offset in radians for side motion
+    private final static int[]      axisId                  = {0, 1, 2, 3, 4, 5, 6};        // axes to be referenced
     private final static int        GMS_REFERENCING_COMMAND = 2;             // safety command for GMS referencing
-    private final static int        COMMAND_SUCCESSFUL = 1;
+    private final static int        COMMAND_SUCCESSFUL      = 1;
     @Inject private      Controller kukaController;
     @Inject private      LBR        lbr_iiwa;
-    private              double     joggingVelocity = 0.15;                            // relative velocity
-    private              int        positionCounter = 0;
+    private              double     joggingVelocity         = 0.15;                            // relative velocity
+    private              int        positionCounter         = 0;
 
     public void initialize()
     {
