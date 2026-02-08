@@ -23,6 +23,7 @@ import com.kuka.generated.ioAccess.RobotSafetyIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -59,6 +60,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private AppController         appController;
     private HomePositionManager   homePositionManager;
     private SmartPickingThread    smartPickingThread;
+    private IUserKeyBar hmiKeyBar;
 
     // Shared data and dispatching
     private WorkpieceQueue    workpieceQueue;
@@ -106,6 +108,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize PLC manager
         plcManager = new PLCManager(AutExtIO, visionIO, programDispatcher, smartPickingThread, workpieceQueue);
+
+        // Initialize HMI Buttons
+        initializeHmiButtons();
 
         // Initialize home position manager
         homePositionManager = new HomePositionManager();
@@ -277,5 +282,27 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Override public boolean hasActiveClients()
     {
         return appController.hasActiveClients();
+    }
+
+    /**
+     * Initializes the HMI programmable buttons on the SmartPad.
+     */
+    private void initializeHmiButtons()
+    {
+        try
+        {
+            log.info("Initializing HMI programmable buttons...");
+            hmiKeyBar = getApplicationUI().createUserKeyBar("BiemhTek_HMI");
+
+            biemhTekniker.hmi.HmiButtonHandler buttonHandler =
+                    new biemhTekniker.hmi.HmiButtonHandler(iiwa, gripper, gripperIO);
+
+            buttonHandler.registerUserKeys(hmiKeyBar);
+            log.info("HMI programmable buttons initialized successfully");
+        }
+        catch (Exception e)
+        {
+            log.error("Failed to initialize HMI buttons: " + e.getMessage(), e);
+        }
     }
 }
