@@ -7,47 +7,49 @@ import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 /**
  * Calibration program for the vision system.
  * Executes the full calibration sequence using the SmartPicking connection.
  */
-public class CalibrationProgram
+public class CalibrationProgram extends RoboticsAPIApplication
 {
 
     private static final Logger log = Logger.getLogger(CalibrationProgram.class);
 
-    private final RoboticsAPIApplication application;
-    private final LBR                    robot;
-    private final SmartPickingProtocol   protocol;
-    private final Tool gripper;
+    @Inject
+    private LBR iiwa;
+
+    @Inject
+    @Named("Gripper")
+    private Tool gripper;
+
+    private SmartPickingProtocol protocol;
 
     /**
-     * Creates a calibration program.
+     * Sets the SmartPicking protocol dependency.
+     * Called from Main before run() is invoked.
      *
-     * @param application The robotics API application
-     * @param robot       The LBR robot
-     * @param protocol    SmartPicking protocol connected to vision server
+     * @param protocol SmartPicking protocol connected to vision server
      */
-    public CalibrationProgram(RoboticsAPIApplication application, LBR robot, SmartPickingProtocol protocol, Tool gripper)
+    public void setProtocol(SmartPickingProtocol protocol)
     {
-        this.application = application;
-        this.robot       = robot;
-        this.protocol    = protocol;
-        this.gripper = gripper;
+        this.protocol = protocol;
     }
 
     /**
      * Executes the calibration routine for the vision system.
      * Uses the existing connection maintained by SmartPickingThread.
-     *
-     * @return true if calibration completed successfully, false otherwise
      */
-    public boolean execute()
+    @Override
+    public void run() throws Exception
     {
         log.info("Starting calibration program...");
 
         // Create calibration routine
-        VisionRoutines calibration = new VisionRoutines(application, robot, protocol, robot.getFlange(), gripper);
+        VisionRoutines calibration = new VisionRoutines(this, iiwa, protocol, iiwa.getFlange(), gripper);
 
         // Execute calibration
         boolean success = calibration.executeCalibration("/CalibrationPoints", "/CalibrationPoints/P16");
@@ -59,8 +61,7 @@ public class CalibrationProgram
         else
         {
             log.error("Calibration program failed");
+            throw new Exception("Calibration failed");
         }
-
-        return success;
     }
 }
