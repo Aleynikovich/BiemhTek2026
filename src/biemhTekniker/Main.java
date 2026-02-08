@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
 
 /**
  * Main robot application.
@@ -76,7 +77,10 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.0);
-        log.info("Main application initialized");
+
+
+        iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
+        iiwa.setHomePosition(iiwa.getCurrentJointPosition());
     }
 
     @Override public void dispose()
@@ -120,11 +124,11 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     @Override public void run()
     {
-        log.info("Main application running, moving home");
-        iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
+        log.info("Main application running, entering main loop.");
 
         while (true)
         {
+            iiwa.move(ptpHome());
             switch (programNumber)
             {
                 case 0:
@@ -139,7 +143,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
                 case 2:
                     // Program 2 - Calibration
-                    iiwa.getFlange().move(ptp(getApplicationData().getFrame("/P1")));
                     executeCalibration();
                     programNumber = 0;
                     break;
@@ -216,8 +219,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         {
             return;
         }
-
-        TestCalibrationProgram program = new TestCalibrationProgram(this, iiwa, smartPickingThread.getProtocol(), gripper);
 
         boolean success = program.execute();
         logProgramResult("Test Calibration", success);
