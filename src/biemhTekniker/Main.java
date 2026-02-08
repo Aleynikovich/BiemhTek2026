@@ -3,9 +3,12 @@ package biemhTekniker;
 import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceData;
+import biemhTekniker.dispatcher.DefaultProgramTaskFactory;
+import biemhTekniker.dispatcher.ProgramDispatcher;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.managers.LoggingManager;
 import biemhTekniker.programs.*;
+import biemhTekniker.registry.ProgramRegistry;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -25,6 +28,11 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
  * Main robot application.
  * Manages program execution, logging, and vision system integration.
  * Implements ConsoleServerInterface for GUI control.
+ * 
+ * Configuration:
+ * - CONFIG_SERVICE_BASE_URL: Base URL of the config service REST API
+ *   Example: "http://172.31.1.100:8080"
+ *   Set to empty string to disable config service integration
  */
 public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
 {
@@ -32,12 +40,21 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     // Configuration
     private static final String             VISION_SERVER_IP   = "172.31.1.69";
     private static final int                VISION_SERVER_PORT = 59002;
+    
+    // Config Service Configuration
+    // TODO: Load from properties file or external config for production
+    private static final String             CONFIG_SERVICE_BASE_URL = "http://172.31.1.100:8080";
+    
     @Inject private      LBR                iiwa;
     @Inject private      RobotSafetyIOGroup safetyIO;
     // Managers and threads
     private              LoggingManager     loggingManager;
     private              SmartPickingThread smartPickingThread;
     private              ConsoleServer      consoleServer;
+    
+    // Dispatcher and registry
+    private              ProgramRegistry    programRegistry;
+    private              ProgramDispatcher  programDispatcher;
 
     // Gripper data
     @Inject @Named("Gripper") // Matches the name defined in your Station Setup
@@ -78,6 +95,25 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.0);
 
+        // Initialize program registry and dispatcher
+        if (CONFIG_SERVICE_BASE_URL != null && !CONFIG_SERVICE_BASE_URL.isEmpty()) {
+            log.info("Initializing program registry with config service: " + CONFIG_SERVICE_BASE_URL);
+            programRegistry = new ProgramRegistry(CONFIG_SERVICE_BASE_URL);
+            programDispatcher = new ProgramDispatcher(programRegistry);
+            
+            // Register default task factory
+            DefaultProgramTaskFactory factory = new DefaultProgramTaskFactory(
+                    smartPickingThread.getProtocol(),
+                    workpieceData,
+                    CONFIG_SERVICE_BASE_URL
+            );
+            programDispatcher.registerFactory(factory);
+            
+            // Refresh program cache
+            programRegistry.refreshCache();
+        } else {
+            log.warn("Config service not configured, dispatcher will not be available");
+        }
 
         iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
         iiwa.setHomePosition(iiwa.getCurrentJointPosition());
@@ -86,6 +122,12 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Override public void dispose()
     {
         log.info("Main application shutting down");
+
+        // Shutdown dispatcher
+        if (programDispatcher != null)
+        {
+            programDispatcher.shutdown();
+        }
 
         // Shutdown console server
         if (consoleServer != null)
@@ -129,59 +171,98 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         while (true)
         {
             iiwa.move(ptpHome());
-            switch (programNumber)
+            
+            if (programNumber != 0)
             {
-                case 0:
-                    // Program 0 - Idle
-                    break;
-
-                case 1:
-                    // Program 1 - Get New Workpiece Position
-                    getNewWorkpiecePosition();
+                // Use dispatcher if available, otherwise fall back to legacy switch
+                if (programDispatcher != null)
+                {
+                    // Check vision connection for vision tasks
+                    if (programNumber >= 1 && programNumber <= 3) {
+                        if (!checkVisionConnection()) {
+                            programNumber = 0;
+                            ThreadUtil.milliSleep(200);
+                            continue;
+                        }
+                    }
+                    
+                    // Dispatch the program
+                    // The dispatcher will handle async execution for VISION tasks
+                    // and sync execution for ROBOT tasks
+                    final int currentProgram = programNumber;
+                    programDispatcher.dispatch(currentProgram, new Runnable() {
+                        @Override
+                        public void run() {
+                            programNumber = 0;
+                        }
+                    });
+                    
+                    // For ROBOT tasks, the dispatcher blocks until complete
+                    // For VISION tasks, it returns immediately and callback resets programNumber
+                }
+                else
+                {
+                    // Legacy fallback if dispatcher not configured
+                    log.warn("Dispatcher not configured, using legacy switch statement");
+                    executeLegacyProgram(programNumber);
                     programNumber = 0;
-                    break;
-
-                case 2:
-                    // Program 2 - Calibration
-                    executeCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 3:
-                    // Program 3 - Test Calibration
-                    testCalibration();
-                    programNumber = 0;
-                    break;
-
-                case 4:
-                    // Program 4 - Pick New Workpiece
-                    pickNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 5:
-                    // Program 5 - Place New Workpiece
-                    placeNewWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 6:
-                    // Program 6 - Pick Measured Workpiece
-                    pickMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                case 7:
-                    // Program 7 - Place Measured Workpiece
-                    placeMeasuredWorkpiece();
-                    programNumber = 0;
-                    break;
-
-                default:
-                    log.warn("Unknown program number: " + programNumber);
-                    break;
+                }
             }
+            
             ThreadUtil.milliSleep(200);
+        }
+    }
+    
+    /**
+     * Legacy program execution using switch statement.
+     * Used as fallback when dispatcher is not configured.
+     */
+    private void executeLegacyProgram(int progNum)
+    {
+        switch (progNum)
+        {
+            case 0:
+                // Program 0 - Idle
+                break;
+
+            case 1:
+                // Program 1 - Get New Workpiece Position
+                getNewWorkpiecePosition();
+                break;
+
+            case 2:
+                // Program 2 - Calibration
+                executeCalibration();
+                break;
+
+            case 3:
+                // Program 3 - Test Calibration
+                testCalibration();
+                break;
+
+            case 4:
+                // Program 4 - Pick New Workpiece
+                pickNewWorkpiece();
+                break;
+
+            case 5:
+                // Program 5 - Place New Workpiece
+                placeNewWorkpiece();
+                break;
+
+            case 6:
+                // Program 6 - Pick Measured Workpiece
+                pickMeasuredWorkpiece();
+                break;
+
+            case 7:
+                // Program 7 - Place Measured Workpiece
+                placeMeasuredWorkpiece();
+                break;
+
+            default:
+                log.warn("Unknown program number: " + progNum);
+                break;
         }
     }
 
