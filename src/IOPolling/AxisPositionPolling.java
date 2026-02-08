@@ -17,7 +17,7 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
     @Inject private Controller                sunrise;
     @Inject private LBR                       iiwa;
     @Inject private RobotJointPositionIOGroup currentAxisPosition;
-    private AxisSetter[] axisSetters;
+    private         AxisSetter[]              axisSetters;
 
     @Override public void initialize()
     {
