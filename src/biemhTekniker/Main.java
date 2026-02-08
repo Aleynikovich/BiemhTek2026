@@ -132,7 +132,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             switch (programNumber)
             {
                 case 0:
-                    new TestProgram().run();
                     // Program 0 - Idle
                     break;
 
