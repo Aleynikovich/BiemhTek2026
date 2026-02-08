@@ -109,8 +109,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         // Initialize PLC manager
         plcManager = new PLCManager(AutExtIO, visionIO, programDispatcher, smartPickingThread, workpieceQueue);
 
-        // Initialize HMI Buttons
-        initializeHmiButtons();
+
 
         // Initialize home position manager
         homePositionManager = new HomePositionManager();
