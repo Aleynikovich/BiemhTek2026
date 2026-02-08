@@ -43,6 +43,12 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     
     // Configuration - set this to your config service URL (e.g., "http://172.31.1.100:8080")
     // Leave empty or null to use fallback mode with hardcoded programs
+    // 
+    // PRODUCTION NOTE: For production deployment, consider loading this from:
+    // 1. External configuration file (e.g., /configs/robot_config.properties)
+    // 2. Environment variable: System.getenv("CONFIG_SERVICE_URL")
+    // 3. PLC/KV settings endpoint
+    // This would eliminate the need to recompile code for different environments.
     private static final String CONFIG_SERVICE_URL = ""; // TODO: Configure config service URL
     
     // Vision server configuration

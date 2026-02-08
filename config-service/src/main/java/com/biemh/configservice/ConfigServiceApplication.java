@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main Spring Boot application for Config Service.
- * Provides REST API for managing robot programs, servers and workpiece positions.
+ * Provides REST API for managing robot programs and workpiece positions.
  */
 @SpringBootApplication
 public class ConfigServiceApplication {
