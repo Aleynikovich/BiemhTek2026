@@ -122,7 +122,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         super.dispose();
     }
 
-    @Override public void run()
+    @Override public void run() throws Exception
     {
         log.info("Main application running, entering main loop.");
 
@@ -132,6 +132,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             switch (programNumber)
             {
                 case 0:
+                    new TestProgram().run();
                     // Program 0 - Idle
                     break;
 
