@@ -3,6 +3,12 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
+.idea/
+.metadata/
+*.iml
+.Sunrise/
+._*
+*.tmp
 
 ### Eclipse ###
 .apt_generated
