@@ -160,10 +160,24 @@ Features:
 ## Development
 
 ### Requirements
-- KUKA Sunrise.Workbench
+- KUKA Sunrise.Workbench (Eclipse-based IDE)
 - Java 1.7 (strict - no Java 8+ features)
 - KUKA LBR iiwa robot controller
 - SmartPicking vision system
+
+### IDE Setup
+
+#### Eclipse / KUKA Sunrise.Workbench
+The project includes `.project` and `.classpath` files for Eclipse. Simply import as an existing project.
+
+#### IntelliJ IDEA
+IntelliJ IDEA can import this Eclipse-based project:
+1. File → New → Project from Existing Sources
+2. Select the project root directory
+3. Choose "Import project from external model" → "Eclipse"
+4. Follow the import wizard
+
+The `.project` and `.classpath` files are version controlled to ensure consistent project setup across IDEs.
 
 ### Java 1.7 Constraints
 This codebase must maintain Java 1.7 compatibility:
