@@ -25,13 +25,122 @@ public class SmartPickingProtocol
 
     /**
      * Loads a specific reference by name.
-     * Follows the sequence required by the manual: 15;ref -> 19 (reset) -> 15;ref
+     *
+     * @param name Reference name (e.g., "BIEMH26_105055")
+     * @return true if successful, false otherwise
      */
-
-    public boolean loadReference()
+    public boolean loadReference(String name)
     {
-        VisionResult res = execute(Command.LOAD_REFERENCE, "BIEMH26_105055", true);
+        VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
         return res.isSuccess();
+    }
+
+    /**
+     * Changes the application's operating mode.
+     */
+    public boolean setMode(Command mode)
+    {
+        if (mode != Command.SET_AUTO_MODE && mode != Command.SET_CALIB_MODE)
+        {
+            log.error("Invalid mode command requested.");
+            return false;
+        }
+        return execute(mode, true).isSuccess();
+    }
+
+    /**
+     * Locates parts for a specific zone and reference.
+     *
+     * @param zone      Zone number (1-based)
+     * @param reference Reference index (1-based)
+     * @return VisionResult with locate status
+     */
+    public VisionResult locateParts(int zone, int reference)
+    {
+        String args = zone + ";" + reference;
+        return execute(Command.LOCATE_PARTS, args, true);
+    }
+
+    /**
+     * Locates parts across all references in a zone.
+     * Iterates through reference indices 1 to referenceCount.
+     * For each reference, locates parts then retrieves all part positions using GET_PART_POS and GET_NEXT_PART_POS.
+     *
+     * @param referenceCount Number of references to scan (e.g., 3)
+     * @param zone           Zone number (e.g., 1)
+     * @return List of all found workpiece data across all references
+     */
+    public java.util.List<biemhTekniker.data.WorkpieceData> locateAllParts(int referenceCount, int zone)
+    {
+        java.util.List<biemhTekniker.data.WorkpieceData> allWorkpieces = new java.util.ArrayList<biemhTekniker.data.WorkpieceData>();
+
+        for (int ref = 1; ref <= referenceCount; ref++)
+        {
+            log.info("Locating parts for reference " + ref + " in zone " + zone);
+
+            // Locate parts for this reference
+            VisionResult locateResult = locateParts(zone, ref);
+            if (!locateResult.isSuccess())
+            {
+                log.warn("Failed to locate parts for reference " + ref);
+                continue;
+            }
+
+            // Get first part position
+            VisionResult firstPartResult = execute(Command.GET_PART_POS, true);
+            if (firstPartResult.isSuccess())
+            {
+                biemhTekniker.data.WorkpieceData wp = createWorkpieceFromResult(firstPartResult, ref);
+                allWorkpieces.add(wp);
+                log.debug("Found part 1 for reference " + ref + ": score=" + wp.getScore());
+
+                // Get remaining parts using GET_NEXT_PART_POS
+                int partCount = 1;
+                while (true)
+                {
+                    VisionResult nextPartResult = execute(Command.GET_NEXT_PART_POS, true);
+                    if (!nextPartResult.isSuccess())
+                    {
+                        break;
+                    }
+                    biemhTekniker.data.WorkpieceData nextWp = createWorkpieceFromResult(nextPartResult, ref);
+                    allWorkpieces.add(nextWp);
+                    partCount++;
+                    log.debug("Found part " + partCount + " for reference " + ref + ": score=" + nextWp.getScore());
+                }
+
+                log.info("Found " + partCount + " parts for reference " + ref);
+            }
+            else
+            {
+                log.warn("No parts found for reference " + ref);
+            }
+        }
+
+        log.info("Total parts found across all references: " + allWorkpieces.size());
+        return allWorkpieces;
+    }
+
+    /**
+     * Creates a WorkpieceData object from a VisionResult.
+     *
+     * @param result        VisionResult from GET_PART_POS or GET_NEXT_PART_POS
+     * @param referenceIndex Reference index (1-based)
+     * @return WorkpieceData object
+     */
+    private biemhTekniker.data.WorkpieceData createWorkpieceFromResult(VisionResult result, int referenceIndex)
+    {
+        biemhTekniker.data.WorkpieceData wp = new biemhTekniker.data.WorkpieceData(
+            result.getX(),
+            result.getY(),
+            result.getZ(),
+            result.getRx(),
+            result.getRy(),
+            result.getRz(),
+            result.getScore()
+        );
+        wp.setReferenceIndex(referenceIndex);
+        return wp;
     }
 
     public VisionResult execute(Command cmd, String args, boolean expectReply)
@@ -52,25 +161,6 @@ public class SmartPickingProtocol
         }
 
         return result;
-    }
-
-    public boolean loadReference(String name)
-    {
-        VisionResult res = execute(Command.LOAD_REFERENCE, name, true);
-        return res.isSuccess();
-    }
-
-    /**
-     * Changes the application's operating mode.
-     */
-    public boolean setMode(Command mode)
-    {
-        if (mode != Command.SET_AUTO_MODE && mode != Command.SET_CALIB_MODE)
-        {
-            log.error("Invalid mode command requested.");
-            return false;
-        }
-        return execute(mode, true).isSuccess();
     }
 
     public VisionResult execute(Command cmd, boolean expectReply)
