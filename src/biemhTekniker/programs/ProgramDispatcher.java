@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.vision.SmartPickingThread;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.VisionManager;
 
@@ -63,6 +64,67 @@ public class ProgramDispatcher
         }
         visionTasks.put(Integer.valueOf(programNumber), task);
         log.debug("Registered vision task " + programNumber + ": " + task.getClass().getSimpleName());
+    }
+
+    /**
+     * Registers all standard programs and tasks.
+     */
+    public void registerDefaultPrograms(SmartPickingThread smartPickingThread)
+    {
+        log.info("Registering default programs...");
+
+        // Robot Programs (1-99)
+        registerRobotProgram(1, new PickNewWorkpieceProgram());
+        registerRobotProgram(2, new PlaceNewWorkpieceProgram());
+        registerRobotProgram(3, new PickMeasuredWorkpieceProgram());
+        registerRobotProgram(4, new PlaceMeasuredWorkpieceProgram());
+        
+        // Calibration programs (coordinated - need protocol access)
+        CalibrationProgram calibProgram = new CalibrationProgram();
+        calibProgram.setProtocol(smartPickingThread.getProtocol());
+        registerRobotProgram(5, calibProgram);
+        
+        TestCalibrationProgram testCalibProgram = new TestCalibrationProgram();
+        testCalibProgram.setProtocol(smartPickingThread.getProtocol());
+        registerRobotProgram(6, testCalibProgram);
+
+        // Vision Tasks (100-199)
+        registerVisionTask(100, new LoadReferencesTask());
+        registerVisionTask(101, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.SET_AUTO_MODE));
+        registerVisionTask(102, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.SET_CALIB_MODE));
+        registerVisionTask(103, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.CAPTURE_DATA));
+        registerVisionTask(104, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.LOCATE_CONTAINER));
+        registerVisionTask(105, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.GET_CONTAINER_POS));
+        registerVisionTask(106, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.LOCATE_PARTS));
+        registerVisionTask(107, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.GET_PART_POS));
+        registerVisionTask(108, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.GET_NEXT_PART_POS));
+        registerVisionTask(109, new FullScanTask());
+        // Program 110 is Send Custom Message - not registered as it needs message parameter
+
+        // Legacy vision task for backward compatibility
+        registerVisionTask(111, new GetNewWorkpiecePositionProgram());
+
+        log.info("Default programs registered successfully");
+    }
+
+    /**
+     * Checks if a vision task is currently running.
+     *
+     * @return true if a vision task is active
+     */
+    public boolean isVisionTaskRunning()
+    {
+        return visionManager.isTaskRunning();
+    }
+
+    /**
+     * Gets the vision manager.
+     *
+     * @return Vision manager instance
+     */
+    public VisionManager getVisionManager()
+    {
+        return visionManager;
     }
 
     /**

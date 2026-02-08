@@ -131,6 +131,16 @@ public class VisionManager
     }
 
     /**
+     * Checks if a vision task is currently running.
+     *
+     * @return true if a task is running or pending
+     */
+    public boolean isTaskRunning()
+    {
+        return taskRunning || pendingTask != null;
+    }
+
+    /**
      * Shuts down the vision manager.
      */
     public void shutdown()

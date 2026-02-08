@@ -5,7 +5,9 @@ import biemhTekniker.console.ConsoleServer;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.managers.AppController;
 import biemhTekniker.managers.LoggingManager;
+import biemhTekniker.managers.PLCManager;
 import biemhTekniker.programs.*;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
 import biemhTekniker.vision.SmartPickingThread;
@@ -13,6 +15,7 @@ import biemhTekniker.vision.VisionManager;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
+import com.kuka.generated.ioAccess.VisionStateIOGroup;
 import com.kuka.generated.ioAccess.RobotCartesianPositionIOGroup;
 import com.kuka.generated.ioAccess.RobotSafetyIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -44,12 +47,13 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     @Inject private MediaFlangeIOGroup           gripperIO;
     @Inject private RobotCartesianPositionIOGroup currentCartesianPosition;
     @Inject private AutExtIOGroup AutExtIO;
+    @Inject private VisionStateIOGroup visionIO;
 
     // Managers and threads
     private LoggingManager     loggingManager;
+    private PLCManager         plcManager;
+    private AppController      appController;
     private SmartPickingThread smartPickingThread;
-    private VisionManager      visionManager;
-    private ConsoleServer      consoleServer;
 
     // Shared data and dispatching
     private WorkpieceQueue    workpieceQueue;
@@ -57,7 +61,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private RobotContext      robotContext;
     private VisionContext     visionContext;
 
-    private volatile int     programNumber      = 0;
     private          int     lastProgramNumber  = 0;
     private          boolean needsHomeMove      = false;
 
@@ -90,17 +93,20 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
 
         // Initialize vision manager
-        visionManager = new VisionManager(smartPickingThread, visionContext);
+        VisionManager visionManager = new VisionManager(smartPickingThread, visionContext);
         visionManager.initialize();
 
         // Initialize program dispatcher and register programs
         programDispatcher = new ProgramDispatcher(robotContext, visionManager);
-        registerPrograms();
+        programDispatcher.registerDefaultPrograms(smartPickingThread);
 
-        // Initialize and start console server for GUI control
+        // Initialize PLC manager
+        plcManager = new PLCManager(AutExtIO, visionIO, programDispatcher, smartPickingThread, workpieceQueue);
+
+        // Initialize app controller
         int consolePort = config.getInt("console.server.port", 30001);
-        consoleServer   = new ConsoleServer(this, consolePort);
-        consoleServer.initialize();
+        appController = new AppController(visionManager, workpieceQueue, consolePort);
+        appController.initialize();
 
         // Set robot control parameters
         getApplicationControl().setApplicationOverride(0.5);
@@ -113,61 +119,98 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         log.info("Main application initialized successfully");
     }
 
-    /**
-     * Registers all robot programs and vision tasks with the dispatcher.
-     */
-    private void registerPrograms()
+    @Override public void run() throws Exception
     {
-        log.info("Registering programs...");
+        log.info("Main application running, entering main loop.");
 
-        // Robot Programs (1-99)
-        programDispatcher.registerRobotProgram(1, new PickNewWorkpieceProgram());
-        programDispatcher.registerRobotProgram(2, new PlaceNewWorkpieceProgram());
-        programDispatcher.registerRobotProgram(3, new PickMeasuredWorkpieceProgram());
-        programDispatcher.registerRobotProgram(4, new PlaceMeasuredWorkpieceProgram());
-        
-        // Calibration programs (coordinated - need protocol access)
-        CalibrationProgram calibProgram = new CalibrationProgram();
-        calibProgram.setProtocol(smartPickingThread.getProtocol());
-        programDispatcher.registerRobotProgram(5, calibProgram);
-        
-        TestCalibrationProgram testCalibProgram = new TestCalibrationProgram();
-        testCalibProgram.setProtocol(smartPickingThread.getProtocol());
-        programDispatcher.registerRobotProgram(6, testCalibProgram);
+        while (AutExtIO.getMoveEnable())
+        {
+            // Update PLC status
+            plcManager.updateStatus();
 
-        // Vision Tasks (100-199)
-        programDispatcher.registerVisionTask(100, new LoadReferencesTask());
-        programDispatcher.registerVisionTask(101, new IndividualVisionCommandTask(Command.SET_AUTO_MODE));
-        programDispatcher.registerVisionTask(102, new IndividualVisionCommandTask(Command.SET_CALIB_MODE));
-        programDispatcher.registerVisionTask(103, new IndividualVisionCommandTask(Command.CAPTURE_DATA));
-        programDispatcher.registerVisionTask(104, new IndividualVisionCommandTask(Command.LOCATE_CONTAINER));
-        programDispatcher.registerVisionTask(105, new IndividualVisionCommandTask(Command.GET_CONTAINER_POS));
-        programDispatcher.registerVisionTask(106, new IndividualVisionCommandTask(Command.LOCATE_PARTS));
-        programDispatcher.registerVisionTask(107, new IndividualVisionCommandTask(Command.GET_PART_POS));
-        programDispatcher.registerVisionTask(108, new IndividualVisionCommandTask(Command.GET_NEXT_PART_POS));
-        programDispatcher.registerVisionTask(109, new FullScanTask());
-        // Program 110 is Send Custom Message - not registered as it needs message parameter
+            int programNumber = appController.getCurrentProgram();
 
-        // Legacy vision task for backward compatibility
-        programDispatcher.registerVisionTask(111, new GetNewWorkpiecePositionProgram());
+            // Update current program echo to PLC
+            plcManager.echoProgramNumber(programNumber);
 
-        log.info("Programs registered successfully");
+            // Handle program selection via PLC if no console is connected
+            if (programNumber == 0 && !appController.hasActiveClients())
+            {
+                programNumber = plcManager.checkProgramRequest();
+                if (programNumber != 0) {
+                    appController.setProgramNumberFromPLC(programNumber);
+                }
+            }
+
+            int currentProgram = programNumber;
+            boolean isVisionRunning = programDispatcher.isVisionTaskRunning();
+
+            // Only move home when transitioning from active program to idle
+            // and no vision task is running (to avoid potential collisions or state issues)
+            if (needsHomeMove && currentProgram == 0 && !isVisionRunning)
+            {
+                log.info("Moving to Home position...");
+                try
+                {
+                    iiwa.move(ptpHome());
+                    needsHomeMove = false;
+                }
+                catch (Exception e)
+                {
+                    log.error("Failed to move home: " + e.getMessage());
+                }
+            }
+
+            if (currentProgram != 0)
+            {
+                // Dispatch program
+                log.info("Starting execution of Program " + currentProgram);
+                boolean isVisionProgram = (currentProgram >= 100 && currentProgram <= 199);
+                boolean success = programDispatcher.dispatch(currentProgram);
+                
+                if (success)
+                {
+                    log.info("Program " + currentProgram + (isVisionProgram ? " submitted successfully" : " completed successfully"));
+                }
+                else
+                {
+                    log.error("Program " + currentProgram + (isVisionProgram ? " submission failed" : " failed during execution"));
+                }
+
+                // Reset to idle after execution (or submission for vision)
+                appController.resetProgramNumber();
+                lastProgramNumber = currentProgram;
+                
+                // Only request home move if it was a robot program
+                if (!isVisionProgram)
+                {
+                    needsHomeMove = true;
+                }
+
+                // Echo back the reset to PLC immediately
+                plcManager.echoProgramNumber(0);
+            }
+
+            com.kuka.common.ThreadUtil.milliSleep(200);
+        }
+
+        log.warn("MoveEnable signal lost. Exiting main loop.");
     }
 
     @Override public void dispose()
     {
         log.info("Main application shutting down");
 
-        // Shutdown console server
-        if (consoleServer != null)
+        // Shutdown app controller (includes console server)
+        if (appController != null)
         {
-            consoleServer.dispose();
+            appController.shutdown();
         }
 
-        // Shutdown vision manager
-        if (visionManager != null)
+        // Shutdown vision manager and threads
+        if (programDispatcher != null && programDispatcher.getVisionManager() != null)
         {
-            visionManager.shutdown();
+            programDispatcher.getVisionManager().shutdown();
         }
 
         // Shutdown SmartPicking thread
@@ -199,85 +242,35 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         super.dispose();
     }
 
-    @Override public void run() throws Exception
-    {
-        log.info("Main application running, entering main loop.");
-
-        while (AutExtIO.getMoveEnable())
-        {
-            int currentProgram = programNumber;
-
-            // Only move home when transitioning from active program to idle
-            if (needsHomeMove && currentProgram == 0)
-            {
-                iiwa.move(ptpHome());
-                needsHomeMove = false;
-            }
-
-            if (currentProgram != 0)
-            {
-                // Dispatch program
-                boolean success = programDispatcher.dispatch(currentProgram);
-                if (success)
-                {
-                    log.info("Program " + currentProgram + " completed");
-                }
-                else
-                {
-                    log.error("Program " + currentProgram + " failed");
-                }
-
-                // Reset to idle after execution
-                programNumber = 0;
-                lastProgramNumber = currentProgram;
-                needsHomeMove = true;
-            }
-
-            ThreadUtil.milliSleep(200);
-        }
-    }
-
     // ========== ConsoleServerInterface Implementation ==========
 
     @Override public void setProgramNumber(int programNumber)
     {
-        if (programNumber >= 0 && programNumber <= 199)
-        {
-            this.programNumber = programNumber;
-            log.info("Program number set to: " + programNumber + " via console");
-        }
-        else
-        {
-            log.warn("Invalid program number requested: " + programNumber + " (valid range: 0-199)");
-        }
+        appController.setProgramNumber(programNumber);
     }
 
     @Override public int getCurrentProgram()
     {
-        return programNumber;
+        return appController.getCurrentProgram();
     }
 
     @Override public boolean isVisionConnected()
     {
-        return visionManager != null && visionManager.isConnected();
+        return appController.isVisionConnected();
     }
 
     @Override public String getWorkpiecePosition()
     {
-        if (workpieceQueue != null && workpieceQueue.getAvailableCount() > 0)
-        {
-            // Return summary of next available workpiece (without removing it from queue)
-            return "Available: " + workpieceQueue.getAvailableCount() + ", Total: " + workpieceQueue.getTotalCount();
-        }
-        return "No workpieces available";
+        return appController.getWorkpiecePosition();
     }
 
     @Override public String getQueueStatus()
     {
-        if (workpieceQueue != null)
-        {
-            return workpieceQueue.getQueueStatus();
-        }
-        return "Queue not initialized";
+        return appController.getQueueStatus();
+    }
+
+    @Override public boolean hasActiveClients()
+    {
+        return appController.hasActiveClients();
     }
 }

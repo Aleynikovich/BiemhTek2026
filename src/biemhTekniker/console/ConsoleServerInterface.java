@@ -40,4 +40,11 @@ public interface ConsoleServerInterface
      * @return Queue status string
      */
     String getQueueStatus();
+
+    /**
+     * Check if any console client is currently connected.
+     *
+     * @return true if at least one client is connected
+     */
+    boolean hasActiveClients();
 }

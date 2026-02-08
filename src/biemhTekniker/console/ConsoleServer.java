@@ -170,5 +170,26 @@ public class ConsoleServer implements Runnable
     {
         return running && serverThread != null && serverThread.isAlive();
     }
+
+    /**
+     * Check if there are any active client connections.
+     *
+     * @return true if there are active clients
+     */
+    public boolean hasActiveClients()
+    {
+        synchronized (handlers)
+        {
+            // Clean up finished handlers before checking
+            for (int i = handlers.size() - 1; i >= 0; i--)
+            {
+                if (!handlers.get(i).isActive())
+                {
+                    handlers.remove(i);
+                }
+            }
+            return !handlers.isEmpty();
+        }
+    }
 }
 
