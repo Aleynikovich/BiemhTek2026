@@ -3,14 +3,16 @@ package biemhTekniker;
 import biemhTekniker.logger.Logger;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.generated.ioAccess.RobotStateIOGroup;
-import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPIBackgroundTask;
+import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
+import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
-public class hmiButtonsBackgroundHandler extends RoboticsAPIBackgroundTask
+public class hmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
 {
     private static final Logger log = Logger.getLogger(hmiButtonsBackgroundHandler.class);
     @Inject
@@ -26,16 +28,18 @@ public class hmiButtonsBackgroundHandler extends RoboticsAPIBackgroundTask
     @Override
     public void initialize()
     {
+        initializeCyclic(0, 5000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
         // Initialize HMI Buttons
         initializeHmiButtons();
 
     }
 
     @Override
-    public void run() throws Exception
+    protected void runCyclic()
     {
-        log.debug("hmiButtonBackgroundHandler running");
+
     }
+
 
     /**
      * Initializes the HMI programmable buttons on the SmartPad.
@@ -56,4 +60,6 @@ public class hmiButtonsBackgroundHandler extends RoboticsAPIBackgroundTask
             log.error("Failed to initialize HMI buttons: " + e.getMessage(), e);
         }
     }
+
+
 }
