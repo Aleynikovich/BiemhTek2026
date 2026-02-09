@@ -14,7 +14,7 @@ import java.util.Properties;
 public class ConfigManager
 {
     private static final Logger log = Logger.getLogger(ConfigManager.class);
-    private static final String CONFIG_PATH = "C:/KRC/Projects/BiemhTek2026/configs";
+    private static final String CONFIG_PATH = "C:/Users/KukaUser/Desktop/configs";
     private static ConfigManager instance;
     private final Properties properties;
 
