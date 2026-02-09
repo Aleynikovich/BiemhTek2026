@@ -25,6 +25,14 @@ class RobotControlGUI:
         self.connected = False
         self.socket = None
         
+        # Reconnection with exponential backoff
+        self.INITIAL_RETRY_DELAY = 1.0
+        self.MAX_RETRY_DELAY = 60.0
+        self.BACKOFF_MULTIPLIER = 2.0
+        self.reconnect_thread = None
+        self.current_retry_delay = self.INITIAL_RETRY_DELAY
+        self.reconnecting = False
+        
         # Program state
         self.current_program = tk.IntVar(value=0)
         self.vision_connected = tk.BooleanVar(value=False)
@@ -274,6 +282,8 @@ class RobotControlGUI:
             self.socket.settimeout(5)
             self.socket.connect((self.robot_ip.get(), self.robot_port.get()))
             self.connected = True
+            self.reconnecting = False
+            self.current_retry_delay = self.INITIAL_RETRY_DELAY
             
             self.connect_btn.config(state=tk.DISABLED)
             self.disconnect_btn.config(state=tk.NORMAL)
@@ -297,6 +307,7 @@ class RobotControlGUI:
                 
     def disconnect(self):
         """Disconnect from robot"""
+        self.reconnecting = False  # Stop any reconnection attempts
         self.connected = False
         if self.socket:
             try:
@@ -309,6 +320,7 @@ class RobotControlGUI:
         self.disconnect_btn.config(state=tk.DISABLED)
         self.status_label.config(text="● Disconnected", foreground="red")
         self.log_console("Disconnected from robot", 'warning')
+        self.current_retry_delay = self.INITIAL_RETRY_DELAY  # Reset for next connection
         
     def send_command(self, command):
         """Send command to robot"""
@@ -333,6 +345,9 @@ class RobotControlGUI:
             try:
                 data = self.socket.recv(1024).decode('utf-8')
                 if not data:
+                    # Connection closed by server
+                    self.on_disconnect()
+                    self.start_reconnect()
                     break
                     
                 buffer += data
@@ -346,11 +361,71 @@ class RobotControlGUI:
             except Exception as e:
                 if self.connected:
                     self.log_console(f"Listen error: {str(e)}", 'error')
+                    self.on_disconnect()
+                    self.start_reconnect()
                 break
-                
-        if self.connected:
-            self.root.after(0, self.disconnect)
             
+    def on_disconnect(self):
+        """Handle disconnection"""
+        self.connected = False
+        if self.socket:
+            try:
+                self.socket.close()
+            except:
+                pass
+        self.root.after(0, lambda: self.status_label.config(text="● Disconnected", foreground="red"))
+    
+    def start_reconnect(self):
+        """Start reconnection thread with exponential backoff"""
+        if self.reconnecting:
+            return  # Already reconnecting
+            
+        self.reconnecting = True
+        self.root.after(0, lambda: self.status_label.config(text="● Reconnecting...", foreground="orange"))
+        
+        # Start reconnection thread
+        self.reconnect_thread = threading.Thread(target=self.reconnect_loop, daemon=True)
+        self.reconnect_thread.start()
+    
+    def reconnect_loop(self):
+        """Reconnection loop with exponential backoff"""
+        while self.reconnecting and not self.connected:
+            self.log_console(f"Reconnecting in {self.current_retry_delay:.1f} seconds...", 'info')
+            time.sleep(self.current_retry_delay)
+            
+            try:
+                # Close old socket before creating new one
+                if self.socket:
+                    try:
+                        self.socket.close()
+                    except:
+                        pass
+                
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.settimeout(5)
+                self.socket.connect((self.robot_ip.get(), self.robot_port.get()))
+                self.connected = True
+                self.reconnecting = False
+                self.current_retry_delay = self.INITIAL_RETRY_DELAY  # Reset backoff
+                
+                self.root.after(0, lambda: self.status_label.config(text="● Connected", foreground="green"))
+                self.log_console("Reconnected successfully!", 'success')
+                
+                # Restart listening thread
+                self.listen_thread = threading.Thread(target=self.listen_to_robot, daemon=True)
+                self.listen_thread.start()
+                
+                # Resend log level
+                self.on_log_level_changed()
+                
+            except Exception as e:
+                # Exponential backoff
+                self.current_retry_delay = min(
+                    self.current_retry_delay * self.BACKOFF_MULTIPLIER,
+                    self.MAX_RETRY_DELAY
+                )
+                self.log_console(f"Reconnection failed: {str(e)}", 'error')
+    
     def handle_response(self, response):
         """Handle response from robot"""
         try:
