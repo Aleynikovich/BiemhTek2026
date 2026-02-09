@@ -100,7 +100,7 @@ public class VisionSocketClient
                     return result;
                 } else if (bytesRead == -1)
                 {
-                    log.warn("Connection closed by vision server.");
+                    log.warn("Vision server connection lost (end of stream).");
                     close(); // Close socket to trigger reconnection
                     return null;
                 } else
@@ -141,10 +141,15 @@ public class VisionSocketClient
         try
         {
             // Check if streams are available and socket is not closed
-            if (in == null || out == null || socket.isClosed())
+            if (in == null || out == null)
             {
                 close(); // Close socket to trigger reconnection
                 return false;
+            }
+            
+            if (socket.isClosed())
+            {
+                return false; // Socket already closed, no need to close again
             }
 
             // Check if input stream is still functional by calling available()
