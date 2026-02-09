@@ -167,18 +167,11 @@ public class HmiButtonHandler implements IUserKeyListener
     {
         try
         {
-            if (!gripperIO.getGripper1_Switch())
+            if (false)
             {
-                // Close gripper - activate digital output
-                gripperIO.setGripper2_Switch(true);
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Closed");
-                log.debug("HMI Button 2: Gripper closed");
+
             } else
             {
-                // Open gripper - deactivate digital output
-                gripperIO.setGripper2_Switch(false);
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Open");
-                log.debug("HMI Button 2: Gripper opened");
             }
         } catch (Exception e)
         {
