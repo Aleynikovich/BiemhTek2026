@@ -11,6 +11,7 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
 
 import java.util.List;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
@@ -21,11 +22,18 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
-    private static final int PRE_PLACE_Z_OFFSET_MM = 100;
+    private static final int PRE_PLACE_Y_OFFSET_MM = 400;
+    private static final int PRE_PLACE_Z_OFFSET_MM = 200;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
+    private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
     /**
      * Executes the place operation for a new workpiece.
+     * If a measured workpiece is present in gripper 3 at SchunkBase, it will:
+     * 1. Open gripper 3 (holding the measured piece)
+     * 2. Pick the measured piece with TCP B (gripper 2)
+     * 3. Place the new workpiece with TCP A (gripper 1)
+     * 4. Close gripper 3
      */
     public void execute(RobotContext context) throws Exception
     {
@@ -38,18 +46,116 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         RoboticsAPIApplication app = context.getApplication();
 
         ObjectFrame tcpA = gripper.getFrame("TCPA");
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
 
-        // Define place position (example: using predefined frame)
-        ObjectFrame placeFrame = app.getApplicationData().getFrame("/SchunkBase/PickPlace");
-        Frame placePosition = placeFrame.copyWithRedundancy();
-        Frame prePlacePosition = new Frame(placePosition.copy());
-        prePlacePosition.setZ(prePlacePosition.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        // Get frames from station setup
+        ObjectFrame pickPlaceFrame = app.getApplicationData().getFrame("/SchunkBase/PickPlace");
+        
+        Frame pickPlacePosition = pickPlaceFrame.copyWithRedundancy();
 
-        // Generate motion strategies using the generator utility
-        // For placement, we might not need alternate position, so use simplified version
+        Frame prePickPlacePositionZ = new Frame(pickPlacePosition.copy());
+        prePickPlacePositionZ.setZ(prePickPlacePositionZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
+        Frame prePickPlacePositionY = new Frame(pickPlacePosition.copy());
+        prePickPlacePositionY.setY(prePickPlacePositionY.getY() - PRE_PLACE_Y_OFFSET_MM);
+
+
+        if (gripperIO.getGripper3_PartPresence())
+        {
+            log.info("Measured workpiece detected in gripper 3 - picking it before placing new workpiece");
+            pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePosition, prePickPlacePositionZ);
+        }
+
+        // Place new workpiece with TCP A (gripper 1)
+        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePosition, prePickPlacePositionY);
+
+        if (gripperIO.getGripper3_PartPresence())
+        {
+            gripperIO.setGripper3_Switch(true); // Close to hold
+        }
+
+        // Return to home position
+        gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
+
+        log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
+    }
+
+    /**
+     * Pick measured workpiece using TCP B (gripper 2).
+     * 
+     * @param robot Robot instance
+     * @param tcpB TCP B frame (gripper 2)
+     * @param gripperIO Gripper IO group
+     * @param pickPlacePosition Place position frame
+     * @param prePickPlacePosition Pre-place position frame (with Z offset)
+     * @throws Exception if pick operation fails
+     */
+    private void pickMeasuredWorkpieceWithTcpB(LBR robot, ObjectFrame tcpB, 
+                                               MediaFlangeIOGroup gripperIO,
+                                               Frame pickPlacePosition, Frame prePickPlacePosition) throws Exception
+    {
+        log.info("Picking measured workpiece with TCP B...");
+
+        gripperIO.setGripper2_Switch(false);
+
+        tcpB.move(ptp(prePickPlacePosition));
+        
+        // Generate motion strategies for TCP B
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
+
+        final MediaFlangeIOGroup finalGripperIO = gripperIO;
+        MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
+        {
+            public void execute() throws Exception
+            {
+                finalGripperIO.setGripper2_Switch(true);
+                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
+            }
+        };
+        
+        // Try each strategy until one succeeds
+        boolean pickSucceeded = false;
+        for (int i = 0; i < motionStrategies.size(); i++)
+        {
+            MotionStrategy strategy = motionStrategies.get(i);
+            if (strategy.executeMotion(pickPlacePosition, prePickPlacePosition, gripperActivateAction))
+            {
+                pickSucceeded = true;
+                break;
+            }
+        }
+        
+        if (!pickSucceeded)
+        {
+            gripperIO.setGripper3_Switch(false);
+            ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
+            log.error("Failed to pick measured workpiece with TCP B");
+            throw new Exception("Failed to pick measured workpiece - all strategies exhausted");
+        }
+
+        tcpB.move(lin(prePickPlacePosition));
+        log.info("Measured workpiece picked successfully with TCP B");
+    }
+
+    /**
+     * Place new workpiece using TCP A (gripper 1).
+     * 
+     * @param robot Robot instance
+     * @param tcpA TCP A frame (gripper 1)
+     * @param gripperIO Gripper IO group
+     * @param placePosition Place position frame
+     * @param prePickPlacePosition Pre-place position frame (with Z offset)
+     * @throws Exception if place operation fails
+     */
+    private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
+                                          MediaFlangeIOGroup gripperIO,
+                                          Frame placePosition, Frame prePickPlacePosition) throws Exception
+    {
+        log.info("Placing new workpiece with TCP A...");
+        gripperIO.setGripper3_Switch(false);
+
+        // Generate motion strategies for TCP A
         List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpA, robot);
 
-        // Create gripper release action
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()
         {
@@ -63,10 +169,9 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         // Try each strategy until one succeeds
         boolean placeSucceeded = false;
-        for (int i = 0; i < motionStrategies.size(); i++)
+        for (MotionStrategy strategy : motionStrategies)
         {
-            MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(placePosition, prePlacePosition, gripperReleaseAction))
+            if (strategy.executeMotion(placePosition, prePickPlacePosition, gripperReleaseAction))
             {
                 placeSucceeded = true;
                 break;
@@ -75,13 +180,10 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         if (!placeSucceeded)
         {
-            log.error("All place strategies failed");
-            throw new Exception("Failed to place workpiece - all strategies exhausted");
+            log.error("All place strategies failed for new workpiece");
+            throw new Exception("Failed to place new workpiece - all strategies exhausted");
         }
-
-        // Return to home position
-        gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
-
-        log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
+        gripperIO.setGripper3_PartPresence(true);
+        log.info("New workpiece placed successfully with TCP A");
     }
 }
