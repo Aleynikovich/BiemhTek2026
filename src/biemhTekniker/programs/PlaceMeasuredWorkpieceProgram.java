@@ -1,5 +1,7 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.data.WorkpieceData;
+import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -14,8 +16,9 @@ import java.util.List;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
- * Program to place a measured workpiece at the SchunkBase location.
- * Sequence: Exit -> PickPlace (place) -> Exit
+ * Program to place a measured workpiece back to its original pick position.
+ * Returns the measured workpiece to the bin at the same location where it was picked.
+ * Sequence: Exit -> Return Position (place) -> Exit
  * Uses TCP B (gripper 2) for measured workpiece handling.
  */
 public class PlaceMeasuredWorkpieceProgram implements RobotProgram
@@ -27,6 +30,7 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
 
     /**
      * Executes the place operation for a measured workpiece.
+     * Returns the workpiece to its original pick position in the bin.
      */
     public void execute(RobotContext context) throws Exception
     {
@@ -37,19 +41,37 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
         Tool gripper = context.getGripper();
         MediaFlangeIOGroup gripperIO = context.getGripperIO();
         RoboticsAPIApplication app = context.getApplication();
+        WorkpieceQueue queue = context.getWorkpieceQueue();
+
+        // Get measured workpiece from queue
+        WorkpieceData workpieceData = queue.takeMeasuredWorkpiece();
+        if (workpieceData == null)
+        {
+            log.error("No measured workpieces available to place");
+            throw new Exception("No measured workpieces available");
+        }
+
+        if (!workpieceData.isValid())
+        {
+            log.error("Cannot place workpiece - no valid position data available");
+            throw new Exception("Invalid workpiece data");
+        }
+
+        log.debug("Placing measured workpiece back to origin: " + workpieceData);
 
         // Use TCP B for measured workpiece handling
         ObjectFrame tcpB = gripper.getFrame("TCPB");
 
-        // Get frames from station setup
+        // Get exit frame from station setup
         ObjectFrame exitFrame = app.getApplicationData().getFrame("/SchunkBase/Exit");
-        ObjectFrame pickPlaceFrame = app.getApplicationData().getFrame("/SchunkBase/PickPlace");
+
+        // Get return position (original pick location)
+        Frame placePosition = workpieceData.getReturnFrame();
+        Frame prePlacePosition = new Frame(placePosition.copy());
+        prePlacePosition.setZ(prePlacePosition.getZ() + PRE_PLACE_Z_OFFSET_MM);
 
         // Create positions with redundancy
         Frame exitPosition = exitFrame.copyWithRedundancy();
-        Frame placePosition = pickPlaceFrame.copyWithRedundancy();
-        Frame prePlacePosition = new Frame(placePosition.copy());
-        prePlacePosition.setZ(prePlacePosition.getZ() + PRE_PLACE_Z_OFFSET_MM);
 
         // Move to exit position (safe approach)
         log.info("Moving to exit position...");
@@ -91,6 +113,9 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
         log.info("Returning to exit position...");
         tcpB.move(ptp(exitPosition));
 
-        log.info("Place measured workpiece completed successfully");
+        // Mark workpiece as returned
+        queue.markReturned(workpieceData.getId());
+
+        log.info("Place measured workpiece completed successfully - returned to origin position");
     }
 }
