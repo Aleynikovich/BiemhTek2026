@@ -55,9 +55,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         gripperIO.setGripper1_Switch(false);
         gripperIO.setGripper2_Switch(false);
 
-        // Gripper TCP declaration A=1, B=2
+        // Gripper TCP declaration - use only gripper A
         ObjectFrame tcpA = gripper.getFrame("TCPA");
-        ObjectFrame tcpB = gripper.getFrame("TCPB");
 
         // Frame sent by camera
         Frame pickPosition = workpieceData.getWorkPiecePickFrame();
@@ -66,12 +65,34 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Create pick strategies in priority order
+        // Create pick strategies in priority order - GRIPPER A ONLY
+        // Strategy: regular position, alternate position (180° rotation), 
+        // then try different redundancy configurations
         List<PickStrategy> strategies = new ArrayList<PickStrategy>();
-        strategies.add(new PickStrategy(tcpA, false, false)); // Regular position, gripper A
-        strategies.add(new PickStrategy(tcpA, true, false));  // Alternate position, gripper A
-        strategies.add(new PickStrategy(tcpB, false, true));  // Regular position, gripper B
-        strategies.add(new PickStrategy(tcpB, true, true));   // Alternate position, gripper B
+        
+        // Define redundancy E1 offsets to try (in radians)
+        // Using similar approach as in Motions.java example
+        double[] redundancyOffsets = new double[] {
+            0.0,                          // No redundancy offset (default configuration)
+            Math.toRadians(-80),          // -80 degrees
+            Math.toRadians(80),           // +80 degrees
+            Math.toRadians(-60),          // -60 degrees
+            Math.toRadians(60)            // +60 degrees
+        };
+        
+        // Try regular position with different redundancy configurations
+        for (int i = 0; i < redundancyOffsets.length; i++)
+        {
+            Double offset = (redundancyOffsets[i] == 0.0 && i == 0) ? null : Double.valueOf(redundancyOffsets[i]);
+            strategies.add(new PickStrategy(tcpA, false, false, offset, robot));
+        }
+        
+        // Try alternate position (180° rotation) with different redundancy configurations
+        for (int i = 0; i < redundancyOffsets.length; i++)
+        {
+            Double offset = (redundancyOffsets[i] == 0.0 && i == 0) ? null : Double.valueOf(redundancyOffsets[i]);
+            strategies.add(new PickStrategy(tcpA, true, false, offset, robot));
+        }
 
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
