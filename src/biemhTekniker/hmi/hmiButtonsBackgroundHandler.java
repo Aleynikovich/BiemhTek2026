@@ -1,4 +1,4 @@
-package biemhTekniker;
+package biemhTekniker.hmi;
 
 import biemhTekniker.logger.Logger;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
