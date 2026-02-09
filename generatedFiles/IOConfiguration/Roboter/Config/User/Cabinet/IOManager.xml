@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<IOManager>
+<IOManager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Version Label="">
     <Info Version="IOManager V0.1.0" />
     <Schema Version="1" />
@@ -129,6 +129,12 @@
           <Description />
         </DigitalIO>
         <DigitalIO Name="AutExt.ProgramNumberIN" Type="INPUT" Scope="USER_IO" StartBit="408" BitSize="8" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="MediaFlange.Gripper3_Switch" Type="OUTPUT" Scope="USER_IO" StartBit="2320" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="MediaFlange.Gripper3_PartPresence" Type="OUTPUT" Scope="USER_IO" StartBit="2321" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
