@@ -300,10 +300,10 @@ class RobotControlGUI:
             self.on_log_level_changed()
             
         except Exception as e:
+            messagebox.showerror("Connection Error", f"Failed to connect: {str(e)}")
             self.log_console(f"Connection failed: {str(e)}", 'error')
             if self.socket:
                 self.socket.close()
-            self.start_reconnect()
                 
     def disconnect(self):
         """Disconnect from robot"""
@@ -381,7 +381,7 @@ class RobotControlGUI:
             return  # Already reconnecting
             
         self.reconnecting = True
-        self.status_label.config(text="● Reconnecting...", foreground="orange")
+        self.root.after(0, lambda: self.status_label.config(text="● Reconnecting...", foreground="orange"))
         
         # Start reconnection thread
         self.reconnect_thread = threading.Thread(target=self.reconnect_loop, daemon=True)
@@ -394,6 +394,13 @@ class RobotControlGUI:
             time.sleep(self.current_retry_delay)
             
             try:
+                # Close old socket before creating new one
+                if self.socket:
+                    try:
+                        self.socket.close()
+                    except:
+                        pass
+                
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket.settimeout(5)
                 self.socket.connect((self.robot_ip.get(), self.robot_port.get()))
