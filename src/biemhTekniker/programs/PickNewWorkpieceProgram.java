@@ -81,17 +81,19 @@ public class PickNewWorkpieceProgram implements RobotProgram
         };
         
         // Try regular position with different redundancy configurations
-        for (int i = 0; i < redundancyOffsets.length; i++)
+        // First attempt without redundancy (null), then with offsets
+        strategies.add(new PickStrategy(tcpA, false, false, null, robot));
+        for (int i = 1; i < redundancyOffsets.length; i++)
         {
-            Double offset = (redundancyOffsets[i] == 0.0 && i == 0) ? null : Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new PickStrategy(tcpA, false, false, offset, robot));
+            strategies.add(new PickStrategy(tcpA, false, false, Double.valueOf(redundancyOffsets[i]), robot));
         }
         
         // Try alternate position (180° rotation) with different redundancy configurations
-        for (int i = 0; i < redundancyOffsets.length; i++)
+        // First attempt without redundancy (null), then with offsets
+        strategies.add(new PickStrategy(tcpA, true, false, null, robot));
+        for (int i = 1; i < redundancyOffsets.length; i++)
         {
-            Double offset = (redundancyOffsets[i] == 0.0 && i == 0) ? null : Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new PickStrategy(tcpA, true, false, offset, robot));
+            strategies.add(new PickStrategy(tcpA, true, false, Double.valueOf(redundancyOffsets[i]), robot));
         }
 
         // Try each strategy until one succeeds
