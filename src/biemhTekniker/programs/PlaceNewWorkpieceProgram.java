@@ -58,50 +58,25 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         Frame prePickPlacePositionY = new Frame(pickPlacePosition.copy());
         prePickPlacePositionY.setY(prePickPlacePositionY.getY() - PRE_PLACE_Y_OFFSET_MM);
 
-        // TODO: Check if measured workpiece is present in gripper 3
-        // This is a placeholder - actual IO signal needs to be configured
-        boolean measuredWorkpiecePresent = checkMeasuredWorkpiecePresence();
 
-        if (measuredWorkpiecePresent)
+        if (gripperIO.getGripper3_PartPresence())
         {
             log.info("Measured workpiece detected in gripper 3 - picking it before placing new workpiece");
-            
-            // TODO: Open gripper 3 (holding the measured workpiece)
-            // This is a placeholder - actual IO signal needs to be configured
-            // Example: gripperIO.setGripper3_Switch(true); // Open to release
-            
-            // Pick measured workpiece with TCP B (gripper 2)
             pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePosition, prePickPlacePositionZ);
         }
 
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePosition, prePickPlacePositionY);
 
-        if (measuredWorkpiecePresent)
+        if (gripperIO.getGripper3_PartPresence())
         {
-            // TODO: Close gripper 3 to secure the new workpiece
-            // This is a placeholder - actual IO signal needs to be configured
-            // Example: gripperIO.setGripper3_Switch(false); // Close to hold
+            gripperIO.setGripper3_Switch(true); // Close to hold
         }
 
         // Return to home position
         gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
 
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
-    }
-
-    /**
-     * Check if a measured workpiece is present in gripper 3.
-     * TODO: This is a placeholder method. Actual implementation requires 
-     * configuration of the part presence sensor IO signal.
-     * 
-     * @return true if measured workpiece is present, false otherwise
-     */
-    private boolean checkMeasuredWorkpiecePresence()
-    {
-        return gripperIO.getGripper3_PartPresence();
-        log.debug("Checking measured workpiece presence in gripper 3 (placeholder)");
-        return false; // Default to false until IO is configured
     }
 
     /**
@@ -119,17 +94,14 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                                                Frame pickPlacePosition, Frame prePickPlacePosition) throws Exception
     {
         log.info("Picking measured workpiece with TCP B...");
-        
-        // Ensure gripper 2 is open
+
         gripperIO.setGripper2_Switch(false);
-        
-        // Move to exit position for safe approach
+
         tcpB.move(ptp(prePickPlacePosition));
         
         // Generate motion strategies for TCP B
         List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
-        
-        // Create gripper activation action for TCP B
+
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
         {
@@ -154,11 +126,12 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         
         if (!pickSucceeded)
         {
+            gripperIO.setGripper3_Switch(false);
+            ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             log.error("Failed to pick measured workpiece with TCP B");
             throw new Exception("Failed to pick measured workpiece - all strategies exhausted");
         }
-        
-        // Move back to exit position with measured workpiece
+
         tcpB.move(lin(prePickPlacePosition));
         log.info("Measured workpiece picked successfully with TCP B");
     }
@@ -178,11 +151,11 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                                           Frame placePosition, Frame prePickPlacePosition) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
-        
+        gripperIO.setGripper3_Switch(false);
+
         // Generate motion strategies for TCP A
         List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpA, robot);
 
-        // Create gripper release action for TCP A
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()
         {
@@ -196,9 +169,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         // Try each strategy until one succeeds
         boolean placeSucceeded = false;
-        for (int i = 0; i < motionStrategies.size(); i++)
+        for (MotionStrategy strategy : motionStrategies)
         {
-            MotionStrategy strategy = motionStrategies.get(i);
             if (strategy.executeMotion(placePosition, prePickPlacePosition, gripperReleaseAction))
             {
                 placeSucceeded = true;
@@ -211,7 +183,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             log.error("All place strategies failed for new workpiece");
             throw new Exception("Failed to place new workpiece - all strategies exhausted");
         }
-        
+        gripperIO.setGripper3_PartPresence(true);
         log.info("New workpiece placed successfully with TCP A");
     }
 }
