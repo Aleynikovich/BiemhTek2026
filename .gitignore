@@ -10,6 +10,9 @@ out/
 ._*
 *.tmp
 
+### Java ###
+*.class
+
 ### Eclipse ###
 .apt_generated
 .factorypath
