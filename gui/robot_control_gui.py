@@ -17,7 +17,7 @@ class RobotControlGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("KUKA Robot Control - BiemhTek2026")
-        self.root.geometry("900x1000")
+        self.root.geometry("900x700")
         
         # Connection settings
         self.robot_ip = tk.StringVar(value="172.31.1.147")

@@ -98,6 +98,11 @@ public class VisionSocketClient
                 {
                     String result = new String(buffer, 0, bytesRead, StandardCharsets.US_ASCII);
                     return result;
+                } else if (bytesRead == -1)
+                {
+                    log.warn("Vision server connection lost (end of stream).");
+                    close(); // Close socket to trigger reconnection
+                    return null;
                 } else
                 {
                     log.warn("No data returned from camera.");
@@ -110,6 +115,7 @@ public class VisionSocketClient
         } catch (IOException e)
         {
             log.error("Communication error: " + e.getMessage());
+            close(); // Close socket to trigger reconnection by monitoring thread
             return null;
         }
     }
@@ -135,9 +141,15 @@ public class VisionSocketClient
         try
         {
             // Check if streams are available and socket is not closed
-            if (in == null || out == null || socket.isClosed())
+            if (in == null || out == null)
             {
+                close(); // Close socket to trigger reconnection
                 return false;
+            }
+            
+            if (socket.isClosed())
+            {
+                return false; // Socket already closed, no need to close again
             }
 
             // Check if input stream is still functional by calling available()
@@ -148,6 +160,7 @@ public class VisionSocketClient
         } catch (Exception e)
         {
             log.error("Connection test failed: " + e.getMessage());
+            close(); // Close socket to trigger reconnection
             return false;
         }
     }

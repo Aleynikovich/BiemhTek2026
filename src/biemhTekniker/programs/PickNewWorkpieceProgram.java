@@ -98,7 +98,5 @@ public class PickNewWorkpieceProgram implements RobotProgram
             throw new Exception("Failed to pick workpiece - all strategies exhausted");
         }
 
-        // Return to home position
-        gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
     }
 }
