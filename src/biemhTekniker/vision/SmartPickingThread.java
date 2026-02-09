@@ -14,18 +14,11 @@ public class SmartPickingThread extends Thread
 
     private static final Logger log = Logger.getLogger(SmartPickingThread.class);
 
-    // Exponential backoff constants
-    private static final int INITIAL_RETRY_DELAY_MS = 1000;
-    private static final int MAX_RETRY_DELAY_MS = 60000;
-    private static final double BACKOFF_MULTIPLIER = 2.0;
-    private static final int CONNECTION_CHECK_INTERVAL_MS = 5000;
-
     private final String visionServerIP;
     private final int visionServerPort;
     private VisionSocketClient socketClient;
     private SmartPickingProtocol protocol;
     private volatile boolean running = true;
-    private int currentRetryDelay = INITIAL_RETRY_DELAY_MS;
 
     /**
      * Creates a SmartPicking thread.
@@ -80,31 +73,17 @@ public class SmartPickingThread extends Thread
                         socketClient.close();
                     } else
                     {
-                        log.info("Connection lost, attempting to reconnect in " + currentRetryDelay + "ms...");
+                        log.info("Connection lost, attempting to reconnect...");
                     }
-
-                    // Wait before attempting reconnection (exponential backoff)
-                    ThreadUtil.milliSleep(currentRetryDelay);
 
                     socketClient.connect();
                     if (socketClient.isConnected())
                     {
                         log.info("Reconnected to vision server");
-                        currentRetryDelay = INITIAL_RETRY_DELAY_MS; // Reset backoff on success
-                        consecutiveErrors = 0; // Reset on success
-                    } else
-                    {
-                        // Increase delay for next attempt (exponential backoff)
-                        currentRetryDelay = (int) Math.min(currentRetryDelay * BACKOFF_MULTIPLIER, MAX_RETRY_DELAY_MS);
                     }
-                } else
-                {
-                    // Connection is healthy, reset error counter and backoff
-                    consecutiveErrors = 0;
-                    currentRetryDelay = INITIAL_RETRY_DELAY_MS;
-                    // Check less frequently when connected
-                    ThreadUtil.milliSleep(CONNECTION_CHECK_INTERVAL_MS);
                 }
+                consecutiveErrors = 0; // Reset on success
+                ThreadUtil.milliSleep(1000); // Check connection every second
             } catch (Exception e)
             {
                 consecutiveErrors++;
@@ -114,12 +93,8 @@ public class SmartPickingThread extends Thread
                 {
                     log.error("Maximum consecutive errors reached. Shutting down SmartPickingThread.");
                     running = false;
-                } else
-                {
-                    // Increase delay for next attempt (exponential backoff)
-                    currentRetryDelay = (int) Math.min(currentRetryDelay * BACKOFF_MULTIPLIER, MAX_RETRY_DELAY_MS);
-                    ThreadUtil.milliSleep(currentRetryDelay);
                 }
+                ThreadUtil.milliSleep(2000); // Longer delay on error
             }
         }
 
