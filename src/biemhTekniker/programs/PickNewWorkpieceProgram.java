@@ -22,6 +22,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 {
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;
+    private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -75,7 +76,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             public void execute() throws Exception
             {
                 finalGripperIO.setGripper1_Switch(true);
-                ThreadUtil.milliSleep(500);
+                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
 

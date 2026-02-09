@@ -22,6 +22,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
     private static final int PRE_PLACE_Z_OFFSET_MM = 100;
+    private static final int GRIPPER_RELEASE_DELAY_MS = 500;
 
     /**
      * Executes the place operation for a new workpiece.
@@ -56,7 +57,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             {
                 finalGripperIO.setGripper1_Switch(false);
                 finalGripperIO.setGripper2_Switch(false);
-                ThreadUtil.milliSleep(500);
+                ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             }
         };
 
