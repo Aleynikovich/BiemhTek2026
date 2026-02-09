@@ -67,9 +67,8 @@ public class FullScanTask implements VisionTask
 
         // Step 5: Add all workpieces to the queue
         // Uncomment to get a list of all available workpieces
-        for (int i = 0; i < foundWorkpieces.size(); i++)
+        for (WorkpieceData wp : foundWorkpieces)
         {
-            WorkpieceData wp = foundWorkpieces.get(i);
             queue.addWorkpiece(wp);
         }
 
