@@ -55,8 +55,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         {
             public void execute() throws Exception
             {
+                // Release only gripper A (gripper1)
                 finalGripperIO.setGripper1_Switch(false);
-                finalGripperIO.setGripper2_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             }
         };
