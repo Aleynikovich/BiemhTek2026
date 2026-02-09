@@ -73,7 +73,6 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Define redundancy E1 offsets to try (in radians)
         // Using similar approach as in Motions.java example
         double[] redundancyOffsets = new double[] {
-            0.0,                          // No redundancy offset (default configuration)
             Math.toRadians(-80),          // -80 degrees
             Math.toRadians(80),           // +80 degrees
             Math.toRadians(-60),          // -60 degrees
@@ -83,17 +82,19 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
         strategies.add(new PickStrategy(tcpA, false, false, null, robot));
-        for (int i = 1; i < redundancyOffsets.length; i++)
+        for (int i = 0; i < redundancyOffsets.length; i++)
         {
-            strategies.add(new PickStrategy(tcpA, false, false, Double.valueOf(redundancyOffsets[i]), robot));
+            Double offset = Double.valueOf(redundancyOffsets[i]);
+            strategies.add(new PickStrategy(tcpA, false, false, offset, robot));
         }
         
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
         strategies.add(new PickStrategy(tcpA, true, false, null, robot));
-        for (int i = 1; i < redundancyOffsets.length; i++)
+        for (int i = 0; i < redundancyOffsets.length; i++)
         {
-            strategies.add(new PickStrategy(tcpA, true, false, Double.valueOf(redundancyOffsets[i]), robot));
+            Double offset = Double.valueOf(redundancyOffsets[i]);
+            strategies.add(new PickStrategy(tcpA, true, false, offset, robot));
         }
 
         // Try each strategy until one succeeds
