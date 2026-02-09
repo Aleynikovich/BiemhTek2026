@@ -14,7 +14,7 @@ import java.util.Properties;
 public class ConfigManager
 {
     private static final Logger log = Logger.getLogger(ConfigManager.class);
-    private static final String CONFIG_PATH = "D:\\configs";
+    private static final String CONFIG_PATH = "C:\\KRC\\Projects\\BiemhTek2026\\configs";
     private static ConfigManager instance;
     private final Properties properties;
 
@@ -46,27 +46,45 @@ public class ConfigManager
      */
     private void loadProperties()
     {
-        InputStream input = null;
-        try
+        java.io.File configDir = new java.io.File(CONFIG_PATH);
+
+        // 1. Verify the folder exists
+        if (configDir.exists() && configDir.isDirectory())
         {
-            input = new FileInputStream(CONFIG_PATH);
-            properties.load(input);
-            log.info("Configuration loaded from " + CONFIG_PATH);
-        } catch (IOException e)
-        {
-            log.error("Failed to load configuration from " + CONFIG_PATH + ": " + e.getMessage(), e);
-        } finally
-        {
-            if (input != null)
+            // 2. Filter for .properties files using an Anonymous Inner Class
+            java.io.File[] files = configDir.listFiles(new java.io.FilenameFilter() {
+                @Override
+                public boolean accept(java.io.File dir, String name) {
+                    return name.toLowerCase().endsWith(".properties");
+                }
+            });
+
+            if (files != null)
             {
-                try
+                for (java.io.File file : files)
                 {
-                    input.close();
-                } catch (IOException e)
-                {
-                    log.warn("Failed to close config file: " + e.getMessage());
+                    InputStream input = null;
+                    try
+                    {
+                        input = new FileInputStream(file);
+                        properties.load(input);
+                        log.info("Successfully loaded: " + file.getName());
+                    } catch (IOException e) {
+                        log.error("Failed to load " + file.getName() + ": " + e.getMessage());
+                    } finally {
+                        // Java 7 manual close (or you could use try-with-resources)
+                        if (input != null) {
+                            try {
+                                input.close();
+                            } catch (IOException e) {
+                                // ignore
+                            }
+                        }
+                    }
                 }
             }
+        } else {
+            log.error("Config directory not found or is not a directory: " + CONFIG_PATH);
         }
     }
 
