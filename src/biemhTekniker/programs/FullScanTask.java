@@ -66,17 +66,11 @@ public class FullScanTask implements VisionTask
         List<WorkpieceData> foundWorkpieces = protocol.locateAllParts(referenceCount, zone);
 
         // Step 5: Add all workpieces to the queue
-        /* Uncomment to get a list of all available workpieces
-        for (int i = 0; i < foundWorkpieces.size(); i++)
+        // Uncomment to get a list of all available workpieces
+        for (WorkpieceData wp : foundWorkpieces)
         {
-            WorkpieceData wp = foundWorkpieces.get(i);
             queue.addWorkpiece(wp);
         }
-        */
-
-        WorkpieceData wp = foundWorkpieces.get(1);
-        queue.addWorkpiece(wp);
-
 
         log.info("Full scan complete: Found " + foundWorkpieces.size() + " workpieces across " + referenceCount + " references");
         log.info("Queue status: " + queue.getAvailableCount() + " available, " + queue.getTotalCount() + " total");
