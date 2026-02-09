@@ -35,7 +35,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 {
     private static final Logger log = Logger.getLogger(Main.class);
     private static final int MAIN_LOOP_DELAY_MS = 200;
-    private static final int SMARTPICKING_SHUTDOWN_TIMEOUT_MS = 15000;
+    private static final int SMARTPICKING_SHUTDOWN_TIMEOUT_MS = 20000;
 
     @Inject
     private LBR iiwa;

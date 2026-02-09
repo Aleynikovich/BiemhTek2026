@@ -16,6 +16,12 @@ public class LoadReferencesTask implements VisionTask
         log.info("Loading references from configuration...");
 
         ConfigManager config = ConfigManager.getInstance();
+        if (config == null)
+        {
+            log.error("Config manager not found");
+            throw new Exception("Config manager not found");
+        }
+
         String[] references = config.getStringArray("vision.references", ",");
 
         if (references.length == 0)
