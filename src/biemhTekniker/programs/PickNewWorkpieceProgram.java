@@ -3,6 +3,7 @@ package biemhTekniker.programs;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
+import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -10,7 +11,6 @@ import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
@@ -65,44 +65,26 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Create pick strategies in priority order - GRIPPER A ONLY
-        // Strategy: regular position, alternate position (180° rotation), 
-        // then try different redundancy configurations
-        List<PickStrategy> strategies = new ArrayList<PickStrategy>();
-        
-        // Define redundancy E1 offsets to try (in radians)
-        // Using similar approach as in Motions.java example
-        double[] redundancyOffsets = new double[] {
-            Math.toRadians(-80),          // -80 degrees
-            Math.toRadians(80),           // +80 degrees
-            Math.toRadians(-60),          // -60 degrees
-            Math.toRadians(60)            // +60 degrees
+        // Generate motion strategies using the generator utility
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategies(tcpA, robot);
+
+        // Create gripper activation action
+        final MediaFlangeIOGroup finalGripperIO = gripperIO;
+        MotionStrategy.MotionAction gripperAction = new MotionStrategy.MotionAction()
+        {
+            public void execute() throws Exception
+            {
+                finalGripperIO.setGripper1_Switch(true);
+                ThreadUtil.milliSleep(500);
+            }
         };
-        
-        // Try regular position with different redundancy configurations
-        // First attempt without redundancy (null), then with offsets
-        strategies.add(new PickStrategy(tcpA, false, false, null, robot));
-        for (int i = 0; i < redundancyOffsets.length; i++)
-        {
-            Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new PickStrategy(tcpA, false, false, offset, robot));
-        }
-        
-        // Try alternate position (180° rotation) with different redundancy configurations
-        // First attempt without redundancy (null), then with offsets
-        strategies.add(new PickStrategy(tcpA, true, false, null, robot));
-        for (int i = 0; i < redundancyOffsets.length; i++)
-        {
-            Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new PickStrategy(tcpA, true, false, offset, robot));
-        }
 
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
-        for (int i = 0; i < strategies.size(); i++)
+        for (int i = 0; i < motionStrategies.size(); i++)
         {
-            PickStrategy strategy = strategies.get(i);
-            if (strategy.execute(pickPosition, prePickPosition, gripperIO))
+            MotionStrategy strategy = motionStrategies.get(i);
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
             {
                 pickSucceeded = true;
                 break;
