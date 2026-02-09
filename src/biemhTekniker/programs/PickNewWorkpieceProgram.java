@@ -3,6 +3,7 @@ package biemhTekniker.programs;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
+import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -10,7 +11,6 @@ import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
@@ -22,6 +22,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 {
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;
+    private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -55,9 +56,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         gripperIO.setGripper1_Switch(false);
         gripperIO.setGripper2_Switch(false);
 
-        // Gripper TCP declaration A=1, B=2
+        // Gripper TCP declaration - use only gripper A
         ObjectFrame tcpA = gripper.getFrame("TCPA");
-        ObjectFrame tcpB = gripper.getFrame("TCPB");
 
         // Frame sent by camera
         Frame pickPosition = workpieceData.getWorkPiecePickFrame();
@@ -66,19 +66,26 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Create pick strategies in priority order
-        List<PickStrategy> strategies = new ArrayList<PickStrategy>();
-        strategies.add(new PickStrategy(tcpA, false, false)); // Regular position, gripper A
-        strategies.add(new PickStrategy(tcpA, true, false));  // Alternate position, gripper A
-        strategies.add(new PickStrategy(tcpB, false, true));  // Regular position, gripper B
-        strategies.add(new PickStrategy(tcpB, true, true));   // Alternate position, gripper B
+        // Generate motion strategies using the generator utility
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategies(tcpA, robot);
+
+        // Create gripper activation action
+        final MediaFlangeIOGroup finalGripperIO = gripperIO;
+        MotionStrategy.MotionAction gripperAction = new MotionStrategy.MotionAction()
+        {
+            public void execute() throws Exception
+            {
+                finalGripperIO.setGripper1_Switch(true);
+                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
+            }
+        };
 
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
-        for (int i = 0; i < strategies.size(); i++)
+        for (int i = 0; i < motionStrategies.size(); i++)
         {
-            PickStrategy strategy = strategies.get(i);
-            if (strategy.execute(pickPosition, prePickPosition, gripperIO))
+            MotionStrategy strategy = motionStrategies.get(i);
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
             {
                 pickSucceeded = true;
                 break;
