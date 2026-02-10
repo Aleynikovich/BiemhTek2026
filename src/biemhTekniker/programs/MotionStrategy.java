@@ -7,7 +7,6 @@ import com.kuka.roboticsAPI.executionModel.CommandInvalidException;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.math.Transformation;
-import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
@@ -63,10 +62,9 @@ public class MotionStrategy
      * @param targetPosition   Target position for the action
      * @param approachPosition Approach position before action
      * @param action           Action to execute at target position (can be null for motion-only)
-     * @param context          Robot context for cancellation support (can be null if cancellation not needed)
      * @return true if motion succeeded, false if motion failed
      */
-    public boolean executeMotion(Frame targetPosition, Frame approachPosition, MotionAction action, RobotContext context)
+    public boolean executeMotion(Frame targetPosition, Frame approachPosition, MotionAction action)
     {
         Frame finalTarget = targetPosition;
         Frame finalApproach = approachPosition;
@@ -100,102 +98,28 @@ public class MotionStrategy
             log.info("Attempting motion with " + strategyDesc + ": " + finalTarget);
 
             // Approach
-            IMotionContainer motionContainer = 
-                tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
-            if (context != null)
-            {
-                context.setActiveMotion(motionContainer);
-            }
-            motionContainer.await();
+            tcp.move(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
 
             // Move to target position
-            motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
-            if (context != null)
-            {
-                context.setActiveMotion(motionContainer);
-            }
-            motionContainer.await();
-
-            // Check for cancellation before executing action
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before action execution");
-                context.setActiveMotion(null);
-                return false;
-            }
+            tcp.move(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
 
             // Execute action at target position (e.g., activate/deactivate gripper)
             if (action != null)
             {
                 action.execute();
-                motionContainer.await();
-            }
-
-            // Check for cancellation before retract
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before retract");
-                context.setActiveMotion(null);
-                return false;
-            }
-
-            // Check for cancellation before retract
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before retract");
-                context.setActiveMotion(null);
-                return false;
-            }
-
-            // Check for cancellation before retract
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before retract");
-                context.setActiveMotion(null);
-                return false;
             }
 
             // Retract
-            motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
-            if (context != null)
-            {
-                context.setActiveMotion(motionContainer);
-            }
-            motionContainer.await();
-            
-            if (context != null)
-            {
-                context.setActiveMotion(null);
-            }
+            tcp.move(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
 
             log.info("Motion succeeded with " + strategyDesc);
             return true;
         } catch (CommandInvalidException e)
         {
-            if (context != null)
-            {
-                context.setActiveMotion(null);
-                // Check if cancellation was requested - if so, propagate as cancellation exception
-                if (context.isCancellationRequested())
-                {
-                    log.warn("Motion failed due to cancellation: " + strategyDesc);
-                    return false;
-                }
-            }
             log.warn("Motion failed with " + strategyDesc + ": " + e.getMessage());
             return false;
         } catch (Exception e)
         {
-            if (context != null)
-            {
-                context.setActiveMotion(null);
-                // Check if cancellation was requested - if so, propagate as cancellation exception
-                if (context.isCancellationRequested())
-                {
-                    log.warn("Motion cancelled: " + strategyDesc);
-                    return false;
-                }
-            }
             log.warn("Motion action failed with " + strategyDesc + ": " + e.getMessage());
             return false;
         }

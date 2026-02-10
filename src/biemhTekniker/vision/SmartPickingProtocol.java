@@ -164,7 +164,7 @@ public class SmartPickingProtocol
      */
     public enum Command
     {
-        LOAD_REFERENCE("15"), SET_AUTO_MODE("101"), SET_CALIB_MODE("102"), CAPTURE_DATA("2"), LOCATE_CONTAINER("3"), GET_CONTAINER_POS("8"), LOCATE_PARTS("4"), GET_PART_POS("9"), GET_NEXT_PART_POS("11"), ADD_CALIB_POINT("5"), CALIBRATE("6"), TEST_CALIB("7"), SEND_ROBOT_POSE("14"), SEND_CUSTOM_MESSAGE("103"), SEND_WORKPIECE_SCAN_REQUEST_53("10;1;53"), SEND_WORKPIECE_SCAN_REQUEST_55("10;1;55"), SEND_WORKPIECE_SCAN_REQUEST_60("10;1;60"), REQUEST_WORKPIECE_ORIENTATION("13;1");
+        LOAD_REFERENCE("15"), SET_AUTO_MODE("101"), SET_CALIB_MODE("102"), CAPTURE_DATA("2"), LOCATE_CONTAINER("3"), GET_CONTAINER_POS("8"), LOCATE_PARTS("4"), GET_PART_POS("9"), GET_NEXT_PART_POS("11"), ADD_CALIB_POINT("5"), CALIBRATE("6"), TEST_CALIB("7"), SEND_ROBOT_POSE("14"), SEND_CUSTOM_MESSAGE("103");
 
         private final String code;
 
@@ -225,11 +225,6 @@ public class SmartPickingProtocol
         }
 
         // --- Getters with Index Switching Logic ---
-
-        public double getWorkpieceRefWithOrientation()
-        {
-            return getDataSafe(1);
-        }
 
         public double getX()
         {

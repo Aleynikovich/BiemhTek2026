@@ -57,10 +57,9 @@ public class PickStrategy
      * @param pickPosition    Target pick position
      * @param prePickPosition Pre-pick approach position
      * @param gripperIO       Gripper I/O control
-     * @param context         Robot context for cancellation support
      * @return true if pick succeeded, false if motion failed
      */
-    public boolean execute(Frame pickPosition, Frame prePickPosition, final MediaFlangeIOGroup gripperIO, RobotContext context)
+    public boolean execute(Frame pickPosition, Frame prePickPosition, final MediaFlangeIOGroup gripperIO)
     {
         // Create gripper activation action
         MotionStrategy.MotionAction gripperAction = new MotionStrategy.MotionAction()
@@ -80,7 +79,7 @@ public class PickStrategy
         };
 
         // Execute motion with gripper activation
-        return motionStrategy.executeMotion(pickPosition, prePickPosition, gripperAction, context);
+        return motionStrategy.executeMotion(pickPosition, prePickPosition, gripperAction);
     }
 
     @Override

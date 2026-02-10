@@ -54,43 +54,19 @@ public class HmiButtonHandler implements IUserKeyListener
         try
         {
             button1 = keyBar.addUserKey(0, this, true);
-            if (gripperIO.getGripper1_Switch())
-            {
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper1: closed");
-            } else
-            {
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper1: open");
-            }
+            button1.setText(UserKeyAlignment.TopMiddle, "Gripper1: switch");
             button1.setEnabled(true);
 
             button2 = keyBar.addUserKey(1, this, true);
-            if (gripperIO.getGripper2_Switch())
-            {
-                button2.setText(UserKeyAlignment.TopMiddle, "Gripper2: switch");
-            } else
-            {
-                button2.setText(UserKeyAlignment.TopMiddle, "Gripper2: closed");
-            }
+            button2.setText(UserKeyAlignment.TopMiddle, "Gripper2: switch");
             button2.setEnabled(true);
 
             button3 = keyBar.addUserKey(2, this, true);
-            if (gripperIO.getGripper2_Switch())
-            {
-                button3.setText(UserKeyAlignment.TopMiddle, "3: switch");
-            } else
-            {
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper3: closed");
-            }
+            button3.setText(UserKeyAlignment.TopMiddle, "Gripper3: switch");
             button3.setEnabled(true);
 
             button4 = keyBar.addUserKey(3, this, true);
-            if (gripperIO.getGripper2_Switch())
-            {
-                button4.setText(UserKeyAlignment.TopMiddle, "SecSwitch: ON");
-            } else
-            {
-                button4.setText(UserKeyAlignment.TopMiddle, "SecSwitch: OFF");
-            }
+            button4.setText(UserKeyAlignment.TopMiddle, "Null");
             button4.setEnabled(true);
 
             keyBar.publish();
@@ -110,6 +86,8 @@ public class HmiButtonHandler implements IUserKeyListener
             {
                 handleKeyDown(key);
             }
+            // If you need KeyUp events (e.g. for hold-to-unlock like iiwaTOFAS Button 2),
+            // add: else if (event == UserKeyEvent.KeyUp) { handleKeyUp(key); }
         } catch (Exception e)
         {
             log.error("Error handling key event: " + e.getMessage(), e);
@@ -189,24 +167,18 @@ public class HmiButtonHandler implements IUserKeyListener
     {
         try
         {
-            if (!gripperIO.getGripper3_Switch())
+            if (false)
             {
-                // Close gripper - activate digital output
-                gripperIO.setGripper3_Switch(true);
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Closed");
-                log.debug("HMI Button 3: Gripper closed");
+
             } else
             {
-                // Open gripper - deactivate digital output
-                gripperIO.setGripper3_Switch(false);
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Open");
-                log.debug("HMI Button 3: Gripper opened");
             }
         } catch (Exception e)
         {
             log.error("Error toggling gripper: " + e.getMessage(), e);
-            button1.setText(UserKeyAlignment.TopMiddle, "Gripper 2 ERROR");
+            button1.setText(UserKeyAlignment.TopMiddle, "Gripper 3 ERROR");
         }
+
     }
 
     /**

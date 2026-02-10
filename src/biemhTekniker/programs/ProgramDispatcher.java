@@ -99,7 +99,10 @@ public class ProgramDispatcher
         registerVisionTask(107, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.GET_PART_POS));
         registerVisionTask(108, new IndividualVisionCommandTask(biemhTekniker.vision.SmartPickingProtocol.Command.GET_NEXT_PART_POS));
         registerVisionTask(109, new FullScanTask());
-        registerVisionTask(110, new ScanPickedWorkpiece());
+        // Program 110 is Send Custom Message - not registered as it needs message parameter
+
+        // Legacy vision task for backward compatibility
+        registerVisionTask(111, new GetNewWorkpiecePositionProgram());
 
         log.info("Default programs registered successfully");
     }
