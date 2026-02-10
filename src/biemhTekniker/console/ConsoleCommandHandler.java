@@ -87,6 +87,9 @@ public class ConsoleCommandHandler implements Runnable
             } else if ("stop".equals(type))
             {
                 handleStop();
+            } else if ("cancel_program".equals(type))
+            {
+                handleCancelProgram();
             } else if ("set_log_level".equals(type))
             {
                 handleSetLogLevel(json);
@@ -178,6 +181,21 @@ public class ConsoleCommandHandler implements Runnable
         {
             log.error("Error in handleStop: " + e.getMessage(), e);
             sendError("Error executing stop: " + e.getMessage());
+        }
+    }
+
+    private void handleCancelProgram()
+    {
+        try
+        {
+            log.debug("handleCancelProgram called");
+            serverInterface.cancelCurrentProgram();
+            sendResponse("response", "Program cancelled - returning home without opening grippers", true);
+            log.info("Program cancellation executed");
+        } catch (Exception e)
+        {
+            log.error("Error in handleCancelProgram: " + e.getMessage(), e);
+            sendError("Error cancelling program: " + e.getMessage());
         }
     }
 
