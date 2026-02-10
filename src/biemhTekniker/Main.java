@@ -124,7 +124,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize app controller
         int consolePort = config.getInt("console.server.port", 30001);
-        appController = new AppController(visionManager, workpieceQueue, robotContext, homePositionManager, consolePort);
+        appController = new AppController(visionManager, visionDispatcher, workpieceQueue, robotContext, homePositionManager, consolePort);
         appController.initialize();
 
         // Set robot control parameters

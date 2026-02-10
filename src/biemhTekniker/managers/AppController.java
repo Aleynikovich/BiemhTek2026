@@ -6,27 +6,31 @@ import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.programs.RobotContext;
+import biemhTekniker.programs.VisionDispatcher;
 import biemhTekniker.vision.VisionManager;
 
 /**
  * Controller class that manages the application state and implements the ConsoleServerInterface.
  * This helps in keeping the Main class thin.
+ * Supports immediate dispatch of vision programs via console even when robot is busy.
  */
 public class AppController implements ConsoleServerInterface
 {
     private static final Logger log = Logger.getLogger(AppController.class);
 
     private final VisionManager visionManager;
+    private final VisionDispatcher visionDispatcher;
     private final WorkpieceQueue workpieceQueue;
     private final ConsoleServer consoleServer;
     private final RobotContext robotContext;
     private final HomePositionManager homePositionManager;
     private volatile int programNumber = 0;
 
-    public AppController(VisionManager visionManager, WorkpieceQueue workpieceQueue, 
+    public AppController(VisionManager visionManager, VisionDispatcher visionDispatcher, WorkpieceQueue workpieceQueue, 
                          RobotContext robotContext, HomePositionManager homePositionManager, int consolePort)
     {
         this.visionManager = visionManager;
+        this.visionDispatcher = visionDispatcher;
         this.workpieceQueue = workpieceQueue;
         this.robotContext = robotContext;
         this.homePositionManager = homePositionManager;
@@ -51,8 +55,20 @@ public class AppController implements ConsoleServerInterface
     {
         if (ProgramRange.isValid(programNumber))
         {
-            this.programNumber = programNumber;
-            log.info("Program number set to: " + programNumber + " via console");
+            // If it's a vision program, dispatch it immediately (async)
+            // This allows vision to run even when robot is busy
+            if (ProgramRange.isVisionProgram(programNumber))
+            {
+                log.info("Vision program " + programNumber + " requested via console - dispatching immediately");
+                visionDispatcher.dispatch(programNumber);
+                // Don't set programNumber variable as vision programs are async
+            }
+            else
+            {
+                // Robot programs go through the main loop
+                this.programNumber = programNumber;
+                log.info("Program number set to: " + programNumber + " via console");
+            }
         } else
         {
             log.warn("Invalid program number requested: " + programNumber + " (valid range: " + ProgramRange.IDLE + "-" + ProgramRange.VISION_MAX + ")");
