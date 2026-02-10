@@ -116,10 +116,26 @@ public class MotionStrategy
             }
             motionContainer.await();
 
+            // Check for cancellation before executing action
+            if (context != null && context.isCancellationRequested())
+            {
+                log.warn("Motion cancelled before action execution");
+                context.setActiveMotion(null);
+                return false;
+            }
+
             // Execute action at target position (e.g., activate/deactivate gripper)
             if (action != null)
             {
                 action.execute();
+            }
+
+            // Check for cancellation before retract
+            if (context != null && context.isCancellationRequested())
+            {
+                log.warn("Motion cancelled before retract");
+                context.setActiveMotion(null);
+                return false;
             }
 
             // Retract
@@ -142,6 +158,12 @@ public class MotionStrategy
             if (context != null)
             {
                 context.setActiveMotion(null);
+                // Check if cancellation was requested - if so, propagate as cancellation exception
+                if (context.isCancellationRequested())
+                {
+                    log.warn("Motion failed due to cancellation: " + strategyDesc);
+                    return false;
+                }
             }
             log.warn("Motion failed with " + strategyDesc + ": " + e.getMessage());
             return false;
@@ -150,6 +172,12 @@ public class MotionStrategy
             if (context != null)
             {
                 context.setActiveMotion(null);
+                // Check if cancellation was requested - if so, propagate as cancellation exception
+                if (context.isCancellationRequested())
+                {
+                    log.warn("Motion cancelled: " + strategyDesc);
+                    return false;
+                }
             }
             log.warn("Motion action failed with " + strategyDesc + ": " + e.getMessage());
             return false;

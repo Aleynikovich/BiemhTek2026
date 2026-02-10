@@ -125,6 +125,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 pickSucceeded = true;
                 break;
             }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after pick measured workpiece strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
         }
         
         if (!pickSucceeded)
@@ -187,6 +194,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             {
                 placeSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after place strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 

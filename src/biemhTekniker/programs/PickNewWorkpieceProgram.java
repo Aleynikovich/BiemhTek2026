@@ -111,6 +111,13 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 pickSucceeded = true;
                 break;
             }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
         }
 
         // Check for cancellation before final move
@@ -175,6 +182,13 @@ public class PickNewWorkpieceProgram implements RobotProgram
             {
                 placeSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during workpiece exchange after strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 

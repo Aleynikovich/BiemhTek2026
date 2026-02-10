@@ -2,6 +2,7 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -104,6 +105,13 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
             {
                 placeSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after place measured strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 
