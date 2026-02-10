@@ -2,6 +2,7 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -59,7 +60,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         if (context.isCancellationRequested())
         {
             log.warn("Program cancelled before pick motion started");
-            throw new Exception("Program cancelled by user");
+            throw new ProgramCancelledException("Program cancelled by user");
         }
         
         gripperIO.setGripper1_Switch(false);
@@ -97,7 +98,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             if (context.isCancellationRequested())
             {
                 log.warn("Program cancelled during pick operation");
-                throw new Exception("Program cancelled by user");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
             
             MotionStrategy strategy = motionStrategies.get(i);
@@ -112,7 +113,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         if (context.isCancellationRequested())
         {
             log.warn("Program cancelled before final position move");
-            throw new Exception("Program cancelled by user");
+            throw new ProgramCancelledException("Program cancelled by user");
         }
 
         tcpA.move(ptp(scanWorkpieceFrame));
