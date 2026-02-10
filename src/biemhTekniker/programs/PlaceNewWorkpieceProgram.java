@@ -26,7 +26,6 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
-
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
@@ -48,10 +47,10 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         Frame pickPlacePositionB = pickPlaceFrameB.copyWithRedundancy();
 
         Frame prepickPlacePositionAZ = new Frame(pickPlacePositionA.copyWithRedundancy());
-        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
         Frame prepickPlacePositionBZ = new Frame(pickPlacePositionB.copyWithRedundancy());
-        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
         if (gripperIO.getGripper3_PartPresence())
         {
@@ -132,13 +131,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpA TCP A frame (gripper 1)
      * @param gripperIO Gripper IO group
-     * @param placePositionA Place position frame
+     * @param placePosition Place position frame
      * @param prepickPlacePositionA Pre-place position frame (with Z offset)
      * @throws Exception if place operation fails
      */
     private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
                                           MediaFlangeIOGroup gripperIO,
-                                          Frame placePositionA, Frame prepickPlacePositionA) throws Exception
+                                          Frame placePosition, Frame prepickPlacePositionA) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
@@ -161,7 +160,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         boolean placeSucceeded = false;
         for (MotionStrategy strategy : motionStrategies)
         {
-            if (strategy.executeMotion(placePositionA, prepickPlacePositionA, gripperReleaseAction))
+            if (strategy.executeMotion(placePosition, prepickPlacePositionA, gripperReleaseAction))
             {
                 placeSucceeded = true;
                 break;

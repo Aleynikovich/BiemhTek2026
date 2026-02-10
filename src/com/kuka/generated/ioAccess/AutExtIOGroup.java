@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import com.kuka.roboticsAPI.controllerModel.Controller;
 import com.kuka.roboticsAPI.ioModel.AbstractIOGroup;
 import com.kuka.roboticsAPI.ioModel.IOTypes;
+import com.kuka.roboticsAPI.ioModel.OutputReservedException;
 
 /**
  * Automatically generated class to abstract I/O access to I/O group <b>AutExt</b>.<br>
@@ -31,10 +32,10 @@ public class AutExtIOGroup extends AbstractIOGroup
 
 		addInput("ExtStart", IOTypes.BOOLEAN, 1);
 		addInput("MoveEnable", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("AutExtActive", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("AutExtReady", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("DefaultAppError", IOTypes.BOOLEAN, 1);
-		addDigitalOutput("StationError", IOTypes.BOOLEAN, 1);
+		addMockedDigitalOutput("AutExtActive", IOTypes.BOOLEAN, 1);
+		addMockedDigitalOutput("AutExtReady", IOTypes.BOOLEAN, 1);
+		addMockedDigitalOutput("DefaultAppError", IOTypes.BOOLEAN, 1);
+		addMockedDigitalOutput("StationError", IOTypes.BOOLEAN, 1);
 		addDigitalOutput("ProgramNumberRequest", IOTypes.BOOLEAN, 1);
 		addInput("ProgramNumberIN", IOTypes.UNSIGNED_INTEGER, 8);
 		addDigitalOutput("CurrentProgramNumber", IOTypes.UNSIGNED_INTEGER, 8);
@@ -94,14 +95,17 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital output 'AutExtActive'
+	* 
+	 * @deprecated The output 'AutExtActive' is currently used as station state output in the Sunrise project properties.
 	 */
+	@Deprecated
 	public boolean getAutExtActive()
 	{
 		return getBooleanIOValue("AutExtActive", true);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>AutExtActive</i>'</b>.<br>
+	 * Always throws an {@code OutputReservedException}, because the <b>digital output '<i>AutExtActive</i>'</b> is currently used as station state output in the Sunrise project properties.
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -115,10 +119,15 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 *
 	 * @param value
 	 *            the value, which has to be written to the digital output 'AutExtActive'
+	 * @throws OutputReservedException
+	 *            Always thrown, because this output is currently used as station state output in the Sunrise project properties.
+	* 
+	 * @deprecated The output 'AutExtActive' is currently used as station state output in the Sunrise project properties.
 	 */
-	public void setAutExtActive(java.lang.Boolean value)
+	@Deprecated
+	public void setAutExtActive(java.lang.Boolean value) throws OutputReservedException
 	{
-		setDigitalOutput("AutExtActive", value);
+		throw new OutputReservedException("The output 'AutExtActive' must not be set because it is currently used as station state output in the Sunrise project properties.");
 	}
 
 	/**
@@ -135,14 +144,17 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital output 'AutExtReady'
+	* 
+	 * @deprecated The output 'AutExtReady' is currently used as station state output in the Sunrise project properties.
 	 */
+	@Deprecated
 	public boolean getAutExtReady()
 	{
 		return getBooleanIOValue("AutExtReady", true);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>AutExtReady</i>'</b>.<br>
+	 * Always throws an {@code OutputReservedException}, because the <b>digital output '<i>AutExtReady</i>'</b> is currently used as station state output in the Sunrise project properties.
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -156,10 +168,15 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 *
 	 * @param value
 	 *            the value, which has to be written to the digital output 'AutExtReady'
+	 * @throws OutputReservedException
+	 *            Always thrown, because this output is currently used as station state output in the Sunrise project properties.
+	* 
+	 * @deprecated The output 'AutExtReady' is currently used as station state output in the Sunrise project properties.
 	 */
-	public void setAutExtReady(java.lang.Boolean value)
+	@Deprecated
+	public void setAutExtReady(java.lang.Boolean value) throws OutputReservedException
 	{
-		setDigitalOutput("AutExtReady", value);
+		throw new OutputReservedException("The output 'AutExtReady' must not be set because it is currently used as station state output in the Sunrise project properties.");
 	}
 
 	/**
@@ -176,14 +193,17 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital output 'DefaultAppError'
+	* 
+	 * @deprecated The output 'DefaultAppError' is currently used as station state output in the Sunrise project properties.
 	 */
+	@Deprecated
 	public boolean getDefaultAppError()
 	{
 		return getBooleanIOValue("DefaultAppError", true);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>DefaultAppError</i>'</b>.<br>
+	 * Always throws an {@code OutputReservedException}, because the <b>digital output '<i>DefaultAppError</i>'</b> is currently used as station state output in the Sunrise project properties.
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -197,10 +217,15 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 *
 	 * @param value
 	 *            the value, which has to be written to the digital output 'DefaultAppError'
+	 * @throws OutputReservedException
+	 *            Always thrown, because this output is currently used as station state output in the Sunrise project properties.
+	* 
+	 * @deprecated The output 'DefaultAppError' is currently used as station state output in the Sunrise project properties.
 	 */
-	public void setDefaultAppError(java.lang.Boolean value)
+	@Deprecated
+	public void setDefaultAppError(java.lang.Boolean value) throws OutputReservedException
 	{
-		setDigitalOutput("DefaultAppError", value);
+		throw new OutputReservedException("The output 'DefaultAppError' must not be set because it is currently used as station state output in the Sunrise project properties.");
 	}
 
 	/**
@@ -217,14 +242,17 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 * [false; true]
 	 *
 	 * @return current value of the digital output 'StationError'
+	* 
+	 * @deprecated The output 'StationError' is currently used as station state output in the Sunrise project properties.
 	 */
+	@Deprecated
 	public boolean getStationError()
 	{
 		return getBooleanIOValue("StationError", true);
 	}
 
 	/**
-	 * Sets the value of the <b>digital output '<i>StationError</i>'</b>.<br>
+	 * Always throws an {@code OutputReservedException}, because the <b>digital output '<i>StationError</i>'</b> is currently used as station state output in the Sunrise project properties.
 	 * <i>This method is automatically generated. Please, do not modify!</i>
 	 * <p>
 	 * <b>I/O direction and type:</b><br>
@@ -238,10 +266,15 @@ public class AutExtIOGroup extends AbstractIOGroup
 	 *
 	 * @param value
 	 *            the value, which has to be written to the digital output 'StationError'
+	 * @throws OutputReservedException
+	 *            Always thrown, because this output is currently used as station state output in the Sunrise project properties.
+	* 
+	 * @deprecated The output 'StationError' is currently used as station state output in the Sunrise project properties.
 	 */
-	public void setStationError(java.lang.Boolean value)
+	@Deprecated
+	public void setStationError(java.lang.Boolean value) throws OutputReservedException
 	{
-		setDigitalOutput("StationError", value);
+		throw new OutputReservedException("The output 'StationError' must not be set because it is currently used as station state output in the Sunrise project properties.");
 	}
 
 	/**

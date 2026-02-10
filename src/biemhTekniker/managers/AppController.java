@@ -5,7 +5,6 @@ import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.programs.ProgramRange;
-import biemhTekniker.programs.RobotContext;
 import biemhTekniker.vision.VisionManager;
 
 /**
@@ -19,17 +18,12 @@ public class AppController implements ConsoleServerInterface
     private final VisionManager visionManager;
     private final WorkpieceQueue workpieceQueue;
     private final ConsoleServer consoleServer;
-    private final RobotContext robotContext;
-    private final HomePositionManager homePositionManager;
     private volatile int programNumber = 0;
 
-    public AppController(VisionManager visionManager, WorkpieceQueue workpieceQueue, 
-                         RobotContext robotContext, HomePositionManager homePositionManager, int consolePort)
+    public AppController(VisionManager visionManager, WorkpieceQueue workpieceQueue, int consolePort)
     {
         this.visionManager = visionManager;
         this.workpieceQueue = workpieceQueue;
-        this.robotContext = robotContext;
-        this.homePositionManager = homePositionManager;
         this.consoleServer = new ConsoleServer(this, consolePort);
     }
 
@@ -105,26 +99,5 @@ public class AppController implements ConsoleServerInterface
     public boolean hasActiveClients()
     {
         return consoleServer != null && consoleServer.hasActiveClients();
-    }
-
-    @Override
-    public void cancelCurrentProgram()
-    {
-        log.info("Cancellation requested - setting cancellation flag and requesting home move");
-        
-        // Set cancellation flag in robot context
-        if (robotContext != null)
-        {
-            robotContext.requestCancellation();
-        }
-        
-        // Reset program to idle
-        this.programNumber = 0;
-        
-        // Request return to home position
-        if (homePositionManager != null)
-        {
-            homePositionManager.requestHomeMove();
-        }
     }
 }

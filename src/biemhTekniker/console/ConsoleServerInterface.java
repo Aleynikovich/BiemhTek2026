@@ -47,10 +47,4 @@ public interface ConsoleServerInterface
      * @return true if at least one client is connected
      */
     boolean hasActiveClients();
-
-    /**
-     * Cancels the currently executing program and requests return to home position.
-     * Does not open grippers to preserve any held workpiece.
-     */
-    void cancelCurrentProgram();
 }
