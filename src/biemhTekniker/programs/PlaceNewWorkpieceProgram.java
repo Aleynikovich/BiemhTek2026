@@ -104,7 +104,6 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction))
             {
                 pickSucceeded = true;
-                gripperIO.setGripper3_PartPresence(false);
                 break;
             }
         }
@@ -116,7 +115,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             log.error("Failed to pick measured workpiece with TCP B");
             throw new Exception("Failed to pick measured workpiece - all strategies exhausted");
         }
-
+        gripperIO.setGripper3_PartPresence(false);
         log.info("Measured workpiece picked successfully with TCP B");
     }
 
