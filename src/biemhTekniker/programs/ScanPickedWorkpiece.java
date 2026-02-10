@@ -12,24 +12,33 @@ import com.kuka.common.ThreadUtil;
 import java.util.List;
 
 /**
- * Full scan sequence vision task.
- * Program 109: Composite scan that populates the full WorkpieceQueue.
- * Sequence: 101 (Auto Mode) -> 2 (Capture) -> 3 (Locate Container) -> 4 (Locate Parts for all refs) -> 9/11 loop
+ * Vision task to scan a picked workpiece and determine its orientation.
+ * Program 110: Scans the workpiece to determine if it's regular (0) or inverted (1).
+ * Returns reference+orientation (53x, 55x, 60x where x=0 or 1).
+ * Sequence: 101 (Auto Mode) -> 2 (Capture) -> Send scan request -> Get orientation
  */
 public class ScanPickedWorkpiece implements VisionTask
 {
     private static final Logger log = Logger.getLogger(ScanPickedWorkpiece.class);
     private static final int DELAY_MS = 200;
-    int reference;
+
     public void execute(VisionContext context) throws Exception
     {
-        log.info("Starting workpiece scan sequence...");
+        log.info("Starting workpiece orientation scan...");
 
         SmartPickingProtocol protocol = context.getProtocol();
         WorkpieceQueue queue = context.getWorkpieceQueue();
-        ConfigManager config = ConfigManager.getInstance();
+        
+        // Get the workpiece that was just picked
         WorkpieceData workpieceData = queue.getPickedWorkpiece();
-        int zone = config.getInt("vision.zone", 1);
+        if (workpieceData == null)
+        {
+            log.error("No picked workpiece found in queue");
+            throw new Exception("No picked workpiece to scan");
+        }
+
+        int reference = workpieceData.getReferenceIndex();
+        log.info("Scanning workpiece with reference index: " + reference);
 
         // Step 1: Set AUTO mode (101)
         log.debug("Step 1: Setting AUTO mode");
@@ -50,43 +59,65 @@ public class ScanPickedWorkpiece implements VisionTask
         }
         ThreadUtil.milliSleep(DELAY_MS);
 
-        // Step 3: Send picked workpiece data ref
-        // Initialize with a default failure or null to handle cases outside 1-3
+        // Step 3: Send workpiece scan request based on reference
+        // Reference 1 -> 53, Reference 2 -> 55, Reference 3 -> 60
         VisionResult workpieceDataSendResult = null;
 
         switch (reference)
         {
             case 1:
-                log.debug("Sending WP 53");
+                log.debug("Sending workpiece scan request for reference 53");
                 workpieceDataSendResult = protocol.execute(Command.SEND_WORKPIECE_SCAN_REQUEST_53, true);
                 break;
 
             case 2:
-                log.debug("Sending WP 55");
+                log.debug("Sending workpiece scan request for reference 55");
                 workpieceDataSendResult = protocol.execute(Command.SEND_WORKPIECE_SCAN_REQUEST_55, true);
                 break;
 
             case 3:
-                log.debug("Sending WP 60");
+                log.debug("Sending workpiece scan request for reference 60");
                 workpieceDataSendResult = protocol.execute(Command.SEND_WORKPIECE_SCAN_REQUEST_60, true);
                 break;
 
             default:
-                log.error("Unknown reference index: " + reference);
+                log.error("Unknown reference index: " + reference + " (expected 1, 2, or 3)");
                 throw new Exception("Invalid workpiece reference: " + reference);
         }
 
-        // Add a safety check for null before checking success
+        // Check if scan request succeeded
         if (workpieceDataSendResult == null || !workpieceDataSendResult.isSuccess())
         {
-            log.error("Failed to capture data for reference: " + reference);
-            throw new Exception("Failed to capture data");
+            log.error("Failed to send scan request for reference: " + reference);
+            throw new Exception("Failed to send scan request");
         }
 
         ThreadUtil.milliSleep(DELAY_MS);
 
-        VisionResult workpieceOrientationResult = protocol.execute(Command.REQUEST_WORKPIECE_ORIENTATION, true);;
-        String workpieceReferenceWithOrientation = String.valueOf(workpieceOrientationResult.getWorkpieceRefWithOrientation());
-        log.info("Workpiece reference and orientation orientation: " + workpieceReferenceWithOrientation);
+        // Step 4: Request workpiece orientation (13;1)
+        log.debug("Step 4: Requesting workpiece orientation");
+        VisionResult orientationResult = protocol.execute(Command.REQUEST_WORKPIECE_ORIENTATION, true);
+        
+        if (!orientationResult.isSuccess())
+        {
+            log.error("Failed to get workpiece orientation");
+            throw new Exception("Failed to get workpiece orientation");
+        }
+
+        // Get orientation result (e.g., 530, 531, 550, 551, 600, 601)
+        double refWithOrientation = orientationResult.getWorkpieceRefWithOrientation();
+        int refWithOrientationInt = (int) refWithOrientation;
+        
+        // Extract orientation: last digit (0=regular, 1=inverted)
+        int orientation = refWithOrientationInt % 10;
+        
+        log.info("Workpiece reference with orientation: " + refWithOrientationInt + 
+                 " (reference=" + reference + ", orientation=" + orientation + 
+                 (orientation == 0 ? " [REGULAR]" : " [INVERTED]") + ")");
+
+        // Store orientation in workpiece data
+        workpieceData.setOrientation(orientation);
+        
+        log.info("Workpiece orientation scan completed successfully");
     }
 }

@@ -125,26 +125,10 @@ public class MotionStrategy
             }
 
             // Execute action at target position (e.g., activate/deactivate gripper)
+            // The robot has already reached the target position (await() completed above)
             if (action != null)
             {
                 action.execute();
-                motionContainer.await();
-            }
-
-            // Check for cancellation before retract
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before retract");
-                context.setActiveMotion(null);
-                return false;
-            }
-
-            // Check for cancellation before retract
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before retract");
-                context.setActiveMotion(null);
-                return false;
             }
 
             // Check for cancellation before retract

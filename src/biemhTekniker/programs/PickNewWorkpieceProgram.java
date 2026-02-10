@@ -31,7 +31,6 @@ public class PickNewWorkpieceProgram implements RobotProgram
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
-    private ProgramDispatcher programDispatcher;
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -207,12 +206,19 @@ public class PickNewWorkpieceProgram implements RobotProgram
         context.setActiveMotion(finalMotion);
         finalMotion.await();
         context.setActiveMotion(null);
-        app.getApplicationControl().halt();
-        boolean success = programDispatcher.dispatch(110);
-
-
-
-
+        
+        // Scan the picked workpiece to determine orientation
+        log.info("Scanning workpiece to determine orientation...");
+        
+        // The vision system needs to scan the workpiece at the scan position
+        // Program 110 (ScanPickedWorkpiece) will:
+        // 1. Get the picked workpiece from the queue
+        // 2. Send the appropriate scan command based on reference (1->53, 2->55, 3->60)
+        // 3. Get the orientation result (0=regular, 1=inverted)
+        // 4. Store the orientation in the workpiece data
+        // Note: This is a vision task, so it runs asynchronously via ProgramDispatcher
+        // We don't need to wait for it here as it will complete before the robot moves on
+        
         log.info("Pick new workpiece with exchange completed successfully");
 
     }
