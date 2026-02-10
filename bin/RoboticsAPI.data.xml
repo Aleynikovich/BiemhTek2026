@@ -291,9 +291,9 @@
             </redundancyData>
         </frame>
         <frame id="_71879089-5f12-4298-8d6c-5fd0d97ebf76" name="SchunkBase">
-            <transformation a="1.584904794632764" b="0.0033888610328115017" c="-3.1372080876346726" x="795.2780451082366" y="-110.40083751165719" z="126.20277972644416"/>
+            <transformation a="1.5707963267948966" b="0.0" c="-3.141592653589793" x="795.2780451082366" y="-110.40083751165719" z="126.20277972644416"/>
             <additionalInformation>
-                <info key="LastModificationTime" type="java.lang.Long" value="1770294397265"/>
+                <info key="LastModificationTime" type="java.lang.Long" value="1770714801467"/>
                 <info base="iiwa" controller="Sunrise" device="iiwa" tcpName="Gripper/TCPA" tool="Gripper" type="com.kuka.roboticsAPI.deviceModel.TeachInformation">
                     <tcpTransformation a="0.0" b="0.0" c="0.7853981633974483" x="-0.23246564003171438" y="-124.4964066933245" z="129.24566970274282"/>
                 </info>
