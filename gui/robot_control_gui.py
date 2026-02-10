@@ -630,7 +630,7 @@ class RobotControlGUI:
             
             # Start auto-refresh after a longer delay (3 seconds to ensure stability)
             self.log_console("Auto-refresh will start in 3 seconds...", 'info')
-            self.root.after(3000, self.start_auto_refresh)
+            self.root.after(500, self.start_auto_refresh)
             
         except Exception as e:
             messagebox.showerror("Connection Error", f"Failed to connect: {str(e)}")
