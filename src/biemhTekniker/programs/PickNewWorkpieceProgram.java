@@ -207,6 +207,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         context.setActiveMotion(finalMotion);
         finalMotion.await();
         context.setActiveMotion(null);
+        app.getApplicationControl().halt();
         boolean success = programDispatcher.dispatch(110);
 
 
