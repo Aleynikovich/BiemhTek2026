@@ -147,6 +147,14 @@ public class MotionStrategy
                 return false;
             }
 
+            // Check for cancellation before retract
+            if (context != null && context.isCancellationRequested())
+            {
+                log.warn("Motion cancelled before retract");
+                context.setActiveMotion(null);
+                return false;
+            }
+
             // Retract
             motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
             if (context != null)
