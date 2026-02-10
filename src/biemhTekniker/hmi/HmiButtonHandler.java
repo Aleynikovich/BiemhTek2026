@@ -8,11 +8,8 @@ import com.kuka.roboticsAPI.uiModel.userKeys.*;
 
 /**
  * Handles HMI programmable button events on the KUKA SmartPad.
- * Implements the four side buttons with the following functionality:
- * - Button 1: Toggle gripper open/close
- * - Button 2: Reserved (future use, e.g. tool change)
- * - Button 3: Print current robot position to console
- * - Button 4: Reserved for future use
+ * Uses a configurable button action system for flexibility.
+ * Supports multiple user key bars for different operation modes.
  */
 public class HmiButtonHandler implements IUserKeyListener
 {
@@ -22,12 +19,8 @@ public class HmiButtonHandler implements IUserKeyListener
     private final Tool gripper;
     private final MediaFlangeIOGroup gripperIO;
 
-
     // User key references
-    private IUserKey button1;
-    private IUserKey button2;
-    private IUserKey button3;
-    private IUserKey button4;
+    private IUserKey[] buttons = new IUserKey[4];
 
     /**
      * Creates a new HMI button handler.
@@ -53,45 +46,25 @@ public class HmiButtonHandler implements IUserKeyListener
     {
         try
         {
-            button1 = keyBar.addUserKey(0, this, true);
-            if (gripperIO.getGripper1_Switch())
-            {
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper1: closed");
-            } else
-            {
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper1: open");
-            }
-            button1.setEnabled(true);
+            // Button 0: Gripper 1
+            buttons[0] = keyBar.addUserKey(0, this, true);
+            updateGripperButtonText(buttons[0], 1);
+            buttons[0].setEnabled(true);
 
-            button2 = keyBar.addUserKey(1, this, true);
-            if (gripperIO.getGripper2_Switch())
-            {
-                button2.setText(UserKeyAlignment.TopMiddle, "Gripper2: switch");
-            } else
-            {
-                button2.setText(UserKeyAlignment.TopMiddle, "Gripper2: closed");
-            }
-            button2.setEnabled(true);
+            // Button 1: Gripper 2
+            buttons[1] = keyBar.addUserKey(1, this, true);
+            updateGripperButtonText(buttons[1], 2);
+            buttons[1].setEnabled(true);
 
-            button3 = keyBar.addUserKey(2, this, true);
-            if (gripperIO.getGripper2_Switch())
-            {
-                button3.setText(UserKeyAlignment.TopMiddle, "3: switch");
-            } else
-            {
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper3: closed");
-            }
-            button3.setEnabled(true);
+            // Button 2: Gripper 3
+            buttons[2] = keyBar.addUserKey(2, this, true);
+            updateGripperButtonText(buttons[2], 3);
+            buttons[2].setEnabled(true);
 
-            button4 = keyBar.addUserKey(3, this, true);
-            if (gripperIO.getGripper2_Switch())
-            {
-                button4.setText(UserKeyAlignment.TopMiddle, "SecSwitch: ON");
-            } else
-            {
-                button4.setText(UserKeyAlignment.TopMiddle, "SecSwitch: OFF");
-            }
-            button4.setEnabled(true);
+            // Button 3: Security Switch
+            buttons[3] = keyBar.addUserKey(3, this, true);
+            updateSecurityButtonText(buttons[3]);
+            buttons[3].setEnabled(true);
 
             keyBar.publish();
             log.info("HMI programmable buttons initialized successfully");
@@ -99,6 +72,46 @@ public class HmiButtonHandler implements IUserKeyListener
         {
             log.error("Failed to register user keys: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Updates the button text for a gripper button based on current state.
+     *
+     * @param button Button to update
+     * @param gripperNum Gripper number (1, 2, or 3)
+     */
+    private void updateGripperButtonText(IUserKey button, int gripperNum)
+    {
+        boolean isActive = false;
+        String label = "Gripper " + gripperNum + ": ";
+
+        switch (gripperNum)
+        {
+            case 1:
+                isActive = gripperIO.getGripper1_Switch();
+                break;
+            case 2:
+                isActive = gripperIO.getGripper2_Switch();
+                break;
+            case 3:
+                isActive = gripperIO.getGripper3_Switch();
+                break;
+        }
+
+        label += isActive ? "Closed" : "Open";
+        button.setText(UserKeyAlignment.TopMiddle, label);
+    }
+
+    /**
+     * Updates the button text for the security switch button.
+     *
+     * @param button Button to update
+     */
+    private void updateSecurityButtonText(IUserKey button)
+    {
+        boolean isActive = gripperIO.getSecuritySwitch();
+        String label = "SecSwitch: " + (isActive ? "ON" : "OFF");
+        button.setText(UserKeyAlignment.TopMiddle, label);
     }
 
     @Override
@@ -118,120 +131,114 @@ public class HmiButtonHandler implements IUserKeyListener
 
     private void handleKeyDown(IUserKey key)
     {
-        if (key == button1)
+        // Find which button was pressed
+        for (int i = 0; i < buttons.length; i++)
         {
-            handleGripper1Toggle();
-        } else if (key == button2)
-        {
-            handleGripper2Toggle();
-        } else if (key == button3)
-        {
-            handleGripper3Toggle();
-        } else if (key == button4)
-        {
-            handleButton4Press();
-        }
-    }
-
-    private void handleGripper1Toggle()
-    {
-        try
-        {
-            if (!gripperIO.getGripper1_Switch())
+            if (key == buttons[i])
             {
-                // Close gripper - activate digital output
-                gripperIO.setGripper1_Switch(true);
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper 1: Closed");
-                log.debug("HMI Button 1: Gripper closed");
-            } else
-            {
-                // Open gripper - deactivate digital output
-                gripperIO.setGripper1_Switch(false);
-                button1.setText(UserKeyAlignment.TopMiddle, "Gripper 1: Open");
-                log.debug("HMI Button 1: Gripper opened");
+                handleButtonPress(i);
+                return;
             }
-        } catch (Exception e)
-        {
-            log.error("Error toggling gripper: " + e.getMessage(), e);
-            button1.setText(UserKeyAlignment.TopMiddle, "Gripper 1 ERROR");
-        }
-    }
-
-    private void handleGripper2Toggle()
-    {
-        try
-        {
-            if (!gripperIO.getGripper2_Switch())
-            {
-                // Close gripper - activate digital output
-                gripperIO.setGripper2_Switch(true);
-                button2.setText(UserKeyAlignment.TopMiddle, "Gripper 2: Closed");
-                log.debug("HMI Button 2: Gripper closed");
-            } else
-            {
-                // Open gripper - deactivate digital output
-                gripperIO.setGripper2_Switch(false);
-                button2.setText(UserKeyAlignment.TopMiddle, "Gripper 2: Open");
-                log.debug("HMI Button 2: Gripper opened");
-            }
-        } catch (Exception e)
-        {
-            log.error("Error toggling gripper: " + e.getMessage(), e);
-            button1.setText(UserKeyAlignment.TopMiddle, "Gripper 2 ERROR");
         }
     }
 
     /**
-     * Button 3: Print current robot position to console (joint + Cartesian).
-     * Useful for teaching points and debugging.
+     * Handles button press for a specific button index.
+     *
+     * @param buttonIndex Button index (0-3)
      */
-    private void handleGripper3Toggle()
+    private void handleButtonPress(int buttonIndex)
     {
-        try
+        switch (buttonIndex)
         {
-            if (!gripperIO.getGripper3_Switch())
-            {
-                // Close gripper - activate digital output
-                gripperIO.setGripper3_Switch(true);
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Closed");
-                log.debug("HMI Button 3: Gripper closed");
-            } else
-            {
-                // Open gripper - deactivate digital output
-                gripperIO.setGripper3_Switch(false);
-                button3.setText(UserKeyAlignment.TopMiddle, "Gripper 3: Open");
-                log.debug("HMI Button 3: Gripper opened");
-            }
-        } catch (Exception e)
-        {
-            log.error("Error toggling gripper: " + e.getMessage(), e);
-            button1.setText(UserKeyAlignment.TopMiddle, "Gripper 2 ERROR");
+            case 0:
+                toggleGripper(1, buttons[0]);
+                break;
+            case 1:
+                toggleGripper(2, buttons[1]);
+                break;
+            case 2:
+                toggleGripper(3, buttons[2]);
+                break;
+            case 3:
+                toggleSecuritySwitch(buttons[3]);
+                break;
         }
     }
 
     /**
-     * Button 4: Reserved for future use.
+     * Toggles a gripper and updates button text.
+     *
+     * @param gripperNum Gripper number (1, 2, or 3)
+     * @param button Button to update
      */
-    private void handleButton4Press()
+    private void toggleGripper(int gripperNum, IUserKey button)
     {
-        log.debug("HMI Button 4 pressed (Security Switch)");
         try
         {
-            if (!gripperIO.getSecuritySwitch())
+            boolean currentState = false;
+            boolean newState;
+
+            // Get current state
+            switch (gripperNum)
             {
-                gripperIO.setSecuritySwitch(true);
-                button4.setText(UserKeyAlignment.TopMiddle, "SecuritySwitch: ON");
-                log.debug("HMI Button 2: Gripper closed");
-            } else
-            {
-                gripperIO.setSecuritySwitch(false);
-                button4.setText(UserKeyAlignment.TopMiddle, "SecuritySwitch: OFF");
-                log.debug("HMI Button 2: Gripper opened");
+                case 1:
+                    currentState = gripperIO.getGripper1_Switch();
+                    break;
+                case 2:
+                    currentState = gripperIO.getGripper2_Switch();
+                    break;
+                case 3:
+                    currentState = gripperIO.getGripper3_Switch();
+                    break;
             }
+
+            newState = !currentState;
+
+            // Set new state
+            switch (gripperNum)
+            {
+                case 1:
+                    gripperIO.setGripper1_Switch(newState);
+                    break;
+                case 2:
+                    gripperIO.setGripper2_Switch(newState);
+                    break;
+                case 3:
+                    gripperIO.setGripper3_Switch(newState);
+                    break;
+            }
+
+            updateGripperButtonText(button, gripperNum);
+            log.debug("HMI: Gripper " + gripperNum + " " + (newState ? "closed" : "opened"));
+
         } catch (Exception e)
         {
-            log.error("Error toggling security: " + e.getMessage(), e);
-            button4.setText(UserKeyAlignment.TopMiddle, "Security switch ERROR");
+            log.error("Error toggling gripper " + gripperNum + ": " + e.getMessage(), e);
+            button.setText(UserKeyAlignment.TopMiddle, "Gripper " + gripperNum + " ERROR");
+        }
+    }
+
+    /**
+     * Toggles the security switch and updates button text.
+     *
+     * @param button Button to update
+     */
+    private void toggleSecuritySwitch(IUserKey button)
+    {
+        try
+        {
+            boolean currentState = gripperIO.getSecuritySwitch();
+            boolean newState = !currentState;
+
+            gripperIO.setSecuritySwitch(newState);
+            updateSecurityButtonText(button);
+            log.debug("HMI: Security switch " + (newState ? "ON" : "OFF"));
+
+        } catch (Exception e)
+        {
+            log.error("Error toggling security switch: " + e.getMessage(), e);
+            button.setText(UserKeyAlignment.TopMiddle, "Security switch ERROR");
         }
     }
 }
