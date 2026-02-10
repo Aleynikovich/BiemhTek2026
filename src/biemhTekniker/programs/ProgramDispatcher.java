@@ -11,7 +11,11 @@ import java.util.Map;
  * Dispatches program execution based on program number.
  * Routes robot programs (1-99) to main thread execution.
  * Routes vision programs (100-199) to vision thread execution via VisionManager.
+ * 
+ * @deprecated This class has been replaced by {@link RobotDispatcher} and {@link VisionDispatcher}
+ *             to allow independent operation of robot and vision systems. Use those classes instead.
  */
+@Deprecated
 public class ProgramDispatcher
 {
     private static final Logger log = Logger.getLogger(ProgramDispatcher.class);
