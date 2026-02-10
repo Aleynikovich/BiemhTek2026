@@ -94,7 +94,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         tcpA.move(ptp(scanWorkpieceFrame));
-        app.getApplicationControl().halt();
+        
+        //app.getApplicationControl().halt();
 
         if (!pickSucceeded)
         {
