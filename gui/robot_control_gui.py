@@ -363,11 +363,11 @@ class RobotControlGUI:
         # Colors for different references
         ref_colors = {
             1: '#FF0000', # Pure Red
-            2: '#00FF00', # Pure Green
+            2: '#800080', # Dark Green
             3: '#0000FF'  # Pure Blue
         }
         state_colors = {
-            'AVAILABLE': 'green',
+            'AVAILABLE': '',
             'PICKED': 'orange',
             'MEASURING': 'purple',
             'MEASURED': 'blue',
