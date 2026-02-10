@@ -278,4 +278,72 @@ public class WorkpieceQueue
         }
         return null;
     }
+
+    /**
+     * Finds an existing workpiece at the given position (within ±5mm tolerance).
+     * Used for tracking workpieces across scans to avoid creating duplicates.
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @param referenceIndex Reference index to match
+     * @return Existing workpiece if found, null otherwise
+     */
+    public synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
+    {
+        double tolerance = 5.0; // ±5mm tolerance
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            WorkpieceData wp = workpieces.get(i);
+            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, tolerance))
+            {
+                log.debug("Found existing workpiece at position: id=" + wp.getId());
+                return wp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Adds or updates a workpiece. If a workpiece exists at the same position
+     * with the same reference, updates it instead of creating a new one.
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @param rx Rotation X
+     * @param ry Rotation Y
+     * @param rz Rotation Z
+     * @param score Vision score
+     * @param referenceIndex Reference index
+     * @return The workpiece (existing or new)
+     */
+    public synchronized WorkpieceData addOrUpdateWorkpiece(double x, double y, double z, double rx, double ry, double rz, double score, int referenceIndex)
+    {
+        // Try to find existing workpiece at this position
+        WorkpieceData existing = findAtPosition(x, y, z, referenceIndex);
+
+        if (existing != null)
+        {
+            // Update existing workpiece if it's been returned or is still available
+            if (existing.getState() == WorkpieceState.RETURNED || existing.getState() == WorkpieceState.AVAILABLE)
+            {
+                existing.set(x, y, z, rx, ry, rz, score);
+                existing.setState(WorkpieceState.AVAILABLE);
+                log.info("Updated existing workpiece: id=" + existing.getId() + ", ref=" + referenceIndex + ", score=" + score);
+                return existing;
+            } else
+            {
+                // Workpiece is in use (PICKED, MEASURING, MEASURED) - create new one
+                log.debug("Workpiece at position is in use (state=" + existing.getState() + "), creating new entry");
+            }
+        }
+
+        // No existing workpiece found or existing one is in use - create new
+        WorkpieceData wp = new WorkpieceData(x, y, z, rx, ry, rz, score);
+        wp.setReferenceIndex(referenceIndex);
+        workpieces.add(wp);
+        log.debug("Added new workpiece to queue: id=" + wp.getId() + ", ref=" + referenceIndex + ", score=" + score);
+        return wp;
+    }
 }

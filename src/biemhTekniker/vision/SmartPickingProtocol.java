@@ -50,6 +50,7 @@ public class SmartPickingProtocol
 
     /**
      * Locates parts for a specific zone and reference.
+     * Supports optional subarguments for flexibility.
      *
      * @param zone      Zone number (1-based)
      * @param reference Reference index (1-based)
@@ -58,6 +59,25 @@ public class SmartPickingProtocol
     public VisionResult locateParts(int zone, int reference)
     {
         String args = zone + ";" + reference;
+        return execute(Command.LOCATE_PARTS, args, true);
+    }
+
+    /**
+     * Locates parts with additional optional arguments.
+     * Allows for future extensibility (e.g., "4;1;2;extraParam").
+     *
+     * @param zone      Zone number (1-based)
+     * @param reference Reference index (1-based)
+     * @param additionalArgs Optional additional arguments (can be null or empty)
+     * @return VisionResult with locate status
+     */
+    public VisionResult locatePartsWithArgs(int zone, int reference, String additionalArgs)
+    {
+        String args = zone + ";" + reference;
+        if (additionalArgs != null && !additionalArgs.isEmpty())
+        {
+            args += ";" + additionalArgs;
+        }
         return execute(Command.LOCATE_PARTS, args, true);
     }
 

@@ -135,6 +135,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Mark workpiece as PICKED only after successful pick
         queue.markPicked(workpieceData.getId());
+        workpieceData.setGripperLocation("A"); // Track that it's in gripper A
         log.info("Successfully picked workpiece with Gripper A: " + workpieceData.getId());
 
         // Now exchange: place measured workpiece at the same position with Gripper B
