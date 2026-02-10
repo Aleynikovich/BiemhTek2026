@@ -4,15 +4,14 @@ import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.vision.SmartPickingProtocol;
+import biemhTekniker.vision.SmartPickingProtocol.Command;
+import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
-import biemhTekniker.vision.SmartPickingProtocol;
-import biemhTekniker.vision.SmartPickingProtocol.Command;
-import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
-
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
@@ -210,6 +209,33 @@ public class PickNewWorkpieceProgram implements RobotProgram
         finalMotion.await();
         context.setActiveMotion(null);
         
+        // Robot is now at scan position - capture image with camera
+        // This blocks the robot at the scan position until camera completes capture
+        log.info("Robot at scan position, requesting camera capture...");
+        SmartPickingProtocol protocol = context.getProtocol();
+        if (protocol != null)
+        {
+            try
+            {
+                // Send command "2" (CAPTURE_DATA) to camera and wait for response "0" (success)
+                VisionResult captureResult = protocol.execute(Command.CAPTURE_DATA, true);
+                if (captureResult.isSuccess())
+                {
+                    log.info("Camera capture completed successfully, robot can now move");
+                } else
+                {
+                    log.warn("Camera capture failed or returned error, but continuing");
+                }
+            } catch (Exception e)
+            {
+                log.error("Error during camera capture: " + e.getMessage());
+                // Continue anyway - camera failure shouldn't stop the robot
+            }
+        } else
+        {
+            log.warn("Protocol not available - cannot trigger camera capture");
+        }
+        
         // Scan the picked workpiece to determine orientation
         log.info("Scanning workpiece to determine orientation...");
         
@@ -220,7 +246,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // 3. Get the orientation result (0=regular, 1=inverted)
         // 4. Store the orientation in the workpiece data
         // Note: This is a vision task, so it runs asynchronously via ProgramDispatcher
-        // We don't need to wait for it here as it will complete before the robot moves on
+        // The camera has already captured the image above, so the vision task can process it
         
         log.info("Pick new workpiece with exchange completed successfully");
 
