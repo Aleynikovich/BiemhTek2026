@@ -148,18 +148,30 @@ public class MotionStrategy
                     return false;
                 }
 
-                // Move to target position first with PTP
+                // Create approach frame by applying offset in tool Z direction
+                // The offset is applied in the local (tool) coordinate system
+                Transformation offsetTransform = Transformation.ofDeg(0, 0, offsetMm, 0, 0, 0);
+                Frame approachFrame = new Frame(finalTarget.copy());
+                approachFrame.transform(offsetTransform);
+
+                // Apply redundancy to approach frame if needed
+                if (redundancyE1Offset != null && robot != null)
+                {
+                    LBRE1Redundancy redundancy = new LBRE1Redundancy().setE1(redundancyE1Offset.doubleValue());
+                    approachFrame.setRedundancyInformation(robot, redundancy);
+                }
+
+                // Approach - move to position above target with PTP
                 IMotionContainer motionContainer = 
-                    tcp.moveAsync(ptp(finalTarget).setJointVelocityRel(APPROACH_VELOCITY));
+                    tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY));
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
                 }
                 motionContainer.await();
 
-                // Approach downward using tool Z+ (perpendicular to workpiece)
-                // linRel moves relative to current TCP position
-                motionContainer = tcp.moveAsync(linRel(0, 0, -offsetMm).setJointVelocityRel(ACTION_VELOCITY));
+                // Move down to target using LIN (world coordinate)
+                motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -188,8 +200,8 @@ public class MotionStrategy
                     return false;
                 }
 
-                // Retract using tool Z+ (perpendicular from workpiece)
-                motionContainer = tcp.moveAsync(linRel(0, 0, offsetMm).setJointVelocityRel(ACTION_VELOCITY));
+                // Retract back to approach position
+                motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY));
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
