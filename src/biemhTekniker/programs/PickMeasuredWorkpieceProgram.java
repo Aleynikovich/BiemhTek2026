@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -73,6 +74,13 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
             {
                 pickSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after pick measured strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 

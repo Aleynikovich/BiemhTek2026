@@ -109,6 +109,22 @@ public class WorkpieceQueue
     }
 
     /**
+     * Returns the first workpiece found in the PICKED state.
+     * * @return The picked workpiece, or null if none are currently picked.
+     */
+    public synchronized WorkpieceData getPickedWorkpiece()
+    {
+        for (WorkpieceData wp : workpieces)
+        {
+            if (wp.getState() == WorkpieceState.PICKED)
+            {
+                return wp;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Marks a workpiece as MEASURING.
      *
      * @param workpieceId Workpiece ID

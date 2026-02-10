@@ -9,6 +9,10 @@ import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
+import biemhTekniker.vision.SmartPickingProtocol;
+import biemhTekniker.vision.SmartPickingProtocol.Command;
+import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
+
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
@@ -27,6 +31,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
+    private ProgramDispatcher programDispatcher;
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -66,9 +71,6 @@ public class PickNewWorkpieceProgram implements RobotProgram
             log.warn("Program cancelled before pick motion started");
             throw new ProgramCancelledException("Program cancelled by user");
         }
-        
-        gripperIO.setGripper1_Switch(false);
-        gripperIO.setGripper2_Switch(false);
 
         // Gripper TCP declaration - use only gripper A
         ObjectFrame tcpA = gripper.getFrame("TCPA");
@@ -110,6 +112,13 @@ public class PickNewWorkpieceProgram implements RobotProgram
             {
                 pickSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 
@@ -176,6 +185,13 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 placeSucceeded = true;
                 break;
             }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during workpiece exchange after strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
         }
 
         if (!placeSucceeded)
@@ -191,8 +207,10 @@ public class PickNewWorkpieceProgram implements RobotProgram
         context.setActiveMotion(finalMotion);
         finalMotion.await();
         context.setActiveMotion(null);
-        
-        //app.getApplicationControl().halt();
+        boolean success = programDispatcher.dispatch(110);
+
+
+
 
         log.info("Pick new workpiece with exchange completed successfully");
 
