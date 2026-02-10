@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -43,7 +44,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         if (context.isCancellationRequested())
         {
             log.warn("Program cancelled before place operation started");
-            throw new Exception("Program cancelled by user");
+            throw new ProgramCancelledException("Program cancelled by user");
         }
 
         // Get dependencies from context
@@ -128,7 +129,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             if (context.isCancellationRequested())
             {
                 log.warn("Program cancelled during pick measured workpiece operation");
-                throw new Exception("Program cancelled by user");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
             
             MotionStrategy strategy = motionStrategies.get(i);
@@ -191,7 +192,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             if (context.isCancellationRequested())
             {
                 log.warn("Program cancelled during place operation");
-                throw new Exception("Program cancelled by user");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
             
             if (strategy.executeMotion(placePosition, prepickPlacePositionA, gripperReleaseAction))
