@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.config.ImpedanceConfig;
 import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy;
@@ -8,13 +9,14 @@ import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.math.Transformation;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
+import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Generic motion strategy with support for alternate position (180° rotation),
- * Z-axis rotation freedom, and redundancy (null space) motion.
+ * Z-axis rotation freedom, redundancy (null space) motion, and impedance control.
  * Can be used for any robot motion operation (pick, place, etc.).
  * Supports tool coordinate system approach (Z+) for perpendicular approach to workpieces.
  */
@@ -32,6 +34,7 @@ public class MotionStrategy
     private final boolean allowZRotation; // Allow free rotation around Z-axis
     private final Double zRotationAngle; // Specific Z-axis rotation angle in radians (null if allowZRotation is false)
     private final boolean useToolCoordinates; // Use tool coordinate system (Z+) for approach/retract
+    private final CartesianImpedanceControlMode impedanceMode; // Impedance control for compliance (null if disabled)
 
     /**
      * Creates a motion strategy without redundancy.
@@ -41,7 +44,7 @@ public class MotionStrategy
      */
     public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition)
     {
-        this(tcp, useAlternatePosition, null, null, false, null, false);
+        this(tcp, useAlternatePosition, null, null, false, null, false, null);
     }
 
     /**
@@ -55,7 +58,7 @@ public class MotionStrategy
     public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
                          Double redundancyE1Offset, LBR robot)
     {
-        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false);
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false, null);
     }
 
     /**
@@ -74,6 +77,27 @@ public class MotionStrategy
                          boolean allowZRotation, Double zRotationAngle, 
                          boolean useToolCoordinates)
     {
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, allowZRotation, 
+             zRotationAngle, useToolCoordinates, null);
+    }
+
+    /**
+     * Creates a motion strategy with full feature support including impedance control.
+     *
+     * @param tcp                  Tool center point frame
+     * @param useAlternatePosition If true, rotate position by 180 degrees around Z-axis
+     * @param redundancyE1Offset   E1 offset in radians for null space motion (null to disable)
+     * @param robot                Robot instance (required when redundancyE1Offset is not null)
+     * @param allowZRotation       If true, apply Z-axis rotation for place operations
+     * @param zRotationAngle       Z-axis rotation angle in radians (null for default 0)
+     * @param useToolCoordinates   If true, use tool coordinate system (Z+) for approach/retract
+     * @param impedanceMode        Cartesian impedance control mode for compliance (null to disable)
+     */
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
+                         Double redundancyE1Offset, LBR robot,
+                         boolean allowZRotation, Double zRotationAngle, 
+                         boolean useToolCoordinates, CartesianImpedanceControlMode impedanceMode)
+    {
         this.tcp = tcp;
         this.useAlternatePosition = useAlternatePosition;
         this.redundancyE1Offset = redundancyE1Offset;
@@ -81,6 +105,7 @@ public class MotionStrategy
         this.allowZRotation = allowZRotation;
         this.zRotationAngle = zRotationAngle;
         this.useToolCoordinates = useToolCoordinates;
+        this.impedanceMode = impedanceMode;
     }
 
     /**
@@ -158,8 +183,15 @@ public class MotionStrategy
                 }
 
                 // Approach - move to position above target with PTP
-                IMotionContainer motionContainer = 
-                    tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY));
+                IMotionContainer motionContainer;
+                if (impedanceMode != null)
+                {
+                    motionContainer = tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY).setMode(impedanceMode));
+                }
+                else
+                {
+                    motionContainer = tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY));
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -167,7 +199,14 @@ public class MotionStrategy
                 motionContainer.await();
 
                 // Move down to target using LIN (world coordinate)
-                motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
+                if (impedanceMode != null)
+                {
+                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
+                }
+                else
+                {
+                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -197,7 +236,14 @@ public class MotionStrategy
                 }
 
                 // Retract back to approach position
-                motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY));
+                if (impedanceMode != null)
+                {
+                    motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
+                }
+                else
+                {
+                    motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY));
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -243,8 +289,15 @@ public class MotionStrategy
                 }
 
                 // Approach
-                IMotionContainer motionContainer = 
-                    tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
+                IMotionContainer motionContainer;
+                if (impedanceMode != null)
+                {
+                    motionContainer = tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY).setMode(impedanceMode));
+                }
+                else
+                {
+                    motionContainer = tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -252,7 +305,14 @@ public class MotionStrategy
                 motionContainer.await();
 
                 // Move to target position
-                motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
+                if (impedanceMode != null)
+                {
+                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
+                }
+                else
+                {
+                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -282,7 +342,14 @@ public class MotionStrategy
                 }
 
                 // Retract
-                motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
+                if (impedanceMode != null)
+                {
+                    motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
+                }
+                else
+                {
+                    motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -337,7 +404,8 @@ public class MotionStrategy
             + (useAlternatePosition ? " (alternate)" : " (regular)")
             + (redundancyE1Offset != null ? " [E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°]" : "")
             + (allowZRotation && zRotationAngle != null ? " [Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°]" : "")
-            + (useToolCoordinates ? " [tool-coord]" : " [world-coord]");
+            + (useToolCoordinates ? " [tool-coord]" : " [world-coord]")
+            + (impedanceMode != null ? " [impedance]" : "");
         return desc;
     }
 
@@ -347,8 +415,9 @@ public class MotionStrategy
         String redundancyStr = redundancyE1Offset != null ? ", E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°" : "";
         String zRotationStr = allowZRotation && zRotationAngle != null ? ", Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°" : "";
         String coordStr = useToolCoordinates ? ", tool-coord" : ", world-coord";
+        String impedanceStr = impedanceMode != null ? ", impedance" : "";
         return "MotionStrategy{tcp=" + tcp.getName() 
-            + ", alternate=" + useAlternatePosition + redundancyStr + zRotationStr + coordStr + "}";
+            + ", alternate=" + useAlternatePosition + redundancyStr + zRotationStr + coordStr + impedanceStr + "}";
     }
 
     /**

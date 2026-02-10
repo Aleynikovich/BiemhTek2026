@@ -1,7 +1,9 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.config.ImpedanceConfig;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
+import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +35,38 @@ public class MotionStrategyGenerator
         Math.toRadians(-135)         // -135 degrees
     };
 
+    // Singleton impedance configuration instance
+    private static ImpedanceConfig impedanceConfig = null;
+
+    /**
+     * Gets or creates the impedance configuration singleton.
+     * 
+     * @return ImpedanceConfig instance
+     */
+    private static ImpedanceConfig getImpedanceConfig()
+    {
+        if (impedanceConfig == null)
+        {
+            impedanceConfig = new ImpedanceConfig();
+        }
+        return impedanceConfig;
+    }
+
+    /**
+     * Gets the impedance control mode if enabled in configuration.
+     * 
+     * @return CartesianImpedanceControlMode or null if disabled
+     */
+    private static CartesianImpedanceControlMode getImpedanceMode()
+    {
+        return getImpedanceConfig().createControlMode();
+    }
+
     /**
      * Generates a list of motion strategies with default redundancy variations.
      * Strategy order: regular position, then alternate position (180° rotation),
      * each with multiple redundancy configurations.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp   Tool center point frame to use
      * @param robot Robot instance for redundancy support
@@ -51,6 +81,7 @@ public class MotionStrategyGenerator
      * Generates a list of motion strategies with custom redundancy variations.
      * Strategy order: regular position, then alternate position (180° rotation),
      * each with multiple redundancy configurations.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
@@ -60,23 +91,24 @@ public class MotionStrategyGenerator
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, false, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, false, impedanceMode));
         }
 
         return strategies;
@@ -85,6 +117,7 @@ public class MotionStrategyGenerator
     /**
      * Generates a simplified list of motion strategies without alternate position.
      * Only tries regular position with redundancy variations.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp   Tool center point frame to use
      * @param robot Robot instance for redundancy support
@@ -98,6 +131,7 @@ public class MotionStrategyGenerator
     /**
      * Generates a simplified list of motion strategies without alternate position.
      * Only tries regular position with redundancy variations.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
@@ -107,13 +141,14 @@ public class MotionStrategyGenerator
     public static List<MotionStrategy> generateStrategiesWithoutAlternate(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
-        strategies.add(new MotionStrategy(tcp, false, null, robot));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode));
         }
 
         return strategies;
@@ -124,6 +159,7 @@ public class MotionStrategyGenerator
      * and tool coordinate system approach (Z+).
      * This allows the robot to place workpieces at different rotations around Z-axis
      * and approach perpendicular to the workpiece surface.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp   Tool center point frame to use
      * @param robot Robot instance for redundancy support
@@ -137,6 +173,7 @@ public class MotionStrategyGenerator
     /**
      * Generates a list of motion strategies for place operations with custom Z-axis rotation angles
      * and tool coordinate system approach (Z+).
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp                Tool center point frame to use
      * @param robot              Robot instance for redundancy support
@@ -149,6 +186,7 @@ public class MotionStrategyGenerator
                                                                double[] zRotationAngles)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try each Z-rotation angle with different redundancy configurations
         for (int z = 0; z < zRotationAngles.length; z++)
@@ -156,11 +194,11 @@ public class MotionStrategyGenerator
             Double zAngle = Double.valueOf(zRotationAngles[z]);
             
             // First attempt without redundancy (null), then with offsets
-            strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true));
+            strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode));
             for (int i = 0; i < redundancyOffsets.length; i++)
             {
                 Double offset = Double.valueOf(redundancyOffsets[i]);
-                strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true));
+                strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode));
             }
         }
 
@@ -172,6 +210,7 @@ public class MotionStrategyGenerator
      * but without Z-axis rotation freedom. Use this for pick operations where orientation matters.
      * Strategy order: regular position, then alternate position (180° rotation),
      * each with multiple redundancy configurations.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp   Tool center point frame to use
      * @param robot Robot instance for redundancy support
@@ -185,6 +224,7 @@ public class MotionStrategyGenerator
     /**
      * Generates a list of motion strategies with tool coordinate system approach (Z+)
      * and custom redundancy variations.
+     * Impedance control is automatically enabled if configured.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
@@ -194,23 +234,24 @@ public class MotionStrategyGenerator
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode));
         }
 
         return strategies;
