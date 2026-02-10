@@ -1,5 +1,6 @@
 package biemhTekniker.IOPolling;
 
+import biemhTekniker.logger.Logger;
 import com.kuka.generated.ioAccess.RobotCartesianPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
+    private static final Logger log = Logger.getLogger(CartesianPositionPolling.class);
     private final int decimalMultiplier = 10;
     @Inject
     private Controller sunrise;
@@ -42,7 +44,7 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
         } catch (Exception e)
         {
             // Log error but continue running - PLC may be in STOP mode
-            getLogger().error("Failed to update cartesian position: " + e.getMessage());
+            log.error("Failed to update cartesian position: " + e.getMessage());
         }
     }
 }

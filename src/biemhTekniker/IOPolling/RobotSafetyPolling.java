@@ -1,5 +1,6 @@
 package biemhTekniker.IOPolling;
 
+import biemhTekniker.logger.Logger;
 import com.kuka.generated.ioAccess.RobotSafetyIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
 {
+    private static final Logger log = Logger.getLogger(RobotSafetyPolling.class);
     @Inject
     RobotSafetyIOGroup safetyIO;
     @Inject
@@ -37,7 +39,7 @@ public class RobotSafetyPolling extends RoboticsAPICyclicBackgroundTask
         } catch (Exception e)
         {
             // Log error but continue running - PLC may be in STOP mode
-            getLogger().error("Failed to update safety state: " + e.getMessage());
+            log.error("Failed to update safety state: " + e.getMessage());
         }
     }
 
