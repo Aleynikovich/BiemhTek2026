@@ -12,6 +12,8 @@ import java.util.List;
 public class WorkpieceQueue
 {
     private static final Logger log = Logger.getLogger(WorkpieceQueue.class);
+    private static final double POSITION_TOLERANCE_MM = 5.0;
+    
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
 
     /**
@@ -291,11 +293,10 @@ public class WorkpieceQueue
      */
     public synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
     {
-        double tolerance = 5.0; // ±5mm tolerance
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, tolerance))
+            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, POSITION_TOLERANCE_MM))
             {
                 log.debug("Found existing workpiece at position: id=" + wp.getId());
                 return wp;

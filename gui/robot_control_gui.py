@@ -359,28 +359,6 @@ class RobotControlGUI:
                 self.log_console("Clearing workpiece queue...", 'warning')
                 self.workpiece_tree.delete(*self.workpiece_tree.get_children())
         
-        ttk.Label(frame, text="Robot Motion Programs (1-99):", style='Header.TLabel').grid(
-            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
-        
-        robot_programs = [
-            (0, "Idle"),
-            (1, "Pick New Workpiece"),
-            (2, "Place New Workpiece"),
-            (3, "Pick Measured Workpiece"),
-            (4, "Place Measured Workpiece"),
-            (5, "Calibration"),
-            (6, "Test Calibration"),
-        ]
-        
-        for i, (prog_num, prog_name) in enumerate(robot_programs):
-            row = 1 + (i // 3)
-            col = i % 3
-            btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
-                           command=lambda p=prog_num: self.set_program(p),
-                           width=22)
-            btn.grid(row=row, column=col, padx=3, pady=3, sticky=tk.W)
-    
-        
     def log_console(self, message, level='info'):
         """Add message to console with timestamp, filtered by log level"""
         # Map level names

@@ -14,13 +14,14 @@ import com.kuka.roboticsAPI.uiModel.userKeys.*;
 public class HmiButtonHandler implements IUserKeyListener
 {
     private static final Logger log = Logger.getLogger(HmiButtonHandler.class);
+    private static final int BUTTON_COUNT = 4;
 
     private final LBR robot;
     private final Tool gripper;
     private final MediaFlangeIOGroup gripperIO;
 
     // User key references
-    private IUserKey[] buttons = new IUserKey[4];
+    private IUserKey[] buttons = new IUserKey[BUTTON_COUNT];
 
     /**
      * Creates a new HMI button handler.

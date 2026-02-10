@@ -68,6 +68,7 @@ public class FullScanTask implements VisionTask
 
         // Step 5: Add or update workpieces in the queue (with position tracking)
         // This prevents creating duplicate workpieces on each scan
+        // Note: O(n²) complexity - consider spatial indexing if workpiece count exceeds ~50
         int addedCount = 0;
         int updatedCount = 0;
         for (int i = 0; i < foundWorkpieces.size(); i++)
