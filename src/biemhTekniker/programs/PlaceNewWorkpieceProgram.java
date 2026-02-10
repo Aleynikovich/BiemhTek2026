@@ -181,7 +181,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 throw new ProgramCancelledException("Program cancelled by user");
             }
 
-            if (strategy.executeMotion(placePosition, prepickPlacePositionB, gripperReleaseAction))
+            if (strategy.executeMotion(placePositionB, prepickPlacePositionB, gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;
