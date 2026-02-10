@@ -2,7 +2,7 @@
 <!--
 Automatically generated IO group description. Please do NOT modify!
 -->
-<SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
+<SunriseIOGroupDescription Version="1.0.0">
   <IOGroup DisplayName="RobotSafety" IconName="RobotSafety" SignalTypes="InOut" TemplateName="RobotSafety">
     <IOs>
       <DigitalIOItem Name="IsLocalEStop" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">

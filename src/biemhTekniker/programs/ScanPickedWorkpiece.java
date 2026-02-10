@@ -1,6 +1,5 @@
 package biemhTekniker.programs;
 
-import biemhTekniker.config.ConfigManager;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
@@ -8,8 +7,6 @@ import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
 import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
 import com.kuka.common.ThreadUtil;
-
-import java.util.List;
 
 /**
  * Vision task to scan a picked workpiece and determine its orientation.
@@ -60,30 +57,19 @@ public class ScanPickedWorkpiece implements VisionTask
         ThreadUtil.milliSleep(DELAY_MS);
 
         // Step 3: Send workpiece scan request based on reference
-        // Reference 1 -> 53, Reference 2 -> 55, Reference 3 -> 60
-        VisionResult workpieceDataSendResult = null;
-
-        switch (reference)
+        // Reference index maps to reference numbers: 1->53, 2->55, 3->60
+        int[] referenceNumbers = {53, 55, 60};
+        
+        if (reference < 1 || reference > referenceNumbers.length)
         {
-            case 1:
-                log.debug("Sending workpiece scan request for reference 53");
-                workpieceDataSendResult = protocol.execute(Command.SEND_WORKPIECE_SCAN_REQUEST_53, true);
-                break;
-
-            case 2:
-                log.debug("Sending workpiece scan request for reference 55");
-                workpieceDataSendResult = protocol.execute(Command.SEND_WORKPIECE_SCAN_REQUEST_55, true);
-                break;
-
-            case 3:
-                log.debug("Sending workpiece scan request for reference 60");
-                workpieceDataSendResult = protocol.execute(Command.SEND_WORKPIECE_SCAN_REQUEST_60, true);
-                break;
-
-            default:
-                log.error("Unknown reference index: " + reference + " (expected 1, 2, or 3)");
-                throw new Exception("Invalid workpiece reference: " + reference);
+            log.error("Unknown reference index: " + reference + " (expected 1, 2, or 3)");
+            throw new Exception("Invalid workpiece reference: " + reference);
         }
+        
+        int referenceNumber = referenceNumbers[reference - 1];
+        log.debug("Sending workpiece scan request for reference " + referenceNumber);
+        
+        VisionResult workpieceDataSendResult = protocol.sendWorkpieceScanRequest(1, referenceNumber);
 
         // Check if scan request succeeded
         if (workpieceDataSendResult == null || !workpieceDataSendResult.isSuccess())
@@ -94,9 +80,9 @@ public class ScanPickedWorkpiece implements VisionTask
 
         ThreadUtil.milliSleep(DELAY_MS);
 
-        // Step 4: Request workpiece orientation (13;1)
+        // Step 4: Request workpiece orientation
         log.debug("Step 4: Requesting workpiece orientation");
-        VisionResult orientationResult = protocol.execute(Command.REQUEST_WORKPIECE_ORIENTATION, true);
+        VisionResult orientationResult = protocol.requestWorkpieceOrientation(1);
         
         if (!orientationResult.isSuccess())
         {

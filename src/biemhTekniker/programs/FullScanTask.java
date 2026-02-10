@@ -3,6 +3,7 @@ package biemhTekniker.programs;
 import biemhTekniker.config.ConfigManager;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
+import biemhTekniker.data.WorkpieceState;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
@@ -66,14 +67,35 @@ public class FullScanTask implements VisionTask
         log.debug("Step 4: Locating parts across " + referenceCount + " references in zone " + zone);
         List<WorkpieceData> foundWorkpieces = protocol.locateAllParts(referenceCount, zone);
 
-        // Step 5: Add all workpieces to the queue
-        // Uncomment to get a list of all available workpieces
-        for (WorkpieceData wp : foundWorkpieces)
+        // Step 5: Add or update workpieces in the queue (with position tracking)
+        // This prevents creating duplicate workpieces on each scan
+        // Note: O(n²) complexity - For production with >50 workpieces, consider:
+        //   - Spatial indexing (grid-based hash map)
+        //   - Caching position lookups
+        //   - Background consolidation of returned workpieces
+        int addedCount = 0;
+        int updatedCount = 0;
+        for (int i = 0; i < foundWorkpieces.size(); i++)
         {
-            queue.addWorkpiece(wp);
+            WorkpieceData wp = foundWorkpieces.get(i);
+            WorkpieceData existing = queue.findAtPosition(wp.getX(), wp.getY(), wp.getZ(), wp.getReferenceIndex());
+
+            if (existing != null && (existing.getState() == WorkpieceState.RETURNED || existing.getState() == WorkpieceState.AVAILABLE))
+            {
+                // Update existing workpiece
+                existing.set(wp.getX(), wp.getY(), wp.getZ(), wp.getRx(), wp.getRy(), wp.getRz(), wp.getScore());
+                existing.setState(WorkpieceState.AVAILABLE);
+                updatedCount++;
+            } else if (existing == null)
+            {
+                // Add new workpiece
+                queue.addWorkpiece(wp);
+                addedCount++;
+            }
+            // If existing workpiece is in use (PICKED, MEASURING, MEASURED), skip it
         }
 
-        log.info("Full scan complete: Found " + foundWorkpieces.size() + " workpieces across " + referenceCount + " references");
+        log.info("Full scan complete: Added " + addedCount + " new, updated " + updatedCount + " existing workpieces");
         log.info("Queue status: " + queue.getAvailableCount() + " available, " + queue.getTotalCount() + " total");
     }
 }
