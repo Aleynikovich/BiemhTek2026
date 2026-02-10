@@ -346,14 +346,15 @@ class RobotControlGUI:
     
     def update_workpiece_visualization(self, workpieces):
         """Update the 2D visualization with workpiece positions"""
+        import math
         canvas = self.workpiece_canvas
         
         # Clear previous workpieces (keep grid)
         canvas.delete('workpiece')
         
-        # Working plane dimensions (mm)
-        plane_width = 700
-        plane_height = 400
+        # Working plane dimensions (mm) - canvas size
+        canvas_width = 700
+        canvas_height = 400
         
         # Workpiece dimensions (mm)
         wp_length = 100
@@ -370,36 +371,66 @@ class RobotControlGUI:
         }
         
         for wp in workpieces:
-            # Get workpiece position (mm)
+            # Get workpiece position (mm) and rotation (degrees)
             x = float(wp.get('x', 0))
             y = float(wp.get('y', 0))
+            rz = float(wp.get('rz', 0))  # Rotation in degrees
             ref = wp.get('reference', 1)
             state = wp.get('state', 'AVAILABLE')
             gripper = wp.get('gripper', '')
+            wp_id = wp.get('id', '?')
             
-            # Transform coordinates to canvas (assuming center of plane is origin)
-            # Canvas coordinates: top-left is (0,0)
-            # Robot coordinates: center is (0,0), X to right, Y away from robot
-            canvas_x = plane_width / 2 + x
-            canvas_y = plane_height / 2 - y  # Invert Y for canvas
+            # Transform robot coordinates to canvas coordinates
+            # Robot coordinate system: origin at robot base
+            # Assume working area is approximately X: [-350, +350], Y: [-600, -200] 
+            # (400mm range centered at Y=-400, which gives Y canvas range for 700x400 canvas)
+            # Map X: [-350, +350] -> Canvas X: [0, 700]
+            # Map Y: [-600, -200] -> Canvas Y: [0, 400]
             
-            # Calculate rectangle corners for workpiece (100x30mm)
-            x1 = canvas_x - wp_length / 2
-            y1 = canvas_y - wp_width / 2
-            x2 = canvas_x + wp_length / 2
-            y2 = canvas_y + wp_width / 2
+            # Scale: 1 pixel = 1mm for both axes
+            canvas_x = x + 350  # Shift X so -350 maps to 0
+            canvas_y = -y - 200  # Flip Y (canvas Y increases downward) and shift so -200 maps to 0
+            
+            # Skip if outside visible area
+            if canvas_x < -100 or canvas_x > canvas_width + 100 or canvas_y < -100 or canvas_y > canvas_height + 100:
+                continue
             
             # Get color based on reference and state
             fill_color = ref_colors.get(ref, '#CCCCCC')
             outline_color = state_colors.get(state, 'black')
             outline_width = 3 if state == 'PICKED' else 2
             
-            # Draw workpiece rectangle
-            canvas.create_rectangle(x1, y1, x2, y2, 
-                                   fill=fill_color, 
-                                   outline=outline_color, 
-                                   width=outline_width,
-                                   tags='workpiece')
+            # Draw rotated workpiece rectangle
+            # Convert rotation to radians
+            angle_rad = math.radians(rz)
+            cos_a = math.cos(angle_rad)
+            sin_a = math.sin(angle_rad)
+            
+            # Define rectangle corners relative to center
+            half_length = wp_length / 2
+            half_width = wp_width / 2
+            corners = [
+                (-half_length, -half_width),  # Top-left
+                (+half_length, -half_width),  # Top-right
+                (+half_length, +half_width),  # Bottom-right
+                (-half_length, +half_width),  # Bottom-left
+            ]
+            
+            # Rotate and translate corners
+            rotated_corners = []
+            for cx, cy in corners:
+                # Rotate
+                rx = cx * cos_a - cy * sin_a
+                ry = cx * sin_a + cy * cos_a
+                # Translate to canvas position
+                rotated_corners.extend([canvas_x + rx, canvas_y + ry])
+            
+            # Draw rotated workpiece as polygon
+            canvas.create_polygon(rotated_corners,
+                                 fill=fill_color,
+                                 outline=outline_color,
+                                 width=outline_width,
+                                 tags='workpiece')
             
             # Draw revolution circle (projection on plane) - 50mm radius
             revolution_radius = 50
@@ -413,8 +444,8 @@ class RobotControlGUI:
                               tags='workpiece')
             
             # Add label with ID and gripper location
-            label = f"ID:{wp.get('id', '?')}"
-            if gripper:
+            label = f"ID:{str(wp_id)[-4:]}"  # Last 4 digits of ID
+            if gripper and gripper != 'None':
                 label += f"\nG:{gripper}"
             canvas.create_text(canvas_x, canvas_y, 
                              text=label, 
@@ -731,33 +762,43 @@ class RobotControlGUI:
     
     def handle_response(self, response):
         """Handle response from robot"""
+        import json as json_module  # Explicit import to avoid shadowing
         try:
-            data = json.loads(response)
+            data = json_module.loads(response)
             
-            if data.get('type') == 'status':
+            response_type = data.get('type')
+            
+            # Handle different response types
+            if response_type == 'status':
+                # Silent - cyclic auto-refresh message
                 self.update_status(data)
-            elif data.get('type') == 'queue_status':
+            elif response_type == 'queue_status':
+                # User-requested, show in console
                 status = data.get('status', 'No status available')
                 self.log_console("Queue Status:\n" + status, 'info')
-            elif data.get('type') == 'workpieces':
+            elif response_type == 'workpieces':
+                # Silent - cyclic auto-refresh message
                 # Parse workpieces JSON string
                 workpieces_json = data.get('workpieces', '[]')
                 if isinstance(workpieces_json, str):
-                    workpieces = json.loads(workpieces_json)
+                    workpieces = json_module.loads(workpieces_json)
                 else:
                     workpieces = workpieces_json
                 self.update_workpiece_display(workpieces)
-            elif data.get('type') == 'log':
+            elif response_type == 'log':
+                # Robot log messages - always show
                 level = data.get('level', 'info').lower()
                 message = data.get('message', '')
                 self.log_console(f"[ROBOT] {message}", level)
-            elif data.get('type') == 'log_level':
+            elif response_type == 'log_level':
+                # User-requested log level change
                 current_level = data.get('level', 'DEBUG')
-                self.log_console(f"Robot log level: {current_level}", 'info')
-            elif data.get('type') == 'response':
+                self.log_console(f"Log level changed to {current_level}", 'info')
+            elif response_type == 'response':
+                # Generic response - show it
                 self.log_console(f"Response: {data.get('message', '')}", 'success')
                 
-        except json.JSONDecodeError:
+        except json_module.JSONDecodeError:
             # Handle non-JSON log entries (from NetworkListener)
             self.parse_log_entry(response)
     
