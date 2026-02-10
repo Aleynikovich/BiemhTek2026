@@ -246,7 +246,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // 2. Send the appropriate scan command based on reference (1->53, 2->55, 3->60)
         // 3. Get the orientation result (0=regular, 1=inverted)
         // 4. Store the orientation in the workpiece data
-        // Note: This is a vision task, so it runs asynchronously via ProgramDispatcher
+        // Note: This is a vision task, so it runs asynchronously via VisionDispatcher
         // The camera has already captured the image above, so the vision task can process it
         
         log.info("Pick new workpiece with exchange completed successfully");

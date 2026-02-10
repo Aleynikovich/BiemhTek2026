@@ -2,7 +2,8 @@ package biemhTekniker.managers;
 
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
-import biemhTekniker.programs.ProgramDispatcher;
+import biemhTekniker.programs.RobotDispatcher;
+import biemhTekniker.programs.VisionDispatcher;
 import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.vision.SmartPickingThread;
 import com.kuka.generated.ioAccess.AutExtIOGroup;
@@ -11,6 +12,7 @@ import com.kuka.generated.ioAccess.VisionStateIOGroup;
 /**
  * Manages communication and synchronization with the PLC.
  * Handles program selection handshakes and status updates.
+ * Supports independent robot and vision program requests.
  */
 public class PLCManager
 {
@@ -18,15 +20,17 @@ public class PLCManager
 
     private final AutExtIOGroup AutExtIO;
     private final VisionStateIOGroup visionIO;
-    private final ProgramDispatcher programDispatcher;
+    private final RobotDispatcher robotDispatcher;
+    private final VisionDispatcher visionDispatcher;
     private final SmartPickingThread smartPickingThread;
     private final WorkpieceQueue workpieceQueue;
 
-    public PLCManager(AutExtIOGroup AutExtIO, VisionStateIOGroup visionIO, ProgramDispatcher programDispatcher, SmartPickingThread smartPickingThread, WorkpieceQueue workpieceQueue)
+    public PLCManager(AutExtIOGroup AutExtIO, VisionStateIOGroup visionIO, RobotDispatcher robotDispatcher, VisionDispatcher visionDispatcher, SmartPickingThread smartPickingThread, WorkpieceQueue workpieceQueue)
     {
         this.AutExtIO = AutExtIO;
         this.visionIO = visionIO;
-        this.programDispatcher = programDispatcher;
+        this.robotDispatcher = robotDispatcher;
+        this.visionDispatcher = visionDispatcher;
         this.smartPickingThread = smartPickingThread;
         this.workpieceQueue = workpieceQueue;
     }
@@ -37,7 +41,17 @@ public class PLCManager
     public void updateStatus()
     {
         updateVisionStatus();
-        // Add other status updates here if needed (e.g. robot state)
+        updateRobotStatus();
+    }
+
+    /**
+     * Updates robot system status IOs for the PLC.
+     */
+    private void updateRobotStatus()
+    {
+        // Set robot busy flag (inverse of program request ready)
+        boolean robotBusy = robotDispatcher.isBusy();
+        AutExtIO.setProgramNumberRequest(!robotBusy);
     }
 
     /**
@@ -53,7 +67,7 @@ public class PLCManager
         visionIO.setVisionServerOnline(isConnected);
 
         // 2. Busy status (task running or pending)
-        boolean isBusy = programDispatcher.isVisionTaskRunning();
+        boolean isBusy = visionDispatcher.isBusy();
         visionIO.setVisionServerBusy(isBusy);
 
         // 3. Workpiece found status
@@ -70,23 +84,49 @@ public class PLCManager
 
     /**
      * Checks if PLC is providing a program number via handshake.
+     * Only accepts robot programs when robot is not busy.
+     * Only accepts vision programs when vision is not busy.
      *
-     * @return The program number received from PLC, or 0 if none.
+     * @return The program number received from PLC, or 0 if none or system busy.
      */
     public int checkProgramRequest()
     {
-        // 1. Set request signal to PLC
-        AutExtIO.setProgramNumberRequest(true);
-
-        // 2. Read program number from PLC
+        // Read program number from PLC
         int plcProgram = AutExtIO.getProgramNumberIN();
 
-        if (ProgramRange.isValid(plcProgram) && plcProgram != ProgramRange.IDLE)
+        if (!ProgramRange.isValid(plcProgram) || plcProgram == ProgramRange.IDLE)
         {
-            log.info("Program " + plcProgram + " received from PLC");
-            // 3. Handshake complete: Reset request signal
-            AutExtIO.setProgramNumberRequest(false);
-            return plcProgram;
+            return 0;
+        }
+
+        // Check if it's a robot program and robot is available
+        if (ProgramRange.isRobotProgram(plcProgram))
+        {
+            if (!robotDispatcher.isBusy())
+            {
+                log.info("Robot program " + plcProgram + " received from PLC");
+                return plcProgram;
+            }
+            else
+            {
+                log.debug("Robot program " + plcProgram + " requested but robot is busy");
+                return 0;
+            }
+        }
+
+        // Check if it's a vision program and vision is available
+        if (ProgramRange.isVisionProgram(plcProgram))
+        {
+            if (!visionDispatcher.isBusy())
+            {
+                log.info("Vision program " + plcProgram + " received from PLC");
+                return plcProgram;
+            }
+            else
+            {
+                log.debug("Vision program " + plcProgram + " requested but vision is busy");
+                return 0;
+            }
         }
 
         return 0;
