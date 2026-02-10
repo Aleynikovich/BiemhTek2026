@@ -6,17 +6,40 @@ This document summarizes the comprehensive refactoring performed on the BiemhTek
 ## Goals Achieved
 
 ### 1. Vision Protocol Enhancement ✅
-**Problem:** The vision protocol used simple number strings and lacked support for flexible subarguments.
+**Problem:** The vision protocol used simple number strings and lacked support for flexible subarguments. Hardcoded commands like `SEND_WORKPIECE_SCAN_REQUEST_53` created inflexibility.
 
 **Solution:**
 - Added `locatePartsWithArgs()` method to support flexible arguments (e.g., "4;1;2" for locate part with zone and reference)
+- Removed hardcoded commands: `SEND_WORKPIECE_SCAN_REQUEST_53/55/60`, `REQUEST_WORKPIECE_ORIENTATION("13;1")`
+- Added generic methods:
+  - `sendWorkpieceScanRequest(zone, referenceNumber)` - builds "10;zone;refNum" dynamically
+  - `requestWorkpieceOrientation(zone)` - builds "13;zone" dynamically
+- Updated `ScanPickedWorkpiece` to use reference mapping array `{53, 55, 60}`
 - Vision commands can now accept optional additional parameters for future extensibility
 - Protocol structure: `<command>[;<arg1>;<arg2>;...]`
 
 **Impact:** 
 - More flexible vision command system
+- No hardcoded reference numbers in enums
 - Easier to add new vision features without protocol changes
 - Better documentation through explicit method signatures
+- Eliminated switch statements for cleaner code
+
+**Code Example:**
+```java
+// Old approach - hardcoded enum values
+SEND_WORKPIECE_SCAN_REQUEST_53("10;1;53"), 
+SEND_WORKPIECE_SCAN_REQUEST_55("10;1;55"), 
+SEND_WORKPIECE_SCAN_REQUEST_60("10;1;60")
+
+// New approach - flexible method
+protocol.sendWorkpieceScanRequest(1, referenceNumber);
+protocol.requestWorkpieceOrientation(1);
+
+// Reference mapping
+int[] referenceNumbers = {53, 55, 60};
+int referenceNumber = referenceNumbers[reference - 1];
+```
 
 ### 2. Workpiece Tracking System ✅
 **Problem:** Each full scan created new workpiece objects, losing track of existing workpieces. No way to know which gripper held which workpiece.
@@ -106,23 +129,42 @@ private void toggleGripper(int gripperNum, IUserKey button) { /* 25 lines handle
 ```
 
 ### 5. GUI Enhancement with Tabs ✅
-**Problem:** Single-page GUI cluttered with robot programs, vision commands, and no workpiece management.
+**Problem:** Single-page GUI cluttered with robot programs, vision commands, and no workpiece management or visualization.
 
 **Solution:**
 - Implemented tabbed interface with 4 tabs:
   1. **Robot Programs** - Motion programs (1-99)
   2. **Vision Commands** - Vision tasks (100-199)
-  3. **Workpieces** - Database viewer with edit capability
+  3. **Workpieces** - Database viewer with 2D visualization
   4. **Console** - Log output with filtering
 - Added workpiece treeview with columns: ID, Ref, State, Gripper, X, Y, Z, Score
 - Implemented refresh and clear queue buttons
-- Added `update_workpiece_display()` method for data updates
+- **NEW: 2D Workpiece Visualization** - Visual mesh map of working plane
+
+**2D Visualization Features:**
+- **Working Plane**: 700×400mm canvas with 50mm grid
+- **Workpiece Representation**: 100×30mm colored rectangles (actual size)
+- **Reference Colors**: Red (Ref 1), Cyan (Ref 2), Blue (Ref 3)
+- **State Indication**: Outline colors show state
+  - Green: AVAILABLE
+  - Orange: PICKED (with thicker outline)
+  - Purple: MEASURING
+  - Blue: MEASURED
+  - Gray: RETURNED
+- **Revolution Circles**: 50mm radius dashed circles show rotation projection for collision detection
+- **Labels**: Each workpiece shows ID and gripper location (A/B)
+- **Coordinate System**: Robot coordinates (center origin) transformed to canvas (top-left origin)
+- **Real-time Updates**: Synchronized with treeview when workpieces refresh
+- **Legend**: Visual reference for colors and states
 
 **Impact:**
 - Better organization and usability
 - Reduced visual clutter
-- Real-time workpiece monitoring
-- Future-ready for manual workpiece editing
+- Real-time workpiece monitoring with spatial awareness
+- Collision detection through revolution circles
+- Clear understanding of workpiece positions and states
+- Gripper location visibility
+- Future-ready for manual workpiece editing and interaction
 
 ## Architecture Improvements
 
@@ -169,32 +211,39 @@ GUI      → Tabbed Interface → Organized Views
 
 ### Core Refactoring
 - `src/biemhTekniker/data/WorkpieceData.java` - Added gripper location, position matching
-- `src/biemhTekniker/data/WorkpieceQueue.java` - Position-based tracking
-- `src/biemhTekniker/programs/FullScanTask.java` - Update existing workpieces
-- `src/biemhTekniker/vision/SmartPickingProtocol.java` - Flexible arguments
+- `src/biemhTekniker/data/WorkpieceQueue.java` - Position-based tracking with POSITION_TOLERANCE_MM constant
+- `src/biemhTekniker/programs/FullScanTask.java` - Update existing workpieces, performance notes
+- `src/biemhTekniker/vision/SmartPickingProtocol.java` - Flexible arguments, removed hardcoded commands
+- `src/biemhTekniker/programs/ScanPickedWorkpiece.java` - Use new flexible vision methods
 - `src/biemhTekniker/config/FrameRepository.java` - NEW: Centralized frame management
 - `src/biemhTekniker/programs/RobotContext.java` - Added FrameRepository
 - `src/biemhTekniker/Main.java` - Initialize FrameRepository
 
 ### HMI Improvements
-- `src/biemhTekniker/hmi/HmiButtonHandler.java` - Template pattern refactoring
+- `src/biemhTekniker/hmi/HmiButtonHandler.java` - Template pattern refactoring with BUTTON_COUNT constant
 
 ### GUI Enhancement
-- `gui/robot_control_gui.py` - Tabbed interface, workpiece viewer
+- `gui/robot_control_gui.py` - Tabbed interface, workpiece viewer, 2D visualization canvas
+
+### Documentation
+- `README.md` - Updated with new structure
+- `REFACTORING_SUMMARY.md` - Comprehensive refactoring guide
+- `gui/VISUALIZATION_DESCRIPTION.md` - NEW: Detailed 2D visualization documentation
 
 ## Statistics
 
 ### Lines of Code
 - **HMI Handler**: 237 lines → 150 lines (37% reduction)
-- **Vision Protocol**: Added 15 lines for flexibility
+- **Vision Protocol**: Added 40+ lines for flexible methods, removed hardcoded enums
 - **WorkpieceData**: Added 60 lines for tracking
 - **FrameRepository**: 130 new lines (reusable component)
-- **GUI**: 450 lines → 620 lines (organized into tabs)
+- **GUI**: 450 lines → 820 lines (organized into tabs + 2D visualization)
 
 ### Code Quality Metrics
 - **Duplication**: Reduced by ~40% in HMI and motion code
 - **Coupling**: Reduced through FrameRepository abstraction
 - **Cohesion**: Improved through separation of concerns
+- **Hardcoded Values**: Eliminated from vision commands and constants
 
 ## Future Enhancements
 
