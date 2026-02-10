@@ -82,8 +82,8 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
         motion.await();
         context.setActiveMotion(null);
 
-        // Generate motion strategies for place operation
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
+        // Generate motion strategies for place operation with Z-rotation and tool coordinates
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
 
         // Create gripper release action (open gripper 2)
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
@@ -97,11 +97,12 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
         };
 
         // Try each strategy until one succeeds
+        // Pass offset as Double for tool coordinate approach
         boolean placeSucceeded = false;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(placePosition, prePlacePosition, gripperReleaseAction, context))
+            if (strategy.executeMotion(placePosition, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;
