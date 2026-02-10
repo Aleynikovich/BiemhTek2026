@@ -142,14 +142,14 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpA TCP A frame (gripper 1)
      * @param gripperIO Gripper IO group
-     * @param placePositionB Place position frame
-     * @param prepickPlacePositionB Pre-place position frame (with Z offset)
+     * @param placePositionA Place position frame
+     * @param prepickPlacePositionA Pre-place position frame (with Z offset)
      * @param context Robot context for cancellation support
      * @throws Exception if place operation fails
      */
     private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
                                           MediaFlangeIOGroup gripperIO,
-                                          Frame placePositionB, Frame prepickPlacePositionB,
+                                          Frame placePositionA, Frame prepickPlacePositionA,
                                            RobotContext context) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
@@ -181,7 +181,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 throw new ProgramCancelledException("Program cancelled by user");
             }
 
-            if (strategy.executeMotion(placePositionB, prepickPlacePositionB, gripperReleaseAction, context))
+            if (strategy.executeMotion(placePositionA, prepickPlacePositionA, gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;
