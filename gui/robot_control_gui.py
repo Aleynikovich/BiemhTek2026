@@ -361,7 +361,11 @@ class RobotControlGUI:
         wp_width = 35
         
         # Colors for different references
-        ref_colors = {1: '#FF6B6B', 2: '#4ECDC4', 3: '#45B7D1'}
+        ref_colors = {
+            1: '#FF0000', # Pure Red
+            2: '#00FF00', # Pure Green
+            3: '#0000FF'  # Pure Blue
+        }
         state_colors = {
             'AVAILABLE': 'green',
             'PICKED': 'orange',
@@ -388,8 +392,8 @@ class RobotControlGUI:
             # Map Y: [-600, -200] -> Canvas Y: [0, 400]
             
             # Scale: 1 pixel = 1mm for both axes
-            canvas_x = x + 200  # Shift X so -350 maps to 0
-            canvas_y = -y - 100  # Flip Y (canvas Y increases downward) and shift so -200 maps to 0
+            canvas_x = x + 150  # Shift X so -350 maps to 0
+            canvas_y = -y - 250  # Flip Y (canvas Y increases downward) and shift so -200 maps to 0
             
             # Skip if outside visible area
             if canvas_x < -100 or canvas_x > canvas_width + 100 or canvas_y < -100 or canvas_y > canvas_height + 100:
@@ -432,13 +436,13 @@ class RobotControlGUI:
                                  width=outline_width,
                                  tags='workpiece')
             
-            # Draw revolution circle (projection on plane) - 50mm radius
-            revolution_radius = 50
+            # Draw revolution circle (projection on plane)
+            revolution_radius = wp_length/2 + wp_width/4
             canvas.create_oval(canvas_x - revolution_radius, 
                               canvas_y - revolution_radius,
                               canvas_x + revolution_radius, 
                               canvas_y + revolution_radius,
-                              outline='lightblue', 
+                              outline='red',
                               dash=(2, 2),
                               width=1,
                               tags='workpiece')
