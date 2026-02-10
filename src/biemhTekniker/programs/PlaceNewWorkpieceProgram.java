@@ -22,19 +22,10 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
-    private static final int PRE_PLACE_Y_OFFSET_MM = 150;
     private static final int PRE_PLACE_Z_OFFSET_MM = 200;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
-    /**
-     * Executes the place operation for a new workpiece.
-     * If a measured workpiece is present in gripper 3 at SchunkBase, it will:
-     * 1. Open gripper 3 (holding the measured piece)
-     * 2. Pick the measured piece with TCP B (gripper 2)
-     * 3. Place the new workpiece with TCP A (gripper 1)
-     * 4. Close gripper 3
-     */
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
