@@ -386,10 +386,10 @@
                 </redundancy>
             </redundancyData>
         </frame>
-        <frame id="_c90a039e-be7c-44d7-bb2b-25f839f25ec8" name="P2">
+        <frame id="_c90a039e-be7c-44d7-bb2b-25f839f25ec8" name="ScanWorkpiece">
             <transformation a="3.0692679003418166" b="-0.026899459682349067" c="-2.0769609019738673" x="379.9582019324488" y="-242.6962801328797" z="296.2145249543612"/>
             <additionalInformation>
-                <info key="LastModificationTime" type="java.lang.Long" value="1770717322012"/>
+                <info key="LastModificationTime" type="java.lang.Long" value="1770717720892"/>
                 <info base="iiwa" controller="Sunrise" device="iiwa" tcpName="Gripper/TCPA" tool="Gripper" type="com.kuka.roboticsAPI.deviceModel.TeachInformation">
                     <tcpTransformation a="-1.5707963267948966" b="0.0" c="0.7853981633974483" x="-124.5" y="0.0" z="130.0"/>
                 </info>

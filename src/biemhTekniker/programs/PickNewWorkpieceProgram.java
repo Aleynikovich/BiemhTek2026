@@ -37,7 +37,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         MediaFlangeIOGroup gripperIO = context.getGripperIO();
         RoboticsAPIApplication app = context.getApplication();
         WorkpieceQueue queue = context.getWorkpieceQueue();
-
+        ObjectFrame scanWorkpiecePosition = app.getApplicationData().getFrame("/ScanWorkpiece");
+        Frame scanWorkpieceFrame = scanWorkpiecePosition.copyWithRedundancy();
         // Get next workpiece from queue
         WorkpieceData workpieceData = queue.takeNextForPicking();
         if (workpieceData == null)
@@ -91,6 +92,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 break;
             }
         }
+
+        tcpA.move(ptp(scanWorkpieceFrame));
+        app.getApplicationControl().halt();
 
         if (!pickSucceeded)
         {
