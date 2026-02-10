@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.config.FrameRepository;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
@@ -23,6 +24,7 @@ public class RobotContext
     private final MediaFlangeIOGroup gripperIO;
     private final RoboticsAPIApplication application;
     private final WorkpieceQueue workpieceQueue;
+    private final FrameRepository frameRepository;
     private SmartPickingProtocol protocol;
     private volatile boolean cancellationRequested = false;
     private volatile IMotionContainer activeMotion = null;
@@ -35,14 +37,16 @@ public class RobotContext
      * @param gripperIO      Gripper I/O group
      * @param application    Main application instance (for getFrame, getApplicationData, etc.)
      * @param workpieceQueue Shared workpiece queue
+     * @param frameRepository Frame repository for accessing station frames
      */
-    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, RoboticsAPIApplication application, WorkpieceQueue workpieceQueue)
+    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, RoboticsAPIApplication application, WorkpieceQueue workpieceQueue, FrameRepository frameRepository)
     {
         this.robot = robot;
         this.gripper = gripper;
         this.gripperIO = gripperIO;
         this.application = application;
         this.workpieceQueue = workpieceQueue;
+        this.frameRepository = frameRepository;
     }
 
     public LBR getRobot()
@@ -68,6 +72,16 @@ public class RobotContext
     public WorkpieceQueue getWorkpieceQueue()
     {
         return workpieceQueue;
+    }
+
+    /**
+     * Gets the frame repository for accessing station frames.
+     *
+     * @return Frame repository
+     */
+    public FrameRepository getFrameRepository()
+    {
+        return frameRepository;
     }
 
     /**
