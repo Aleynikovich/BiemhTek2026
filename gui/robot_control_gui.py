@@ -49,12 +49,12 @@ class RobotControlGUI:
     def create_widgets(self):
         # Style configuration
         style = ttk.Style()
-        style.configure('Title.TLabel', font=('Helvetica', 16, 'bold'))
-        style.configure('Header.TLabel', font=('Helvetica', 12, 'bold'))
-        style.configure('Status.TLabel', font=('Helvetica', 10))
+        style.configure('Title.TLabel', font=('Helvetica', 14, 'bold'))
+        style.configure('Header.TLabel', font=('Helvetica', 10, 'bold'))
+        style.configure('Status.TLabel', font=('Helvetica', 9))
         
         # Main container
-        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame = ttk.Frame(self.root, padding="5")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure grid weights
@@ -65,7 +65,7 @@ class RobotControlGUI:
         # Title
         title_label = ttk.Label(main_frame, text="KUKA LBR iiwa Robot Control", 
                                style='Title.TLabel')
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 10))
         
         # Connection Frame
         self.create_connection_frame(main_frame)
@@ -86,8 +86,8 @@ class RobotControlGUI:
         self.create_console_frame(main_frame)
         
     def create_connection_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Connection", padding="10")
-        frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Connection", padding="5")
+        frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 5))
         
         # IP Address
         ttk.Label(frame, text="Robot IP:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
@@ -112,8 +112,8 @@ class RobotControlGUI:
         self.status_label.grid(row=0, column=6, padx=20)
         
     def create_status_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Robot Status", padding="10")
-        frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Robot Status", padding="5")
+        frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 5))
         frame.columnconfigure(1, weight=1)
         
         # Current Program
@@ -138,11 +138,11 @@ class RobotControlGUI:
         self.workpiece_label.grid(row=2, column=1, sticky=tk.W, pady=(5, 0))
         
     def create_program_control_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Robot Programs", padding="10")
-        frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Robot Programs", padding="5")
+        frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 5))
         
         ttk.Label(frame, text="Robot Motion Programs (1-99):", style='Header.TLabel').grid(
-            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
+            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
         
         robot_programs = [
             (0, "Idle"),
@@ -159,15 +159,15 @@ class RobotControlGUI:
             col = i % 3
             btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
                            command=lambda p=prog_num: self.set_program(p),
-                           width=25)
-            btn.grid(row=row, column=col, padx=5, pady=5, sticky=tk.W)
+                           width=22)
+            btn.grid(row=row, column=col, padx=3, pady=3, sticky=tk.W)
     
     def create_vision_commands_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Vision Commands", padding="10")
-        frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Vision Commands", padding="5")
+        frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 5))
         
         ttk.Label(frame, text="Vision System Commands (100-199):", style='Header.TLabel').grid(
-            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
+            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
         
         vision_commands = [
             (100, "Load References"),
@@ -188,32 +188,36 @@ class RobotControlGUI:
             col = i % 3
             btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
                            command=lambda p=prog_num: self.set_program(p),
-                           width=25)
-            btn.grid(row=row, column=col, padx=5, pady=5, sticky=tk.W)
+                           width=22)
+            btn.grid(row=row, column=col, padx=3, pady=3, sticky=tk.W)
         
     def create_quick_actions_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Quick Actions", padding="10")
-        frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Quick Actions", padding="5")
+        frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 5))
         
         ttk.Button(frame, text="Emergency Stop (Program 0)", 
                   command=lambda: self.set_program(0),
-                  width=25).grid(row=0, column=0, padx=5, pady=5)
+                  width=22).grid(row=0, column=0, padx=3, pady=3)
+        
+        ttk.Button(frame, text="Cancel & Return Home", 
+                  command=self.cancel_program,
+                  width=22).grid(row=0, column=1, padx=3, pady=3)
         
         ttk.Button(frame, text="Get Status", 
                   command=self.get_status,
-                  width=25).grid(row=0, column=1, padx=5, pady=5)
+                  width=22).grid(row=0, column=2, padx=3, pady=3)
         
         ttk.Button(frame, text="Get Queue Status", 
                   command=self.get_queue_status,
-                  width=25).grid(row=0, column=2, padx=5, pady=5)
+                  width=22).grid(row=0, column=3, padx=3, pady=3)
         
         ttk.Button(frame, text="Clear Console", 
                   command=self.clear_console,
-                  width=25).grid(row=0, column=3, padx=5, pady=5)
+                  width=22).grid(row=1, column=0, padx=3, pady=3)
         
     def create_console_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Console Output", padding="10")
-        frame.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Console Output", padding="5")
+        frame.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 5))
         parent.rowconfigure(6, weight=1)
         
         # Log level control frame
@@ -231,7 +235,7 @@ class RobotControlGUI:
         ttk.Label(level_frame, text="(filters logs displayed in console and sent from robot)",
                  font=('Helvetica', 8), foreground='gray').pack(side=tk.LEFT)
         
-        self.console = scrolledtext.ScrolledText(frame, height=15, width=80, 
+        self.console = scrolledtext.ScrolledText(frame, height=20, width=80, 
                                                  state=tk.DISABLED,
                                                  font=('Courier', 9))
         self.console.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -244,6 +248,13 @@ class RobotControlGUI:
         self.console.tag_config('error', foreground='red')
         self.console.tag_config('warning', foreground='orange')
         self.console.tag_config('debug', foreground='gray')
+        
+        # Configure tags for alternating row backgrounds
+        self.console.tag_config('row_even', background='white')
+        self.console.tag_config('row_odd', background='#f0f0f0')
+        
+        # Track line count for alternating colors
+        self.console_line_count = 0
         
     def log_console(self, message, level='info'):
         """Add message to console with timestamp, filtered by log level"""
@@ -265,7 +276,23 @@ class RobotControlGUI:
         
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.END, f"[{timestamp}] {message}\n", level)
+        
+        # Determine alternating row background
+        row_tag = 'row_even' if self.console_line_count % 2 == 0 else 'row_odd'
+        self.console_line_count += 1
+        
+        # Insert with both level color and row background
+        line_start = self.console.index(tk.END)
+        self.console.insert(tk.END, f"[{timestamp}] {message}\n")
+        line_end = self.console.index(tk.END)
+        
+        # Apply tags (row background first, then text color)
+        self.console.tag_add(row_tag, line_start, line_end)
+        self.console.tag_add(level, line_start, line_end)
+        
+        # Ensure row background doesn't override text color
+        self.console.tag_raise(level)
+        
         self.console.see(tk.END)
         self.console.config(state=tk.DISABLED)
         
@@ -273,6 +300,7 @@ class RobotControlGUI:
         """Clear console output"""
         self.console.config(state=tk.NORMAL)
         self.console.delete(1.0, tk.END)
+        self.console_line_count = 0  # Reset line counter
         self.console.config(state=tk.DISABLED)
         
     def connect(self):
@@ -516,6 +544,12 @@ class RobotControlGUI:
         }
         if self.send_command(command):
             self.log_console(f"Setting program to {program_number}", 'success')
+    
+    def cancel_program(self):
+        """Cancel current program and return home without opening grippers"""
+        command = {'type': 'cancel_program'}
+        if self.send_command(command):
+            self.log_console("Cancelling program - robot will return home without opening grippers", 'warning')
             
     def get_status(self):
         """Request status from robot"""
