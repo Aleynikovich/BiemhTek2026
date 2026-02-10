@@ -49,23 +49,24 @@ class RobotControlGUI:
     def create_widgets(self):
         # Style configuration
         style = ttk.Style()
-        style.configure('Title.TLabel', font=('Helvetica', 16, 'bold'))
-        style.configure('Header.TLabel', font=('Helvetica', 12, 'bold'))
-        style.configure('Status.TLabel', font=('Helvetica', 10))
+        style.configure('Title.TLabel', font=('Helvetica', 14, 'bold'))
+        style.configure('Header.TLabel', font=('Helvetica', 10, 'bold'))
+        style.configure('Status.TLabel', font=('Helvetica', 9))
         
         # Main container
-        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame = ttk.Frame(self.root, padding="5")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure grid weights
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(3, weight=1)
         
         # Title
         title_label = ttk.Label(main_frame, text="KUKA LBR iiwa Robot Control", 
                                style='Title.TLabel')
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        title_label.grid(row=0, column=0, pady=(0, 10), sticky=(tk.W, tk.E))
         
         # Connection Frame
         self.create_connection_frame(main_frame)
@@ -73,21 +74,12 @@ class RobotControlGUI:
         # Status Frame
         self.create_status_frame(main_frame)
         
-        # Program Control Frame
-        self.create_program_control_frame(main_frame)
-        
-        # Vision Commands Frame
-        self.create_vision_commands_frame(main_frame)
-        
-        # Quick Actions Frame
-        self.create_quick_actions_frame(main_frame)
-        
-        # Console Output Frame
-        self.create_console_frame(main_frame)
+        # Create tabbed interface for better organization
+        self.create_tabbed_interface(main_frame)
         
     def create_connection_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Connection", padding="10")
-        frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Connection", padding="5")
+        frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
         
         # IP Address
         ttk.Label(frame, text="Robot IP:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
@@ -112,8 +104,8 @@ class RobotControlGUI:
         self.status_label.grid(row=0, column=6, padx=20)
         
     def create_status_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Robot Status", padding="10")
-        frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        frame = ttk.LabelFrame(parent, text="Robot Status", padding="5")
+        frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
         frame.columnconfigure(1, weight=1)
         
         # Current Program
@@ -137,12 +129,42 @@ class RobotControlGUI:
                                         style='Status.TLabel')
         self.workpiece_label.grid(row=2, column=1, sticky=tk.W, pady=(5, 0))
         
-    def create_program_control_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Robot Programs", padding="10")
-        frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+    def create_tabbed_interface(self, parent):
+        """Create tabbed interface for programs, vision, and workpieces"""
+        notebook = ttk.Notebook(parent)
+        notebook.grid(row=3, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 5))
         
-        ttk.Label(frame, text="Robot Motion Programs (1-99):", style='Header.TLabel').grid(
-            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
+        # Tab 1: Robot Programs
+        programs_tab = ttk.Frame(notebook, padding="5")
+        notebook.add(programs_tab, text="Robot Programs")
+        self.create_program_control_tab(programs_tab)
+        
+        # Tab 2: Vision Commands
+        vision_tab = ttk.Frame(notebook, padding="5")
+        notebook.add(vision_tab, text="Vision Commands")
+        self.create_vision_commands_tab(vision_tab)
+        
+        # Tab 3: Workpieces
+        workpieces_tab = ttk.Frame(notebook, padding="5")
+        notebook.add(workpieces_tab, text="Workpieces")
+        self.create_workpieces_tab(workpieces_tab)
+        
+        # Tab 4: Console
+        console_tab = ttk.Frame(notebook, padding="5")
+        notebook.add(console_tab, text="Console")
+        self.create_console_tab(console_tab)
+    
+    def create_program_control_tab(self, parent):
+        """Create robot programs control panel"""
+        parent.columnconfigure(0, weight=1)
+        parent.rowconfigure(1, weight=1)
+        
+        ttk.Label(parent, text="Robot Motion Programs (1-99):", style='Header.TLabel').grid(
+            row=0, column=0, sticky=tk.W, pady=(0, 5))
+        
+        # Frame for program buttons
+        button_frame = ttk.Frame(parent)
+        button_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N), pady=(0, 5))
         
         robot_programs = [
             (0, "Idle"),
@@ -155,19 +177,40 @@ class RobotControlGUI:
         ]
         
         for i, (prog_num, prog_name) in enumerate(robot_programs):
-            row = 1 + (i // 3)
+            row = i // 3
             col = i % 3
-            btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
+            btn = ttk.Button(button_frame, text=f"{prog_num}: {prog_name}", 
                            command=lambda p=prog_num: self.set_program(p),
-                           width=25)
-            btn.grid(row=row, column=col, padx=5, pady=5, sticky=tk.W)
-    
-    def create_vision_commands_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Vision Commands", padding="10")
-        frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+                           width=22)
+            btn.grid(row=row, column=col, padx=3, pady=3, sticky=tk.W)
         
-        ttk.Label(frame, text="Vision System Commands (100-199):", style='Header.TLabel').grid(
-            row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
+        # Quick actions frame
+        actions_frame = ttk.LabelFrame(parent, text="Quick Actions", padding="5")
+        actions_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(5, 0))
+        
+        ttk.Button(actions_frame, text="Emergency Stop (Program 0)", 
+                  command=lambda: self.set_program(0),
+                  width=22).grid(row=0, column=0, padx=3, pady=3)
+        
+        ttk.Button(actions_frame, text="Cancel & Return Home", 
+                  command=self.cancel_program,
+                  width=22).grid(row=0, column=1, padx=3, pady=3)
+        
+        ttk.Button(actions_frame, text="Get Status", 
+                  command=self.get_status,
+                  width=22).grid(row=0, column=2, padx=3, pady=3)
+    
+    def create_vision_commands_tab(self, parent):
+        """Create vision commands control panel"""
+        parent.columnconfigure(0, weight=1)
+        parent.rowconfigure(1, weight=1)
+        
+        ttk.Label(parent, text="Vision System Commands (100-199):", style='Header.TLabel').grid(
+            row=0, column=0, sticky=tk.W, pady=(0, 5))
+        
+        # Frame for vision buttons
+        button_frame = ttk.Frame(parent)
+        button_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N), pady=(0, 5))
         
         vision_commands = [
             (100, "Load References"),
@@ -184,40 +227,216 @@ class RobotControlGUI:
         ]
         
         for i, (prog_num, prog_name) in enumerate(vision_commands):
-            row = 1 + (i // 3)
+            row = i // 3
             col = i % 3
-            btn = ttk.Button(frame, text=f"{prog_num}: {prog_name}", 
+            btn = ttk.Button(button_frame, text=f"{prog_num}: {prog_name}", 
                            command=lambda p=prog_num: self.set_program(p),
-                           width=25)
-            btn.grid(row=row, column=col, padx=5, pady=5, sticky=tk.W)
+                           width=22)
+            btn.grid(row=row, column=col, padx=3, pady=3, sticky=tk.W)
+    
+    def create_workpieces_tab(self, parent):
+        """Create workpiece management tab with 2D visualization"""
+        parent.columnconfigure(0, weight=1)
+        parent.columnconfigure(1, weight=1)
+        parent.rowconfigure(1, weight=1)
         
-    def create_quick_actions_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Quick Actions", padding="10")
-        frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        ttk.Label(parent, text="Workpiece Database & Visualization:", style='Header.TLabel').grid(
+            row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
         
-        ttk.Button(frame, text="Emergency Stop (Program 0)", 
-                  command=lambda: self.set_program(0),
-                  width=25).grid(row=0, column=0, padx=5, pady=5)
+        # Left side: Treeview for workpieces
+        tree_frame = ttk.LabelFrame(parent, text="Workpiece List", padding="5")
+        tree_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 5))
+        tree_frame.columnconfigure(0, weight=1)
+        tree_frame.rowconfigure(0, weight=1)
         
-        ttk.Button(frame, text="Get Status", 
-                  command=self.get_status,
-                  width=25).grid(row=0, column=1, padx=5, pady=5)
+        # Scrollbars
+        vsb = ttk.Scrollbar(tree_frame, orient="vertical")
+        hsb = ttk.Scrollbar(tree_frame, orient="horizontal")
         
-        ttk.Button(frame, text="Get Queue Status", 
+        # Treeview
+        columns = ("ID", "Ref", "State", "Gripper", "X", "Y", "Z", "Score")
+        self.workpiece_tree = ttk.Treeview(tree_frame, columns=columns, show='headings',
+                                           yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        
+        vsb.config(command=self.workpiece_tree.yview)
+        hsb.config(command=self.workpiece_tree.xview)
+        
+        # Column headings
+        self.workpiece_tree.heading("ID", text="ID")
+        self.workpiece_tree.heading("Ref", text="Ref")
+        self.workpiece_tree.heading("State", text="State")
+        self.workpiece_tree.heading("Gripper", text="Gripper")
+        self.workpiece_tree.heading("X", text="X (mm)")
+        self.workpiece_tree.heading("Y", text="Y (mm)")
+        self.workpiece_tree.heading("Z", text="Z (mm)")
+        self.workpiece_tree.heading("Score", text="Score")
+        
+        # Column widths
+        self.workpiece_tree.column("ID", width=60)
+        self.workpiece_tree.column("Ref", width=30)
+        self.workpiece_tree.column("State", width=80)
+        self.workpiece_tree.column("Gripper", width=50)
+        self.workpiece_tree.column("X", width=60)
+        self.workpiece_tree.column("Y", width=60)
+        self.workpiece_tree.column("Z", width=60)
+        self.workpiece_tree.column("Score", width=50)
+        
+        self.workpiece_tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        vsb.grid(row=0, column=1, sticky=(tk.N, tk.S))
+        hsb.grid(row=1, column=0, sticky=(tk.W, tk.E))
+        
+        # Right side: 2D visualization canvas
+        viz_frame = ttk.LabelFrame(parent, text="Working Plane (700x400mm)", padding="5")
+        viz_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S))
+        viz_frame.columnconfigure(0, weight=1)
+        viz_frame.rowconfigure(0, weight=1)
+        
+        # Create canvas for 2D visualization
+        self.workpiece_canvas = tk.Canvas(viz_frame, bg='white', width=700, height=400)
+        self.workpiece_canvas.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Draw grid
+        self.draw_grid()
+        
+        # Store workpiece data for visualization
+        self.workpiece_viz_data = []
+        
+        # Control buttons
+        button_frame = ttk.Frame(parent)
+        button_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        
+        ttk.Button(button_frame, text="Refresh Workpieces", 
+                  command=self.refresh_workpieces,
+                  width=20).grid(row=0, column=0, padx=3, pady=3)
+        
+        ttk.Button(button_frame, text="Get Queue Status", 
                   command=self.get_queue_status,
-                  width=25).grid(row=0, column=2, padx=5, pady=5)
+                  width=20).grid(row=0, column=1, padx=3, pady=3)
         
-        ttk.Button(frame, text="Clear Console", 
-                  command=self.clear_console,
-                  width=25).grid(row=0, column=3, padx=5, pady=5)
+        ttk.Button(button_frame, text="Clear Queue", 
+                  command=self.clear_workpiece_queue,
+                  width=20).grid(row=0, column=2, padx=3, pady=3)
+    
+    def draw_grid(self):
+        """Draw grid on workpiece visualization canvas"""
+        canvas = self.workpiece_canvas
         
-    def create_console_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Console Output", padding="10")
-        frame.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
-        parent.rowconfigure(6, weight=1)
+        # Grid parameters (700x400mm working plane)
+        width = 700
+        height = 400
+        grid_size = 50  # 50mm grid
+        
+        # Draw grid lines
+        for x in range(0, width + 1, grid_size):
+            canvas.create_line(x, 0, x, height, fill='lightgray', width=1)
+        for y in range(0, height + 1, grid_size):
+            canvas.create_line(0, y, width, y, fill='lightgray', width=1)
+        
+        # Draw axes labels
+        canvas.create_text(width - 20, height - 10, text="X", fill='black', font=('Arial', 10, 'bold'))
+        canvas.create_text(10, 10, text="Y", fill='black', font=('Arial', 10, 'bold'))
+        
+        # Draw border
+        canvas.create_rectangle(1, 1, width - 1, height - 1, outline='black', width=2)
+    
+    def update_workpiece_visualization(self, workpieces):
+        """Update the 2D visualization with workpiece positions"""
+        canvas = self.workpiece_canvas
+        
+        # Clear previous workpieces (keep grid)
+        canvas.delete('workpiece')
+        
+        # Working plane dimensions (mm)
+        plane_width = 700
+        plane_height = 400
+        
+        # Workpiece dimensions (mm)
+        wp_length = 100
+        wp_width = 30
+        
+        # Colors for different references
+        ref_colors = {1: '#FF6B6B', 2: '#4ECDC4', 3: '#45B7D1'}
+        state_colors = {
+            'AVAILABLE': 'green',
+            'PICKED': 'orange',
+            'MEASURING': 'purple',
+            'MEASURED': 'blue',
+            'RETURNED': 'gray'
+        }
+        
+        for wp in workpieces:
+            # Get workpiece position (mm)
+            x = float(wp.get('x', 0))
+            y = float(wp.get('y', 0))
+            ref = wp.get('reference', 1)
+            state = wp.get('state', 'AVAILABLE')
+            gripper = wp.get('gripper', '')
+            
+            # Transform coordinates to canvas (assuming center of plane is origin)
+            # Canvas coordinates: top-left is (0,0)
+            # Robot coordinates: center is (0,0), X to right, Y away from robot
+            canvas_x = plane_width / 2 + x
+            canvas_y = plane_height / 2 - y  # Invert Y for canvas
+            
+            # Calculate rectangle corners for workpiece (100x30mm)
+            x1 = canvas_x - wp_length / 2
+            y1 = canvas_y - wp_width / 2
+            x2 = canvas_x + wp_length / 2
+            y2 = canvas_y + wp_width / 2
+            
+            # Get color based on reference and state
+            fill_color = ref_colors.get(ref, '#CCCCCC')
+            outline_color = state_colors.get(state, 'black')
+            outline_width = 3 if state == 'PICKED' else 2
+            
+            # Draw workpiece rectangle
+            canvas.create_rectangle(x1, y1, x2, y2, 
+                                   fill=fill_color, 
+                                   outline=outline_color, 
+                                   width=outline_width,
+                                   tags='workpiece')
+            
+            # Draw revolution circle (projection on plane) - 50mm radius
+            revolution_radius = 50
+            canvas.create_oval(canvas_x - revolution_radius, 
+                              canvas_y - revolution_radius,
+                              canvas_x + revolution_radius, 
+                              canvas_y + revolution_radius,
+                              outline='lightblue', 
+                              dash=(2, 2),
+                              width=1,
+                              tags='workpiece')
+            
+            # Add label with ID and gripper location
+            label = f"ID:{wp.get('id', '?')}"
+            if gripper:
+                label += f"\nG:{gripper}"
+            canvas.create_text(canvas_x, canvas_y, 
+                             text=label, 
+                             fill='white',
+                             font=('Arial', 8, 'bold'),
+                             tags='workpiece')
+        
+        # Add legend
+        legend_x = 10
+        legend_y = 350
+        canvas.create_text(legend_x, legend_y, text="Legend:", anchor='w', 
+                          font=('Arial', 9, 'bold'), tags='workpiece')
+        legend_y += 15
+        for ref, color in ref_colors.items():
+            canvas.create_rectangle(legend_x, legend_y, legend_x + 15, legend_y + 10, 
+                                   fill=color, outline='black', tags='workpiece')
+            canvas.create_text(legend_x + 20, legend_y + 5, text=f"Ref {ref}", 
+                             anchor='w', font=('Arial', 8), tags='workpiece')
+            legend_y += 12
+    
+    def create_console_tab(self, parent):
+        """Create console output tab"""
+        parent.columnconfigure(0, weight=1)
+        parent.rowconfigure(1, weight=1)
         
         # Log level control frame
-        level_frame = ttk.Frame(frame)
+        level_frame = ttk.Frame(parent)
         level_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
         
         ttk.Label(level_frame, text="Minimum Log Level:", 
@@ -231,12 +450,13 @@ class RobotControlGUI:
         ttk.Label(level_frame, text="(filters logs displayed in console and sent from robot)",
                  font=('Helvetica', 8), foreground='gray').pack(side=tk.LEFT)
         
-        self.console = scrolledtext.ScrolledText(frame, height=15, width=80, 
+        ttk.Button(level_frame, text="Clear Console", 
+                  command=self.clear_console).pack(side=tk.RIGHT, padx=5)
+        
+        self.console = scrolledtext.ScrolledText(parent, height=20, width=80, 
                                                  state=tk.DISABLED,
                                                  font=('Courier', 9))
         self.console.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-        frame.columnconfigure(0, weight=1)
-        frame.rowconfigure(1, weight=1)
         
         # Configure tags for colored output
         self.console.tag_config('info', foreground='black')
@@ -244,6 +464,25 @@ class RobotControlGUI:
         self.console.tag_config('error', foreground='red')
         self.console.tag_config('warning', foreground='orange')
         self.console.tag_config('debug', foreground='gray')
+        
+        # Configure tags for alternating row backgrounds
+        self.console.tag_config('row_even', background='white')
+        self.console.tag_config('row_odd', background='#f0f0f0')
+        
+        # Track line count for alternating colors
+        self.console_line_count = 0
+    
+    def refresh_workpieces(self):
+        """Request and refresh workpiece data from robot"""
+        if self.send_command({'type': 'get_workpieces'}):
+            self.log_console("Requesting workpiece data...", 'info')
+    
+    def clear_workpiece_queue(self):
+        """Clear the workpiece queue on the robot"""
+        if messagebox.askyesno("Clear Queue", "Are you sure you want to clear the workpiece queue?"):
+            if self.send_command({'type': 'clear_queue'}):
+                self.log_console("Clearing workpiece queue...", 'warning')
+                self.workpiece_tree.delete(*self.workpiece_tree.get_children())
         
     def log_console(self, message, level='info'):
         """Add message to console with timestamp, filtered by log level"""
@@ -265,7 +504,23 @@ class RobotControlGUI:
         
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.END, f"[{timestamp}] {message}\n", level)
+        
+        # Determine alternating row background
+        row_tag = 'row_even' if self.console_line_count % 2 == 0 else 'row_odd'
+        self.console_line_count += 1
+        
+        # Insert with both level color and row background
+        line_start = self.console.index(tk.END)
+        self.console.insert(tk.END, f"[{timestamp}] {message}\n")
+        line_end = self.console.index(tk.END)
+        
+        # Apply tags (row background first, then text color)
+        self.console.tag_add(row_tag, line_start, line_end)
+        self.console.tag_add(level, line_start, line_end)
+        
+        # Ensure row background doesn't override text color
+        self.console.tag_raise(level)
+        
         self.console.see(tk.END)
         self.console.config(state=tk.DISABLED)
         
@@ -273,6 +528,7 @@ class RobotControlGUI:
         """Clear console output"""
         self.console.config(state=tk.NORMAL)
         self.console.delete(1.0, tk.END)
+        self.console_line_count = 0  # Reset line counter
         self.console.config(state=tk.DISABLED)
         
     def connect(self):
@@ -436,6 +692,8 @@ class RobotControlGUI:
             elif data.get('type') == 'queue_status':
                 status = data.get('status', 'No status available')
                 self.log_console("Queue Status:\n" + status, 'info')
+            elif data.get('type') == 'workpieces':
+                self.update_workpiece_display(data.get('workpieces', []))
             elif data.get('type') == 'log':
                 level = data.get('level', 'info').lower()
                 message = data.get('message', '')
@@ -449,6 +707,29 @@ class RobotControlGUI:
         except json.JSONDecodeError:
             # Handle non-JSON log entries (from NetworkListener)
             self.parse_log_entry(response)
+    
+    def update_workpiece_display(self, workpieces):
+        """Update the workpiece treeview and 2D visualization with data from robot"""
+        # Clear existing items
+        self.workpiece_tree.delete(*self.workpiece_tree.get_children())
+        
+        # Add workpieces to tree
+        for wp in workpieces:
+            self.workpiece_tree.insert('', 'end', values=(
+                wp.get('id', 'N/A'),
+                wp.get('reference', 'N/A'),
+                wp.get('state', 'N/A'),
+                wp.get('gripper', 'N/A'),
+                f"{wp.get('x', 0):.1f}",
+                f"{wp.get('y', 0):.1f}",
+                f"{wp.get('z', 0):.1f}",
+                f"{wp.get('score', 0):.2f}"
+            ))
+        
+        # Update 2D visualization
+        self.update_workpiece_visualization(workpieces)
+        
+        self.log_console(f"Updated workpiece display: {len(workpieces)} workpieces", 'info')
     
     def parse_log_entry(self, log_line):
         """Parse log entry from NetworkListener format: [HH:MM:SS.mmm] Source | LEVEL: message"""
@@ -516,6 +797,12 @@ class RobotControlGUI:
         }
         if self.send_command(command):
             self.log_console(f"Setting program to {program_number}", 'success')
+    
+    def cancel_program(self):
+        """Cancel current program and return home without opening grippers"""
+        command = {'type': 'cancel_program'}
+        if self.send_command(command):
+            self.log_console("Cancelling program - robot will return home without opening grippers", 'warning')
             
     def get_status(self):
         """Request status from robot"""

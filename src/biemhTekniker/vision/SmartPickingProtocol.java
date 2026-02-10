@@ -50,6 +50,7 @@ public class SmartPickingProtocol
 
     /**
      * Locates parts for a specific zone and reference.
+     * Supports optional subarguments for flexibility.
      *
      * @param zone      Zone number (1-based)
      * @param reference Reference index (1-based)
@@ -59,6 +60,52 @@ public class SmartPickingProtocol
     {
         String args = zone + ";" + reference;
         return execute(Command.LOCATE_PARTS, args, true);
+    }
+
+    /**
+     * Locates parts with additional optional arguments.
+     * Allows for future extensibility (e.g., "4;1;2;extraParam").
+     *
+     * @param zone      Zone number (1-based)
+     * @param reference Reference index (1-based)
+     * @param additionalArgs Optional additional arguments (can be null or empty)
+     * @return VisionResult with locate status
+     */
+    public VisionResult locatePartsWithArgs(int zone, int reference, String additionalArgs)
+    {
+        String args = zone + ";" + reference;
+        if (additionalArgs != null && !additionalArgs.isEmpty())
+        {
+            args += ";" + additionalArgs;
+        }
+        return execute(Command.LOCATE_PARTS, args, true);
+    }
+
+    /**
+     * Sends a workpiece scan request for a specific zone and reference number.
+     * This is used to request scanning of a picked workpiece.
+     *
+     * @param zone Zone number (typically 1)
+     * @param referenceNumber Reference number (53, 55, 60, etc.)
+     * @return VisionResult with scan status
+     */
+    public VisionResult sendWorkpieceScanRequest(int zone, int referenceNumber)
+    {
+        String args = zone + ";" + referenceNumber;
+        return execute(Command.SEND_WORKPIECE_SCAN_REQUEST, args, true);
+    }
+
+    /**
+     * Requests the orientation of a scanned workpiece.
+     * This command should be called after sendWorkpieceScanRequest.
+     *
+     * @param zone Zone number (typically 1)
+     * @return VisionResult containing reference+orientation (e.g., 530, 531, 550, 551, 600, 601)
+     */
+    public VisionResult requestWorkpieceOrientation(int zone)
+    {
+        String args = String.valueOf(zone);
+        return execute(Command.REQUEST_WORKPIECE_ORIENTATION, args, true);
     }
 
     /**
@@ -164,7 +211,22 @@ public class SmartPickingProtocol
      */
     public enum Command
     {
-        LOAD_REFERENCE("15"), SET_AUTO_MODE("101"), SET_CALIB_MODE("102"), CAPTURE_DATA("2"), LOCATE_CONTAINER("3"), GET_CONTAINER_POS("8"), LOCATE_PARTS("4"), GET_PART_POS("9"), GET_NEXT_PART_POS("11"), ADD_CALIB_POINT("5"), CALIBRATE("6"), TEST_CALIB("7"), SEND_ROBOT_POSE("14"), SEND_CUSTOM_MESSAGE("103");
+        LOAD_REFERENCE("15"), 
+        SET_AUTO_MODE("101"), 
+        SET_CALIB_MODE("102"), 
+        CAPTURE_DATA("2"), 
+        LOCATE_CONTAINER("3"), 
+        GET_CONTAINER_POS("8"), 
+        LOCATE_PARTS("4"), 
+        GET_PART_POS("9"), 
+        GET_NEXT_PART_POS("11"), 
+        ADD_CALIB_POINT("5"), 
+        CALIBRATE("6"), 
+        TEST_CALIB("7"), 
+        SEND_ROBOT_POSE("14"), 
+        SEND_CUSTOM_MESSAGE("103"),
+        SEND_WORKPIECE_SCAN_REQUEST("10"),
+        REQUEST_WORKPIECE_ORIENTATION("13");
 
         private final String code;
 
@@ -225,6 +287,11 @@ public class SmartPickingProtocol
         }
 
         // --- Getters with Index Switching Logic ---
+
+        public double getWorkpieceRefWithOrientation()
+        {
+            return getDataSafe(1);
+        }
 
         public double getX()
         {

@@ -22,6 +22,8 @@ public class WorkpieceData
     private double rz;
     private double score;
     private boolean valid;
+    private int orientation; // 0 = regular, 1 = inverted
+    private String gripperLocation; // "A", "B", or null if not picked
 
     // Origin position (where workpiece was first found)
     private double originX;
@@ -181,6 +183,74 @@ public class WorkpieceData
         this.valid = false;
     }
 
+    /**
+     * Gets the workpiece orientation.
+     *
+     * @return 0 for regular, 1 for inverted
+     */
+    public synchronized int getOrientation()
+    {
+        return orientation;
+    }
+
+    /**
+     * Sets the workpiece orientation.
+     *
+     * @param orientation 0 for regular, 1 for inverted
+     */
+    public synchronized void setOrientation(int orientation)
+    {
+        this.orientation = orientation;
+    }
+
+    /**
+     * Gets the gripper location where the workpiece is held.
+     *
+     * @return "A", "B", or null if not in a gripper
+     */
+    public synchronized String getGripperLocation()
+    {
+        return gripperLocation;
+    }
+
+    /**
+     * Sets the gripper location where the workpiece is held.
+     *
+     * @param gripperLocation "A", "B", or null
+     */
+    public synchronized void setGripperLocation(String gripperLocation)
+    {
+        this.gripperLocation = gripperLocation;
+    }
+
+    /**
+     * Gets the origin position of the workpiece.
+     *
+     * @return Array [x, y, z, rx, ry, rz]
+     */
+    public synchronized double[] getOriginPosition()
+    {
+        return new double[]{originX, originY, originZ, originRx, originRy, originRz};
+    }
+
+    /**
+     * Checks if this workpiece is at approximately the same position as given coordinates.
+     * Uses a tolerance of ±5mm for position matching.
+     *
+     * @param checkX X coordinate to check
+     * @param checkY Y coordinate to check
+     * @param checkZ Z coordinate to check
+     * @param tolerance Tolerance in mm (default 5.0)
+     * @return true if position matches within tolerance
+     */
+    public synchronized boolean isAtPosition(double checkX, double checkY, double checkZ, double tolerance)
+    {
+        double dx = Math.abs(x - checkX);
+        double dy = Math.abs(y - checkY);
+        double dz = Math.abs(z - checkZ);
+        return (dx <= tolerance && dy <= tolerance && dz <= tolerance);
+    }
+
     @Override
     public synchronized String toString()
     {
@@ -188,6 +258,7 @@ public class WorkpieceData
         {
             return "WorkpieceData{id=" + id + ", invalid}";
         }
-        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", id, referenceIndex, state, x, y, z, rx, ry, rz, score);
+        String gripperStr = (gripperLocation != null) ? ", gripper=" + gripperLocation : "";
+        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, orientation=%d%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", id, referenceIndex, state, orientation, gripperStr, x, y, z, rx, ry, rz, score);
     }
 }

@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -44,22 +45,14 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
         // Use TCP B for measured workpiece handling
         ObjectFrame tcpB = gripper.getFrame("TCPB");
 
-        // Get frames from station setup
-        ObjectFrame exitFrame = app.getApplicationData().getFrame("/SchunkBase/Exit");
-        ObjectFrame pickPlaceFrame = app.getApplicationData().getFrame("/SchunkBase/PickPlace");
+        ObjectFrame pickPlaceFrame = app.getApplicationData().getFrame("/SchunkBase/PickPlaceB");
 
-        // Create positions with redundancy
-        Frame exitPosition = exitFrame.copyWithRedundancy();
         Frame pickPosition = pickPlaceFrame.copyWithRedundancy();
-        Frame prePickPosition = new Frame(pickPosition.copy());
+        Frame prePickPosition = new Frame(pickPosition.copyWithRedundancy());
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Move to exit position (safe approach)
-        log.info("Moving to exit position...");
-        tcpB.move(ptp(exitPosition));
-
-        // Generate motion strategies for pick operation
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
+        // Generate motion strategies for pick operation with tool coordinates
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
 
         // Create gripper activation action (close gripper 2)
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
@@ -77,10 +70,17 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
+            if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), gripperAction, context))
             {
                 pickSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after pick measured strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 
@@ -89,10 +89,6 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
             log.error("All pick strategies failed for measured workpiece");
             throw new Exception("Failed to pick measured workpiece - all strategies exhausted");
         }
-
-        // Return to exit position
-        log.info("Returning to exit position...");
-        tcpB.move(ptp(exitPosition));
 
         log.info("Pick measured workpiece completed successfully");
     }

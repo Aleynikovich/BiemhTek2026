@@ -12,6 +12,14 @@ import java.util.List;
 public class WorkpieceQueue
 {
     private static final Logger log = Logger.getLogger(WorkpieceQueue.class);
+    
+    /**
+     * Position tolerance for workpiece matching in millimeters.
+     * Set to 5mm based on vision system accuracy and mechanical repeatability.
+     * Workpieces within this tolerance are considered to be at the same position.
+     */
+    private static final double POSITION_TOLERANCE_MM = 5.0;
+    
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
 
     /**
@@ -55,6 +63,73 @@ public class WorkpieceQueue
             log.debug("No AVAILABLE workpieces to pick");
         }
         return best;
+    }
+
+    /**
+     * Returns the highest-score AVAILABLE workpiece WITHOUT marking it as PICKED.
+     * Returns null if no AVAILABLE workpieces exist.
+     * Use this to preview the next workpiece before attempting to pick it.
+     *
+     * @return The workpiece that would be picked next, or null
+     */
+    public synchronized WorkpieceData peekNextForPicking()
+    {
+        WorkpieceData best = null;
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            WorkpieceData wp = workpieces.get(i);
+            if (wp.getState() == WorkpieceState.AVAILABLE)
+            {
+                if (best == null || wp.getScore() > best.getScore())
+                {
+                    best = wp;
+                }
+            }
+        }
+
+        if (best != null)
+        {
+            log.debug("Peeked at next workpiece: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", score=" + best.getScore());
+        } else
+        {
+            log.debug("No AVAILABLE workpieces to peek");
+        }
+        return best;
+    }
+
+    /**
+     * Marks a specific workpiece as PICKED.
+     * Used after successfully picking a workpiece that was previewed with peekNextForPicking().
+     *
+     * @param workpieceId Workpiece ID to mark as picked
+     */
+    public synchronized void markPicked(long workpieceId)
+    {
+        WorkpieceData wp = findById(workpieceId);
+        if (wp != null)
+        {
+            wp.setState(WorkpieceState.PICKED);
+            log.info("Marked workpiece as PICKED: id=" + workpieceId);
+        } else
+        {
+            log.warn("Cannot mark PICKED - workpiece not found: id=" + workpieceId);
+        }
+    }
+
+    /**
+     * Returns the first workpiece found in the PICKED state.
+     * * @return The picked workpiece, or null if none are currently picked.
+     */
+    public synchronized WorkpieceData getPickedWorkpiece()
+    {
+        for (WorkpieceData wp : workpieces)
+        {
+            if (wp.getState() == WorkpieceState.PICKED)
+            {
+                return wp;
+            }
+        }
+        return null;
     }
 
     /**
@@ -210,5 +285,72 @@ public class WorkpieceQueue
             }
         }
         return null;
+    }
+
+    /**
+     * Finds an existing workpiece at the given position (within ±5mm tolerance).
+     * Used for tracking workpieces across scans to avoid creating duplicates.
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @param referenceIndex Reference index to match
+     * @return Existing workpiece if found, null otherwise
+     */
+    public synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
+    {
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            WorkpieceData wp = workpieces.get(i);
+            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, POSITION_TOLERANCE_MM))
+            {
+                log.debug("Found existing workpiece at position: id=" + wp.getId());
+                return wp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Adds or updates a workpiece. If a workpiece exists at the same position
+     * with the same reference, updates it instead of creating a new one.
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @param rx Rotation X
+     * @param ry Rotation Y
+     * @param rz Rotation Z
+     * @param score Vision score
+     * @param referenceIndex Reference index
+     * @return The workpiece (existing or new)
+     */
+    public synchronized WorkpieceData addOrUpdateWorkpiece(double x, double y, double z, double rx, double ry, double rz, double score, int referenceIndex)
+    {
+        // Try to find existing workpiece at this position
+        WorkpieceData existing = findAtPosition(x, y, z, referenceIndex);
+
+        if (existing != null)
+        {
+            // Update existing workpiece if it's been returned or is still available
+            if (existing.getState() == WorkpieceState.RETURNED || existing.getState() == WorkpieceState.AVAILABLE)
+            {
+                existing.set(x, y, z, rx, ry, rz, score);
+                existing.setState(WorkpieceState.AVAILABLE);
+                log.info("Updated existing workpiece: id=" + existing.getId() + ", ref=" + referenceIndex + ", score=" + score);
+                return existing;
+            } else
+            {
+                // Workpiece is in use (PICKED, MEASURING, MEASURED) - create new one
+                log.debug("Workpiece at position is in use (state=" + existing.getState() + "), creating new entry");
+            }
+        }
+
+        // No existing workpiece found or existing one is in use - create new
+        WorkpieceData wp = new WorkpieceData(x, y, z, rx, ry, rz, score);
+        wp.setReferenceIndex(referenceIndex);
+        workpieces.add(wp);
+        log.debug("Added new workpiece to queue: id=" + wp.getId() + ", ref=" + referenceIndex + ", score=" + score);
+        return wp;
     }
 }

@@ -1,6 +1,7 @@
 package biemhTekniker;
 
 import biemhTekniker.config.ConfigManager;
+import biemhTekniker.config.FrameRepository;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.HomePositionException;
@@ -97,7 +98,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         smartPickingThread.start();
 
         // Initialize contexts
-        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue);
+        FrameRepository frameRepository = new FrameRepository(this);
+        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue, frameRepository);
+        robotContext.setProtocol(smartPickingThread.getProtocol());
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
 
         // Initialize vision manager
@@ -116,7 +119,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize app controller
         int consolePort = config.getInt("console.server.port", 30001);
-        appController = new AppController(visionManager, workpieceQueue, consolePort);
+        appController = new AppController(visionManager, workpieceQueue, robotContext, homePositionManager, consolePort);
         appController.initialize();
 
         // Set robot control parameters
@@ -172,6 +175,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
             if (currentProgram != 0)
             {
+                // Clear cancellation flag before starting new program
+                robotContext.clearCancellation();
+                
                 // Dispatch program
                 log.info("Starting execution of Program " + currentProgram);
                 boolean isVisionProgram = ProgramRange.isVisionProgram(currentProgram);
@@ -287,6 +293,12 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public boolean hasActiveClients()
     {
         return appController.hasActiveClients();
+    }
+
+    @Override
+    public void cancelCurrentProgram()
+    {
+        appController.cancelCurrentProgram();
     }
 
 }

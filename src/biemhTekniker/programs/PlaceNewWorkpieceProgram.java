@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -16,28 +17,29 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Program to place a new workpiece at a predefined location.
+ * Always picks measured workpiece with Gripper B first (ignoring part presence),
+ * then places new workpiece with Gripper A.
+ * This ensures a clean exchange and prevents any interference.
  * Uses MotionStrategy pattern with redundancy support.
  */
 public class PlaceNewWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
-    private static final int PRE_PLACE_Y_OFFSET_MM = 400;
-    private static final int PRE_PLACE_Z_OFFSET_MM = 200;
+    private static final int PRE_PLACE_Z_OFFSET_MM = 75;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
-    /**
-     * Executes the place operation for a new workpiece.
-     * If a measured workpiece is present in gripper 3 at SchunkBase, it will:
-     * 1. Open gripper 3 (holding the measured piece)
-     * 2. Pick the measured piece with TCP B (gripper 2)
-     * 3. Place the new workpiece with TCP A (gripper 1)
-     * 4. Close gripper 3
-     */
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
+
+        // Check for cancellation at program start
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before place operation started");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
 
         // Get dependencies from context
         LBR robot = context.getRobot();
@@ -49,32 +51,25 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         ObjectFrame tcpB = gripper.getFrame("TCPB");
 
         // Get frames from station setup
-        ObjectFrame pickPlaceFrame = app.getApplicationData().getFrame("/SchunkBase/PickPlace");
-        
-        Frame pickPlacePosition = pickPlaceFrame.copyWithRedundancy();
+        ObjectFrame pickPlaceFrameA = app.getApplicationData().getFrame("/SchunkBase/PickPlaceA");
+        Frame pickPlacePositionA = pickPlaceFrameA.copyWithRedundancy();
 
-        Frame prePickPlacePositionZ = new Frame(pickPlacePosition.copy());
-        prePickPlacePositionZ.setZ(prePickPlacePositionZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
-        Frame prePickPlacePositionY = new Frame(pickPlacePosition.copy());
-        prePickPlacePositionY.setY(prePickPlacePositionY.getY() - PRE_PLACE_Y_OFFSET_MM);
+        ObjectFrame pickPlaceFrameB = app.getApplicationData().getFrame("/SchunkBase/PickPlaceB");
+        Frame pickPlacePositionB = pickPlaceFrameB.copyWithRedundancy();
 
+        Frame prepickPlacePositionAZ = new Frame(pickPlacePositionA.copyWithRedundancy());
+        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
-        if (gripperIO.getGripper3_PartPresence())
-        {
-            log.info("Measured workpiece detected in gripper 3 - picking it before placing new workpiece");
-            pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePosition, prePickPlacePositionZ);
-        }
+        Frame prepickPlacePositionBZ = new Frame(pickPlacePositionB.copyWithRedundancy());
+        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
+
+        // Always pick measured workpiece with TCP B first (ignore part presence)
+        // This ensures there's nothing in the way when we place the new workpiece
+        log.info("Picking measured workpiece with TCP B (override part presence check)...");
+        pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ, context);
 
         // Place new workpiece with TCP A (gripper 1)
-        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePosition, prePickPlacePositionY);
-
-        if (gripperIO.getGripper3_PartPresence())
-        {
-            gripperIO.setGripper3_Switch(true); // Close to hold
-        }
-
-        // Return to home position
-        gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
+        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context);
 
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
@@ -85,22 +80,21 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpB TCP B frame (gripper 2)
      * @param gripperIO Gripper IO group
-     * @param pickPlacePosition Place position frame
-     * @param prePickPlacePosition Pre-place position frame (with Z offset)
+     * @param pickPlacePositionB Place position frame
+     * @param prepickPlacePositionB Pre-place position frame (with Z offset)
+     * @param context Robot context for cancellation support
      * @throws Exception if pick operation fails
      */
     private void pickMeasuredWorkpieceWithTcpB(LBR robot, ObjectFrame tcpB, 
                                                MediaFlangeIOGroup gripperIO,
-                                               Frame pickPlacePosition, Frame prePickPlacePosition) throws Exception
+                                               Frame pickPlacePositionB, Frame prepickPlacePositionB,
+                                               RobotContext context) throws Exception
     {
         log.info("Picking measured workpiece with TCP B...");
 
         gripperIO.setGripper2_Switch(false);
-
-        tcpB.move(ptp(prePickPlacePosition));
-        
-        // Generate motion strategies for TCP B
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
+        // Generate motion strategies for TCP B with tool coordinates (but no Z-rotation for pick)
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
@@ -108,6 +102,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             public void execute() throws Exception
             {
                 finalGripperIO.setGripper2_Switch(true);
+                ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
+                finalGripperIO.setGripper3_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
@@ -116,23 +112,36 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         boolean pickSucceeded = false;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during pick measured workpiece operation");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePosition, prePickPlacePosition, gripperActivateAction))
+            if (strategy.executeMotion(pickPlacePositionB, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperActivateAction, context))
             {
                 pickSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after pick measured workpiece strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
         
         if (!pickSucceeded)
         {
-            gripperIO.setGripper3_Switch(false);
+            gripperIO.setGripper3_Switch(true);
             ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             log.error("Failed to pick measured workpiece with TCP B");
             throw new Exception("Failed to pick measured workpiece - all strategies exhausted");
         }
-
-        tcpB.move(lin(prePickPlacePosition));
+        gripperIO.setGripper3_PartPresence(false);
         log.info("Measured workpiece picked successfully with TCP B");
     }
 
@@ -142,39 +151,57 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpA TCP A frame (gripper 1)
      * @param gripperIO Gripper IO group
-     * @param placePosition Place position frame
-     * @param prePickPlacePosition Pre-place position frame (with Z offset)
+     * @param placePositionA Place position frame
+     * @param prepickPlacePositionA Pre-place position frame (with Z offset) - NOT USED with tool coordinates
+     * @param context Robot context for cancellation support
      * @throws Exception if place operation fails
      */
     private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
                                           MediaFlangeIOGroup gripperIO,
-                                          Frame placePosition, Frame prePickPlacePosition) throws Exception
+                                          Frame placePositionA, Frame prepickPlacePositionA,
+                                           RobotContext context) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
 
-        // Generate motion strategies for TCP A
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpA, robot);
+        // Generate motion strategies for TCP A with Z-axis rotation and tool coordinates
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()
         {
             public void execute() throws Exception
             {
-                // Release only gripper A (gripper1)
+                finalGripperIO.setGripper3_Switch(true);
+                ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
                 finalGripperIO.setGripper1_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             }
         };
 
         // Try each strategy until one succeeds
+        // Pass offset as Double for tool coordinate approach
         boolean placeSucceeded = false;
         for (MotionStrategy strategy : motionStrategies)
         {
-            if (strategy.executeMotion(placePosition, prePickPlacePosition, gripperReleaseAction))
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during place operation");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+
+            if (strategy.executeMotion(placePositionA, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after place strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 
