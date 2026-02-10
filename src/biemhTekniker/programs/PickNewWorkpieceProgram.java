@@ -102,7 +102,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
             {
                 pickSucceeded = true;
                 break;
