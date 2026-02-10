@@ -1,7 +1,7 @@
 Program: WorkVisual
 Program Version: 5.0.5.600
 Installation Directory: D:\OneDrive - TEKNIKER\Software\KUKA\Sunrise Workbench 1.16\WorkVisual_V5.0.5_Build0600\WorkVisual_V5.0.5_Build0600
-Export Date: 2/8/2026 9:12:55 PM
+Export Date: 2/9/2026 7:52:53 PM
 Controller Firmware Version: 8.5.0
 Option Package Name: Sunrise
 Option Package Directory: D:\OneDrive - TEKNIKER\Software\KUKA\Sunrise Workbench 1.16\WorkVisual_V5.0.5_Build0600\WorkVisual_V5.0.5_Build0600\[AppData]\Application\WorkVisual\OptionPackagesIIWA\Sunrise\Sunrise.kop
