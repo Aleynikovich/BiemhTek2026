@@ -41,7 +41,8 @@ public class CartesianPositionPolling extends RoboticsAPICyclicBackgroundTask
             currentCartesianPosition.setC((int) Math.round(Math.toDegrees(iiwa.getCurrentCartesianPosition(iiwa.getFlange()).getGammaRad()) * decimalMultiplier));
         } catch (Exception e)
         {
-            throw new RuntimeException(e);
+            // Log error but continue running - PLC may be in STOP mode
+            getLogger().error("Failed to update cartesian position: " + e.getMessage());
         }
     }
 }

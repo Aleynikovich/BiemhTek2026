@@ -36,8 +36,15 @@ public class PLCManager
      */
     public void updateStatus()
     {
-        updateVisionStatus();
-        // Add other status updates here if needed (e.g. robot state)
+        try
+        {
+            updateVisionStatus();
+            // Add other status updates here if needed (e.g. robot state)
+        } catch (Exception e)
+        {
+            // Log error but continue - PLC may be in STOP mode
+            log.error("Failed to update PLC status: " + e.getMessage());
+        }
     }
 
     /**
@@ -75,21 +82,29 @@ public class PLCManager
      */
     public int checkProgramRequest()
     {
-        // 1. Set request signal to PLC
-        AutExtIO.setProgramNumberRequest(true);
-
-        // 2. Read program number from PLC
-        int plcProgram = AutExtIO.getProgramNumberIN();
-
-        if (ProgramRange.isValid(plcProgram) && plcProgram != ProgramRange.IDLE)
+        try
         {
-            log.info("Program " + plcProgram + " received from PLC");
-            // 3. Handshake complete: Reset request signal
-            AutExtIO.setProgramNumberRequest(false);
-            return plcProgram;
-        }
+            // 1. Set request signal to PLC
+            AutExtIO.setProgramNumberRequest(true);
 
-        return 0;
+            // 2. Read program number from PLC
+            int plcProgram = AutExtIO.getProgramNumberIN();
+
+            if (ProgramRange.isValid(plcProgram) && plcProgram != ProgramRange.IDLE)
+            {
+                log.info("Program " + plcProgram + " received from PLC");
+                // 3. Handshake complete: Reset request signal
+                AutExtIO.setProgramNumberRequest(false);
+                return plcProgram;
+            }
+
+            return 0;
+        } catch (Exception e)
+        {
+            // Log error but continue - PLC may be in STOP mode
+            log.error("Failed to check program request from PLC: " + e.getMessage());
+            return 0;
+        }
     }
 
     /**
@@ -99,7 +114,14 @@ public class PLCManager
      */
     public void echoProgramNumber(int programNumber)
     {
-        AutExtIO.setCurrentProgramNumber(programNumber);
+        try
+        {
+            AutExtIO.setCurrentProgramNumber(programNumber);
+        } catch (Exception e)
+        {
+            // Log error but continue - PLC may be in STOP mode
+            log.error("Failed to echo program number to PLC: " + e.getMessage());
+        }
     }
 
     /**
