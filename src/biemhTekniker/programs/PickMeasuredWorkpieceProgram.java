@@ -69,7 +69,7 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
             {
                 pickSucceeded = true;
                 break;

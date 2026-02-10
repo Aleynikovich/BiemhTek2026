@@ -116,7 +116,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize app controller
         int consolePort = config.getInt("console.server.port", 30001);
-        appController = new AppController(visionManager, workpieceQueue, consolePort);
+        appController = new AppController(visionManager, workpieceQueue, robotContext, homePositionManager, consolePort);
         appController.initialize();
 
         // Set robot control parameters
@@ -172,6 +172,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
             if (currentProgram != 0)
             {
+                // Clear cancellation flag before starting new program
+                robotContext.clearCancellation();
+                
                 // Dispatch program
                 log.info("Starting execution of Program " + currentProgram);
                 boolean isVisionProgram = ProgramRange.isVisionProgram(currentProgram);
@@ -287,6 +290,12 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public boolean hasActiveClients()
     {
         return appController.hasActiveClients();
+    }
+
+    @Override
+    public void cancelCurrentProgram()
+    {
+        appController.cancelCurrentProgram();
     }
 
 }

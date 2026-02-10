@@ -2,6 +2,7 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -54,6 +55,14 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         log.debug("Using workpiece position: " + workpieceData);
+        
+        // Check for cancellation before starting motion
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before pick motion started");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
+        
         gripperIO.setGripper1_Switch(false);
         gripperIO.setGripper2_Switch(false);
 
@@ -85,12 +94,26 @@ public class PickNewWorkpieceProgram implements RobotProgram
         boolean pickSucceeded = false;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during pick operation");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+            
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
             {
                 pickSucceeded = true;
                 break;
             }
+        }
+
+        // Check for cancellation before final move
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before final position move");
+            throw new ProgramCancelledException("Program cancelled by user");
         }
 
         tcpA.move(ptp(scanWorkpieceFrame));

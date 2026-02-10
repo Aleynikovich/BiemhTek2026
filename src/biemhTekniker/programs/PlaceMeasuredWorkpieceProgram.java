@@ -96,7 +96,7 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(placePosition, prePlacePosition, gripperReleaseAction))
+            if (strategy.executeMotion(placePosition, prePlacePosition, gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;
