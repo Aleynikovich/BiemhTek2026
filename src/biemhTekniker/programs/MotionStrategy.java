@@ -138,19 +138,16 @@ public class MotionStrategy
                 {
                     offsetMm = ((Double) approachOffset).doubleValue();
                 }
-                else if (approachOffset instanceof Integer)
-                {
-                    offsetMm = ((Integer) approachOffset).doubleValue();
-                }
                 else
                 {
-                    log.error("Invalid approach offset type for tool coordinates: " + approachOffset.getClass());
+                    log.error("Invalid approach offset type for tool coordinates: " + approachOffset.getClass() + " (expected Double)");
                     return false;
                 }
 
                 // Create approach frame by applying offset in tool Z direction
                 // The offset is applied in the local (tool) coordinate system
-                Transformation offsetTransform = Transformation.ofDeg(0, 0, offsetMm, 0, 0, 0);
+                // ofRad takes (x, y, z translation in mm, a, b, c rotation in radians)
+                Transformation offsetTransform = Transformation.ofRad(0, 0, offsetMm, 0, 0, 0);
                 Frame approachFrame = new Frame(finalTarget.copy());
                 approachFrame.transform(offsetTransform);
 

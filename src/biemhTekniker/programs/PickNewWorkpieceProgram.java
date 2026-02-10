@@ -167,7 +167,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
         };
 
-        // Try placing measured workpiece at the same position
+        // Try placing measured workpiece at the same position where new workpiece was picked
+        // Note: pickPosition here refers to where the NEW workpiece was picked, which becomes 
+        // the place position for the measured workpiece (workpiece exchange)
         boolean placeSucceeded = false;
         for (int i = 0; i < exchangeStrategies.size(); i++)
         {
@@ -179,6 +181,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             
             MotionStrategy strategy = exchangeStrategies.get(i);
+            // Using pickPosition as the target because we're placing at the same spot we just picked from
             if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), releaseAction, context))
             {
                 placeSucceeded = true;
