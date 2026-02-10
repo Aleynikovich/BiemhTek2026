@@ -43,8 +43,16 @@ class RobotControlGUI:
         self.log_levels = ["DEBUG", "INFO", "WARN", "ERROR"]
         self.log_level_ordinal = {"DEBUG": 0, "INFO": 1, "WARN": 2, "ERROR": 3}
         
+        # Auto-refresh settings
+        self.auto_refresh_enabled = True
+        self.auto_refresh_interval = 2000  # 2 seconds
+        self.auto_refresh_timer = None
+        
         self.create_widgets()
         #self.update_connection_status()
+        
+        # Start auto-refresh after widgets are created
+        self.start_auto_refresh()
         
     def create_widgets(self):
         # Style configuration
@@ -450,6 +458,9 @@ class RobotControlGUI:
         ttk.Label(level_frame, text="(filters logs displayed in console and sent from robot)",
                  font=('Helvetica', 8), foreground='gray').pack(side=tk.LEFT)
         
+        ttk.Button(level_frame, text="Pop Out", 
+                  command=self.pop_out_console).pack(side=tk.RIGHT, padx=5)
+        
         ttk.Button(level_frame, text="Clear Console", 
                   command=self.clear_console).pack(side=tk.RIGHT, padx=5)
         
@@ -470,6 +481,10 @@ class RobotControlGUI:
         self.console.tag_config('row_odd', background='#f0f0f0')
         
         # Track line count for alternating colors
+        self.console_line_count = 0
+        
+        # Pop-out console window reference
+        self.console_popup = None
         self.console_line_count = 0
     
     def refresh_workpieces(self):
@@ -503,6 +518,9 @@ class RobotControlGUI:
             return  # Don't display messages below the current log level
         
         timestamp = datetime.now().strftime("%H:%M:%S")
+        formatted_line = f"[{timestamp}] {message}\n"
+        
+        # Add to main console
         self.console.config(state=tk.NORMAL)
         
         # Determine alternating row background
@@ -511,7 +529,7 @@ class RobotControlGUI:
         
         # Insert with both level color and row background
         line_start = self.console.index(tk.END)
-        self.console.insert(tk.END, f"[{timestamp}] {message}\n")
+        self.console.insert(tk.END, formatted_line)
         line_end = self.console.index(tk.END)
         
         # Apply tags (row background first, then text color)
@@ -523,6 +541,22 @@ class RobotControlGUI:
         
         self.console.see(tk.END)
         self.console.config(state=tk.DISABLED)
+        
+        # Also add to popup console if it exists
+        if hasattr(self, 'console_popup_widget') and self.console_popup_widget:
+            try:
+                self.console_popup_widget.config(state=tk.NORMAL)
+                popup_line_start = self.console_popup_widget.index(tk.END)
+                self.console_popup_widget.insert(tk.END, formatted_line)
+                popup_line_end = self.console_popup_widget.index(tk.END)
+                self.console_popup_widget.tag_add(row_tag, popup_line_start, popup_line_end)
+                self.console_popup_widget.tag_add(level, popup_line_start, popup_line_end)
+                self.console_popup_widget.tag_raise(level)
+                self.console_popup_widget.see(tk.END)
+                self.console_popup_widget.config(state=tk.DISABLED)
+            except:
+                # Popup might have been closed
+                self.console_popup_widget = None
         
     def clear_console(self):
         """Clear console output"""
@@ -693,7 +727,13 @@ class RobotControlGUI:
                 status = data.get('status', 'No status available')
                 self.log_console("Queue Status:\n" + status, 'info')
             elif data.get('type') == 'workpieces':
-                self.update_workpiece_display(data.get('workpieces', []))
+                # Parse workpieces JSON string
+                workpieces_json = data.get('workpieces', '[]')
+                if isinstance(workpieces_json, str):
+                    workpieces = json.loads(workpieces_json)
+                else:
+                    workpieces = workpieces_json
+                self.update_workpiece_display(workpieces)
             elif data.get('type') == 'log':
                 level = data.get('level', 'info').lower()
                 message = data.get('message', '')
@@ -708,7 +748,7 @@ class RobotControlGUI:
             # Handle non-JSON log entries (from NetworkListener)
             self.parse_log_entry(response)
     
-    def update_workpiece_display(self, workpieces):
+    def update_workpiece_display(self, workpieces, log_update=False):
         """Update the workpiece treeview and 2D visualization with data from robot"""
         # Clear existing items
         self.workpiece_tree.delete(*self.workpiece_tree.get_children())
@@ -729,7 +769,9 @@ class RobotControlGUI:
         # Update 2D visualization
         self.update_workpiece_visualization(workpieces)
         
-        self.log_console(f"Updated workpiece display: {len(workpieces)} workpieces", 'info')
+        # Only log if explicitly requested (not during auto-refresh)
+        if log_update:
+            self.log_console(f"Updated workpiece display: {len(workpieces)} workpieces", 'info')
     
     def parse_log_entry(self, log_line):
         """Parse log entry from NetworkListener format: [HH:MM:SS.mmm] Source | LEVEL: message"""
@@ -841,6 +883,86 @@ class RobotControlGUI:
                 self.status_counter = 0
                 
         self.root.after(1000, self.update_connection_status)
+    
+    def start_auto_refresh(self):
+        """Start auto-refresh of status and workpieces"""
+        if self.auto_refresh_enabled:
+            self.auto_refresh_data()
+    
+    def auto_refresh_data(self):
+        """Auto-refresh status and workpieces without logging"""
+        if self.connected and self.auto_refresh_enabled:
+            # Silently request status and workpieces
+            self.send_command({'type': 'get_status'})
+            self.send_command({'type': 'get_workpieces'})
+        
+        # Schedule next refresh
+        if self.auto_refresh_enabled:
+            self.auto_refresh_timer = self.root.after(self.auto_refresh_interval, self.auto_refresh_data)
+    
+    def stop_auto_refresh(self):
+        """Stop auto-refresh"""
+        self.auto_refresh_enabled = False
+        if self.auto_refresh_timer:
+            self.root.after_cancel(self.auto_refresh_timer)
+            self.auto_refresh_timer = None
+    
+    def pop_out_console(self):
+        """Pop out console into a separate window"""
+        if self.console_popup and tk.Toplevel.winfo_exists(self.console_popup):
+            # Already popped out, bring to front
+            self.console_popup.lift()
+            return
+        
+        # Create popup window
+        self.console_popup = tk.Toplevel(self.root)
+        self.console_popup.title("Robot Console")
+        self.console_popup.geometry("900x600")
+        
+        # Create frame
+        popup_frame = ttk.Frame(self.console_popup, padding="5")
+        popup_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Control frame
+        control_frame = ttk.Frame(popup_frame)
+        control_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        ttk.Label(control_frame, text="Console Output (Pop-out)", 
+                 font=('Helvetica', 10, 'bold')).pack(side=tk.LEFT)
+        
+        ttk.Button(control_frame, text="Clear", 
+                  command=self.clear_console).pack(side=tk.RIGHT, padx=5)
+        
+        # Create console text widget in popup
+        popup_console = scrolledtext.ScrolledText(popup_frame, 
+                                                   state=tk.DISABLED,
+                                                   font=('Courier', 9))
+        popup_console.pack(fill=tk.BOTH, expand=True)
+        
+        # Copy tags
+        for tag in ['info', 'success', 'error', 'warning', 'debug', 'row_even', 'row_odd']:
+            tag_config = self.console.tag_cget(tag, 'foreground')
+            if tag_config:
+                popup_console.tag_config(tag, foreground=tag_config)
+            bg_config = self.console.tag_cget(tag, 'background')
+            if bg_config:
+                popup_console.tag_config(tag, background=bg_config)
+        
+        # Copy existing content
+        popup_console.config(state=tk.NORMAL)
+        popup_console.insert('1.0', self.console.get('1.0', tk.END))
+        popup_console.config(state=tk.DISABLED)
+        
+        # Store reference to popup console
+        self.console_popup_widget = popup_console
+        
+        # Handle close
+        def on_popup_close():
+            self.console_popup_widget = None
+            self.console_popup.destroy()
+            self.console_popup = None
+        
+        self.console_popup.protocol("WM_DELETE_WINDOW", on_popup_close)
 
 
 def main():
