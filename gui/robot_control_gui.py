@@ -468,8 +468,17 @@ class RobotControlGUI:
         self.console.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Make console read-only but allow selection/copying
-        # We'll control editing via insert/delete operations instead of DISABLED state
-        self.console.bind("<Key>", lambda e: "break")  # Prevent typing
+        # Block regular typing but allow Ctrl+C, Ctrl+A, etc.
+        def prevent_edit(event):
+            # Allow Ctrl/Cmd key combinations (copy, select all, etc)
+            if event.state & 0x4:  # Control key
+                return None  # Allow the event
+            if event.state & 0x8:  # Alt key  
+                return None  # Allow the event
+            # Block all other key presses (regular typing)
+            return "break"
+        
+        self.console.bind("<Key>", prevent_edit)
         
         # Configure tags for colored output
         self.console.tag_config('info', foreground='black')
@@ -584,8 +593,9 @@ class RobotControlGUI:
             # Send initial log level to robot
             self.on_log_level_changed()
             
-            # Start auto-refresh after a short delay (give connection time to stabilize)
-            self.root.after(1000, self.start_auto_refresh)
+            # Start auto-refresh after a longer delay (3 seconds to ensure stability)
+            self.log_console("Auto-refresh will start in 3 seconds...", 'info')
+            self.root.after(3000, self.start_auto_refresh)
             
         except Exception as e:
             messagebox.showerror("Connection Error", f"Failed to connect: {str(e)}")
@@ -621,7 +631,8 @@ class RobotControlGUI:
             return False
             
         try:
-            cmd_json = json.dumps(command) + "\n"
+            import json as json_module  # Explicit import to avoid shadowing
+            cmd_json = json_module.dumps(command) + "\n"
             self.socket.sendall(cmd_json.encode('utf-8'))
             self.log_console(f"Sent: {command}", 'info')
             return True
@@ -891,21 +902,31 @@ class RobotControlGUI:
     
     def auto_refresh_data(self):
         """Auto-refresh status and workpieces without logging each request"""
-        if self.connected and self.auto_refresh_enabled:
-            # Silently request status and workpieces
-            try:
-                if self.socket and self.connected:
-                    # Send commands without logging
-                    cmd1 = json.dumps({'type': 'get_status'}) + "\n"
-                    cmd2 = json.dumps({'type': 'get_workpieces'}) + "\n"
-                    self.socket.sendall(cmd1.encode('utf-8'))
-                    time.sleep(0.05)  # Small delay between commands
-                    self.socket.sendall(cmd2.encode('utf-8'))
-            except Exception as e:
-                # If error, stop auto-refresh and log
-                self.log_console(f"Auto-refresh error: {str(e)}", 'error')
-                self.stop_auto_refresh()
-                return
+        # Only continue if still connected and enabled
+        if not self.connected or not self.auto_refresh_enabled or not self.socket:
+            self.stop_auto_refresh()
+            return
+            
+        # Silently request status and workpieces
+        try:
+            # Double-check socket is still valid
+            if self.socket.fileno() == -1:
+                raise Exception("Socket closed")
+                
+            # Send commands without logging
+            import json as json_module  # Explicit import to avoid any shadowing
+            cmd1 = json_module.dumps({'type': 'get_status'}) + "\n"
+            cmd2 = json_module.dumps({'type': 'get_workpieces'}) + "\n"
+            
+            self.socket.sendall(cmd1.encode('utf-8'))
+            time.sleep(0.1)  # Increased delay between commands
+            self.socket.sendall(cmd2.encode('utf-8'))
+        except Exception as e:
+            # If error, stop auto-refresh and log
+            self.log_console(f"Auto-refresh error: {str(e)}", 'error')
+            self.stop_auto_refresh()
+            # Don't disconnect here - let the listen thread handle it
+            return
         
         # Schedule next refresh
         if self.auto_refresh_enabled:
@@ -951,7 +972,17 @@ class RobotControlGUI:
         popup_console.pack(fill=tk.BOTH, expand=True)
         
         # Make console read-only but allow selection/copying
-        popup_console.bind("<Key>", lambda e: "break")
+        # Block regular typing but allow Ctrl+C, Ctrl+A, etc.
+        def prevent_popup_edit(event):
+            # Allow Ctrl/Cmd key combinations (copy, select all, etc)
+            if event.state & 0x4:  # Control key
+                return None  # Allow the event
+            if event.state & 0x8:  # Alt key  
+                return None  # Allow the event
+            # Block all other key presses (regular typing)
+            return "break"
+        
+        popup_console.bind("<Key>", prevent_popup_edit)
         
         # Copy tags
         for tag in ['info', 'success', 'error', 'warning', 'debug', 'row_even', 'row_odd']:
