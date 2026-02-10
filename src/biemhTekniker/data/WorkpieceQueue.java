@@ -307,6 +307,7 @@ public class WorkpieceQueue
             sb.append(",\"x\":").append(wp.getX());
             sb.append(",\"y\":").append(wp.getY());
             sb.append(",\"z\":").append(wp.getZ());
+            sb.append(",\"rz\":").append(wp.getRz());
             sb.append(",\"score\":").append(wp.getScore());
             sb.append("}");
         }
