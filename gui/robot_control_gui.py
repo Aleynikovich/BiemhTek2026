@@ -731,8 +731,9 @@ class RobotControlGUI:
     
     def handle_response(self, response):
         """Handle response from robot"""
+        import json as json_module  # Explicit import to avoid shadowing
         try:
-            data = json.loads(response)
+            data = json_module.loads(response)
             
             if data.get('type') == 'status':
                 self.update_status(data)
@@ -743,7 +744,7 @@ class RobotControlGUI:
                 # Parse workpieces JSON string
                 workpieces_json = data.get('workpieces', '[]')
                 if isinstance(workpieces_json, str):
-                    workpieces = json.loads(workpieces_json)
+                    workpieces = json_module.loads(workpieces_json)
                 else:
                     workpieces = workpieces_json
                 self.update_workpiece_display(workpieces)
@@ -757,7 +758,7 @@ class RobotControlGUI:
             elif data.get('type') == 'response':
                 self.log_console(f"Response: {data.get('message', '')}", 'success')
                 
-        except json.JSONDecodeError:
+        except json_module.JSONDecodeError:
             # Handle non-JSON log entries (from NetworkListener)
             self.parse_log_entry(response)
     
