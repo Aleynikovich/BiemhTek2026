@@ -90,8 +90,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             public void execute() throws Exception
             {
                 finalGripperIO.setGripper2_Switch(true);
-                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
-                finalGripperIO.setGripper3_Switch(true);
+                finalGripperIO.setGripper3_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
@@ -144,7 +143,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         {
             public void execute() throws Exception
             {
-                // Release only gripper A (gripper1)
+                finalGripperIO.setGripper3_Switch(true);
                 finalGripperIO.setGripper1_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             }
