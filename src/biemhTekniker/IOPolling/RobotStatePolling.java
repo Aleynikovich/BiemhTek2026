@@ -26,12 +26,19 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
     @Override
     public void runCyclic()
     {
-        robotStateIOGroup.setHasActiveMotion(iiwa.hasActiveMotionCommand());
-        robotStateIOGroup.setIsInHome(iiwa.isInHome());
-        robotStateIOGroup.setIsMastered(iiwa.isMastered());
-        robotStateIOGroup.setIsReadyToMove(iiwa.isReadyToMove());
-        robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
-        robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
+        try
+        {
+            robotStateIOGroup.setHasActiveMotion(iiwa.hasActiveMotionCommand());
+            robotStateIOGroup.setIsInHome(iiwa.isInHome());
+            robotStateIOGroup.setIsMastered(iiwa.isMastered());
+            robotStateIOGroup.setIsReadyToMove(iiwa.isReadyToMove());
+            robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
+            robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
+        } catch (Exception e)
+        {
+            // Log error but continue running - PLC may be in STOP mode
+            log.error("Failed to update robot state: " + e.getMessage());
+        }
     }
 
     @Override

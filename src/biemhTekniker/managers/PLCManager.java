@@ -128,8 +128,6 @@ public class PLCManager
                 return 0;
             }
         }
-
-        return 0;
     }
 
     /**
@@ -139,7 +137,14 @@ public class PLCManager
      */
     public void echoProgramNumber(int programNumber)
     {
-        AutExtIO.setCurrentProgramNumber(programNumber);
+        try
+        {
+            AutExtIO.setCurrentProgramNumber(programNumber);
+        } catch (Exception e)
+        {
+            // Log error but continue - PLC may be in STOP mode
+            log.error("Failed to echo program number to PLC: " + e.getMessage());
+        }
     }
 
     /**
