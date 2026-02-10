@@ -22,6 +22,7 @@ public class WorkpieceData
     private double rz;
     private double score;
     private boolean valid;
+    private int orientation; // 0 = regular, 1 = inverted
 
     // Origin position (where workpiece was first found)
     private double originX;
@@ -181,6 +182,26 @@ public class WorkpieceData
         this.valid = false;
     }
 
+    /**
+     * Gets the workpiece orientation.
+     *
+     * @return 0 for regular, 1 for inverted
+     */
+    public synchronized int getOrientation()
+    {
+        return orientation;
+    }
+
+    /**
+     * Sets the workpiece orientation.
+     *
+     * @param orientation 0 for regular, 1 for inverted
+     */
+    public synchronized void setOrientation(int orientation)
+    {
+        this.orientation = orientation;
+    }
+
     @Override
     public synchronized String toString()
     {
@@ -188,6 +209,6 @@ public class WorkpieceData
         {
             return "WorkpieceData{id=" + id + ", invalid}";
         }
-        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", id, referenceIndex, state, x, y, z, rx, ry, rz, score);
+        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, orientation=%d, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", id, referenceIndex, state, orientation, x, y, z, rx, ry, rz, score);
     }
 }

@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -16,6 +17,9 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Program to place a new workpiece at a predefined location.
+ * Always picks measured workpiece with Gripper B first (ignoring part presence),
+ * then places new workpiece with Gripper A.
+ * This ensures a clean exchange and prevents any interference.
  * Uses MotionStrategy pattern with redundancy support.
  */
 public class PlaceNewWorkpieceProgram implements RobotProgram
@@ -29,6 +33,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
+
+        // Check for cancellation at program start
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before place operation started");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
 
         // Get dependencies from context
         LBR robot = context.getRobot();
@@ -52,14 +63,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         Frame prepickPlacePositionBZ = new Frame(pickPlacePositionB.copyWithRedundancy());
         prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
-        if (gripperIO.getGripper3_PartPresence())
-        {
-            log.info("Measured workpiece detected in gripper 3 - picking it before placing new workpiece");
-            pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ);
-        }
+        // Always pick measured workpiece with TCP B first (ignore part presence)
+        // This ensures there's nothing in the way when we place the new workpiece
+        log.info("Picking measured workpiece with TCP B (override part presence check)...");
+        pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ, context);
 
         // Place new workpiece with TCP A (gripper 1)
-        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ);
+        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context);
 
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
@@ -72,11 +82,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param gripperIO Gripper IO group
      * @param pickPlacePositionB Place position frame
      * @param prepickPlacePositionB Pre-place position frame (with Z offset)
+     * @param context Robot context for cancellation support
      * @throws Exception if pick operation fails
      */
     private void pickMeasuredWorkpieceWithTcpB(LBR robot, ObjectFrame tcpB, 
                                                MediaFlangeIOGroup gripperIO,
-                                               Frame pickPlacePositionB, Frame prepickPlacePositionB) throws Exception
+                                               Frame pickPlacePositionB, Frame prepickPlacePositionB,
+                                               RobotContext context) throws Exception
     {
         log.info("Picking measured workpiece with TCP B...");
 
@@ -100,11 +112,25 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         boolean pickSucceeded = false;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during pick measured workpiece operation");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction))
+            if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction, context))
             {
                 pickSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after pick measured workpiece strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
         
@@ -125,13 +151,15 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpA TCP A frame (gripper 1)
      * @param gripperIO Gripper IO group
-     * @param placePosition Place position frame
+     * @param placePositionA Place position frame
      * @param prepickPlacePositionA Pre-place position frame (with Z offset)
+     * @param context Robot context for cancellation support
      * @throws Exception if place operation fails
      */
     private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
                                           MediaFlangeIOGroup gripperIO,
-                                          Frame placePosition, Frame prepickPlacePositionA) throws Exception
+                                          Frame placePositionA, Frame prepickPlacePositionA,
+                                           RobotContext context) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
@@ -155,10 +183,24 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         boolean placeSucceeded = false;
         for (MotionStrategy strategy : motionStrategies)
         {
-            if (strategy.executeMotion(placePosition, prepickPlacePositionA, gripperReleaseAction))
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during place operation");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+
+            if (strategy.executeMotion(placePositionA, prepickPlacePositionA, gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after place strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
             }
         }
 

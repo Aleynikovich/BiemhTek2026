@@ -28,6 +28,7 @@ public class FullScanTask implements VisionTask
         SmartPickingProtocol protocol = context.getProtocol();
         WorkpieceQueue queue = context.getWorkpieceQueue();
         ConfigManager config = ConfigManager.getInstance();
+        WorkpieceData workpieceData = queue.takeNextForPicking();
 
         int referenceCount = config.getInt("vision.reference.count", 3);
         int zone = config.getInt("vision.zone", 1);

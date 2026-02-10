@@ -2,14 +2,20 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
+import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
+import biemhTekniker.vision.SmartPickingProtocol;
+import biemhTekniker.vision.SmartPickingProtocol.Command;
+import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
+
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import java.util.List;
 
@@ -17,6 +23,8 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Program to pick a new workpiece using position from the workpiece queue.
+ * After picking with Gripper A, performs workpiece exchange by placing
+ * measured workpiece (if present in Gripper B) at the same position.
  */
 public class PickNewWorkpieceProgram implements RobotProgram
 {
@@ -39,8 +47,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
         WorkpieceQueue queue = context.getWorkpieceQueue();
         ObjectFrame scanWorkpiecePosition = app.getApplicationData().getFrame("/ScanWorkpiece");
         Frame scanWorkpieceFrame = scanWorkpiecePosition.copyWithRedundancy();
-        // Get next workpiece from queue
-        WorkpieceData workpieceData = queue.takeNextForPicking();
+        
+        // Peek at next workpiece without consuming it yet
+        WorkpieceData workpieceData = queue.peekNextForPicking();
         if (workpieceData == null)
         {
             log.error("No workpieces available to pick");
@@ -54,8 +63,13 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         log.debug("Using workpiece position: " + workpieceData);
-        gripperIO.setGripper1_Switch(false);
-        gripperIO.setGripper2_Switch(false);
+        
+        // Check for cancellation before starting motion
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before pick motion started");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
 
         // Gripper TCP declaration - use only gripper A
         ObjectFrame tcpA = gripper.getFrame("TCPA");
@@ -85,23 +99,127 @@ public class PickNewWorkpieceProgram implements RobotProgram
         boolean pickSucceeded = false;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during pick operation");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+            
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction))
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
             {
                 pickSucceeded = true;
                 break;
             }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled after strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
         }
 
-        tcpA.move(ptp(scanWorkpieceFrame));
-        
-        //app.getApplicationControl().halt();
+        // Check for cancellation before final move
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before final position move");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
 
         if (!pickSucceeded)
         {
             log.error("All pick strategies failed for workpiece: " + workpieceData.getId());
             throw new Exception("Failed to pick workpiece - all strategies exhausted");
         }
+
+        // Mark workpiece as PICKED only after successful pick
+        queue.markPicked(workpieceData.getId());
+        log.info("Successfully picked workpiece with Gripper A: " + workpieceData.getId());
+
+        // Now exchange: place measured workpiece at the same position with Gripper B
+        // Go to pre-pick position with Gripper B for repositioning with different redundancies
+        log.info("Repositioning to place measured workpiece with Gripper B...");
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
+        
+        // Check for cancellation before exchange
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before workpiece exchange");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
+
+        // Open gripper B before placing
+        gripperIO.setGripper2_Switch(false);
+        
+        // Generate motion strategies for TCP B with different redundancies
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generateStrategies(tcpB, robot);
+        
+        // Create gripper release action for measured workpiece
+        MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()
+        {
+            public void execute() throws Exception
+            {
+                // Release measured workpiece (even if we don't have one, we still do the motion)
+                finalGripperIO.setGripper2_Switch(false);
+                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
+            }
+        };
+
+        // Try placing measured workpiece at the same position
+        boolean placeSucceeded = false;
+        for (int i = 0; i < exchangeStrategies.size(); i++)
+        {
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during workpiece exchange");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+            
+            MotionStrategy strategy = exchangeStrategies.get(i);
+            if (strategy.executeMotion(pickPosition, prePickPosition, releaseAction, context))
+            {
+                placeSucceeded = true;
+                break;
+            }
+            
+            // Check for cancellation after failed strategy - stop trying other strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during workpiece exchange after strategy failure");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+        }
+
+        if (!placeSucceeded)
+        {
+            log.warn("Failed to place measured workpiece during exchange - continuing anyway");
+        } else
+        {
+            log.info("Placed measured workpiece at new workpiece position");
+        }
+
+        // Move to scan position with cancellable motion
+        IMotionContainer finalMotion = tcpA.moveAsync(ptp(scanWorkpieceFrame));
+        context.setActiveMotion(finalMotion);
+        finalMotion.await();
+        context.setActiveMotion(null);
+        
+        // Scan the picked workpiece to determine orientation
+        log.info("Scanning workpiece to determine orientation...");
+        
+        // The vision system needs to scan the workpiece at the scan position
+        // Program 110 (ScanPickedWorkpiece) will:
+        // 1. Get the picked workpiece from the queue
+        // 2. Send the appropriate scan command based on reference (1->53, 2->55, 3->60)
+        // 3. Get the orientation result (0=regular, 1=inverted)
+        // 4. Store the orientation in the workpiece data
+        // Note: This is a vision task, so it runs asynchronously via ProgramDispatcher
+        // We don't need to wait for it here as it will complete before the robot moves on
+        
+        log.info("Pick new workpiece with exchange completed successfully");
 
     }
 }
