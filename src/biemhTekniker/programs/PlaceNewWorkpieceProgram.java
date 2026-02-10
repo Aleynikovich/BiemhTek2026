@@ -22,7 +22,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
-    private static final int PRE_PLACE_Y_OFFSET_MM = 400;
+    private static final int PRE_PLACE_Y_OFFSET_MM = 150;
     private static final int PRE_PLACE_Z_OFFSET_MM = 200;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
