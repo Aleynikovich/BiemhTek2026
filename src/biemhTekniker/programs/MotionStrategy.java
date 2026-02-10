@@ -10,7 +10,6 @@ import com.kuka.roboticsAPI.geometricModel.math.Transformation;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.linRel;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**

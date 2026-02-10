@@ -1,6 +1,5 @@
 package biemhTekniker.programs;
 
-import biemhTekniker.config.ConfigManager;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
@@ -8,8 +7,6 @@ import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
 import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
 import com.kuka.common.ThreadUtil;
-
-import java.util.List;
 
 /**
  * Vision task to scan a picked workpiece and determine its orientation.
