@@ -10,6 +10,7 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import java.util.List;
 
@@ -75,7 +76,10 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
 
         // Move to exit position (safe approach)
         log.info("Moving to exit position...");
-        tcpB.move(ptp(exitPosition));
+        IMotionContainer motion = tcpB.moveAsync(ptp(exitPosition));
+        context.setActiveMotion(motion);
+        motion.await();
+        context.setActiveMotion(null);
 
         // Generate motion strategies for place operation
         List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
@@ -111,7 +115,10 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
 
         // Return to exit position
         log.info("Returning to exit position...");
-        tcpB.move(ptp(exitPosition));
+        motion = tcpB.moveAsync(ptp(exitPosition));
+        context.setActiveMotion(motion);
+        motion.await();
+        context.setActiveMotion(null);
 
         // Mark workpiece as returned
         queue.markReturned(workpieceData.getId());
