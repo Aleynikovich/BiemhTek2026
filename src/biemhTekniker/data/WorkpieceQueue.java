@@ -267,6 +267,52 @@ public class WorkpieceQueue
         }
         return sb.toString();
     }
+    
+    /**
+     * Returns workpiece data as JSON array string.
+     * Format: [{"id":1,"reference":1,"state":"AVAILABLE","gripper":"A","x":100.0,"y":200.0,"z":50.0,"score":0.95},...]
+     *
+     * @return JSON array string of workpiece data
+     */
+    public synchronized String getWorkpiecesJson()
+    {
+        if (workpieces.isEmpty())
+        {
+            return "[]";
+        }
+        
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            if (i > 0)
+            {
+                sb.append(",");
+            }
+            WorkpieceData wp = workpieces.get(i);
+            sb.append("{");
+            sb.append("\"id\":").append(wp.getId());
+            sb.append(",\"reference\":").append(wp.getReferenceIndex());
+            sb.append(",\"state\":\"").append(wp.getState()).append("\"");
+            
+            String gripperLoc = wp.getGripperLocation();
+            if (gripperLoc != null)
+            {
+                sb.append(",\"gripper\":\"").append(gripperLoc).append("\"");
+            } else
+            {
+                sb.append(",\"gripper\":null");
+            }
+            
+            sb.append(",\"x\":").append(wp.getX());
+            sb.append(",\"y\":").append(wp.getY());
+            sb.append(",\"z\":").append(wp.getZ());
+            sb.append(",\"score\":").append(wp.getScore());
+            sb.append("}");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 
     /**
      * Finds a workpiece by ID.

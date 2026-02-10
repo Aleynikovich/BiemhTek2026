@@ -84,6 +84,9 @@ public class ConsoleCommandHandler implements Runnable
             } else if ("get_queue_status".equals(type))
             {
                 handleGetQueueStatus();
+            } else if ("get_workpieces".equals(type))
+            {
+                handleGetWorkpieces();
             } else if ("stop".equals(type))
             {
                 handleStop();
@@ -166,6 +169,24 @@ public class ConsoleCommandHandler implements Runnable
         {
             log.error("Error in handleGetQueueStatus: " + e.getMessage(), e);
             sendError("Error getting queue status: " + e.getMessage());
+        }
+    }
+    
+    private void handleGetWorkpieces()
+    {
+        try
+        {
+            log.debug("handleGetWorkpieces called");
+            String workpiecesJson = serverInterface.getWorkpiecesJson();
+            SimpleJSON response = new SimpleJSON();
+            response.put("type", "workpieces");
+            response.put("workpieces", workpiecesJson);
+            sendJson(response);
+            log.debug("Workpieces data sent to client");
+        } catch (Exception e)
+        {
+            log.error("Error in handleGetWorkpieces: " + e.getMessage(), e);
+            sendError("Error getting workpieces: " + e.getMessage());
         }
     }
 
