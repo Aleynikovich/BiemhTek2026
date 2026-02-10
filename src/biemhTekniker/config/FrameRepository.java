@@ -104,10 +104,10 @@ public class FrameRepository
     {
         if ("A".equals(gripperLabel))
         {
-            return getFrame("/SchunkBase/PickPlaceA");
+            return getPickPlaceFrameA();
         } else if ("B".equals(gripperLabel))
         {
-            return getFrame("/SchunkBase/PickPlaceB");
+            return getPickPlaceFrameB();
         } else
         {
             throw new IllegalArgumentException("Invalid gripper label: " + gripperLabel + " (expected A or B)");

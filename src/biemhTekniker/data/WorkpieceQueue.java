@@ -12,6 +12,12 @@ import java.util.List;
 public class WorkpieceQueue
 {
     private static final Logger log = Logger.getLogger(WorkpieceQueue.class);
+    
+    /**
+     * Position tolerance for workpiece matching in millimeters.
+     * Set to 5mm based on vision system accuracy and mechanical repeatability.
+     * Workpieces within this tolerance are considered to be at the same position.
+     */
     private static final double POSITION_TOLERANCE_MM = 5.0;
     
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();

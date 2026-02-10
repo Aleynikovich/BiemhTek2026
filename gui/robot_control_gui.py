@@ -299,11 +299,6 @@ class RobotControlGUI:
         ttk.Button(button_frame, text="Clear Queue", 
                   command=self.clear_workpiece_queue,
                   width=20).grid(row=0, column=2, padx=3, pady=3)
-        
-        # TODO: Add edit workpiece functionality
-        # ttk.Button(button_frame, text="Edit Selected", 
-        #           command=self.edit_workpiece,
-        #           width=20).grid(row=0, column=2, padx=3, pady=3)
     
     def create_console_tab(self, parent):
         """Create console output tab"""
