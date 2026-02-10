@@ -109,6 +109,44 @@ public class MotionStrategy
     }
 
     /**
+     * Helper method to create a PTP motion with impedance control if enabled.
+     * 
+     * @param target Target frame to move to
+     * @param velocityRel Relative joint velocity
+     * @return IMotionContainer for the motion
+     */
+    private IMotionContainer movePtpAsync(Frame target, double velocityRel)
+    {
+        if (impedanceMode != null)
+        {
+            return tcp.moveAsync(ptp(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
+        }
+        else
+        {
+            return tcp.moveAsync(ptp(target).setJointVelocityRel(velocityRel));
+        }
+    }
+
+    /**
+     * Helper method to create a LIN motion with impedance control if enabled.
+     * 
+     * @param target Target frame to move to
+     * @param velocityRel Relative joint velocity
+     * @return IMotionContainer for the motion
+     */
+    private IMotionContainer moveLinAsync(Frame target, double velocityRel)
+    {
+        if (impedanceMode != null)
+        {
+            return tcp.moveAsync(lin(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
+        }
+        else
+        {
+            return tcp.moveAsync(lin(target).setJointVelocityRel(velocityRel));
+        }
+    }
+
+    /**
      * Attempts to execute a motion to target position with approach and retract.
      *
      * @param targetPosition   Target position for the action
@@ -183,15 +221,7 @@ public class MotionStrategy
                 }
 
                 // Approach - move to position above target with PTP
-                IMotionContainer motionContainer;
-                if (impedanceMode != null)
-                {
-                    motionContainer = tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY).setMode(impedanceMode));
-                }
-                else
-                {
-                    motionContainer = tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY));
-                }
+                IMotionContainer motionContainer = movePtpAsync(approachFrame, APPROACH_VELOCITY);
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -199,14 +229,7 @@ public class MotionStrategy
                 motionContainer.await();
 
                 // Move down to target using LIN (world coordinate)
-                if (impedanceMode != null)
-                {
-                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
-                }
-                else
-                {
-                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
-                }
+                motionContainer = moveLinAsync(finalTarget, ACTION_VELOCITY);
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -236,14 +259,7 @@ public class MotionStrategy
                 }
 
                 // Retract back to approach position
-                if (impedanceMode != null)
-                {
-                    motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
-                }
-                else
-                {
-                    motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY));
-                }
+                motionContainer = moveLinAsync(approachFrame, ACTION_VELOCITY);
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -289,15 +305,7 @@ public class MotionStrategy
                 }
 
                 // Approach
-                IMotionContainer motionContainer;
-                if (impedanceMode != null)
-                {
-                    motionContainer = tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY).setMode(impedanceMode));
-                }
-                else
-                {
-                    motionContainer = tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
-                }
+                IMotionContainer motionContainer = movePtpAsync(finalApproach, APPROACH_VELOCITY);
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -305,14 +313,7 @@ public class MotionStrategy
                 motionContainer.await();
 
                 // Move to target position
-                if (impedanceMode != null)
-                {
-                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
-                }
-                else
-                {
-                    motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
-                }
+                motionContainer = moveLinAsync(finalTarget, ACTION_VELOCITY);
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -342,14 +343,7 @@ public class MotionStrategy
                 }
 
                 // Retract
-                if (impedanceMode != null)
-                {
-                    motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY).setMode(impedanceMode));
-                }
-                else
-                {
-                    motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
-                }
+                motionContainer = moveLinAsync(finalApproach, ACTION_VELOCITY);
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);

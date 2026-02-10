@@ -39,11 +39,11 @@ public class MotionStrategyGenerator
     private static ImpedanceConfig impedanceConfig = null;
 
     /**
-     * Gets or creates the impedance configuration singleton.
+     * Gets or creates the impedance configuration singleton (thread-safe).
      * 
      * @return ImpedanceConfig instance
      */
-    private static ImpedanceConfig getImpedanceConfig()
+    private static synchronized ImpedanceConfig getImpedanceConfig()
     {
         if (impedanceConfig == null)
         {
