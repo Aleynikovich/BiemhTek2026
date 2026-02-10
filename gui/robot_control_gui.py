@@ -354,11 +354,11 @@ class RobotControlGUI:
         
         # Working plane dimensions (mm) - canvas size
         canvas_width = 700
-        canvas_height = 400
+        canvas_height = 500
         
         # Workpiece dimensions (mm)
-        wp_length = 100
-        wp_width = 30
+        wp_length = 75
+        wp_width = 35
         
         # Colors for different references
         ref_colors = {1: '#FF6B6B', 2: '#4ECDC4', 3: '#45B7D1'}
@@ -388,8 +388,8 @@ class RobotControlGUI:
             # Map Y: [-600, -200] -> Canvas Y: [0, 400]
             
             # Scale: 1 pixel = 1mm for both axes
-            canvas_x = x + 350  # Shift X so -350 maps to 0
-            canvas_y = -y - 200  # Flip Y (canvas Y increases downward) and shift so -200 maps to 0
+            canvas_x = x + 200  # Shift X so -350 maps to 0
+            canvas_y = -y - 100  # Flip Y (canvas Y increases downward) and shift so -200 maps to 0
             
             # Skip if outside visible area
             if canvas_x < -100 or canvas_x > canvas_width + 100 or canvas_y < -100 or canvas_y > canvas_height + 100:
@@ -402,7 +402,7 @@ class RobotControlGUI:
             
             # Draw rotated workpiece rectangle
             # Convert rotation to radians
-            angle_rad = math.radians(rz)
+            angle_rad = math.radians(-rz)
             cos_a = math.cos(angle_rad)
             sin_a = math.sin(angle_rad)
             
