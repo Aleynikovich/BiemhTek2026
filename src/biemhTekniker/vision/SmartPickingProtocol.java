@@ -82,6 +82,33 @@ public class SmartPickingProtocol
     }
 
     /**
+     * Sends a workpiece scan request for a specific zone and reference number.
+     * This is used to request scanning of a picked workpiece.
+     *
+     * @param zone Zone number (typically 1)
+     * @param referenceNumber Reference number (53, 55, 60, etc.)
+     * @return VisionResult with scan status
+     */
+    public VisionResult sendWorkpieceScanRequest(int zone, int referenceNumber)
+    {
+        String args = zone + ";" + referenceNumber;
+        return execute(Command.SEND_WORKPIECE_SCAN_REQUEST, args, true);
+    }
+
+    /**
+     * Requests the orientation of a scanned workpiece.
+     * This command should be called after sendWorkpieceScanRequest.
+     *
+     * @param zone Zone number (typically 1)
+     * @return VisionResult containing reference+orientation (e.g., 530, 531, 550, 551, 600, 601)
+     */
+    public VisionResult requestWorkpieceOrientation(int zone)
+    {
+        String args = String.valueOf(zone);
+        return execute(Command.REQUEST_WORKPIECE_ORIENTATION, args, true);
+    }
+
+    /**
      * Locates parts across all references in a zone.
      * Iterates through reference indices 1 to referenceCount.
      * For each reference, locates parts then retrieves all part positions using GET_PART_POS and GET_NEXT_PART_POS.
@@ -184,7 +211,22 @@ public class SmartPickingProtocol
      */
     public enum Command
     {
-        LOAD_REFERENCE("15"), SET_AUTO_MODE("101"), SET_CALIB_MODE("102"), CAPTURE_DATA("2"), LOCATE_CONTAINER("3"), GET_CONTAINER_POS("8"), LOCATE_PARTS("4"), GET_PART_POS("9"), GET_NEXT_PART_POS("11"), ADD_CALIB_POINT("5"), CALIBRATE("6"), TEST_CALIB("7"), SEND_ROBOT_POSE("14"), SEND_CUSTOM_MESSAGE("103"), SEND_WORKPIECE_SCAN_REQUEST_53("10;1;53"), SEND_WORKPIECE_SCAN_REQUEST_55("10;1;55"), SEND_WORKPIECE_SCAN_REQUEST_60("10;1;60"), REQUEST_WORKPIECE_ORIENTATION("13;1");
+        LOAD_REFERENCE("15"), 
+        SET_AUTO_MODE("101"), 
+        SET_CALIB_MODE("102"), 
+        CAPTURE_DATA("2"), 
+        LOCATE_CONTAINER("3"), 
+        GET_CONTAINER_POS("8"), 
+        LOCATE_PARTS("4"), 
+        GET_PART_POS("9"), 
+        GET_NEXT_PART_POS("11"), 
+        ADD_CALIB_POINT("5"), 
+        CALIBRATE("6"), 
+        TEST_CALIB("7"), 
+        SEND_ROBOT_POSE("14"), 
+        SEND_CUSTOM_MESSAGE("103"),
+        SEND_WORKPIECE_SCAN_REQUEST("10"),
+        REQUEST_WORKPIECE_ORIENTATION("13");
 
         private final String code;
 

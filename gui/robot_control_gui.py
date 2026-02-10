@@ -235,16 +235,17 @@ class RobotControlGUI:
             btn.grid(row=row, column=col, padx=3, pady=3, sticky=tk.W)
     
     def create_workpieces_tab(self, parent):
-        """Create workpiece management tab"""
+        """Create workpiece management tab with 2D visualization"""
         parent.columnconfigure(0, weight=1)
+        parent.columnconfigure(1, weight=1)
         parent.rowconfigure(1, weight=1)
         
-        ttk.Label(parent, text="Workpiece Database:", style='Header.TLabel').grid(
-            row=0, column=0, sticky=tk.W, pady=(0, 5))
+        ttk.Label(parent, text="Workpiece Database & Visualization:", style='Header.TLabel').grid(
+            row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
         
-        # Create treeview for workpieces
-        tree_frame = ttk.Frame(parent)
-        tree_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # Left side: Treeview for workpieces
+        tree_frame = ttk.LabelFrame(parent, text="Workpiece List", padding="5")
+        tree_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 5))
         tree_frame.columnconfigure(0, weight=1)
         tree_frame.rowconfigure(0, weight=1)
         
@@ -271,22 +272,38 @@ class RobotControlGUI:
         self.workpiece_tree.heading("Score", text="Score")
         
         # Column widths
-        self.workpiece_tree.column("ID", width=80)
-        self.workpiece_tree.column("Ref", width=40)
-        self.workpiece_tree.column("State", width=100)
-        self.workpiece_tree.column("Gripper", width=60)
-        self.workpiece_tree.column("X", width=80)
-        self.workpiece_tree.column("Y", width=80)
-        self.workpiece_tree.column("Z", width=80)
-        self.workpiece_tree.column("Score", width=80)
+        self.workpiece_tree.column("ID", width=60)
+        self.workpiece_tree.column("Ref", width=30)
+        self.workpiece_tree.column("State", width=80)
+        self.workpiece_tree.column("Gripper", width=50)
+        self.workpiece_tree.column("X", width=60)
+        self.workpiece_tree.column("Y", width=60)
+        self.workpiece_tree.column("Z", width=60)
+        self.workpiece_tree.column("Score", width=50)
         
         self.workpiece_tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         vsb.grid(row=0, column=1, sticky=(tk.N, tk.S))
         hsb.grid(row=1, column=0, sticky=(tk.W, tk.E))
         
+        # Right side: 2D visualization canvas
+        viz_frame = ttk.LabelFrame(parent, text="Working Plane (700x400mm)", padding="5")
+        viz_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S))
+        viz_frame.columnconfigure(0, weight=1)
+        viz_frame.rowconfigure(0, weight=1)
+        
+        # Create canvas for 2D visualization
+        self.workpiece_canvas = tk.Canvas(viz_frame, bg='white', width=700, height=400)
+        self.workpiece_canvas.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Draw grid
+        self.draw_grid()
+        
+        # Store workpiece data for visualization
+        self.workpiece_viz_data = []
+        
         # Control buttons
         button_frame = ttk.Frame(parent)
-        button_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(5, 0))
+        button_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
         
         ttk.Button(button_frame, text="Refresh Workpieces", 
                   command=self.refresh_workpieces,
@@ -299,6 +316,119 @@ class RobotControlGUI:
         ttk.Button(button_frame, text="Clear Queue", 
                   command=self.clear_workpiece_queue,
                   width=20).grid(row=0, column=2, padx=3, pady=3)
+    
+    def draw_grid(self):
+        """Draw grid on workpiece visualization canvas"""
+        canvas = self.workpiece_canvas
+        
+        # Grid parameters (700x400mm working plane)
+        width = 700
+        height = 400
+        grid_size = 50  # 50mm grid
+        
+        # Draw grid lines
+        for x in range(0, width + 1, grid_size):
+            canvas.create_line(x, 0, x, height, fill='lightgray', width=1)
+        for y in range(0, height + 1, grid_size):
+            canvas.create_line(0, y, width, y, fill='lightgray', width=1)
+        
+        # Draw axes labels
+        canvas.create_text(width - 20, height - 10, text="X", fill='black', font=('Arial', 10, 'bold'))
+        canvas.create_text(10, 10, text="Y", fill='black', font=('Arial', 10, 'bold'))
+        
+        # Draw border
+        canvas.create_rectangle(1, 1, width - 1, height - 1, outline='black', width=2)
+    
+    def update_workpiece_visualization(self, workpieces):
+        """Update the 2D visualization with workpiece positions"""
+        canvas = self.workpiece_canvas
+        
+        # Clear previous workpieces (keep grid)
+        canvas.delete('workpiece')
+        
+        # Working plane dimensions (mm)
+        plane_width = 700
+        plane_height = 400
+        
+        # Workpiece dimensions (mm)
+        wp_length = 100
+        wp_width = 30
+        
+        # Colors for different references
+        ref_colors = {1: '#FF6B6B', 2: '#4ECDC4', 3: '#45B7D1'}
+        state_colors = {
+            'AVAILABLE': 'green',
+            'PICKED': 'orange',
+            'MEASURING': 'purple',
+            'MEASURED': 'blue',
+            'RETURNED': 'gray'
+        }
+        
+        for wp in workpieces:
+            # Get workpiece position (mm)
+            x = float(wp.get('x', 0))
+            y = float(wp.get('y', 0))
+            ref = wp.get('reference', 1)
+            state = wp.get('state', 'AVAILABLE')
+            gripper = wp.get('gripper', '')
+            
+            # Transform coordinates to canvas (assuming center of plane is origin)
+            # Canvas coordinates: top-left is (0,0)
+            # Robot coordinates: center is (0,0), X to right, Y away from robot
+            canvas_x = plane_width / 2 + x
+            canvas_y = plane_height / 2 - y  # Invert Y for canvas
+            
+            # Calculate rectangle corners for workpiece (100x30mm)
+            x1 = canvas_x - wp_length / 2
+            y1 = canvas_y - wp_width / 2
+            x2 = canvas_x + wp_length / 2
+            y2 = canvas_y + wp_width / 2
+            
+            # Get color based on reference and state
+            fill_color = ref_colors.get(ref, '#CCCCCC')
+            outline_color = state_colors.get(state, 'black')
+            outline_width = 3 if state == 'PICKED' else 2
+            
+            # Draw workpiece rectangle
+            canvas.create_rectangle(x1, y1, x2, y2, 
+                                   fill=fill_color, 
+                                   outline=outline_color, 
+                                   width=outline_width,
+                                   tags='workpiece')
+            
+            # Draw revolution circle (projection on plane) - 50mm radius
+            revolution_radius = 50
+            canvas.create_oval(canvas_x - revolution_radius, 
+                              canvas_y - revolution_radius,
+                              canvas_x + revolution_radius, 
+                              canvas_y + revolution_radius,
+                              outline='lightblue', 
+                              dash=(2, 2),
+                              width=1,
+                              tags='workpiece')
+            
+            # Add label with ID and gripper location
+            label = f"ID:{wp.get('id', '?')}"
+            if gripper:
+                label += f"\nG:{gripper}"
+            canvas.create_text(canvas_x, canvas_y, 
+                             text=label, 
+                             fill='white',
+                             font=('Arial', 8, 'bold'),
+                             tags='workpiece')
+        
+        # Add legend
+        legend_x = 10
+        legend_y = 350
+        canvas.create_text(legend_x, legend_y, text="Legend:", anchor='w', 
+                          font=('Arial', 9, 'bold'), tags='workpiece')
+        legend_y += 15
+        for ref, color in ref_colors.items():
+            canvas.create_rectangle(legend_x, legend_y, legend_x + 15, legend_y + 10, 
+                                   fill=color, outline='black', tags='workpiece')
+            canvas.create_text(legend_x + 20, legend_y + 5, text=f"Ref {ref}", 
+                             anchor='w', font=('Arial', 8), tags='workpiece')
+            legend_y += 12
     
     def create_console_tab(self, parent):
         """Create console output tab"""
@@ -579,11 +709,11 @@ class RobotControlGUI:
             self.parse_log_entry(response)
     
     def update_workpiece_display(self, workpieces):
-        """Update the workpiece treeview with data from robot"""
+        """Update the workpiece treeview and 2D visualization with data from robot"""
         # Clear existing items
         self.workpiece_tree.delete(*self.workpiece_tree.get_children())
         
-        # Add workpieces
+        # Add workpieces to tree
         for wp in workpieces:
             self.workpiece_tree.insert('', 'end', values=(
                 wp.get('id', 'N/A'),
@@ -595,6 +725,9 @@ class RobotControlGUI:
                 f"{wp.get('z', 0):.1f}",
                 f"{wp.get('score', 0):.2f}"
             ))
+        
+        # Update 2D visualization
+        self.update_workpiece_visualization(workpieces)
         
         self.log_console(f"Updated workpiece display: {len(workpieces)} workpieces", 'info')
     
