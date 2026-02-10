@@ -58,6 +58,57 @@ public class WorkpieceQueue
     }
 
     /**
+     * Returns the highest-score AVAILABLE workpiece WITHOUT marking it as PICKED.
+     * Returns null if no AVAILABLE workpieces exist.
+     * Use this to preview the next workpiece before attempting to pick it.
+     *
+     * @return The workpiece that would be picked next, or null
+     */
+    public synchronized WorkpieceData peekNextForPicking()
+    {
+        WorkpieceData best = null;
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            WorkpieceData wp = workpieces.get(i);
+            if (wp.getState() == WorkpieceState.AVAILABLE)
+            {
+                if (best == null || wp.getScore() > best.getScore())
+                {
+                    best = wp;
+                }
+            }
+        }
+
+        if (best != null)
+        {
+            log.debug("Peeked at next workpiece: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", score=" + best.getScore());
+        } else
+        {
+            log.debug("No AVAILABLE workpieces to peek");
+        }
+        return best;
+    }
+
+    /**
+     * Marks a specific workpiece as PICKED.
+     * Used after successfully picking a workpiece that was previewed with peekNextForPicking().
+     *
+     * @param workpieceId Workpiece ID to mark as picked
+     */
+    public synchronized void markPicked(long workpieceId)
+    {
+        WorkpieceData wp = findById(workpieceId);
+        if (wp != null)
+        {
+            wp.setState(WorkpieceState.PICKED);
+            log.info("Marked workpiece as PICKED: id=" + workpieceId);
+        } else
+        {
+            log.warn("Cannot mark PICKED - workpiece not found: id=" + workpieceId);
+        }
+    }
+
+    /**
      * Marks a workpiece as MEASURING.
      *
      * @param workpieceId Workpiece ID

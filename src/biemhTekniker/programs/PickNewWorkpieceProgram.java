@@ -11,6 +11,7 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import java.util.List;
 
@@ -40,8 +41,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
         WorkpieceQueue queue = context.getWorkpieceQueue();
         ObjectFrame scanWorkpiecePosition = app.getApplicationData().getFrame("/ScanWorkpiece");
         Frame scanWorkpieceFrame = scanWorkpiecePosition.copyWithRedundancy();
-        // Get next workpiece from queue
-        WorkpieceData workpieceData = queue.takeNextForPicking();
+        
+        // Peek at next workpiece without consuming it yet
+        WorkpieceData workpieceData = queue.peekNextForPicking();
         if (workpieceData == null)
         {
             log.error("No workpieces available to pick");
@@ -116,7 +118,11 @@ public class PickNewWorkpieceProgram implements RobotProgram
             throw new ProgramCancelledException("Program cancelled by user");
         }
 
-        tcpA.move(ptp(scanWorkpieceFrame));
+        // Move to scan position with cancellable motion
+        IMotionContainer finalMotion = tcpA.moveAsync(ptp(scanWorkpieceFrame));
+        context.setActiveMotion(finalMotion);
+        finalMotion.await();
+        context.setActiveMotion(null);
         
         //app.getApplicationControl().halt();
 
@@ -125,6 +131,10 @@ public class PickNewWorkpieceProgram implements RobotProgram
             log.error("All pick strategies failed for workpiece: " + workpieceData.getId());
             throw new Exception("Failed to pick workpiece - all strategies exhausted");
         }
+
+        // Mark workpiece as PICKED only after successful pick
+        queue.markPicked(workpieceData.getId());
+        log.info("Successfully picked workpiece: " + workpieceData.getId());
 
     }
 }
