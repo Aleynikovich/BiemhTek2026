@@ -22,7 +22,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PlaceNewWorkpieceProgram.class);
-    private static final int PRE_PLACE_Z_OFFSET_MM = 200;
+    private static final int PRE_PLACE_Z_OFFSET_MM = 75;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
@@ -61,14 +61,6 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ);
 
-        if (gripperIO.getGripper3_PartPresence())
-        {
-            gripperIO.setGripper3_Switch(true); // Close to hold
-        }
-
-        // Return to home position
-        gripper.move(ptp(app.getApplicationData().getFrame("/BiemhHome")));
-
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
 
@@ -99,6 +91,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             {
                 finalGripperIO.setGripper2_Switch(true);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
+                finalGripperIO.setGripper3_Switch(true);
+                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
         
@@ -110,13 +104,14 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction))
             {
                 pickSucceeded = true;
+                gripperIO.setGripper3_PartPresence(false);
                 break;
             }
         }
         
         if (!pickSucceeded)
         {
-            gripperIO.setGripper3_Switch(false);
+            gripperIO.setGripper3_Switch(true);
             ThreadUtil.milliSleep(GRIPPER_RELEASE_DELAY_MS);
             log.error("Failed to pick measured workpiece with TCP B");
             throw new Exception("Failed to pick measured workpiece - all strategies exhausted");
