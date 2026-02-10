@@ -17,6 +17,7 @@ public class RobotContext
     private final MediaFlangeIOGroup gripperIO;
     private final RoboticsAPIApplication application;
     private final WorkpieceQueue workpieceQueue;
+    private volatile boolean cancellationRequested = false;
 
     /**
      * Creates a new robot context.
@@ -59,5 +60,33 @@ public class RobotContext
     public WorkpieceQueue getWorkpieceQueue()
     {
         return workpieceQueue;
+    }
+
+    /**
+     * Requests cancellation of the current program execution.
+     * Programs should check this flag periodically and exit gracefully.
+     */
+    public void requestCancellation()
+    {
+        cancellationRequested = true;
+    }
+
+    /**
+     * Checks if cancellation has been requested.
+     *
+     * @return true if cancellation was requested
+     */
+    public boolean isCancellationRequested()
+    {
+        return cancellationRequested;
+    }
+
+    /**
+     * Clears the cancellation flag.
+     * Should be called after cancellation is handled or before starting a new program.
+     */
+    public void clearCancellation()
+    {
+        cancellationRequested = false;
     }
 }

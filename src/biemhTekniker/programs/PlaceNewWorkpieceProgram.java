@@ -26,6 +26,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
+
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
@@ -78,13 +79,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpB TCP B frame (gripper 2)
      * @param gripperIO Gripper IO group
-     * @param pickPlacePositionA Place position frame
-     * @param prepickPlacePositionA Pre-place position frame (with Z offset)
+     * @param pickPlacePositionB Place position frame
+     * @param prepickPlacePositionB Pre-place position frame (with Z offset)
      * @throws Exception if pick operation fails
      */
     private void pickMeasuredWorkpieceWithTcpB(LBR robot, ObjectFrame tcpB, 
                                                MediaFlangeIOGroup gripperIO,
-                                               Frame pickPlacePositionA, Frame prepickPlacePositionB) throws Exception
+                                               Frame pickPlacePositionB, Frame prepickPlacePositionB) throws Exception
     {
         log.info("Picking measured workpiece with TCP B...");
 
@@ -107,7 +108,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePositionA, prepickPlacePositionB, gripperActivateAction))
+            if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction))
             {
                 pickSucceeded = true;
                 break;
@@ -131,13 +132,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpA TCP A frame (gripper 1)
      * @param gripperIO Gripper IO group
-     * @param placePosition Place position frame
+     * @param placePositionA Place position frame
      * @param prepickPlacePositionA Pre-place position frame (with Z offset)
      * @throws Exception if place operation fails
      */
     private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
                                           MediaFlangeIOGroup gripperIO,
-                                          Frame placePosition, Frame prepickPlacePositionA) throws Exception
+                                          Frame placePositionA, Frame prepickPlacePositionA) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
@@ -160,7 +161,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         boolean placeSucceeded = false;
         for (MotionStrategy strategy : motionStrategies)
         {
-            if (strategy.executeMotion(placePosition, prepickPlacePositionA, gripperReleaseAction))
+            if (strategy.executeMotion(placePositionA, prepickPlacePositionA, gripperReleaseAction))
             {
                 placeSucceeded = true;
                 break;
