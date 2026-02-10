@@ -149,6 +149,23 @@ public class ConfigManager
     }
 
     /**
+     * Gets a boolean property.
+     *
+     * @param key          Property key
+     * @param defaultValue Default value if key not found
+     * @return Property value or default
+     */
+    public boolean getBoolean(String key, boolean defaultValue)
+    {
+        String value = properties.getProperty(key);
+        if (value == null)
+        {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value.trim());
+    }
+
+    /**
      * Gets a string array property (comma-separated).
      *
      * @param key       Property key
