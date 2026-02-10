@@ -81,8 +81,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Generate motion strategies using the generator utility
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategies(tcpA, robot);
+        // Generate motion strategies using tool coordinates for pick (no Z-rotation)
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpA, robot);
 
         // Create gripper activation action
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
@@ -107,7 +107,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
+            if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), gripperAction, context))
             {
                 pickSucceeded = true;
                 break;
@@ -153,8 +153,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Open gripper B before placing
         gripperIO.setGripper2_Switch(false);
         
-        // Generate motion strategies for TCP B with different redundancies
-        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generateStrategies(tcpB, robot);
+        // Generate place strategies for TCP B with Z-rotation freedom and tool coordinates
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
         
         // Create gripper release action for measured workpiece
         MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()
@@ -179,7 +179,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             
             MotionStrategy strategy = exchangeStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, releaseAction, context))
+            if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), releaseAction, context))
             {
                 placeSucceeded = true;
                 break;
