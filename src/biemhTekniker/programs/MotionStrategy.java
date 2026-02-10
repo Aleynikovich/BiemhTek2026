@@ -128,6 +128,15 @@ public class MotionStrategy
             if (action != null)
             {
                 action.execute();
+                motionContainer.await();
+            }
+
+            // Check for cancellation before retract
+            if (context != null && context.isCancellationRequested())
+            {
+                log.warn("Motion cancelled before retract");
+                context.setActiveMotion(null);
+                return false;
             }
 
             // Check for cancellation before retract
