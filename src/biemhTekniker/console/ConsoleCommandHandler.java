@@ -139,14 +139,13 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
-            log.debug("handleGetStatus called");
+            // Silent for cyclic calls - no debug logging
             SimpleJSON status = new SimpleJSON();
             status.put("type", "status");
             status.put("program", serverInterface.getCurrentProgram());
             status.put("vision_connected", serverInterface.isVisionConnected());
             status.put("workpiece_position", serverInterface.getWorkpiecePosition());
             sendJson(status);
-            log.debug("Status sent to client");
         } catch (Exception e)
         {
             log.error("Error in handleGetStatus: " + e.getMessage(), e);
@@ -176,13 +175,12 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
-            log.debug("handleGetWorkpieces called");
+            // Silent for cyclic calls - no debug logging
             String workpiecesJson = serverInterface.getWorkpiecesJson();
             SimpleJSON response = new SimpleJSON();
             response.put("type", "workpieces");
             response.put("workpieces", workpiecesJson);
             sendJson(response);
-            log.debug("Workpieces data sent to client");
         } catch (Exception e)
         {
             log.error("Error in handleGetWorkpieces: " + e.getMessage(), e);
