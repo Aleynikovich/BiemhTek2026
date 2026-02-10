@@ -47,10 +47,10 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         Frame pickPlacePositionB = pickPlaceFrameB.copyWithRedundancy();
 
         Frame prepickPlacePositionAZ = new Frame(pickPlacePositionA.copyWithRedundancy());
-        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
         Frame prepickPlacePositionBZ = new Frame(pickPlacePositionB.copyWithRedundancy());
-        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
         if (gripperIO.getGripper3_PartPresence())
         {
@@ -78,13 +78,13 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param robot Robot instance
      * @param tcpB TCP B frame (gripper 2)
      * @param gripperIO Gripper IO group
-     * @param pickPlacePositionA Place position frame
-     * @param prepickPlacePositionA Pre-place position frame (with Z offset)
+     * @param pickPlacePositionB Place position frame
+     * @param prepickPlacePositionB Pre-place position frame (with Z offset)
      * @throws Exception if pick operation fails
      */
     private void pickMeasuredWorkpieceWithTcpB(LBR robot, ObjectFrame tcpB, 
                                                MediaFlangeIOGroup gripperIO,
-                                               Frame pickPlacePositionA, Frame prepickPlacePositionB) throws Exception
+                                               Frame pickPlacePositionB, Frame prepickPlacePositionB) throws Exception
     {
         log.info("Picking measured workpiece with TCP B...");
 
@@ -107,7 +107,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePositionA, prepickPlacePositionB, gripperActivateAction))
+            if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction))
             {
                 pickSucceeded = true;
                 break;
