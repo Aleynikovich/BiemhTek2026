@@ -90,7 +90,6 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             public void execute() throws Exception
             {
                 finalGripperIO.setGripper2_Switch(true);
-                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
                 finalGripperIO.setGripper3_Switch(true);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
