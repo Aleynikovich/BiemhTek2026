@@ -17,6 +17,9 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Program to place a new workpiece at a predefined location.
+ * Always picks measured workpiece with Gripper B first (ignoring part presence),
+ * then places new workpiece with Gripper A.
+ * This ensures a clean exchange and prevents any interference.
  * Uses MotionStrategy pattern with redundancy support.
  */
 public class PlaceNewWorkpieceProgram implements RobotProgram
@@ -60,11 +63,10 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         Frame prepickPlacePositionBZ = new Frame(pickPlacePositionB.copyWithRedundancy());
         prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
-        if (gripperIO.getGripper3_PartPresence())
-        {
-            log.info("Measured workpiece detected in gripper 3 - picking it before placing new workpiece");
-            pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ, context);
-        }
+        // Always pick measured workpiece with TCP B first (ignore part presence)
+        // This ensures there's nothing in the way when we place the new workpiece
+        log.info("Picking measured workpiece with TCP B (override part presence check)...");
+        pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ, context);
 
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context);

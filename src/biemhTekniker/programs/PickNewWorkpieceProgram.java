@@ -19,6 +19,8 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Program to pick a new workpiece using position from the workpiece queue.
+ * After picking with Gripper A, performs workpiece exchange by placing
+ * measured workpiece (if present in Gripper B) at the same position.
  */
 public class PickNewWorkpieceProgram implements RobotProgram
 {
@@ -118,14 +120,6 @@ public class PickNewWorkpieceProgram implements RobotProgram
             throw new ProgramCancelledException("Program cancelled by user");
         }
 
-        // Move to scan position with cancellable motion
-        IMotionContainer finalMotion = tcpA.moveAsync(ptp(scanWorkpieceFrame));
-        context.setActiveMotion(finalMotion);
-        finalMotion.await();
-        context.setActiveMotion(null);
-        
-        //app.getApplicationControl().halt();
-
         if (!pickSucceeded)
         {
             log.error("All pick strategies failed for workpiece: " + workpieceData.getId());
@@ -134,7 +128,73 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Mark workpiece as PICKED only after successful pick
         queue.markPicked(workpieceData.getId());
-        log.info("Successfully picked workpiece: " + workpieceData.getId());
+        log.info("Successfully picked workpiece with Gripper A: " + workpieceData.getId());
+
+        // Now exchange: place measured workpiece at the same position with Gripper B
+        // Go to pre-pick position with Gripper B for repositioning with different redundancies
+        log.info("Repositioning to place measured workpiece with Gripper B...");
+        ObjectFrame tcpB = gripper.getFrame("TCPB");
+        
+        // Check for cancellation before exchange
+        if (context.isCancellationRequested())
+        {
+            log.warn("Program cancelled before workpiece exchange");
+            throw new ProgramCancelledException("Program cancelled by user");
+        }
+
+        // Open gripper B before placing
+        gripperIO.setGripper2_Switch(false);
+        
+        // Generate motion strategies for TCP B with different redundancies
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generateStrategies(tcpB, robot);
+        
+        // Create gripper release action for measured workpiece
+        MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()
+        {
+            public void execute() throws Exception
+            {
+                // Release measured workpiece (even if we don't have one, we still do the motion)
+                finalGripperIO.setGripper2_Switch(false);
+                ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
+            }
+        };
+
+        // Try placing measured workpiece at the same position
+        boolean placeSucceeded = false;
+        for (int i = 0; i < exchangeStrategies.size(); i++)
+        {
+            // Check for cancellation between strategies
+            if (context.isCancellationRequested())
+            {
+                log.warn("Program cancelled during workpiece exchange");
+                throw new ProgramCancelledException("Program cancelled by user");
+            }
+            
+            MotionStrategy strategy = exchangeStrategies.get(i);
+            if (strategy.executeMotion(pickPosition, prePickPosition, releaseAction, context))
+            {
+                placeSucceeded = true;
+                break;
+            }
+        }
+
+        if (!placeSucceeded)
+        {
+            log.warn("Failed to place measured workpiece during exchange - continuing anyway");
+        } else
+        {
+            log.info("Placed measured workpiece at new workpiece position");
+        }
+
+        // Move to scan position with cancellable motion
+        IMotionContainer finalMotion = tcpA.moveAsync(ptp(scanWorkpieceFrame));
+        context.setActiveMotion(finalMotion);
+        finalMotion.await();
+        context.setActiveMotion(null);
+        
+        //app.getApplicationControl().halt();
+
+        log.info("Pick new workpiece with exchange completed successfully");
 
     }
 }
