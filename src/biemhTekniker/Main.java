@@ -300,5 +300,11 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         appController.cancelCurrentProgram();
     }
+    
+    @Override
+    public String getWorkpiecesJson()
+    {
+        return appController.getWorkpiecesJson();
+    }
 
 }
