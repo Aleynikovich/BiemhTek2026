@@ -14,27 +14,31 @@ The system uses only 3 states:
 
 ### Gripper Location Field
 Separately from the state, each workpiece has a `gripperLocation` field that can be:
-- `null` - Not held by any gripper
+- `null` - Not held by any gripper (on table)
 - `"1"` - Held by Gripper 1
 - `"2"` - Held by Gripper 2  
-- `"3"` - Held by Gripper 3
+- `"3"` - Held by Gripper 3 (measuring machine gripper)
+
+**Note**: Gripper 3 is the measuring machine gripper. Workpieces in MEASURING or MEASURED states are automatically held by gripper 3.
 
 ## State Transitions
 
 ### Normal Workflow
 ```
 AVAILABLE (on table, gripper=null)
-    ↓ [pick]
+    ↓ [pick with gripper 1]
 AVAILABLE (held, gripper="1")
     ↓ [place on measuring machine]
-MEASURING (on machine, gripper=null)
+MEASURING (on machine, gripper="3")
     ↓ [measurement complete]
-MEASURED (on machine, gripper=null)
-    ↓ [pick from machine]
+MEASURED (on machine, gripper="3")
+    ↓ [pick from machine with gripper 2]
 MEASURED (held, gripper="2")
     ↓ [return to table]
 AVAILABLE (on table, gripper=null)
 ```
+
+**Note**: When a workpiece is placed on the measuring machine, it's held by gripper 3 (the measuring machine gripper). The state changes to MEASURING with gripper="3", and remains gripper="3" when MEASURED.
 
 ## GUI Display Logic
 
@@ -48,8 +52,8 @@ The GUI displays workpiece state based on both the `state` and `gripper` fields:
 |-------|---------|-------------|
 | AVAILABLE | null | AVAILABLE |
 | AVAILABLE | "1" | In Gripper 1 |
-| MEASURING | null | MEASURING |
-| MEASURED | null | MEASURED |
+| MEASURING | "3" | In Gripper 3 |
+| MEASURED | "3" | In Gripper 3 |
 | MEASURED | "2" | In Gripper 2 |
 
 ## API Methods
@@ -62,8 +66,8 @@ The GUI displays workpiece state based on both the `state` and `gripper` fields:
 - `markPicked(long workpieceId, int gripperNumber)` - Marks a specific workpiece with gripper location
 
 #### State Transitions
-- `markMeasuring(long workpieceId)` - Sets state to MEASURING, clears gripper
-- `markMeasured(long workpieceId)` - Sets state to MEASURED
+- `markMeasuring(long workpieceId)` - Sets state to MEASURING, sets gripper to "3"
+- `markMeasured(long workpieceId)` - Sets state to MEASURED, keeps gripper "3"
 - `markReturned(long workpieceId)` - Sets state to AVAILABLE, clears gripper
 - `clearGripper(long workpieceId)` - Clears gripper location without changing state
 

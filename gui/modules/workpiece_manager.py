@@ -28,6 +28,13 @@ class WorkpieceManager:
             state = str(wp.get('state', 'AVAILABLE')).upper()
             gripper = wp.get('gripper')
             
+            # MEASURING and MEASURED workpieces are held by gripper 3 (measuring machine)
+            if state in ('MEASURING', 'MEASURED'):
+                if not gripper or str(gripper) not in ('3',):
+                    # Ensure gripper is set to 3 for measuring machine
+                    wp['gripper'] = '3'
+                    gripper = '3'
+            
             # Display gripper location in state if workpiece is held by a gripper
             if gripper and str(gripper) not in ('', 'None', '0', 'null'):
                 if str(gripper).isdigit() and int(gripper) in (1, 2, 3):
@@ -37,9 +44,6 @@ class WorkpieceManager:
             # Route to grippers if being held
             if gripper and str(gripper).isdigit() and int(gripper) in (1, 2, 3):
                 in_grippers[int(gripper)] = wp
-            elif state == 'MEASURING':
-                # Measuring: hide from table
-                pass
             elif 'In Gripper' in state:
                 # Workpiece is in a gripper - hide from table
                 pass

@@ -158,6 +158,7 @@ public class WorkpieceQueue
 
     /**
      * Marks a workpiece as MEASURING.
+     * Sets gripper to 3 since gripper 3 holds workpieces on the measuring machine.
      *
      * @param workpieceId Workpiece ID
      */
@@ -167,7 +168,8 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setState(WorkpieceState.MEASURING);
-            log.info("Marked workpiece as MEASURING: id=" + workpieceId);
+            wp.setGripperLocation("3");
+            log.info("Marked workpiece as MEASURING (gripper 3): id=" + workpieceId);
         } else
         {
             log.warn("Cannot mark MEASURING - workpiece not found: id=" + workpieceId);
@@ -176,6 +178,7 @@ public class WorkpieceQueue
 
     /**
      * Marks a workpiece as MEASURED.
+     * Gripper 3 still holds it on the measuring machine.
      *
      * @param workpieceId Workpiece ID
      */
@@ -185,7 +188,8 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setState(WorkpieceState.MEASURED);
-            log.info("Marked workpiece as MEASURED: id=" + workpieceId);
+            // Keep gripper 3 since it still holds the workpiece on measuring machine
+            log.info("Marked workpiece as MEASURED (still in gripper 3): id=" + workpieceId);
         } else
         {
             log.warn("Cannot mark MEASURED - workpiece not found: id=" + workpieceId);
