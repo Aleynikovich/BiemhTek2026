@@ -66,7 +66,7 @@ class RobotControlGUI:
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(3, weight=1)
 
-        ttk.Label(main_frame, text="KUKA LBR iiwa Robot Control", style='Title.TLabel').grid(row=0, column=0,
+        ttk.Label(main_frame, text="BIEMH 2026 Control Panel", style='Title.TLabel').grid(row=0, column=0,
                                                                                              pady=(0, 10),
                                                                                              sticky=(tk.W, tk.E))
         
