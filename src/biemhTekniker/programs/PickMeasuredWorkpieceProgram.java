@@ -12,6 +12,8 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
 
 import java.util.List;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+
 /**
  * Program to pick a measured workpiece from the SchunkBase location.
  * Sequence: Exit -> PickPlace (pick) -> Exit

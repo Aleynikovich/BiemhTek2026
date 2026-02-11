@@ -127,15 +127,4 @@ public class AppController implements ConsoleServerInterface
             homePositionManager.requestHomeMove();
         }
     }
-    
-    @Override
-    public String getWorkpiecesJson()
-    {
-        if (workpieceQueue == null)
-        {
-            return "[]";
-        }
-        
-        return workpieceQueue.getWorkpiecesJson();
-    }
 }

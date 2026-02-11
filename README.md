@@ -109,17 +109,15 @@ pick.prepick.offset.z=100
 src/biemhTekniker/
 ├── Main.java                      # Main application orchestrator
 ├── config/
-│   ├── ConfigManager.java         # Configuration loader (singleton)
-│   └── FrameRepository.java       # Centralized frame management (NEW)
+│   └── ConfigManager.java         # Configuration loader (singleton)
 ├── console/
 │   ├── ConsoleServer.java         # TCP/IP command server
 │   ├── ConsoleServerInterface.java
-│   ├── ConsoleCommandHandler.java # Command processor
-│   └── SimpleJSON.java            # Lightweight JSON parser
+│   └── ConsoleCommandHandler.java # Command processor
 ├── data/
-│   ├── WorkpieceData.java         # Single workpiece data (enhanced with gripper tracking)
+│   ├── WorkpieceData.java         # Single workpiece data
 │   ├── WorkpieceState.java        # Lifecycle state enum
-│   └── WorkpieceQueue.java        # Thread-safe queue (position-based tracking)
+│   └── WorkpieceQueue.java        # Thread-safe queue
 ├── logger/
 │   └── ...                        # Logging infrastructure
 ├── managers/
@@ -127,23 +125,20 @@ src/biemhTekniker/
 ├── programs/
 │   ├── RobotProgram.java          # Robot program interface
 │   ├── VisionTask.java            # Vision task interface
-│   ├── RobotContext.java          # Robot dependencies (includes FrameRepository)
+│   ├── RobotContext.java          # Robot dependencies
 │   ├── VisionContext.java         # Vision dependencies
 │   ├── ProgramDispatcher.java     # Program router (0-199)
-│   ├── MotionStrategy.java        # Motion execution strategy
 │   ├── Pick*.java                 # Pick programs
 │   ├── Place*.java                # Place programs
 │   ├── Calibration*.java          # Calibration programs
 │   ├── LoadReferencesTask.java    # Vision task implementations
-│   ├── FullScanTask.java          # Full scan with workpiece tracking
+│   ├── FullScanTask.java
 │   └── IndividualVisionCommandTask.java
-├── vision/
-│   ├── SmartPickingProtocol.java  # Camera protocol (flexible arguments)
-│   ├── SmartPickingThread.java    # Camera connection thread
-│   ├── VisionManager.java         # Vision task executor
-│   └── VisionSocketClient.java    # TCP socket client
-└── hmi/
-    └── HmiButtonHandler.java      # SmartPad buttons (refactored with template pattern)
+└── vision/
+    ├── SmartPickingProtocol.java  # Camera protocol (multi-ref support)
+    ├── SmartPickingThread.java    # Camera connection thread
+    ├── VisionManager.java         # Vision task executor
+    └── VisionSocketClient.java    # TCP socket client
 ```
 
 ## GUI Control
@@ -155,18 +150,12 @@ python3 gui/robot_control_gui.py
 ```
 
 Features:
-- **Tabbed Interface**:
-  - Robot Programs tab - Motion programs (1-6)
-  - Vision Commands tab - Vision tasks (100-111)
-  - Workpieces tab - Database viewer with gripper tracking
-  - Console tab - Real-time log output with filtering
 - Connect to robot console server
-- Execute robot programs and vision commands
-- Monitor workpiece queue with position and gripper location
+- Execute robot programs (1-6)
+- Execute vision commands (100-111)
 - View queue status
-- Real-time robot logs with level filtering
+- Monitor robot logs in real-time
 - Emergency stop (Program 0)
-- Cancel program and return home
 
 ## Development
 
@@ -193,23 +182,10 @@ Testing occurs on actual hardware or in Sunrise simulation environment. Unit tes
 ## Thread Safety
 
 Critical thread-safe components:
-- `WorkpieceQueue`: All methods `synchronized`, position-based tracking
-- `WorkpieceData`: All getters/setters `synchronized`, includes gripper location
+- `WorkpieceQueue`: All methods `synchronized`
+- `WorkpieceData`: All getters/setters `synchronized`
 - `programNumber` in Main: declared `volatile`
 - Vision tasks: Serialized through `VisionManager`
-
-## Recent Refactoring (2026)
-
-The codebase underwent comprehensive refactoring to improve maintainability and flexibility:
-
-### Key Improvements
-1. **Vision Protocol Enhancement**: Support for flexible subarguments (e.g., "4;1;2")
-2. **Workpiece Tracking**: Position-based tracking (±5mm tolerance) prevents duplicate workpieces
-3. **Frame Repository**: Centralized frame management separates station layout from business logic
-4. **HMI Refactoring**: Template pattern reduces code duplication by 37%
-5. **GUI Enhancement**: Tabbed interface with workpiece database viewer
-
-See [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) for detailed information.
 
 ## License
 

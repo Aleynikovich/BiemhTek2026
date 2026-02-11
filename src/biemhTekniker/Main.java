@@ -1,7 +1,6 @@
 package biemhTekniker;
 
 import biemhTekniker.config.ConfigManager;
-import biemhTekniker.config.FrameRepository;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.HomePositionException;
@@ -98,8 +97,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         smartPickingThread.start();
 
         // Initialize contexts
-        FrameRepository frameRepository = new FrameRepository(this);
-        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue, frameRepository);
+        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue);
         robotContext.setProtocol(smartPickingThread.getProtocol());
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
 
@@ -299,12 +297,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public void cancelCurrentProgram()
     {
         appController.cancelCurrentProgram();
-    }
-    
-    @Override
-    public String getWorkpiecesJson()
-    {
-        return appController.getWorkpiecesJson();
     }
 
 }

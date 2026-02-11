@@ -12,14 +12,6 @@ import java.util.List;
 public class WorkpieceQueue
 {
     private static final Logger log = Logger.getLogger(WorkpieceQueue.class);
-    
-    /**
-     * Position tolerance for workpiece matching in millimeters.
-     * Set to 5mm based on vision system accuracy and mechanical repeatability.
-     * Workpieces within this tolerance are considered to be at the same position.
-     */
-    private static final double POSITION_TOLERANCE_MM = 5.0;
-    
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
 
     /**
@@ -267,53 +259,6 @@ public class WorkpieceQueue
         }
         return sb.toString();
     }
-    
-    /**
-     * Returns workpiece data as JSON array string.
-     * Format: [{"id":1,"reference":1,"state":"AVAILABLE","gripper":"A","x":100.0,"y":200.0,"z":50.0,"score":0.95},...]
-     *
-     * @return JSON array string of workpiece data
-     */
-    public synchronized String getWorkpiecesJson()
-    {
-        if (workpieces.isEmpty())
-        {
-            return "[]";
-        }
-        
-        StringBuffer sb = new StringBuffer();
-        sb.append("[");
-        for (int i = 0; i < workpieces.size(); i++)
-        {
-            if (i > 0)
-            {
-                sb.append(",");
-            }
-            WorkpieceData wp = workpieces.get(i);
-            sb.append("{");
-            sb.append("\"id\":").append(wp.getId());
-            sb.append(",\"reference\":").append(wp.getReferenceIndex());
-            sb.append(",\"state\":\"").append(wp.getState()).append("\"");
-            
-            String gripperLoc = wp.getGripperLocation();
-            if (gripperLoc != null)
-            {
-                sb.append(",\"gripper\":\"").append(gripperLoc).append("\"");
-            } else
-            {
-                sb.append(",\"gripper\":null");
-            }
-            
-            sb.append(",\"x\":").append(wp.getX());
-            sb.append(",\"y\":").append(wp.getY());
-            sb.append(",\"z\":").append(wp.getZ());
-            sb.append(",\"rz\":").append(wp.getRz());
-            sb.append(",\"score\":").append(wp.getScore());
-            sb.append("}");
-        }
-        sb.append("]");
-        return sb.toString();
-    }
 
     /**
      * Finds a workpiece by ID.
@@ -332,72 +277,5 @@ public class WorkpieceQueue
             }
         }
         return null;
-    }
-
-    /**
-     * Finds an existing workpiece at the given position (within ±5mm tolerance).
-     * Used for tracking workpieces across scans to avoid creating duplicates.
-     *
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @param z Z coordinate
-     * @param referenceIndex Reference index to match
-     * @return Existing workpiece if found, null otherwise
-     */
-    public synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
-    {
-        for (int i = 0; i < workpieces.size(); i++)
-        {
-            WorkpieceData wp = workpieces.get(i);
-            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, POSITION_TOLERANCE_MM))
-            {
-                log.debug("Found existing workpiece at position: id=" + wp.getId());
-                return wp;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Adds or updates a workpiece. If a workpiece exists at the same position
-     * with the same reference, updates it instead of creating a new one.
-     *
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @param z Z coordinate
-     * @param rx Rotation X
-     * @param ry Rotation Y
-     * @param rz Rotation Z
-     * @param score Vision score
-     * @param referenceIndex Reference index
-     * @return The workpiece (existing or new)
-     */
-    public synchronized WorkpieceData addOrUpdateWorkpiece(double x, double y, double z, double rx, double ry, double rz, double score, int referenceIndex)
-    {
-        // Try to find existing workpiece at this position
-        WorkpieceData existing = findAtPosition(x, y, z, referenceIndex);
-
-        if (existing != null)
-        {
-            // Update existing workpiece if it's been returned or is still available
-            if (existing.getState() == WorkpieceState.RETURNED || existing.getState() == WorkpieceState.AVAILABLE)
-            {
-                existing.set(x, y, z, rx, ry, rz, score);
-                existing.setState(WorkpieceState.AVAILABLE);
-                log.info("Updated existing workpiece: id=" + existing.getId() + ", ref=" + referenceIndex + ", score=" + score);
-                return existing;
-            } else
-            {
-                // Workpiece is in use (PICKED, MEASURING, MEASURED) - create new one
-                log.debug("Workpiece at position is in use (state=" + existing.getState() + "), creating new entry");
-            }
-        }
-
-        // No existing workpiece found or existing one is in use - create new
-        WorkpieceData wp = new WorkpieceData(x, y, z, rx, ry, rz, score);
-        wp.setReferenceIndex(referenceIndex);
-        workpieces.add(wp);
-        log.debug("Added new workpiece to queue: id=" + wp.getId() + ", ref=" + referenceIndex + ", score=" + score);
-        return wp;
     }
 }

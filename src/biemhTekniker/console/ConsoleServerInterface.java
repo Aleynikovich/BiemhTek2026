@@ -53,11 +53,4 @@ public interface ConsoleServerInterface
      * Does not open grippers to preserve any held workpiece.
      */
     void cancelCurrentProgram();
-    
-    /**
-     * Get the workpiece queue data as JSON string.
-     *
-     * @return JSON array of workpiece data
-     */
-    String getWorkpiecesJson();
 }

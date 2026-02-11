@@ -12,6 +12,9 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
 
 import java.util.List;
 
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+
 /**
  * Program to place a new workpiece at a predefined location.
  * Always picks measured workpiece with Gripper B first (ignoring part presence),
