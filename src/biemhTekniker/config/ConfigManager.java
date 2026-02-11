@@ -15,7 +15,7 @@ public class ConfigManager
 {
     private static final Logger log = Logger.getLogger(ConfigManager.class);
     private static final String CONFIG_PATH = "C:\\KRC\\Projects\\BiemhTek2026\\configs";
-    private static ConfigManager instance;
+    private static volatile ConfigManager instance;
     private final Properties properties;
 
     /**
@@ -28,15 +28,24 @@ public class ConfigManager
     }
 
     /**
-     * Gets the singleton instance.
+     * Gets the singleton instance using double-checked locking for performance.
+     * Thread-safe and efficient after initialization.
      *
      * @return ConfigManager instance
      */
-    public static synchronized ConfigManager getInstance()
+    public static ConfigManager getInstance()
     {
+        // First check without synchronization for performance
         if (instance == null)
         {
-            instance = new ConfigManager();
+            synchronized (ConfigManager.class)
+            {
+                // Second check with synchronization to prevent double initialization
+                if (instance == null)
+                {
+                    instance = new ConfigManager();
+                }
+            }
         }
         return instance;
     }

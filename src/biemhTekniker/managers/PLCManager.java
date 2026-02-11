@@ -128,7 +128,10 @@ public class PLCManager
                 return 0;
             }
         }
-        return plcProgram;
+
+        // Should not reach here as isValid() check covers all cases, but return 0 as safety
+        log.warn("Unexpected program number state: " + plcProgram);
+        return 0;
     }
 
     /**
@@ -150,15 +153,18 @@ public class PLCManager
 
     /**
      * Signals a program execution error to the PLC.
+     * Currently logs the error as PLC error signals are reserved by station state.
+     * Error outputs (DefaultAppError, StationError) cannot be set programmatically.
      *
      * @param programNumber Program number that failed
      */
     public void signalProgramError(int programNumber)
     {
-        log.error("Signaling program error to PLC for program: " + programNumber);
-        // Set error flag to PLC (assuming there's an error output available)
-        // This would need to be mapped to actual PLC I/O
-        // For now, just log the error
-        // TODO: Add actual PLC error signaling once I/O is configured
+        log.error("Program execution error for program: " + programNumber);
+        // Note: DefaultAppError and StationError outputs are reserved by Sunrise station state
+        // and cannot be set programmatically (OutputReservedException would be thrown).
+        // The PLC can monitor CurrentProgramNumber remaining non-zero for extended periods
+        // or implement a timeout mechanism to detect failures.
+        // Alternative: Use a dedicated non-reserved output for error signaling if configured.
     }
 }

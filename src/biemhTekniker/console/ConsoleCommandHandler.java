@@ -72,7 +72,22 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
+            // Validate command is not empty
+            if (command == null || command.trim().isEmpty())
+            {
+                sendError("Empty command received");
+                return;
+            }
+            
             SimpleJSON json = new SimpleJSON(command);
+            
+            // Validate type field exists
+            if (!json.has("type"))
+            {
+                sendError("Missing required 'type' field in command");
+                return;
+            }
+            
             String type = json.getString("type", "unknown");
 
             if ("set_program".equals(type))
@@ -104,10 +119,14 @@ public class ConsoleCommandHandler implements Runnable
                 sendError("Unknown command type: " + type);
             }
 
+        } catch (IllegalArgumentException e)
+        {
+            log.error("JSON validation error: " + e.getMessage());
+            sendError("Invalid JSON format: " + e.getMessage());
         } catch (Exception e)
         {
             log.error("Command handling error: " + e.getMessage(), e);
-            sendError("Invalid command format: " + e.getMessage());
+            sendError("Command processing error: " + e.getMessage());
         }
     }
 
@@ -115,6 +134,14 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
+            // Validate program field exists
+            if (!json.has("program"))
+            {
+                sendError("Missing required 'program' field");
+                log.warn("set_program command missing program field");
+                return;
+            }
+            
             int programNumber = json.getInt("program", -1);
             log.debug("handleSetProgram called with program: " + programNumber);
 
@@ -222,6 +249,14 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
+            // Validate level field exists
+            if (!json.has("level"))
+            {
+                sendError("Missing required 'level' field");
+                log.warn("set_log_level command missing level field");
+                return;
+            }
+            
             String levelStr = json.getString("level", "DEBUG");
             log.info("handleSetLogLevel called with level: " + levelStr);
 
@@ -231,7 +266,7 @@ public class ConsoleCommandHandler implements Runnable
                 level = LogLevel.valueOf(levelStr.toUpperCase());
             } catch (IllegalArgumentException e)
             {
-                sendError("Invalid log level: " + levelStr);
+                sendError("Invalid log level: " + levelStr + " (valid: DEBUG, INFO, WARN, ERROR)");
                 return;
             }
 
