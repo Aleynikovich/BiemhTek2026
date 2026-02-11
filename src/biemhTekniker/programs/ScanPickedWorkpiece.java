@@ -104,7 +104,7 @@ public class ScanPickedWorkpiece implements VisionTask
         
         log.info("Vision scan result: " + refWithOrientationInt + 
                  " (vision orientation=" + visionOrientation + ", robot orientation=" + robotOrientation + 
-                 (robotOrientation == 0 ? " [REGULAR]" : " [180° ROTATION]") + ")");
+                 (robotOrientation == 0 ? " [REGULAR]" : " [180deg ROTATION]") + ")");
         
         log.info("Workpiece orientation scan completed - keeping robot-determined orientation");
     }

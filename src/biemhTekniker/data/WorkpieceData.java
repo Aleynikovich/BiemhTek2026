@@ -277,7 +277,7 @@ public class WorkpieceData
             return "WorkpieceData{id=" + id + ", invalid}";
         }
         String gripperStr = (gripperLocation != null) ? ", gripper=" + gripperLocation : "";
-        return String.format("WorkpieceData{id=%d, ref=%s (refIdx=%d, ori=%d)%s, state=%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", 
-            id, getReferenceString(), referenceIndex, orientation, gripperStr, state, x, y, z, rx, ry, rz, score);
+        return String.format("WorkpieceData{id=%d, state=%s, ref=%s (idx=%d, ori=%d)%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", 
+            id, state, getReferenceString(), referenceIndex, orientation, gripperStr, x, y, z, rx, ry, rz, score);
     }
 }
