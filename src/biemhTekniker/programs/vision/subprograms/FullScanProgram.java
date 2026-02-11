@@ -26,7 +26,7 @@ public class FullScanProgram implements VisionProgram
         log.info("Starting full scan sequence...");
 
         SmartPickingProtocol protocol = context.getProtocol();
-        WorkpieceQueue queue = context.getWorkpieceQueue();
+        final WorkpieceQueue queue = context.getWorkpieceQueue();
         ConfigManager config = ConfigManager.getInstance();
 
         int referenceCount = config.getInt("vision.reference.count", 3);
