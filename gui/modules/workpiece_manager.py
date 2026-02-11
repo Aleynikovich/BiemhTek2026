@@ -51,13 +51,22 @@ class WorkpieceManager:
             self.gripper_panel.update_grippers(in_grippers)
 
     def _update_tree(self, workpieces):
+        # Preserve current selection during refresh
+        selected_items = self.tree.selection()
+        selected_short_id = None
+        if selected_items:
+            # Get the short ID (first column) of the selected item
+            selected_short_id = self.tree.item(selected_items[0])['values'][0]
+        
         self.tree.delete(*self.tree.get_children())
+        item_to_select = None
         for wp in workpieces:
             orientation = wp.get('orientation', 0)
             ori_symbol = "→" if orientation == 0 else "↻"
             ref_str = wp.get('referenceString', str(wp.get('reference', 'N/A')))
-            self.tree.insert('', 'end', values=(
-                str(wp.get('id', 'N/A'))[-8:],
+            short_id = str(wp.get('id', 'N/A'))[-8:]
+            item_id = self.tree.insert('', 'end', values=(
+                short_id,
                 ref_str,
                 ori_symbol,
                 wp.get('state', 'N/A'),
@@ -70,6 +79,14 @@ class WorkpieceManager:
                 f"{wp.get('rz', 0):.1f}",
                 f"{wp.get('score', 0):.2f}"
             ))
+            # Track item to re-select if it matches the previously selected short ID
+            if selected_short_id and short_id == selected_short_id:
+                item_to_select = item_id
+        
+        # Restore selection if the item still exists
+        if item_to_select:
+            self.tree.selection_set(item_to_select)
+            self.tree.see(item_to_select)
 
     def find_workpiece_by_short_id(self, short_id):
         short_id = str(short_id)
