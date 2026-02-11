@@ -1,6 +1,7 @@
 package biemhTekniker;
 
 import biemhTekniker.config.ConfigManager;
+import biemhTekniker.config.FrameRepository;
 import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.HomePositionException;
@@ -9,7 +10,8 @@ import biemhTekniker.managers.AppController;
 import biemhTekniker.managers.HomePositionManager;
 import biemhTekniker.managers.LoggingManager;
 import biemhTekniker.managers.PLCManager;
-import biemhTekniker.programs.ProgramDispatcher;
+import biemhTekniker.programs.RobotDispatcher;
+import biemhTekniker.programs.VisionDispatcher;
 import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.programs.RobotContext;
 import biemhTekniker.programs.VisionContext;
@@ -28,7 +30,7 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
  * Main robot application.
- * Thin orchestrator that manages program execution via ProgramDispatcher.
+ * Thin orchestrator that manages program execution via RobotDispatcher and VisionDispatcher.
  * Implements ConsoleServerInterface for GUI control.
  */
 public class Main extends RoboticsAPIApplication implements ConsoleServerInterface
@@ -65,7 +67,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
     // Shared data and dispatching
     private WorkpieceQueue workpieceQueue;
-    private ProgramDispatcher programDispatcher;
+    private RobotDispatcher robotDispatcher;
+    private VisionDispatcher visionDispatcher;
     private RobotContext robotContext;
     private VisionContext visionContext;
 
@@ -97,7 +100,8 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         smartPickingThread.start();
 
         // Initialize contexts
-        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue);
+        FrameRepository frameRepository = new FrameRepository(this);
+        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue, frameRepository);
         robotContext.setProtocol(smartPickingThread.getProtocol());
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
 
@@ -105,19 +109,22 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         VisionManager visionManager = new VisionManager(smartPickingThread, visionContext);
         visionManager.initialize();
 
-        // Initialize program dispatcher and register programs
-        programDispatcher = new ProgramDispatcher(robotContext, visionManager);
-        programDispatcher.registerDefaultPrograms(smartPickingThread);
+        // Initialize dispatchers
+        robotDispatcher = new RobotDispatcher(robotContext);
+        robotDispatcher.registerRobotPrograms(smartPickingThread);
+
+        visionDispatcher = new VisionDispatcher(visionManager);
+        visionDispatcher.registerVisionTasks();
 
         // Initialize PLC manager
-        plcManager = new PLCManager(AutExtIO, visionIO, programDispatcher, smartPickingThread, workpieceQueue);
+        plcManager = new PLCManager(AutExtIO, visionIO, robotDispatcher, visionDispatcher, smartPickingThread, workpieceQueue);
 
         // Initialize home position manager
         homePositionManager = new HomePositionManager();
 
         // Initialize app controller
         int consolePort = config.getInt("console.server.port", 30001);
-        appController = new AppController(visionManager, workpieceQueue, robotContext, homePositionManager, consolePort);
+        appController = new AppController(visionManager, visionDispatcher, workpieceQueue, robotContext, homePositionManager, consolePort);
         appController.initialize();
 
         // Set robot control parameters
@@ -157,7 +164,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             }
 
             int currentProgram = programNumber;
-            boolean isVisionRunning = programDispatcher.isVisionTaskRunning();
+            boolean isVisionRunning = visionDispatcher.isBusy();
 
             // Check if home position move should be executed
             if (homePositionManager.shouldMoveHome(currentProgram, isVisionRunning))
@@ -176,10 +183,19 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 // Clear cancellation flag before starting new program
                 robotContext.clearCancellation();
                 
-                // Dispatch program
+                // Dispatch program to appropriate dispatcher
                 log.info("Starting execution of Program " + currentProgram);
                 boolean isVisionProgram = ProgramRange.isVisionProgram(currentProgram);
-                boolean success = programDispatcher.dispatch(currentProgram);
+                boolean success = false;
+
+                if (isVisionProgram)
+                {
+                    success = visionDispatcher.dispatch(currentProgram);
+                }
+                else if (ProgramRange.isRobotProgram(currentProgram))
+                {
+                    success = robotDispatcher.dispatch(currentProgram);
+                }
 
                 if (success)
                 {
@@ -222,9 +238,9 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         }
 
         // Shutdown vision manager and threads
-        if (programDispatcher != null && programDispatcher.getVisionManager() != null)
+        if (visionDispatcher != null && visionDispatcher.getVisionManager() != null)
         {
-            programDispatcher.getVisionManager().shutdown();
+            visionDispatcher.getVisionManager().shutdown();
         }
 
         // Shutdown SmartPicking thread
@@ -297,6 +313,12 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public void cancelCurrentProgram()
     {
         appController.cancelCurrentProgram();
+    }
+    
+    @Override
+    public String getWorkpiecesJson()
+    {
+        return appController.getWorkpiecesJson();
     }
 
 }
