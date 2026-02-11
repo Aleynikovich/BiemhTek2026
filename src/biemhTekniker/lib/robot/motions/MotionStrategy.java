@@ -1,4 +1,4 @@
-package biemhTekniker.lib.motions;
+package biemhTekniker.lib.robot.motions;
 
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.programs.robot.RobotContext;

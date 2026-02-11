@@ -4,64 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="remove bin">
-      <change afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/motions/MotionStrategy.java" afterDir="false" />
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="move home after initialization and main">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PROJECT.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/config/ConfigManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/config/ConfigManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/config/FrameRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/config/FrameRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/config/ImpedanceConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/config/ImpedanceConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleCommandHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleCommandHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/data/WorkpieceData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/data/WorkpieceQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceQueue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/data/WorkpieceState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/exceptions/HomePositionException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/exceptions/HomePositionException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/exceptions/ProgramCancelledException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/exceptions/ProgramCancelledException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/exceptions/RobotProgramException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/exceptions/RobotProgramException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/exceptions/VisionTaskException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/exceptions/VisionTaskException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/hmi/HmiButtonHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/HmiButtonHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/hmi/HmiButtonsBackgroundHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/HmiButtonsBackgroundHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/iopolling/CartesianPositionPolling.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/iopolling/CartesianPositionPolling.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/iopolling/RobotSafetyPolling.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/iopolling/RobotSafetyPolling.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/iopolling/RobotStatePolling.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/iopolling/RobotStatePolling.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/ILogListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/ILogListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/LogCollector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/LogCollector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/LogEntry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/LogEntry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/LogLevel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/LogLevel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/LogManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/LogManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/LogPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/LogPublisher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/Logger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/logger/NetworkListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/logger/NetworkListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/managers/AppController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/managers/HomePositionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/HomePositionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/managers/LoggingManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/LoggingManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/managers/PLCManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/PLCManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/CalibrationProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/CalibrationProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/FullScanTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/FullScanProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/IndividualVisionCommandTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/IndividualVisionCommandProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/LoadReferencesTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/LoadReferencesProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/MotionStrategy.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/MotionStrategyGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/motions/MotionStrategyGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/PickMeasuredWorkpieceProgram.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/PickStrategy.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/PlaceMeasuredWorkpieceProgram.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/RobotContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotContext.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/RobotDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotDispatcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/RobotProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/RobotProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/ScanPickedWorkpiece.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/TestCalibrationProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/TestCalibrationProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/VisionContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/VisionContext.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/VisionDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/VisionDispatcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/VisionTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/vision/VisionProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/vision/SmartPickingProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/vision/SmartPickingProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/vision/SmartPickingThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/vision/SmartPickingThread.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/vision/VisionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/vision/VisionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/vision/VisionRoutines.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/vision/VisionRoutines.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/vision/VisionSocketClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/vision/VisionSocketClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/configs/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/motions/MotionStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/motions/MotionStrategyGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategyGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +18,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="239" />
+    <option name="cachedIndexableFilesCount" value="292" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -187,7 +136,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "com.android.studio.ml.bot.mainConfigurable",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -271,7 +220,8 @@
       <workItem from="1770741767509" duration="99000" />
       <workItem from="1770741875474" duration="2475000" />
       <workItem from="1770746329533" duration="15221000" />
-      <workItem from="1770835674469" duration="4912000" />
+      <workItem from="1770835674469" duration="5147000" />
+      <workItem from="1770840868530" duration="1031000" />
     </task>
     <task id="LOCAL-00001" summary="update project">
       <option name="closed" value="true" />
@@ -449,7 +399,23 @@
       <option name="project" value="LOCAL" />
       <updated>1770837221717</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="turbo refactor">
+      <option name="closed" value="true" />
+      <created>1770840676769</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1770840676769</updated>
+    </task>
+    <task id="LOCAL-00024" summary="move home after initialization and main">
+      <option name="closed" value="true" />
+      <created>1770840814203</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1770840814203</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -477,7 +443,9 @@
     <MESSAGE value="add background hmi buttons handler" />
     <MESSAGE value="fix place new" />
     <MESSAGE value="remove bin" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove bin" />
+    <MESSAGE value="turbo refactor" />
+    <MESSAGE value="move home after initialization and main" />
+    <option name="LAST_COMMIT_MESSAGE" value="move home after initialization and main" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

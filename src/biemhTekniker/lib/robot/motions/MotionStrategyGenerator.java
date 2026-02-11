@@ -1,4 +1,4 @@
-package biemhTekniker.lib.motions;
+package biemhTekniker.lib.robot.motions;
 
 import biemhTekniker.lib.config.ConfigManager;
 import biemhTekniker.lib.config.ImpedanceConfig;
@@ -21,6 +21,8 @@ public class MotionStrategyGenerator
     private static volatile double[] cachedRedundancyOffsets = null;
     private static volatile double[] cachedZRotationAngles = null;
     private static volatile ImpedanceConfig impedanceConfig = null;
+    private static volatile CartesianImpedanceControlMode cachedImpedanceMode = null;
+    private static boolean impedanceModeInitialized = false;
 
     /**
      * Loads redundancy offsets from configuration.
@@ -72,8 +74,7 @@ public class MotionStrategyGenerator
             {
                 Logger.getLogger(MotionStrategyGenerator.class).error("Invalid Z-rotation angles in configuration: " + anglesStr + ", using defaults");
                 // Fallback to defaults
-                // Load default 90 for testing purposes
-                cachedZRotationAngles = new double[]{90, Math.toRadians(45), Math.toRadians(0), Math.toRadians(135), Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)};
+                cachedZRotationAngles = new double[]{Math.toRadians(90), Math.toRadians(45), Math.toRadians(0), Math.toRadians(135), Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)};
             }
         }
         return cachedZRotationAngles;
@@ -95,12 +96,18 @@ public class MotionStrategyGenerator
 
     /**
      * Gets the impedance control mode if enabled in configuration.
+     * Caches the instance to avoid redundant object creation.
      *
      * @return CartesianImpedanceControlMode or null if disabled
      */
-    private static CartesianImpedanceControlMode getImpedanceMode()
+    private static synchronized CartesianImpedanceControlMode getImpedanceMode()
     {
-        return getImpedanceConfig().createControlMode();
+        if (!impedanceModeInitialized)
+        {
+            cachedImpedanceMode = getImpedanceConfig().createControlMode();
+            impedanceModeInitialized = true;
+        }
+        return cachedImpedanceMode;
     }
 
     /**
@@ -131,7 +138,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
-        List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        List<MotionStrategy> strategies = new ArrayList<>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
@@ -237,12 +244,12 @@ public class MotionStrategyGenerator
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
-     * @param tcp                       Tool center point frame to use
-     * @param robot                     Robot instance for redundancy support
-     * @param redundancyOffsets         Array of E1 offsets in radians to try
-     * @param zRotationAngles           Array of Z-axis rotation angles in radians to try
-     * @param allowConfigurationChange  If true, tries all combinations of rotations and offsets.
-     *                                  If false, only tries the first rotation angle and default redundancy.
+     * @param tcp                      Tool center point frame to use
+     * @param robot                    Robot instance for redundancy support
+     * @param redundancyOffsets        Array of E1 offsets in radians to try
+     * @param zRotationAngles          Array of Z-axis rotation angles in radians to try
+     * @param allowConfigurationChange If true, tries all combinations of rotations and offsets.
+     *                                 If false, only tries the first rotation angle and default redundancy.
      * @return List of motion strategies in priority order
      */
     public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, double[] zRotationAngles, boolean allowConfigurationChange)
