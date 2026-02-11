@@ -4,7 +4,99 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="fix place new" />
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="fix place new">
+      <changelist_data name="Alex Kalis" email="alex.kalis@outlook.com" automatic="false" />
+      <change beforePath="$PROJECT_DIR$/bin/RoboticsAPI.config.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/RoboticsAPI.data.ProcessDataExample.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/RoboticsAPI.data.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$5.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$6.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$7.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling$AxisSetter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/AxisPositionPolling.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/CartesianPositionPolling.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/RobotSafetyPolling.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/IOPolling/RobotStatePolling.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/config/ConfigManager$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/config/ConfigManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/config/FrameRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/config/ImpedanceConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/console/ConsoleCommandHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/console/ConsoleServer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/console/ConsoleServerInterface.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/console/SimpleJSON.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/data/WorkpieceData.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/data/WorkpieceQueue.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/data/WorkpieceState.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/exceptions/HomePositionException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/exceptions/ProgramCancelledException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/exceptions/RobotProgramException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/exceptions/VisionTaskException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/hmi/HmiButtonHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/hmi/HmiButtonsBackgroundHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/ILogListener.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/LogCollector.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/LogEntry.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/LogLevel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/LogManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/LogPublisher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/Logger.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/logger/NetworkListener.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/managers/AppController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/managers/HomePositionManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/managers/LoggingManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/managers/PLCManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/CalibrationProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/FullScanTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/GetNewWorkpiecePositionProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/IndividualVisionCommandTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/LoadReferencesTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/MotionStrategy$MotionAction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/MotionStrategy.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/MotionStrategyGenerator.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickMeasuredWorkpieceProgram$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickMeasuredWorkpieceProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickNewWorkpieceProgram$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickNewWorkpieceProgram$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickNewWorkpieceProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickStrategy$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PickStrategy.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PlaceMeasuredWorkpieceProgram$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PlaceMeasuredWorkpieceProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PlaceNewWorkpieceProgram$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PlaceNewWorkpieceProgram$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/PlaceNewWorkpieceProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/ProgramDispatcher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/ProgramRange.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/RobotContext.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/RobotDispatcher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/RobotProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/ScanPickedWorkpiece.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/TestCalibrationProgram.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/VisionContext.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/VisionDispatcher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/VisionTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/SmartPickingProtocol$Command.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/SmartPickingProtocol$VisionResult.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/SmartPickingProtocol.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/SmartPickingThread.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/VisionManager$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/VisionManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/VisionRoutines.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/vision/VisionSocketClient.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/AutExtIOGroup.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/MediaFlangeIOGroup.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/RobotCartesianPositionIOGroup.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/RobotJointPositionIOGroup.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/RobotSafetyIOGroup.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/RobotStateIOGroup.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/com/kuka/generated/ioAccess/VisionStateIOGroup.class" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,6 +114,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Alex Kalis &lt;alex.kalis@outlook.com&gt;" />
+      </list>
+    </option>
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -208,7 +305,7 @@
       <workItem from="1770741767509" duration="99000" />
       <workItem from="1770741875474" duration="2475000" />
       <workItem from="1770746329533" duration="15221000" />
-      <workItem from="1770835674469" duration="1228000" />
+      <workItem from="1770835674469" duration="1535000" />
     </task>
     <task id="LOCAL-00001" summary="update project">
       <option name="closed" value="true" />
@@ -370,7 +467,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770767635265</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770837016879</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1770837016879</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -388,6 +493,9 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="update project" />
     <MESSAGE value="refactor: Update program" />
     <MESSAGE value="add hmi buttons" />
@@ -395,6 +503,10 @@
     <MESSAGE value="add background hmi buttons handler" />
     <MESSAGE value="fix place new" />
     <option name="LAST_COMMIT_MESSAGE" value="fix place new" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="GROUP_MULTIFILE_MERGE_BY_DIRECTORY" value="true" />
+    <option name="NON_MODAL_COMMIT_POSTPONE_SLOW_CHECKS" value="false" />
   </component>
 </project>
