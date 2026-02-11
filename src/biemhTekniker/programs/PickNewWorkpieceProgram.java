@@ -14,7 +14,6 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
-import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import java.util.List;
 
@@ -202,10 +201,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Move to scan position with cancellable motion
-        IMotionContainer finalMotion = tcpA.moveAsync(ptp(scanWorkpieceFrame));
-        context.setActiveMotion(finalMotion);
-        finalMotion.await();
-        context.setActiveMotion(null);
+        tcpA.move(ptp(scanWorkpieceFrame));
         
         // Robot is now at scan position - capture image with camera
         // This blocks the robot at the scan position until camera completes capture
