@@ -114,6 +114,12 @@ public class ConsoleCommandHandler implements Runnable
             } else if ("get_log_level".equals(type))
             {
                 handleGetLogLevel();
+            } else if ("clear_queue".equals(type))
+            {
+                handleClearQueue();
+            } else if ("delete_workpiece".equals(type))
+            {
+                handleDeleteWorkpiece(json);
             } else
             {
                 sendError("Unknown command type: " + type);
@@ -310,6 +316,58 @@ public class ConsoleCommandHandler implements Runnable
         {
             log.error("Error in handleGetLogLevel: " + e.getMessage(), e);
             sendError("Error getting log level: " + e.getMessage());
+        }
+    }
+    
+    private void handleClearQueue()
+    {
+        try
+        {
+            log.info("handleClearQueue called");
+            serverInterface.clearWorkpieceQueue();
+            sendResponse("response", "Workpiece queue cleared successfully", true);
+            log.info("Workpiece queue cleared successfully");
+        } catch (Exception e)
+        {
+            log.error("Error in handleClearQueue: " + e.getMessage(), e);
+            sendError("Error clearing queue: " + e.getMessage());
+        }
+    }
+    
+    private void handleDeleteWorkpiece(SimpleJSON json)
+    {
+        try
+        {
+            // Validate id field exists
+            if (!json.has("id"))
+            {
+                sendError("Missing required 'id' field");
+                log.warn("delete_workpiece command missing id field");
+                return;
+            }
+            
+            long workpieceId = json.getLong("id", -1);
+            log.info("handleDeleteWorkpiece called with id: " + workpieceId);
+            
+            if (workpieceId < 0)
+            {
+                sendError("Invalid workpiece ID: " + workpieceId);
+                return;
+            }
+            
+            boolean removed = serverInterface.removeWorkpiece(workpieceId);
+            if (removed)
+            {
+                sendResponse("response", "Workpiece " + workpieceId + " deleted successfully", true);
+                log.info("Workpiece deleted successfully: " + workpieceId);
+            } else
+            {
+                sendError("Workpiece not found: " + workpieceId);
+            }
+        } catch (Exception e)
+        {
+            log.error("Error in handleDeleteWorkpiece: " + e.getMessage(), e);
+            sendError("Error deleting workpiece: " + e.getMessage());
         }
     }
 

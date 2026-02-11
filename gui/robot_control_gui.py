@@ -259,7 +259,7 @@ class RobotControlGUI:
         hsb = ttk.Scrollbar(tree_frame, orient="horizontal")
         
         # Treeview
-        columns = ("ID", "Ref", "State", "Gripper", "X", "Y", "Z", "Score")
+        columns = ("ID", "Ref", "Ori", "State", "Gripper", "X", "Y", "Z", "Rx", "Ry", "Rz", "Score")
         self.workpiece_tree = ttk.Treeview(tree_frame, columns=columns, show='headings',
                                            yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         
@@ -269,21 +269,29 @@ class RobotControlGUI:
         # Column headings
         self.workpiece_tree.heading("ID", text="ID")
         self.workpiece_tree.heading("Ref", text="Ref")
+        self.workpiece_tree.heading("Ori", text="Ori")
         self.workpiece_tree.heading("State", text="State")
         self.workpiece_tree.heading("Gripper", text="Gripper")
         self.workpiece_tree.heading("X", text="X (mm)")
         self.workpiece_tree.heading("Y", text="Y (mm)")
         self.workpiece_tree.heading("Z", text="Z (mm)")
+        self.workpiece_tree.heading("Rx", text="Rx (deg)")
+        self.workpiece_tree.heading("Ry", text="Ry (deg)")
+        self.workpiece_tree.heading("Rz", text="Rz (deg)")
         self.workpiece_tree.heading("Score", text="Score")
         
         # Column widths
-        self.workpiece_tree.column("ID", width=60)
-        self.workpiece_tree.column("Ref", width=30)
+        self.workpiece_tree.column("ID", width=80)
+        self.workpiece_tree.column("Ref", width=40)
+        self.workpiece_tree.column("Ori", width=35)
         self.workpiece_tree.column("State", width=80)
         self.workpiece_tree.column("Gripper", width=50)
-        self.workpiece_tree.column("X", width=60)
-        self.workpiece_tree.column("Y", width=60)
-        self.workpiece_tree.column("Z", width=60)
+        self.workpiece_tree.column("X", width=55)
+        self.workpiece_tree.column("Y", width=55)
+        self.workpiece_tree.column("Z", width=55)
+        self.workpiece_tree.column("Rx", width=55)
+        self.workpiece_tree.column("Ry", width=55)
+        self.workpiece_tree.column("Rz", width=55)
         self.workpiece_tree.column("Score", width=50)
         
         self.workpiece_tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -312,15 +320,19 @@ class RobotControlGUI:
         
         ttk.Button(button_frame, text="Refresh Workpieces", 
                   command=self.refresh_workpieces,
-                  width=20).grid(row=0, column=0, padx=3, pady=3)
+                  width=18).grid(row=0, column=0, padx=3, pady=3)
         
         ttk.Button(button_frame, text="Get Queue Status", 
                   command=self.get_queue_status,
-                  width=20).grid(row=0, column=1, padx=3, pady=3)
+                  width=18).grid(row=0, column=1, padx=3, pady=3)
         
         ttk.Button(button_frame, text="Clear Queue", 
                   command=self.clear_workpiece_queue,
-                  width=20).grid(row=0, column=2, padx=3, pady=3)
+                  width=18).grid(row=0, column=2, padx=3, pady=3)
+        
+        ttk.Button(button_frame, text="Delete Selected", 
+                  command=self.delete_selected_workpiece,
+                  width=18).grid(row=0, column=3, padx=3, pady=3)
     
     def draw_grid(self):
         """Draw grid on workpiece visualization canvas"""
@@ -436,6 +448,31 @@ class RobotControlGUI:
                                  width=outline_width,
                                  tags='workpiece')
             
+            # Draw orientation arrow (X+ tool axis direction)
+            # Arrow shows the direction of the gripper's X+ axis based on orientation
+            orientation = wp.get('orientation', 0)
+            rx = float(wp.get('rx', 0))  # A rotation (around X)
+            ry = float(wp.get('ry', 0))  # B rotation (around Y)
+            
+            # Calculate arrow direction based on rz and orientation
+            # Orientation 0 (regular): arrow points along workpiece length
+            # Orientation 1 (180deg): arrow points opposite direction
+            arrow_length = wp_length / 2
+            arrow_angle_deg = -rz + (180 if orientation == 1 else 0)
+            arrow_angle_rad = math.radians(arrow_angle_deg)
+            
+            # Arrow start and end points
+            arrow_dx = arrow_length * math.cos(arrow_angle_rad)
+            arrow_dy = arrow_length * math.sin(arrow_angle_rad)
+            
+            # Draw arrow showing X+ tool axis
+            canvas.create_line(canvas_x, canvas_y,
+                             canvas_x + arrow_dx, canvas_y + arrow_dy,
+                             arrow=tk.LAST,
+                             fill='yellow',
+                             width=2,
+                             tags='workpiece')
+            
             # Draw revolution circle (projection on plane)
             revolution_radius = wp_length/2 + wp_width/4
             canvas.create_oval(canvas_x - revolution_radius, 
@@ -542,8 +579,43 @@ class RobotControlGUI:
         """Clear the workpiece queue on the robot"""
         if messagebox.askyesno("Clear Queue", "Are you sure you want to clear the workpiece queue?"):
             if self.send_command({'type': 'clear_queue'}):
-                self.log_console("Clearing workpiece queue...", 'warning')
+                self.log_console("Workpiece queue cleared", 'info')
                 self.workpiece_tree.delete(*self.workpiece_tree.get_children())
+    
+    def delete_selected_workpiece(self):
+        """Delete the selected workpiece from the queue"""
+        selection = self.workpiece_tree.selection()
+        if not selection:
+            messagebox.showwarning("No Selection", "Please select a workpiece to delete")
+            return
+        
+        # Get the selected item values
+        item = self.workpiece_tree.item(selection[0])
+        values = item['values']
+        if not values:
+            return
+        
+        # Extract ID from the first column (may be truncated, need to get from stored data)
+        # We need to find the workpiece by matching position or storing full IDs
+        # For now, let's refresh workpieces and find by matching other fields
+        workpiece_id_str = str(values[0])
+        
+        # Ask for confirmation
+        if messagebox.askyesno("Delete Workpiece", 
+                              f"Are you sure you want to delete workpiece ID ending in {workpiece_id_str}?"):
+            # We need to find the full ID - let's store it in the tree
+            # For now, try to extract from the last data we received
+            if hasattr(self, 'last_workpieces_data'):
+                for wp in self.last_workpieces_data:
+                    wp_id_str = str(wp.get('id', ''))
+                    if wp_id_str.endswith(workpiece_id_str) or wp_id_str == workpiece_id_str:
+                        if self.send_command({'type': 'delete_workpiece', 'id': wp.get('id')}):
+                            self.log_console(f"Deleting workpiece ID {wp.get('id')}", 'info')
+                            # Refresh to update display
+                            self.refresh_workpieces()
+                        return
+            
+            messagebox.showerror("Error", "Could not find full workpiece ID. Please refresh and try again.")
         
     def log_console(self, message, level='info'):
         """Add message to console with timestamp, filtered by log level"""
@@ -808,19 +880,33 @@ class RobotControlGUI:
     
     def update_workpiece_display(self, workpieces):
         """Update the workpiece treeview and 2D visualization with data from robot"""
+        # Store for deletion functionality
+        self.last_workpieces_data = workpieces
+        
         # Clear existing items
         self.workpiece_tree.delete(*self.workpiece_tree.get_children())
         
         # Add workpieces to tree
         for wp in workpieces:
+            # Get orientation arrow symbol
+            orientation = wp.get('orientation', 0)
+            ori_symbol = "→" if orientation == 0 else "↻"
+            
+            # Get reference string if available, otherwise use reference index
+            ref_str = wp.get('referenceString', str(wp.get('reference', 'N/A')))
+            
             self.workpiece_tree.insert('', 'end', values=(
-                wp.get('id', 'N/A'),
-                wp.get('reference', 'N/A'),
+                str(wp.get('id', 'N/A'))[-8:],  # Last 8 digits of ID
+                ref_str,
+                ori_symbol,
                 wp.get('state', 'N/A'),
                 wp.get('gripper', 'N/A'),
                 f"{wp.get('x', 0):.1f}",
                 f"{wp.get('y', 0):.1f}",
                 f"{wp.get('z', 0):.1f}",
+                f"{wp.get('rx', 0):.1f}",
+                f"{wp.get('ry', 0):.1f}",
+                f"{wp.get('rz', 0):.1f}",
                 f"{wp.get('score', 0):.2f}"
             ))
         

@@ -154,4 +154,24 @@ public class AppController implements ConsoleServerInterface
         
         return workpieceQueue.getWorkpiecesJson();
     }
+    
+    @Override
+    public void clearWorkpieceQueue()
+    {
+        if (workpieceQueue != null)
+        {
+            workpieceQueue.clear();
+            log.info("Workpiece queue cleared via console command");
+        }
+    }
+    
+    @Override
+    public boolean removeWorkpiece(long workpieceId)
+    {
+        if (workpieceQueue != null)
+        {
+            return workpieceQueue.removeWorkpiece(workpieceId);
+        }
+        return false;
+    }
 }
