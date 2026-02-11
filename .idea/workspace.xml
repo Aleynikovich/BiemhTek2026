@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="update gui" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="292" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Alex Kalis &lt;alex.kalis@outlook.com&gt;" />
+      </list>
+    </option>
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7CtzSv&quot;,
+        &quot;number&quot;: 45
+      },
+      &quot;lastSeen&quot;: 1770741885705
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7CzyX7&quot;,
+        &quot;number&quot;: 46
+      },
+      &quot;lastSeen&quot;: 1770746341977
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7C1Nwf&quot;,
+        &quot;number&quot;: 49
+      },
+      &quot;lastSeen&quot;: 1770766644890
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7C_47B&quot;,
+        &quot;number&quot;: 61
+      },
+      &quot;lastSeen&quot;: 1770836730029
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7DFGkD&quot;,
+        &quot;number&quot;: 63
+      },
+      &quot;lastSeen&quot;: 1770837336707
+    }
+  ]
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Aleynikovich/BiemhTek2026.git&quot;,
+    &quot;accountId&quot;: &quot;2d350c8b-453c-4369-8f08-bc577bd4463f&quot;
+  },
+  &quot;editorReviewEnabled&quot;: false
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="39P5PfqJO5lMRSdwcUxLcuApycg" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.robot_control_gui.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/aley/IdeaProjects/BiehmTek",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/aley/IdeaProjects/BiemhTek2026/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "com.android.studio.ml.bot.mainConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\aley\IdeaProjects\BiemhTek2026\Backup" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="BiehmTek" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="BiehmTek" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="BiehmTek" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="robot_control_gui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BiemhTek2026" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/gui" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/gui/robot_control_gui.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="BiehmTek" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.robot_control_gui" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Physical" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="" />
+      <created>1770584842422</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1770584842422</updated>
+      <workItem from="1770586292260" duration="9456000" />
+      <workItem from="1770596433266" duration="547000" />
+      <workItem from="1770657322425" duration="794000" />
+      <workItem from="1770658811120" duration="7076000" />
+      <workItem from="1770741767509" duration="99000" />
+      <workItem from="1770741875474" duration="2475000" />
+      <workItem from="1770746329533" duration="15221000" />
+      <workItem from="1770835674469" duration="5147000" />
+      <workItem from="1770840868530" duration="4234000" />
+    </task>
+    <task id="LOCAL-00001" summary="update project">
+      <option name="closed" value="true" />
+      <created>1770587517920</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770587517920</updated>
+    </task>
+    <task id="LOCAL-00002" summary="refactor: Update program">
+      <option name="closed" value="true" />
+      <created>1770590447354</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1770590447354</updated>
+    </task>
+    <task id="LOCAL-00003" summary="refactor: Update program">
+      <option name="closed" value="true" />
+      <created>1770591160120</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1770591160120</updated>
+    </task>
+    <task id="LOCAL-00004" summary="refactor: Update program">
+      <option name="closed" value="true" />
+      <created>1770591518669</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1770591518669</updated>
+    </task>
+    <task id="LOCAL-00005" summary="add hmi buttons">
+      <option name="closed" value="true" />
+      <created>1770592466759</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1770592466759</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add background hmi buttons handler">
+      <option name="closed" value="true" />
+      <created>1770593523062</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1770593523062</updated>
+    </task>
+    <task id="LOCAL-00007" summary="add background hmi buttons handler">
+      <option name="closed" value="true" />
+      <created>1770593680439</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1770593680439</updated>
+    </task>
+    <task id="LOCAL-00008" summary="add background hmi buttons handler">
+      <option name="closed" value="true" />
+      <created>1770593704048</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1770593704048</updated>
+    </task>
+    <task id="LOCAL-00009" summary="add background hmi buttons handler">
+      <option name="closed" value="true" />
+      <created>1770594783460</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1770594783460</updated>
+    </task>
+    <task id="LOCAL-00010" summary="add background hmi buttons handler">
+      <option name="closed" value="true" />
+      <created>1770661147654</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1770661147654</updated>
+    </task>
+    <task id="LOCAL-00011" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770662119879</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1770662119879</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770663155755</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1770663155755</updated>
+    </task>
+    <task id="LOCAL-00013" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770663163207</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1770663163207</updated>
+    </task>
+    <task id="LOCAL-00014" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770663190090</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1770663190091</updated>
+    </task>
+    <task id="LOCAL-00015" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770663214161</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1770663214161</updated>
+    </task>
+    <task id="LOCAL-00016" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770758096700</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1770758096701</updated>
+    </task>
+    <task id="LOCAL-00017" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770766731032</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1770766731032</updated>
+    </task>
+    <task id="LOCAL-00018" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770767501716</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1770767501716</updated>
+    </task>
+    <task id="LOCAL-00019" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770767612387</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1770767612387</updated>
+    </task>
+    <task id="LOCAL-00020" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770767635265</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1770767635265</updated>
+    </task>
+    <task id="LOCAL-00021" summary="fix place new">
+      <option name="closed" value="true" />
+      <created>1770837016879</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1770837016879</updated>
+    </task>
+    <task id="LOCAL-00022" summary="remove bin">
+      <option name="closed" value="true" />
+      <created>1770837221717</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1770837221717</updated>
+    </task>
+    <task id="LOCAL-00023" summary="turbo refactor">
+      <option name="closed" value="true" />
+      <created>1770840676769</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1770840676769</updated>
+    </task>
+    <task id="LOCAL-00024" summary="move home after initialization and main">
+      <option name="closed" value="true" />
+      <created>1770840814203</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1770840814203</updated>
+    </task>
+    <task id="LOCAL-00025" summary="add stiffness and refacotr">
+      <option name="closed" value="true" />
+      <created>1770841922604</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1770841922604</updated>
+    </task>
+    <task id="LOCAL-00026" summary="update gui">
+      <option name="closed" value="true" />
+      <created>1770843484812</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1770843484812</updated>
+    </task>
+    <task id="LOCAL-00027" summary="update gui">
+      <option name="closed" value="true" />
+      <created>1770844620030</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1770844620030</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="update project" />
+    <MESSAGE value="refactor: Update program" />
+    <MESSAGE value="add hmi buttons" />
+    <MESSAGE value="test hmi buttons on bckgrd task" />
+    <MESSAGE value="add background hmi buttons handler" />
+    <MESSAGE value="fix place new" />
+    <MESSAGE value="remove bin" />
+    <MESSAGE value="turbo refactor" />
+    <MESSAGE value="move home after initialization and main" />
+    <MESSAGE value="add stiffness and refacotr" />
+    <MESSAGE value="update gui" />
+    <option name="LAST_COMMIT_MESSAGE" value="update gui" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="GROUP_MULTIFILE_MERGE_BY_DIRECTORY" value="true" />
+    <option name="NON_MODAL_COMMIT_POSTPONE_SLOW_CHECKS" value="false" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

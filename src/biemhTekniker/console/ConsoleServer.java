@@ -1,6 +1,6 @@
 package biemhTekniker.console;
 
-import biemhTekniker.logger.Logger;
+import biemhTekniker.lib.logger.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;

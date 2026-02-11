@@ -3,9 +3,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
-.idea/
 .metadata/
-*.iml
 .Sunrise/
 ._*
 *.tmp
@@ -45,4 +43,6 @@ __pycache__/
 
 /.metadata/.lock
 /.metadata/.log
+!bin/
+/bin/
 !bin/

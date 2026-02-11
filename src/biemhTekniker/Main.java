@@ -1,22 +1,22 @@
 package biemhTekniker;
 
-import biemhTekniker.config.ConfigManager;
-import biemhTekniker.config.FrameRepository;
 import biemhTekniker.console.ConsoleServerInterface;
-import biemhTekniker.data.WorkpieceQueue;
-import biemhTekniker.exceptions.HomePositionException;
-import biemhTekniker.logger.Logger;
-import biemhTekniker.managers.AppController;
-import biemhTekniker.managers.HomePositionManager;
-import biemhTekniker.managers.LoggingManager;
-import biemhTekniker.managers.PLCManager;
-import biemhTekniker.programs.RobotDispatcher;
-import biemhTekniker.programs.VisionDispatcher;
+import biemhTekniker.lib.config.ConfigManager;
+import biemhTekniker.lib.config.FrameRepository;
+import biemhTekniker.lib.data.WorkpieceQueue;
+import biemhTekniker.lib.exceptions.HomePositionException;
+import biemhTekniker.lib.logger.Logger;
+import biemhTekniker.lib.managers.AppController;
+import biemhTekniker.lib.managers.HomePositionManager;
+import biemhTekniker.lib.managers.LoggingManager;
+import biemhTekniker.lib.managers.PLCManager;
+import biemhTekniker.lib.vision.SmartPickingThread;
+import biemhTekniker.lib.vision.VisionManager;
 import biemhTekniker.programs.ProgramRange;
-import biemhTekniker.programs.RobotContext;
-import biemhTekniker.programs.VisionContext;
-import biemhTekniker.vision.SmartPickingThread;
-import biemhTekniker.vision.VisionManager;
+import biemhTekniker.programs.robot.RobotContext;
+import biemhTekniker.programs.robot.RobotDispatcher;
+import biemhTekniker.programs.vision.VisionContext;
+import biemhTekniker.programs.vision.VisionDispatcher;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.*;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -72,175 +72,229 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private RobotContext robotContext;
     private VisionContext visionContext;
 
-    @Override
-    public void initialize()
-    {
-        log.info("Main application initializing...");
-
-        // Initialize configuration
-        ConfigManager config = ConfigManager.getInstance();
-
-        // Initialize logging
-        loggingManager = new LoggingManager();
-        loggingManager.initialize();
-
-        // Initialize shared data structures
-        workpieceQueue = new WorkpieceQueue();
-
-        // Gripper setup
-        gripper.attachTo(iiwa.getFlange());
-
-        // Initialize and start SmartPicking thread
-        String visionIP = config.getString("vision.server.ip", "172.31.1.69");
-        int visionPort = config.getInt("vision.server.port", 59002);
-        smartPickingThread = new SmartPickingThread(visionIP, visionPort);
-        smartPickingThread.initialize();
-        smartPickingThread.start();
-
-        // Initialize contexts
-        FrameRepository frameRepository = new FrameRepository(this);
-        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue, frameRepository);
-        robotContext.setProtocol(smartPickingThread.getProtocol());
-        visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
-
-        // Initialize vision manager
-        VisionManager visionManager = new VisionManager(smartPickingThread, visionContext);
-        visionManager.initialize();
-
-        // Initialize dispatchers
-        robotDispatcher = new RobotDispatcher(robotContext);
-        robotDispatcher.registerRobotPrograms(smartPickingThread);
-
-        visionDispatcher = new VisionDispatcher(visionManager);
-        visionDispatcher.registerVisionTasks();
-
-        // Initialize PLC manager
-        plcManager = new PLCManager(AutExtIO, visionIO, robotDispatcher, visionDispatcher, smartPickingThread, workpieceQueue);
-
-        // Initialize home position manager
-        homePositionManager = new HomePositionManager();
-
-        // Initialize app controller
-        int consolePort = config.getInt("console.server.port", 30001);
-        appController = new AppController(visionManager, visionDispatcher, workpieceQueue, robotContext, homePositionManager, consolePort);
-        appController.initialize();
-
-        // Set robot control parameters
-        getApplicationControl().setApplicationOverride(0.5);
-        getApplicationControl().clipManualOverride(0.0);
-
-        // Move to home position and set as home
-        iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
-        iiwa.setHomePosition(iiwa.getCurrentJointPosition());
-
-        log.info("Main application initialized successfully");
-    }
 
     @Override
     public void run() throws Exception
     {
         log.info("Main application running, entering main loop.");
-
+        moveToHomePosition();
         while (AutExtIO.getMoveEnable())
         {
-            // Update PLC status
-            plcManager.updateStatus();
-
-            int programNumber = appController.getCurrentProgram();
-
-            // Update current program echo to PLC
-            plcManager.echoProgramNumber(programNumber);
-
-            // Handle program selection via PLC if no console is connected
-            if (programNumber == 0 && !appController.hasActiveClients())
-            {
-                programNumber = plcManager.checkProgramRequest();
-                if (programNumber != 0)
-                {
-                    appController.setProgramNumberFromPLC(programNumber);
-                }
-            }
-
-            int currentProgram = programNumber;
-            boolean isVisionRunning = visionDispatcher.isBusy();
-
-            // Check if home position move should be executed
-            if (homePositionManager.shouldMoveHome(currentProgram, isVisionRunning))
-            {
-                try
-                {
-                    homePositionManager.executeHomeMove(iiwa);
-                } catch (HomePositionException e)
-                {
-                    log.error("Home position move failed: " + e.getMessage(), e);
-                }
-            }
-
-            if (currentProgram != 0)
-            {
-                // Clear cancellation flag before starting new program
-                robotContext.clearCancellation();
-                
-                // Dispatch program to appropriate dispatcher
-                log.info("Starting execution of Program " + currentProgram);
-                boolean isVisionProgram = ProgramRange.isVisionProgram(currentProgram);
-                boolean success = false;
-
-                if (isVisionProgram)
-                {
-                    success = visionDispatcher.dispatch(currentProgram);
-                }
-                else if (ProgramRange.isRobotProgram(currentProgram))
-                {
-                    success = robotDispatcher.dispatch(currentProgram);
-                }
-
-                if (success)
-                {
-                    log.info("Program " + currentProgram + (isVisionProgram ? " submitted successfully" : " completed successfully"));
-                } else
-                {
-                    log.error("Program " + currentProgram + (isVisionProgram ? " submission failed" : " failed during execution"));
-                    plcManager.signalProgramError(currentProgram);
-                }
-
-                // Reset to idle after execution (or submission for vision)
-                appController.resetProgramNumber();
-
-                // Only request home move if it was a robot program
-                if (ProgramRange.isRobotProgram(currentProgram))
-                {
-                    homePositionManager.requestHomeMove();
-                }
-
-                // Echo back the reset to PLC immediately
-                plcManager.echoProgramNumber(0);
-            }
-
+            processMainLoop();
             ThreadUtil.milliSleep(MAIN_LOOP_DELAY_MS);
         }
 
         log.warn("MoveEnable signal lost. Exiting main loop.");
     }
 
+    /**
+     * Single iteration of the main application loop.
+     */
+    private void processMainLoop()
+    {
+        // 1. Update PLC and handle program selection
+        plcManager.updateStatus();
+        int programNumber = appController.getCurrentProgram();
+        plcManager.echoProgramNumber(programNumber);
+
+        if (programNumber == 0 && !appController.hasActiveClients())
+        {
+            programNumber = plcManager.checkProgramRequest();
+            if (programNumber != 0)
+            {
+                appController.setProgramNumberFromPLC(programNumber);
+            }
+        }
+
+        // 2. Handle Home Position moves
+        boolean isVisionRunning = visionDispatcher.isBusy();
+        if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
+        {
+            try
+            {
+                homePositionManager.executeHomeMove(iiwa);
+            } catch (HomePositionException e)
+            {
+                log.error("Home position move failed: " + e.getMessage(), e);
+            }
+        }
+
+        // 3. Execute programs
+        if (programNumber != 0)
+        {
+            executeProgram(programNumber);
+        }
+    }
+
+    /**
+     * Dispatches and executes the specified program.
+     */
+    private void executeProgram(int programNumber)
+    {
+        log.info("Starting execution of Program " + programNumber);
+
+        // Clear cancellation flag before starting new program
+        robotContext.clearCancellation();
+
+        boolean isVisionProgram = ProgramRange.isVisionProgram(programNumber);
+        boolean success = false;
+
+        if (isVisionProgram)
+        {
+            success = visionDispatcher.dispatch(programNumber);
+        } else if (ProgramRange.isRobotProgram(programNumber))
+        {
+            success = robotDispatcher.dispatch(programNumber);
+        }
+
+        if (success)
+        {
+            log.info("Program " + programNumber + (isVisionProgram ? " submitted successfully" : " completed successfully"));
+        } else
+        {
+            log.error("Program " + programNumber + (isVisionProgram ? " submission failed" : " failed during execution"));
+            plcManager.signalProgramError(programNumber);
+        }
+
+        // Reset to idle after execution
+        appController.resetProgramNumber();
+
+        // Request home move if it was a robot program
+        if (ProgramRange.isRobotProgram(programNumber))
+        {
+            homePositionManager.requestHomeMove();
+        }
+
+        // Echo back the reset to PLC
+        plcManager.echoProgramNumber(0);
+    }
+
+    @Override
+    public void initialize()
+    {
+        log.info("Main application initializing...");
+
+        try
+        {
+            initializeConfiguration();
+            initializeHardware();
+            initializeSharedData();
+            initializeVisionSystem();
+            initializeDispatchers();
+            initializeManagers();
+            initializeAppControl();
+
+            log.info("Main application initialized successfully");
+        } catch (Exception e)
+        {
+            log.error("Failed to initialize application: " + e.getMessage(), e);
+            throw new RuntimeException("Initialization failed", e);
+        }
+    }
+
+    private void initializeConfiguration()
+    {
+        ConfigManager.getInstance();
+        loggingManager = new LoggingManager();
+        loggingManager.initialize();
+    }
+
+    private void initializeHardware()
+    {
+        gripper.attachTo(iiwa.getFlange());
+    }
+
+    private void initializeSharedData()
+    {
+        workpieceQueue = new WorkpieceQueue();
+    }
+
+    private void initializeVisionSystem()
+    {
+        ConfigManager config = ConfigManager.getInstance();
+        String visionIP = config.getString("vision.server.ip", "172.31.1.69");
+        int visionPort = config.getInt("vision.server.port", 59002);
+
+        smartPickingThread = new SmartPickingThread(visionIP, visionPort);
+        smartPickingThread.initialize();
+        smartPickingThread.start();
+
+        FrameRepository frameRepository = new FrameRepository(this);
+        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue, frameRepository);
+        robotContext.setProtocol(smartPickingThread.getProtocol());
+
+        visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
+
+        VisionManager visionManager = new VisionManager(smartPickingThread, visionContext);
+        visionManager.initialize();
+
+        visionDispatcher = new VisionDispatcher(visionManager);
+        visionDispatcher.registerVisionTasks();
+    }
+
+    private void initializeDispatchers()
+    {
+        robotDispatcher = new RobotDispatcher(robotContext);
+        robotDispatcher.registerRobotPrograms(smartPickingThread);
+    }
+
+    private void initializeManagers()
+    {
+        plcManager = new PLCManager(AutExtIO, visionIO, robotDispatcher, visionDispatcher, smartPickingThread, workpieceQueue);
+        homePositionManager = new HomePositionManager();
+    }
+
+    private void initializeAppControl()
+    {
+        ConfigManager config = ConfigManager.getInstance();
+        int consolePort = config.getInt("console.server.port", 30001);
+
+        appController = new AppController(visionDispatcher.getVisionManager(), visionDispatcher, workpieceQueue, robotContext, homePositionManager, consolePort);
+        appController.initialize();
+
+        getApplicationControl().setApplicationOverride(0.5);
+        getApplicationControl().clipManualOverride(0.0);
+    }
+
+    private void moveToHomePosition()
+    {
+        log.info("Moving to initial home position...");
+        iiwa.getFlange().move(ptp(getApplicationData().getFrame("/BiemhHome")));
+        iiwa.setHomePosition(iiwa.getCurrentJointPosition());
+    }
+
+
     @Override
     public void dispose()
     {
         log.info("Main application shutting down");
 
-        // Shutdown app controller (includes console server)
+        shutdownAppController();
+        shutdownVisionSystem();
+        shutdownSmartPickingThread();
+        shutdownLogging();
+
+        super.dispose();
+    }
+
+    private void shutdownAppController()
+    {
         if (appController != null)
         {
             appController.shutdown();
         }
+    }
 
-        // Shutdown vision manager and threads
+    private void shutdownVisionSystem()
+    {
         if (visionDispatcher != null && visionDispatcher.getVisionManager() != null)
         {
             visionDispatcher.getVisionManager().shutdown();
         }
+    }
 
-        // Shutdown SmartPicking thread
+    private void shutdownSmartPickingThread()
+    {
         if (smartPickingThread != null)
         {
             smartPickingThread.shutdown();
@@ -258,14 +312,14 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
                 Thread.currentThread().interrupt();
             }
         }
+    }
 
-        // Shutdown logging
+    private void shutdownLogging()
+    {
         if (loggingManager != null)
         {
             loggingManager.shutdown();
         }
-
-        super.dispose();
     }
 
     // ========== ConsoleServerInterface Implementation ==========
@@ -311,23 +365,41 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         appController.cancelCurrentProgram();
     }
-    
+
     @Override
     public String getWorkpiecesJson()
     {
         return appController.getWorkpiecesJson();
     }
-    
+
     @Override
     public void clearWorkpieceQueue()
     {
         appController.clearWorkpieceQueue();
     }
-    
+
     @Override
     public boolean removeWorkpiece(long workpieceId)
     {
         return appController.removeWorkpiece(workpieceId);
+    }
+
+    @Override
+    public boolean isGripper1Closed()
+    {
+        return appController.isGripper1Closed();
+    }
+
+    @Override
+    public boolean isGripper2Closed()
+    {
+        return appController.isGripper2Closed();
+    }
+
+    @Override
+    public boolean isGripper3Closed()
+    {
+        return appController.isGripper3Closed();
     }
 
 }

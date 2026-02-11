@@ -1,222 +1,201 @@
 # BiemhTek2026 - KUKA LBR iiwa Robot Application
 
-Advanced bin-picking application for the KUKA LBR iiwa 14 R820 robot with SmartPicking vision system integration.
+## Project Overview
 
-## Overview
+BiemhTek2026 is an advanced automated bin-picking application for the KUKA LBR iiwa 14 R820 collaborative robot integrated with a SmartPicking vision system. The project implements an intelligent pick-measure-return workflow where the robot autonomously identifies, picks, measures, and returns workpieces to their original locations.
 
-This application implements an automated pick-measure-return workflow with full vision system integration. The architecture separates robot motion control from vision processing, enabling asynchronous operation for maximum efficiency.
+## System Architecture
+
+### Hardware Components
+- **Robot**: KUKA LBR iiwa 14 R820 (7-axis collaborative robot)
+- **Vision System**: SmartPicking camera system for part recognition
+- **Measuring Machine**: Schunk base with multiple placement positions
+- **Gripper System**: Three gripper positions (A, B, C) for workpiece handling
+- **Control System**: KUKA Sunrise.Workbench running on embedded controller
+
+### Software Components
+- **Robot Application**: Java 1.7-based Sunrise OS application
+- **Vision Integration**: TCP/IP communication with SmartPicking server
+- **Console Server**: Remote control and monitoring via TCP/IP (port 30001)
+- **GUI Application**: Python-based control interface with real-time monitoring
 
 ## Key Features
 
-- **Async Robot/Vision Architecture**: Robot and camera operate independently
-- **Multi-Reference Support**: Handles 3 different part references simultaneously
-- **Workpiece Queue System**: Thread-safe queue manages up to 6 workpieces (2 per reference)
-- **Pick-Measure-Return Lifecycle**: Automated workflow for part inspection
-- **External Configuration**: All settings in `configs/application.properties`
-- **TCP/IP Console**: Remote control and monitoring via GUI
+### Asynchronous Robot-Vision Architecture
+The system operates with independent robot and vision threads, allowing the camera to scan for new workpieces while the robot is performing other operations. This parallel processing maximizes efficiency and throughput.
 
-## Architecture
+### Multi-Reference Support
+Handles three different part types (references) simultaneously:
+- BIEMH26_105053 (Reference 1)
+- BIEMH26_105055 (Reference 2)
+- BIEMH26_105060 (Reference 3)
 
-### Robot Thread (Main)
-Executes physical robot motions and gripper operations. Programs 1-99 run on this thread and access the shared `WorkpieceQueue` for coordination.
+Each workpiece is tracked with its reference type and orientation (0° or 180°), allowing the system to adapt handling strategies based on physical characteristics.
 
-### Vision Thread
-Sends commands to the SmartPicking camera system. Programs 100-199 run asynchronously on this thread, populating the `WorkpieceQueue` with found workpieces.
+### Workpiece Queue System
+A thread-safe queue manages up to 6 workpieces (2 per reference type) through their complete lifecycle:
+- **AVAILABLE**: Vision system found it, ready for picking
+- **PICKED**: Robot has picked it up
+- **MEASURING**: Placed on measuring machine
+- **MEASURED**: Measurement complete, ready for removal
+- **RETURNED**: Returned to original position in bin
 
-### WorkpieceQueue (Shared State)
-Thread-safe queue that stores workpiece data with lifecycle states:
-- `AVAILABLE`: Camera found it, ready to pick
-- `PICKED`: Robot picked it up
-- `MEASURING`: Placed on measuring machine
-- `MEASURED`: Ready to be removed from machine
-- `RETURNED`: Returned to origin position in bin
+### Position-Based Tracking
+Workpieces are tracked by their physical position (±5mm tolerance), preventing duplicate entries and maintaining identity across multiple vision scans. The system also tracks which gripper location (A, B, or C) holds each workpiece.
 
-## Program Numbers
+### Impedance Control
+The robot uses compliant motion control to safely handle workpieces and adapt to external forces. This is particularly important when grippers exert force on workpieces, allowing the robot to yield slightly rather than fighting the force.
 
-### Robot Programs (1-99)
-| Number | Name | Description |
-|--------|------|-------------|
-| 0 | Idle | No operation |
-| 1 | Pick New Workpiece | Pick next available from queue |
-| 2 | Place on Measuring Machine | Place held workpiece on machine |
-| 3 | Remove Measured Workpiece | Remove measured part from machine |
-| 4 | Return Measured to Bin | Return to original pick location |
-| 5 | Calibration | Robot-vision calibration sequence |
-| 6 | Test Calibration | Verify calibration accuracy |
+### Calibration System
+A 16-point calibration routine establishes the coordinate transformation between the vision system and robot, ensuring accurate pick positions. The calibration can be performed at startup or on-demand.
 
-### Vision Programs (100-199)
-| Number | Name | Description |
-|--------|------|-------------|
-| 100 | Load References | Load all references from config |
-| 101 | Set Auto Mode | Switch camera to auto mode |
-| 102 | Set Calibration Mode | Switch camera to calibration mode |
-| 103 | Capture Data | Capture image from camera |
-| 104 | Locate Container | Find bin/container position |
-| 105 | Get Container Position | Retrieve container coordinates |
-| 106 | Locate Parts | Find parts for specific reference |
-| 107 | Get Part Position | Get first part position |
-| 108 | Get Next Part Position | Get next part in sequence |
-| 109 | Full Scan Sequence | Complete scan across all references |
-| 111 | Get New Workpiece Position | Legacy single-reference scan |
+## Typical Workflow
+
+1. **Initial Setup**
+   - Operator powers on the robot and connects the GUI
+   - System performs vision-robot calibration (if needed)
+   - Camera scans the bin and identifies available workpieces
+
+2. **Pick-Measure-Return Cycle**
+   - Vision system scans bin and finds workpieces (up to 6 total)
+   - Robot picks the highest-scoring available workpiece
+   - Robot places workpiece on measuring machine
+   - While measuring occurs, vision scans for next batch
+   - Robot picks another workpiece
+   - Robot removes first workpiece from measuring machine
+   - Robot places second workpiece on measuring machine
+   - Robot returns first workpiece to its original position in bin
+   - Cycle continues indefinitely
+
+3. **Adaptive Operation**
+   - If pick fails with regular orientation, robot automatically tries 180° rotation
+   - System maintains awareness of which gripper holds which workpiece
+   - Queue automatically updates as workpieces are found, picked, measured, and returned
+
+## GUI Control Interface
+
+The Python GUI provides a tabbed interface for comprehensive system control:
+
+### Robot Programs Tab
+Execute motion programs including:
+- Pick new workpiece from bin
+- Place workpiece on measuring machine
+- Remove measured workpiece from machine
+- Return workpiece to original bin position
+- Calibration routines
+- Home position commands
+
+### Vision Commands Tab
+Control vision system operations:
+- Load part references
+- Switch between auto and calibration modes
+- Capture images
+- Locate containers and parts
+- Execute full scanning sequences
+
+### Workpieces Tab
+Real-time workpiece database viewer showing:
+- 2D visualization of working plane (700×400mm canvas)
+- Workpiece positions with color-coding by reference type
+- State indication (Available, Picked, Measuring, Measured, Returned)
+- Gripper location tracking (A, B, or C)
+- Position coordinates and quality scores
+- Interactive treeview for detailed information
+
+### Console Tab
+Real-time log monitoring with:
+- Adjustable log level filtering (DEBUG, INFO, WARN, ERROR)
+- Connection status display
+- Command history
+- Selectable/copyable log text
+- Pop-out console window option
 
 ## Configuration
 
-All settings are in `configs/application.properties`:
+All system parameters are externalized in `configs/application.properties`:
 
-```properties
-# Vision Server
-vision.server.ip=172.31.1.69
-vision.server.port=59002
+- **Vision Server**: IP address and port for camera system
+- **Vision References**: Part type identifiers
+- **Motion Parameters**: Velocities, delays, and offsets
+- **Impedance Control**: Stiffness and damping values for compliant behavior
+- **Calibration**: Number of points and frame locations
+- **Workpiece Queue**: Position tolerance for duplicate detection
 
-# Vision References (3 part types)
-vision.references=BIEMH26_105053,BIEMH26_105055,BIEMH26_105060
-vision.reference.count=3
-vision.zone=1
+This external configuration allows system tuning without code changes.
 
-# Console Server
-console.server.port=30001
+## Safety Features
 
-# Motion Parameters
-motion.joint.velocity=0.25
-motion.delay.ms=500
-motion.delay.minor.ms=200
+### Program Cancellation
+Operators can safely cancel running programs at any time. The robot will:
+- Stop the current motion
+- Preserve any held workpiece (grippers remain closed)
+- Return to home position
+- Reset to idle state
 
-# Calibration
-calibration.points.count=16
-calibration.points.root=/CalibrationPoints
+### Impedance Control
+The robot operates with controlled compliance, allowing it to:
+- Yield to unexpected collisions
+- Absorb forces from gripper operations
+- Reduce impact forces during contact
+- Provide gentle handling of workpieces
 
-# Pre-pick approach offset (mm)
-pick.prepick.offset.z=100
-```
+### Emergency Stop
+The GUI provides immediate emergency stop capability through Program 0, halting all robot motion instantly.
 
-## Workflow
+## Technical Specifications
 
-### Typical Pick-Measure-Return Cycle
+### Development Environment
+- **Platform**: KUKA Sunrise.Workbench (Eclipse-based IDE)
+- **Language**: Java 1.7 (strict compatibility with embedded controller)
+- **Operating System**: KUKA Sunrise OS 1.16
+- **Build System**: Integrated with Sunrise.Workbench (no external tools)
 
-1. **Vision Scan** (Program 109): Camera scans bin, finds 6 workpieces (2 per reference)
-2. **Pick Best** (Program 1): Robot picks highest-score available workpiece
-3. **Place on Machine** (Program 2): Place workpiece on measuring machine
-4. **Scan Again** (Program 109): Camera scans for next batch while measuring
-5. **Pick Next** (Program 1): Robot picks next workpiece
-6. **Remove Measured** (Program 3): Remove first workpiece from machine
-7. **Place New on Machine** (Program 2): Place second workpiece on machine
-8. **Return Measured** (Program 4): Return first workpiece to origin position in bin
-9. **Repeat**: Continue cycle indefinitely
+### Communication Protocols
+- **Robot Console**: TCP/IP on port 30001 with JSON command protocol
+- **Vision System**: TCP/IP on port 59002 with custom text protocol
+- **Logging**: TCP broadcast to connected GUI clients
 
-## Package Structure
+### Motion Control
+- **Control Modes**: Position control with optional impedance overlay
+- **Motion Types**: PTP (Point-to-Point) and LIN (Linear)
+- **Velocity**: Configurable joint velocity (default 25%)
+- **Tool Coordination**: Support for multiple TCP (Tool Center Point) definitions
 
-```
-src/biemhTekniker/
-├── Main.java                      # Main application orchestrator
-├── config/
-│   ├── ConfigManager.java         # Configuration loader (singleton)
-│   └── FrameRepository.java       # Centralized frame management (NEW)
-├── console/
-│   ├── ConsoleServer.java         # TCP/IP command server
-│   ├── ConsoleServerInterface.java
-│   ├── ConsoleCommandHandler.java # Command processor
-│   └── SimpleJSON.java            # Lightweight JSON parser
-├── data/
-│   ├── WorkpieceData.java         # Single workpiece data (enhanced with gripper tracking)
-│   ├── WorkpieceState.java        # Lifecycle state enum
-│   └── WorkpieceQueue.java        # Thread-safe queue (position-based tracking)
-├── logger/
-│   └── ...                        # Logging infrastructure
-├── managers/
-│   └── LoggingManager.java        # Log system manager
-├── programs/
-│   ├── RobotProgram.java          # Robot program interface
-│   ├── VisionTask.java            # Vision task interface
-│   ├── RobotContext.java          # Robot dependencies (includes FrameRepository)
-│   ├── VisionContext.java         # Vision dependencies
-│   ├── ProgramDispatcher.java     # Program router (0-199)
-│   ├── MotionStrategy.java        # Motion execution strategy
-│   ├── Pick*.java                 # Pick programs
-│   ├── Place*.java                # Place programs
-│   ├── Calibration*.java          # Calibration programs
-│   ├── LoadReferencesTask.java    # Vision task implementations
-│   ├── FullScanTask.java          # Full scan with workpiece tracking
-│   └── IndividualVisionCommandTask.java
-├── vision/
-│   ├── SmartPickingProtocol.java  # Camera protocol (flexible arguments)
-│   ├── SmartPickingThread.java    # Camera connection thread
-│   ├── VisionManager.java         # Vision task executor
-│   └── VisionSocketClient.java    # TCP socket client
-└── hmi/
-    └── HmiButtonHandler.java      # SmartPad buttons (refactored with template pattern)
-```
+## Project Benefits
 
-## GUI Control
+### Operational Efficiency
+- Parallel vision and robot operations maximize throughput
+- Queue system enables continuous operation without waiting for scans
+- Automatic retry with alternative orientations reduces pick failures
 
-Use `gui/robot_control_gui.py` for remote control:
+### Flexibility
+- Support for multiple part types simultaneously
+- Configurable parameters for easy adaptation
+- Modular program structure allows easy extension
 
-```bash
-python3 gui/robot_control_gui.py
-```
+### Safety
+- Collaborative robot with compliant motion control
+- Safe cancellation of operations
+- Impedance control prevents excessive forces
 
-Features:
-- **Tabbed Interface**:
-  - Robot Programs tab - Motion programs (1-6)
-  - Vision Commands tab - Vision tasks (100-111)
-  - Workpieces tab - Database viewer with gripper tracking
-  - Console tab - Real-time log output with filtering
-- Connect to robot console server
-- Execute robot programs and vision commands
-- Monitor workpiece queue with position and gripper location
-- View queue status
-- Real-time robot logs with level filtering
-- Emergency stop (Program 0)
-- Cancel program and return home
+### Maintainability
+- External configuration for all tunable parameters
+- Centralized frame management
+- Clear separation between vision and robot control
+- Comprehensive logging for troubleshooting
 
-## Development
+## Future Capabilities
 
-### Requirements
-- KUKA Sunrise.Workbench
-- Java 1.7 (strict - no Java 8+ features)
-- KUKA LBR iiwa robot controller
-- SmartPicking vision system
+The system architecture supports future enhancements:
+- Additional part reference types
+- More complex motion sequences
+- Enhanced vision processing
+- Machine learning for pick strategy optimization
+- Integration with additional sensors or equipment
 
-### Java 1.7 Constraints
-This codebase must maintain Java 1.7 compatibility:
-- No lambda expressions
-- No try-with-resources
-- No diamond operator for anonymous classes
-- No Streams API
-- Use `java.util.concurrent.atomic` for thread safety
+## Contact and Support
 
-### Building
-Projects are built and deployed through Sunrise.Workbench. No external build tools (Maven, Gradle) are used.
-
-### Testing
-Testing occurs on actual hardware or in Sunrise simulation environment. Unit tests are not applicable due to hardware dependencies.
-
-## Thread Safety
-
-Critical thread-safe components:
-- `WorkpieceQueue`: All methods `synchronized`, position-based tracking
-- `WorkpieceData`: All getters/setters `synchronized`, includes gripper location
-- `programNumber` in Main: declared `volatile`
-- Vision tasks: Serialized through `VisionManager`
-
-## Recent Refactoring (2026)
-
-The codebase underwent comprehensive refactoring to improve maintainability and flexibility:
-
-### Key Improvements
-1. **Vision Protocol Enhancement**: Support for flexible subarguments (e.g., "4;1;2")
-2. **Workpiece Tracking**: Position-based tracking (±5mm tolerance) prevents duplicate workpieces
-3. **Frame Repository**: Centralized frame management separates station layout from business logic
-4. **HMI Refactoring**: Template pattern reduces code duplication by 37%
-5. **GUI Enhancement**: Tabbed interface with workpiece database viewer
-
-See [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) for detailed information.
-
-## License
-
-Proprietary - BiemhTek2026 Project
-
-## Contact
-
-Project: BiemhTek2026
-Robot: KUKA LBR iiwa 14 R820
-Vision: SmartPicking System
+**Project**: BiemhTek2026  
+**Robot**: KUKA LBR iiwa 14 R820  
+**Vision**: SmartPicking System  
+**License**: Proprietary

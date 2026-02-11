@@ -1,9 +1,10 @@
 package biemhTekniker.console;
 
-import biemhTekniker.logger.LogLevel;
-import biemhTekniker.logger.LogManager;
-import biemhTekniker.logger.Logger;
-import biemhTekniker.logger.NetworkListener;
+import biemhTekniker.lib.logger.LogLevel;
+import biemhTekniker.lib.logger.LogManager;
+import biemhTekniker.lib.logger.Logger;
+import biemhTekniker.lib.logger.NetworkListener;
+import biemhTekniker.lib.robot.motions.MotionOverrides;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -120,6 +121,15 @@ public class ConsoleCommandHandler implements Runnable
             } else if ("delete_workpiece".equals(type))
             {
                 handleDeleteWorkpiece(json);
+            } else if ("pick_specific_workpiece".equals(type))
+            {
+                handlePickSpecificWorkpiece(json);
+            } else if ("set_motion_override".equals(type))
+            {
+                handleSetMotionOverride(json);
+            } else if ("clear_motion_override".equals(type))
+            {
+                handleClearMotionOverride();
             } else
             {
                 sendError("Unknown command type: " + type);
@@ -178,6 +188,10 @@ public class ConsoleCommandHandler implements Runnable
             status.put("program", serverInterface.getCurrentProgram());
             status.put("vision_connected", serverInterface.isVisionConnected());
             status.put("workpiece_position", serverInterface.getWorkpiecePosition());
+            // Gripper open/closed state reporting
+            status.put("gripper1_closed", serverInterface.isGripper1Closed());
+            status.put("gripper2_closed", serverInterface.isGripper2Closed());
+            status.put("gripper3_closed", serverInterface.isGripper3Closed());
             sendJson(status);
         } catch (Exception e)
         {
@@ -345,16 +359,13 @@ public class ConsoleCommandHandler implements Runnable
                 log.warn("delete_workpiece command missing id field");
                 return;
             }
-            
             long workpieceId = json.getLong("id", -1);
             log.info("handleDeleteWorkpiece called with id: " + workpieceId);
-            
             if (workpieceId < 0)
             {
                 sendError("Invalid workpiece ID: " + workpieceId);
                 return;
             }
-            
             boolean removed = serverInterface.removeWorkpiece(workpieceId);
             if (removed)
             {
@@ -369,6 +380,97 @@ public class ConsoleCommandHandler implements Runnable
             log.error("Error in handleDeleteWorkpiece: " + e.getMessage(), e);
             sendError("Error deleting workpiece: " + e.getMessage());
         }
+    }
+
+    private void handlePickSpecificWorkpiece(SimpleJSON json)
+    {
+        try
+        {
+            if (!json.has("id"))
+            {
+                sendError("Missing required 'id' field");
+                return;
+            }
+            long id = json.getLong("id", -1);
+            if (id <= 0)
+            {
+                sendError("Invalid workpiece ID: " + id);
+                return;
+            }
+            MotionOverrides.setForcedWorkpieceId(id);
+            // Trigger Pick New Workpiece program (1)
+            serverInterface.setProgramNumber(1);
+            sendResponse("response", "Forced pick requested for workpiece " + id, true);
+            log.info("Forced pick requested for ID " + id + ", program 1 started");
+        } catch (Exception e)
+        {
+            log.error("Error in handlePickSpecificWorkpiece: " + e.getMessage(), e);
+            sendError("Error forcing pick: " + e.getMessage());
+        }
+    }
+
+    private void handleSetMotionOverride(SimpleJSON json)
+    {
+        try
+        {
+            String redCsv = json.getString("redundancy", null);
+            String zCsv = json.getString("zrot", null);
+            boolean any = false;
+            if (redCsv != null && !redCsv.trim().isEmpty())
+            {
+                double[] rads = parseCsvDegreesToRadians(redCsv);
+                MotionOverrides.setRedundancyOffsetsOverride(rads);
+                any = true;
+            }
+            if (zCsv != null && !zCsv.trim().isEmpty())
+            {
+                double[] rads = parseCsvDegreesToRadians(zCsv);
+                MotionOverrides.setZRotationAnglesOverride(rads);
+                any = true;
+            }
+            if (any)
+            {
+                sendResponse("response", "Motion overrides applied", true);
+            } else
+            {
+                sendError("No overrides provided. Use fields 'redundancy' and/or 'zrot' with CSV degrees");
+            }
+        } catch (Exception e)
+        {
+            log.error("Error in handleSetMotionOverride: " + e.getMessage(), e);
+            sendError("Error setting motion overrides: " + e.getMessage());
+        }
+    }
+
+    private void handleClearMotionOverride()
+    {
+        try
+        {
+            MotionOverrides.clearMotionOverrides();
+            sendResponse("response", "Motion overrides cleared", true);
+        } catch (Exception e)
+        {
+            log.error("Error in handleClearMotionOverride: " + e.getMessage(), e);
+            sendError("Error clearing motion overrides: " + e.getMessage());
+        }
+    }
+
+    private double[] parseCsvDegreesToRadians(String csv)
+    {
+        String[] parts = csv.split(",");
+        double[] arr = new double[parts.length];
+        for (int i = 0; i < parts.length; i++)
+        {
+            String p = parts[i].trim();
+            if (p.isEmpty())
+            {
+                arr[i] = 0.0;
+            } else
+            {
+                arr[i] = Math.toRadians(Double.parseDouble(p));
+            }
+        }
+        return arr;
     }
 
     private void sendResponse(String type, String message, boolean success)

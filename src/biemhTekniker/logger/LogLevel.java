@@ -1,6 +1,0 @@
-package biemhTekniker.logger;
-
-public enum LogLevel
-{
-    DEBUG, INFO, WARN, ERROR
-}
