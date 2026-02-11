@@ -77,7 +77,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public void run() throws Exception
     {
         log.info("Main application running, entering main loop.");
-
+        moveToHomePosition();
         while (AutExtIO.getMoveEnable())
         {
             processMainLoop();
@@ -183,8 +183,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             initializeDispatchers();
             initializeManagers();
             initializeAppControl();
-
-            moveToHomePosition();
 
             log.info("Main application initialized successfully");
         } catch (Exception e)
