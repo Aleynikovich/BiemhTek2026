@@ -25,17 +25,41 @@ public class MotionStrategyGenerator
     private static boolean impedanceModeInitialized = false;
 
     /**
-     * Loads redundancy offsets from configuration.
+     * Loads redundancy offsets for pick operations from configuration.
      * Defaults: -80, 80, -60, 60 degrees
      */
-    private static synchronized double[] getRedundancyOffsets()
+    private static synchronized double[] getPickRedundancyOffsets()
     {
         // Runtime override takes precedence if provided
-        double[] override = MotionOverrides.getForcedRedundancyOffsets();
+        double[] override = MotionOverrides.getPickRedundancyOverride();
         if (override != null && override.length > 0)
         {
             return override;
         }
+        return getDefaultRedundancyOffsets();
+    }
+
+    /**
+     * Loads redundancy offsets for place operations from configuration.
+     * Defaults: -80, 80, -60, 60 degrees
+     */
+    private static synchronized double[] getPlaceRedundancyOffsets()
+    {
+        // Runtime override takes precedence if provided
+        double[] override = MotionOverrides.getPlaceRedundancyOverride();
+        if (override != null && override.length > 0)
+        {
+            return override;
+        }
+        return getDefaultRedundancyOffsets();
+    }
+
+    /**
+     * Loads default redundancy offsets from configuration.
+     * Defaults: -80, 80, -60, 60 degrees
+     */
+    private static synchronized double[] getDefaultRedundancyOffsets()
+    {
         if (cachedRedundancyOffsets == null)
         {
             ConfigManager config = ConfigManager.getInstance();
@@ -64,8 +88,8 @@ public class MotionStrategyGenerator
      */
     private static synchronized double[] getZRotationAngles()
     {
-        // Runtime override takes precedence if provided
-        double[] override = MotionOverrides.getForcedZRotationAngles();
+        // Runtime override takes precedence if provided (place-specific)
+        double[] override = MotionOverrides.getPlaceZRotOverride();
         if (override != null && override.length > 0)
         {
             return override;
@@ -134,7 +158,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategies(tcp, robot, getRedundancyOffsets());
+        return generateStrategies(tcp, robot, getDefaultRedundancyOffsets());
     }
 
     /**
@@ -185,7 +209,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithoutAlternate(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategiesWithoutAlternate(tcp, robot, getRedundancyOffsets());
+        return generateStrategiesWithoutAlternate(tcp, robot, getDefaultRedundancyOffsets());
     }
 
     /**
@@ -238,6 +262,7 @@ public class MotionStrategyGenerator
      * and approach perpendicular to the workpiece surface.
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
+     * Checks for place alternate-only override.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
@@ -247,7 +272,14 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, boolean allowConfigChange)
     {
-        return generatePlaceStrategies(tcp, robot, getRedundancyOffsets(), getZRotationAngles(), allowConfigChange);
+        // Check if alternate-only mode is enabled for place operations
+        boolean alternateOnly = MotionOverrides.isPlaceAlternateOnly();
+        if (alternateOnly)
+        {
+            // Only generate alternate position (180°) strategies
+            return generatePlaceStrategiesAlternateOnly(tcp, robot, getPlaceRedundancyOffsets(), getZRotationAngles());
+        }
+        return generatePlaceStrategies(tcp, robot, getPlaceRedundancyOffsets(), getZRotationAngles(), allowConfigChange);
     }
 
     /**
@@ -294,6 +326,38 @@ public class MotionStrategyGenerator
     }
 
     /**
+     * Generates place strategies with alternate position (180°) only.
+     * Used when place alternate-only override is enabled.
+     *
+     * @param tcp               Tool center point frame to use
+     * @param robot             Robot instance for redundancy support
+     * @param redundancyOffsets Array of E1 offsets in radians to try
+     * @param zRotationAngles   Array of Z-axis rotation angles in radians to try
+     * @return List of motion strategies in priority order
+     */
+    private static List<MotionStrategy> generatePlaceStrategiesAlternateOnly(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, double[] zRotationAngles)
+    {
+        List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
+
+        // Only try alternate position (180° rotation) with Z-rotation angles
+        for (int z = 0; z < zRotationAngles.length; z++)
+        {
+            Double zAngle = zRotationAngles[z];
+
+            // First attempt without redundancy (null), then with offsets
+            strategies.add(new MotionStrategy.Builder(tcp).useAlternatePosition(true).allowZRotation(true).zRotationAngle(zAngle).useToolCoordinates(true).impedanceMode(impedanceMode).build());
+            for (int i = 0; i < redundancyOffsets.length; i++)
+            {
+                Double offset = redundancyOffsets[i];
+                strategies.add(new MotionStrategy.Builder(tcp).redundancy(offset, robot).useAlternatePosition(true).allowZRotation(true).zRotationAngle(zAngle).useToolCoordinates(true).impedanceMode(impedanceMode).build());
+            }
+        }
+
+        return strategies;
+    }
+
+    /**
      * Generates a list of motion strategies with tool coordinate system approach
      * but without Z-axis rotation freedom. Use this for pick operations where orientation matters.
      * Strategy order: regular position, then alternate position (180° rotation),
@@ -307,7 +371,14 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategiesWithToolCoordinates(tcp, robot, getRedundancyOffsets());
+        // Check if alternate-only mode is enabled for pick operations
+        boolean alternateOnly = MotionOverrides.isPickAlternateOnly();
+        if (alternateOnly)
+        {
+            // Only generate alternate position (180°) strategies
+            return generateStrategiesWithToolCoordinatesAlternateOnly(tcp, robot, getPickRedundancyOffsets());
+        }
+        return generateStrategiesWithToolCoordinates(tcp, robot, getPickRedundancyOffsets());
     }
 
     /**
@@ -337,6 +408,31 @@ public class MotionStrategyGenerator
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
+        strategies.add(new MotionStrategy.Builder(tcp).useAlternatePosition(true).useToolCoordinates(true).impedanceMode(impedanceMode).build());
+        for (int i = 0; i < redundancyOffsets.length; i++)
+        {
+            Double offset = Double.valueOf(redundancyOffsets[i]);
+            strategies.add(new MotionStrategy.Builder(tcp).useAlternatePosition(true).redundancy(offset, robot).useToolCoordinates(true).impedanceMode(impedanceMode).build());
+        }
+
+        return strategies;
+    }
+
+    /**
+     * Generates pick strategies with alternate position (180°) only.
+     * Used when pick alternate-only override is enabled.
+     *
+     * @param tcp               Tool center point frame to use
+     * @param robot             Robot instance for redundancy support
+     * @param redundancyOffsets Array of E1 offsets in radians to try
+     * @return List of motion strategies in priority order
+     */
+    private static List<MotionStrategy> generateStrategiesWithToolCoordinatesAlternateOnly(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
+    {
+        List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
+
+        // Only try alternate position (180° rotation) with different redundancy configurations
         strategies.add(new MotionStrategy.Builder(tcp).useAlternatePosition(true).useToolCoordinates(true).impedanceMode(impedanceMode).build());
         for (int i = 0; i < redundancyOffsets.length; i++)
         {

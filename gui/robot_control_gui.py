@@ -66,7 +66,7 @@ class RobotControlGUI:
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(3, weight=1)
 
-        ttk.Label(main_frame, text="BIEMH 2026 Control Panel", style='Title.TLabel').grid(row=0, column=0,
+        ttk.Label(main_frame, text="KUKA LBR iiwa Robot Control", style='Title.TLabel').grid(row=0, column=0,
                                                                                              pady=(0, 10),
                                                                                              sticky=(tk.W, tk.E))
         
@@ -237,21 +237,76 @@ class RobotControlGUI:
             ttk.Button(btn_frame, text=text, command=cmd, width=18).grid(row=0, column=i, padx=3, pady=3)
         
         # Motion Override Controls
-        override_frame = ttk.LabelFrame(parent, text="Motion Overrides (Advanced)", padding="5")
+        override_frame = ttk.LabelFrame(parent, text="Motion Overrides (Advanced)", padding="10")
         override_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        override_frame.columnconfigure(0, weight=1)
         
-        ttk.Label(override_frame, text="Forced Redundancy (degrees, CSV):").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
-        self.redundancy_entry = ttk.Entry(override_frame, width=30)
-        self.redundancy_entry.grid(row=0, column=1, sticky=tk.W, padx=(0, 10))
+        # Master enable checkbox
+        self.motion_override_enabled = tk.BooleanVar(value=False)
+        enable_cb = ttk.Checkbutton(override_frame, text="Enable Motion Overrides", 
+                                     variable=self.motion_override_enabled,
+                                     command=self.on_motion_override_enabled_changed)
+        enable_cb.grid(row=0, column=0, sticky=tk.W, pady=(0, 10))
         
-        ttk.Label(override_frame, text="Forced Z-Rot (degrees, CSV):").grid(row=1, column=0, sticky=tk.W, padx=(0, 5), pady=(5, 0))
-        self.zrot_entry = ttk.Entry(override_frame, width=30)
-        self.zrot_entry.grid(row=1, column=1, sticky=tk.W, padx=(0, 10), pady=(5, 0))
+        # Pick Motion Section
+        pick_frame = ttk.LabelFrame(override_frame, text="Pick Motion", padding="5")
+        pick_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        pick_frame.columnconfigure(1, weight=1)
         
-        override_btn_frame = ttk.Frame(override_frame)
-        override_btn_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
-        ttk.Button(override_btn_frame, text="Apply Overrides", command=self.apply_motion_overrides, width=18).grid(row=0, column=0, padx=3, pady=3)
-        ttk.Button(override_btn_frame, text="Clear Overrides", command=self.clear_motion_overrides, width=18).grid(row=0, column=1, padx=3, pady=3)
+        ttk.Label(pick_frame, text="Redundancy Offsets:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        self.pick_redundancy_var = tk.StringVar(value="Default (-80,80,-60,60)")
+        self.pick_redundancy_combo = ttk.Combobox(pick_frame, textvariable=self.pick_redundancy_var,
+                                                   values=[
+                                                       "Default (-80,80,-60,60)",
+                                                       "Narrow (-40,40,-30,30)",
+                                                       "Wide (-100,100,-80,80)",
+                                                       "Single (0)",
+                                                       "None"
+                                                   ], state='readonly', width=35)
+        self.pick_redundancy_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(0, 5))
+        
+        self.pick_alternate_only = tk.BooleanVar(value=False)
+        ttk.Checkbutton(pick_frame, text="Alternate position only (180°)", 
+                        variable=self.pick_alternate_only).grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
+        
+        # Place Motion Section
+        place_frame = ttk.LabelFrame(override_frame, text="Place Motion", padding="5")
+        place_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        place_frame.columnconfigure(1, weight=1)
+        
+        ttk.Label(place_frame, text="Redundancy Offsets:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        self.place_redundancy_var = tk.StringVar(value="Default (-80,80,-60,60)")
+        self.place_redundancy_combo = ttk.Combobox(place_frame, textvariable=self.place_redundancy_var,
+                                                    values=[
+                                                        "Default (-80,80,-60,60)",
+                                                        "Narrow (-40,40,-30,30)",
+                                                        "Wide (-100,100,-80,80)",
+                                                        "Single (0)",
+                                                        "None"
+                                                    ], state='readonly', width=35)
+        self.place_redundancy_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(0, 5))
+        
+        ttk.Label(place_frame, text="Z-Rotation Angles:").grid(row=1, column=0, sticky=tk.W, padx=(0, 5), pady=(5, 0))
+        self.place_zrot_var = tk.StringVar(value="Default (90,45,0,135,180,-45,-90,-135)")
+        self.place_zrot_combo = ttk.Combobox(place_frame, textvariable=self.place_zrot_var,
+                                              values=[
+                                                  "Default (90,45,0,135,180,-45,-90,-135)",
+                                                  "Cardinal (0,90,180,-90)",
+                                                  "Fine (0,15,30,45,60,75,90)",
+                                                  "Single (0)",
+                                                  "Single (90)"
+                                              ], state='readonly', width=35)
+        self.place_zrot_combo.grid(row=1, column=1, sticky=(tk.W, tk.E), padx=(0, 5), pady=(5, 0))
+        
+        self.place_alternate_only = tk.BooleanVar(value=False)
+        ttk.Checkbutton(place_frame, text="Alternate position only (180°)", 
+                        variable=self.place_alternate_only).grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
+        
+        # Apply button
+        self.apply_overrides_btn = ttk.Button(override_frame, text="Apply Overrides", 
+                                               command=self.apply_motion_overrides, width=20, state=tk.DISABLED)
+        self.apply_overrides_btn.grid(row=3, column=0, pady=(5, 0))
+
 
     def create_console_tab(self, parent):
         parent.columnconfigure(0, weight=1)
@@ -427,27 +482,73 @@ class RobotControlGUI:
             if self.send_cmd({'type': 'pick_specific_workpiece', 'id': full_id}):
                 self.log_manager.log(f"Forced pick requested for workpiece {short_id}", 'success')
 
+    def on_motion_override_enabled_changed(self):
+        """Handle master enable checkbox change"""
+        if self.motion_override_enabled.get():
+            # Enable the apply button
+            self.apply_overrides_btn.config(state=tk.NORMAL)
+        else:
+            # Disable the apply button and clear overrides on the robot
+            self.apply_overrides_btn.config(state=tk.DISABLED)
+            if self.send_cmd({'type': 'clear_motion_override'}):
+                self.log_manager.log("Motion overrides disabled and cleared", 'success')
+
     def apply_motion_overrides(self):
-        redundancy = self.redundancy_entry.get().strip()
-        zrot = self.zrot_entry.get().strip()
-        
-        if not redundancy and not zrot:
-            return messagebox.showwarning("No Input", "Please enter at least one override value")
+        """Apply motion overrides based on dropdown selections"""
+        if not self.motion_override_enabled.get():
+            return messagebox.showwarning("Overrides Disabled", "Please enable motion overrides first")
         
         cmd = {'type': 'set_motion_override'}
-        if redundancy:
-            cmd['redundancy'] = redundancy
-        if zrot:
-            cmd['zrot'] = zrot
+        
+        # Map dropdown values to CSV strings or None (for default)
+        redundancy_map = {
+            "Default (-80,80,-60,60)": None,  # Use robot defaults
+            "Narrow (-40,40,-30,30)": "-40,40,-30,30",
+            "Wide (-100,100,-80,80)": "-100,100,-80,80",
+            "Single (0)": "0",
+            "None": "0"
+        }
+        
+        zrot_map = {
+            "Default (90,45,0,135,180,-45,-90,-135)": None,  # Use robot defaults
+            "Cardinal (0,90,180,-90)": "0,90,180,-90",
+            "Fine (0,15,30,45,60,75,90)": "0,15,30,45,60,75,90",
+            "Single (0)": "0",
+            "Single (90)": "90"
+        }
+        
+        # Pick redundancy
+        pick_red = redundancy_map.get(self.pick_redundancy_var.get())
+        if pick_red is not None:
+            cmd['pick_redundancy'] = pick_red
+        
+        # Pick alternate only
+        if self.pick_alternate_only.get():
+            cmd['pick_alternate_only'] = True
+        else:
+            cmd['pick_alternate_only'] = False
+        
+        # Place redundancy
+        place_red = redundancy_map.get(self.place_redundancy_var.get())
+        if place_red is not None:
+            cmd['place_redundancy'] = place_red
+        
+        # Place Z-rotation
+        place_zrot = zrot_map.get(self.place_zrot_var.get())
+        if place_zrot is not None:
+            cmd['place_zrot'] = place_zrot
+        
+        # Place alternate only
+        if self.place_alternate_only.get():
+            cmd['place_alternate_only'] = True
+        else:
+            cmd['place_alternate_only'] = False
         
         if self.send_cmd(cmd):
-            self.log_manager.log(f"Motion overrides applied: redundancy={redundancy or 'N/A'}, zrot={zrot or 'N/A'}", 'success')
-
-    def clear_motion_overrides(self):
-        if self.send_cmd({'type': 'clear_motion_override'}):
-            self.redundancy_entry.delete(0, tk.END)
-            self.zrot_entry.delete(0, tk.END)
-            self.log_manager.log("Motion overrides cleared", 'success')
+            self.log_manager.log(f"Motion overrides applied: Pick={self.pick_redundancy_var.get()}, "
+                                f"Pick Alt={self.pick_alternate_only.get()}, Place={self.place_redundancy_var.get()}, "
+                                f"Place ZRot={self.place_zrot_var.get()}, Place Alt={self.place_alternate_only.get()}", 
+                                'success')
 
     def on_log_level_changed(self, event=None):
         lvl = self.log_level.get()
