@@ -5,7 +5,7 @@ import biemhTekniker.console.ConsoleServerInterface;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.programs.ProgramRange;
-import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.programs.RobotContext;
 import biemhTekniker.programs.VisionDispatcher;
 import biemhTekniker.vision.VisionManager;
 

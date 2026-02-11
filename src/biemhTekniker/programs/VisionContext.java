@@ -1,4 +1,4 @@
-package biemhTekniker.lib.vision;
+package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.vision.SmartPickingProtocol;
