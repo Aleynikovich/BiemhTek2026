@@ -43,6 +43,9 @@ public class ManualJogHandler
     private final LBR robot;
     private final Tool tool;
 
+    // World frame reference (cached for consistent coordinate system)
+    private final com.kuka.roboticsAPI.geometricModel.Frame worldFrame;
+
     // Configuration parameters
     private final double linearStepMm;
     private final double rotationalStepDeg;
@@ -58,6 +61,7 @@ public class ManualJogHandler
     {
         this.robot = robot;
         this.tool = tool;
+        this.worldFrame = World.Current.getRootFrame();
 
         // Load configuration parameters
         ConfigManager config = ConfigManager.getInstance();
@@ -291,7 +295,7 @@ public class ManualJogHandler
 
             // Execute the linRel motion in WORLD coordinates
             IMotionContainer motion = tool.move(
-                    linRel(dx, dy, dz, da, db, dc, World.Current.getRootFrame())
+                    linRel(dx, dy, dz, da, db, dc, worldFrame)
                             .setJointVelocityRel(jogVelocityRel)
             );
             activeMotion.set(motion);
