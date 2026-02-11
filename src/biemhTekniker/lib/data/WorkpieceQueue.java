@@ -46,12 +46,13 @@ public class WorkpieceQueue
     }
 
     /**
-     * Returns the highest-score AVAILABLE workpiece and marks it as PICKED.
+     * Returns the highest-score AVAILABLE workpiece and marks it with gripper location.
      * Returns null if no AVAILABLE workpieces exist.
      *
+     * @param gripperNumber Gripper number (1, 2, or 3)
      * @return The workpiece to pick, or null
      */
-    public synchronized WorkpieceData takeNextForPicking()
+    public synchronized WorkpieceData takeNextForPicking(int gripperNumber)
     {
         WorkpieceData best = null;
         for (int i = 0; i < workpieces.size(); i++)
@@ -68,8 +69,8 @@ public class WorkpieceQueue
 
         if (best != null)
         {
-            best.setState(WorkpieceState.PICKED);
-            log.info("Selected workpiece for picking: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", score=" + best.getScore());
+            best.setGripperLocation(String.valueOf(gripperNumber));
+            log.info("Selected workpiece for picking: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", gripper=" + gripperNumber + ", score=" + best.getScore());
         } else
         {
             log.debug("No AVAILABLE workpieces to pick");
@@ -78,7 +79,7 @@ public class WorkpieceQueue
     }
 
     /**
-     * Returns the highest-score AVAILABLE workpiece WITHOUT marking it as PICKED.
+     * Returns the highest-score AVAILABLE workpiece WITHOUT marking it with gripper.
      * Returns null if no AVAILABLE workpieces exist.
      * Use this to preview the next workpiece before attempting to pick it.
      *
@@ -110,35 +111,46 @@ public class WorkpieceQueue
     }
 
     /**
-     * Marks a specific workpiece as PICKED.
+     * Marks a specific workpiece with gripper location.
      * Used after successfully picking a workpiece that was previewed with peekNextForPicking().
      *
      * @param workpieceId Workpiece ID to mark as picked
+     * @param gripperNumber Gripper number (1, 2, or 3)
      */
-    public synchronized void markPicked(long workpieceId)
+    public synchronized void markPicked(long workpieceId, int gripperNumber)
     {
         WorkpieceData wp = findById(workpieceId);
         if (wp != null)
         {
-            wp.setState(WorkpieceState.PICKED);
-            log.info("Marked workpiece as PICKED: id=" + workpieceId);
+            wp.setGripperLocation(String.valueOf(gripperNumber));
+            log.info("Marked workpiece as held by gripper " + gripperNumber + ": id=" + workpieceId);
         } else
         {
-            log.warn("Cannot mark PICKED - workpiece not found: id=" + workpieceId);
+            log.warn("Cannot mark picked - workpiece not found: id=" + workpieceId);
         }
     }
 
     /**
-     * Returns the first workpiece found in the PICKED state.
-     * * @return The picked workpiece, or null if none are currently picked.
+     * Returns the first workpiece found in a gripper.
+     * 
+     * @param gripperNumber Gripper number to search (1, 2, or 3), or 0 for any gripper
+     * @return The picked workpiece, or null if none are currently held by specified gripper.
      */
-    public synchronized WorkpieceData getPickedWorkpiece()
+    public synchronized WorkpieceData getPickedWorkpiece(int gripperNumber)
     {
         for (WorkpieceData wp : workpieces)
         {
-            if (wp.getState() == WorkpieceState.PICKED)
+            String gripperLoc = wp.getGripperLocation();
+            if (gripperLoc != null)
             {
-                return wp;
+                if (gripperNumber == 0)
+                {
+                    // Any gripper
+                    return wp;
+                } else if (gripperLoc.equals(String.valueOf(gripperNumber)))
+                {
+                    return wp;
+                }
             }
         }
         return null;
@@ -146,6 +158,7 @@ public class WorkpieceQueue
 
     /**
      * Marks a workpiece as MEASURING.
+     * Sets gripper to 3 since gripper 3 holds workpieces on the measuring machine.
      *
      * @param workpieceId Workpiece ID
      */
@@ -155,7 +168,8 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setState(WorkpieceState.MEASURING);
-            log.info("Marked workpiece as MEASURING: id=" + workpieceId);
+            wp.setGripperLocation("3");
+            log.info("Marked workpiece as MEASURING (gripper 3): id=" + workpieceId);
         } else
         {
             log.warn("Cannot mark MEASURING - workpiece not found: id=" + workpieceId);
@@ -164,6 +178,7 @@ public class WorkpieceQueue
 
     /**
      * Marks a workpiece as MEASURED.
+     * Gripper 3 still holds it on the measuring machine.
      *
      * @param workpieceId Workpiece ID
      */
@@ -173,7 +188,8 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setState(WorkpieceState.MEASURED);
-            log.info("Marked workpiece as MEASURED: id=" + workpieceId);
+            // Keep gripper 3 since it still holds the workpiece on measuring machine
+            log.info("Marked workpiece as MEASURED (still in gripper 3): id=" + workpieceId);
         } else
         {
             log.warn("Cannot mark MEASURED - workpiece not found: id=" + workpieceId);
@@ -182,7 +198,7 @@ public class WorkpieceQueue
 
     /**
      * Returns a MEASURED workpiece for removal from the machine.
-     * Sets state to PICKED for transport back to bin.
+     * Clears gripper location as workpiece transitions to being held.
      * Returns null if no MEASURED workpieces exist.
      *
      * @return The measured workpiece to remove, or null
@@ -194,7 +210,8 @@ public class WorkpieceQueue
             WorkpieceData wp = workpieces.get(i);
             if (wp.getState() == WorkpieceState.MEASURED)
             {
-                wp.setState(WorkpieceState.PICKED);
+                // Clear gripper location - will be set when actually picked
+                wp.setGripperLocation(null);
                 log.info("Selected MEASURED workpiece for removal: id=" + wp.getId());
                 return wp;
             }
@@ -204,7 +221,8 @@ public class WorkpieceQueue
     }
 
     /**
-     * Marks a workpiece as RETURNED.
+     * Marks a workpiece as returned (back to AVAILABLE state).
+     * Clears gripper location since it's no longer held.
      *
      * @param workpieceId Workpiece ID
      */
@@ -213,11 +231,12 @@ public class WorkpieceQueue
         WorkpieceData wp = findById(workpieceId);
         if (wp != null)
         {
-            wp.setState(WorkpieceState.RETURNED);
-            log.info("Marked workpiece as RETURNED: id=" + workpieceId);
+            wp.setState(WorkpieceState.AVAILABLE);
+            wp.setGripperLocation(null);
+            log.info("Marked workpiece as returned (AVAILABLE): id=" + workpieceId);
         } else
         {
-            log.warn("Cannot mark RETURNED - workpiece not found: id=" + workpieceId);
+            log.warn("Cannot mark returned - workpiece not found: id=" + workpieceId);
         }
     }
 
@@ -384,6 +403,24 @@ public class WorkpieceQueue
     }
 
     /**
+     * Clears the gripper location for a workpiece (e.g., when placed).
+     *
+     * @param workpieceId Workpiece ID
+     */
+    public synchronized void clearGripper(long workpieceId)
+    {
+        WorkpieceData wp = findById(workpieceId);
+        if (wp != null)
+        {
+            wp.setGripperLocation(null);
+            log.info("Cleared gripper location for workpiece: id=" + workpieceId);
+        } else
+        {
+            log.warn("Cannot clear gripper - workpiece not found: id=" + workpieceId);
+        }
+    }
+
+    /**
      * Finds an existing workpiece at the given position (within configured tolerance).
      * Used for tracking workpieces across scans to avoid creating duplicates.
      *
@@ -428,8 +465,8 @@ public class WorkpieceQueue
 
         if (existing != null)
         {
-            // Update existing workpiece if it's been returned or is still available
-            if (existing.getState() == WorkpieceState.RETURNED || existing.getState() == WorkpieceState.AVAILABLE)
+            // Update existing workpiece if it's available and not in gripper
+            if (existing.getState() == WorkpieceState.AVAILABLE && existing.getGripperLocation() == null)
             {
                 existing.set(x, y, z, rx, ry, rz, score);
                 existing.setState(WorkpieceState.AVAILABLE);
@@ -437,8 +474,8 @@ public class WorkpieceQueue
                 return existing;
             } else
             {
-                // Workpiece is in use (PICKED, MEASURING, MEASURED) - create new one
-                log.debug("Workpiece at position is in use (state=" + existing.getState() + "), creating new entry");
+                // Workpiece is in use (in gripper, MEASURING, MEASURED) - create new one
+                log.debug("Workpiece at position is in use (state=" + existing.getState() + ", gripper=" + existing.getGripperLocation() + "), creating new entry");
             }
         }
 

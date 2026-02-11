@@ -27,15 +27,25 @@ class WorkpieceManager:
             wp = dict(wp)  # shallow copy to adjust presentation fields safely
             state = str(wp.get('state', 'AVAILABLE')).upper()
             gripper = wp.get('gripper')
-            # Treat returned/measured on table as AVAILABLE when not in any gripper
-            if state in ('MEASURED', 'RETURNED') and (not gripper or str(gripper) in ('', 'None', '0')):
-                wp['state'] = 'AVAILABLE'
-                state = 'AVAILABLE'
-            # Route to grippers if being held or explicitly assigned
-            if str(gripper).isdigit() and int(gripper) in (1, 2, 3):
+            
+            # MEASURING and MEASURED workpieces are held by gripper 3 (measuring machine)
+            if state in ('MEASURING', 'MEASURED'):
+                if not gripper or str(gripper) not in ('3',):
+                    # Ensure gripper is set to 3 for measuring machine
+                    wp['gripper'] = '3'
+                    gripper = '3'
+            
+            # Display gripper location in state if workpiece is held by a gripper
+            if gripper and str(gripper) not in ('', 'None', '0', 'null'):
+                if str(gripper).isdigit() and int(gripper) in (1, 2, 3):
+                    wp['state'] = f'In Gripper {gripper}'
+                    state = wp['state']
+            
+            # Route to grippers if being held
+            if gripper and str(gripper).isdigit() and int(gripper) in (1, 2, 3):
                 in_grippers[int(gripper)] = wp
-            elif state in ('PICKED', 'MEASURING'):
-                # Picked/measuring: hide from table even if gripper unknown
+            elif 'In Gripper' in state:
+                # Workpiece is in a gripper - hide from table
                 pass
             else:
                 available_on_table.append(wp)
@@ -51,13 +61,22 @@ class WorkpieceManager:
             self.gripper_panel.update_grippers(in_grippers)
 
     def _update_tree(self, workpieces):
+        # Preserve current selection during refresh
+        selected_items = self.tree.selection()
+        selected_short_id = None
+        if selected_items:
+            # Get the short ID (first column) of the selected item
+            selected_short_id = self.tree.item(selected_items[0])['values'][0]
+        
         self.tree.delete(*self.tree.get_children())
+        item_to_select = None
         for wp in workpieces:
             orientation = wp.get('orientation', 0)
             ori_symbol = "→" if orientation == 0 else "↻"
             ref_str = wp.get('referenceString', str(wp.get('reference', 'N/A')))
-            self.tree.insert('', 'end', values=(
-                str(wp.get('id', 'N/A'))[-8:],
+            short_id = str(wp.get('id', 'N/A'))[-8:]
+            item_id = self.tree.insert('', 'end', values=(
+                short_id,
                 ref_str,
                 ori_symbol,
                 wp.get('state', 'N/A'),
@@ -70,6 +89,14 @@ class WorkpieceManager:
                 f"{wp.get('rz', 0):.1f}",
                 f"{wp.get('score', 0):.2f}"
             ))
+            # Track item to re-select if it matches the previously selected short ID
+            if selected_short_id and short_id == selected_short_id:
+                item_to_select = item_id
+        
+        # Restore selection if the item still exists
+        if item_to_select:
+            self.tree.selection_set(item_to_select)
+            self.tree.see(item_to_select)
 
     def find_workpiece_by_short_id(self, short_id):
         short_id = str(short_id)
