@@ -1,6 +1,6 @@
 package biemhTekniker.iopolling;
 
-import biemhTekniker.logger.Logger;
+import biemhTekniker.lib.logger.Logger;
 import com.kuka.generated.ioAccess.RobotSafetyIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;

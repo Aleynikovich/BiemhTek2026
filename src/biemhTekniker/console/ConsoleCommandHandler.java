@@ -1,9 +1,9 @@
 package biemhTekniker.console;
 
-import biemhTekniker.logger.LogLevel;
-import biemhTekniker.logger.LogManager;
-import biemhTekniker.logger.Logger;
-import biemhTekniker.logger.NetworkListener;
+import biemhTekniker.lib.logger.LogLevel;
+import biemhTekniker.lib.logger.LogManager;
+import biemhTekniker.lib.logger.Logger;
+import biemhTekniker.lib.logger.NetworkListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
