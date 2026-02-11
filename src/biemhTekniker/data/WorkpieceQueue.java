@@ -1,5 +1,6 @@
 package biemhTekniker.data;
 
+import biemhTekniker.config.ConfigManager;
 import biemhTekniker.logger.Logger;
 
 import java.util.ArrayList;
@@ -15,12 +16,23 @@ public class WorkpieceQueue
     
     /**
      * Position tolerance for workpiece matching in millimeters.
-     * Set to 5mm based on vision system accuracy and mechanical repeatability.
+     * Configurable via application.properties (workpiece.position.tolerance.mm).
+     * Default is 5mm based on vision system accuracy and mechanical repeatability.
      * Workpieces within this tolerance are considered to be at the same position.
      */
-    private static final double POSITION_TOLERANCE_MM = 5.0;
+    private final double positionToleranceMm;
     
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
+
+    /**
+     * Default constructor using configuration from application.properties.
+     */
+    public WorkpieceQueue()
+    {
+        ConfigManager config = ConfigManager.getInstance();
+        this.positionToleranceMm = config.getDouble("workpiece.position.tolerance.mm", 5.0);
+        log.debug("WorkpieceQueue initialized with position tolerance: " + positionToleranceMm + "mm");
+    }
 
     /**
      * Adds a workpiece to the queue with AVAILABLE state.
@@ -335,7 +347,7 @@ public class WorkpieceQueue
     }
 
     /**
-     * Finds an existing workpiece at the given position (within ±5mm tolerance).
+     * Finds an existing workpiece at the given position (within configured tolerance).
      * Used for tracking workpieces across scans to avoid creating duplicates.
      *
      * @param x X coordinate
@@ -349,7 +361,7 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, POSITION_TOLERANCE_MM))
+            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, positionToleranceMm))
             {
                 log.debug("Found existing workpiece at position: id=" + wp.getId());
                 return wp;

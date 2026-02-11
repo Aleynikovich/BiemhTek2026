@@ -1,5 +1,6 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.config.ConfigManager;
 import biemhTekniker.config.ImpedanceConfig;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
@@ -15,28 +16,50 @@ import java.util.List;
  */
 public class MotionStrategyGenerator
 {
-    // Default redundancy E1 offsets to try (in radians)
-    private static final double[] DEFAULT_REDUNDANCY_OFFSETS = new double[] {
-        Math.toRadians(-80),          // -80 degrees
-        Math.toRadians(80),           // +80 degrees
-        Math.toRadians(-60),          // -60 degrees
-        Math.toRadians(60)            // +60 degrees
-    };
-
-    // Z-axis rotation angles to try for place operations (in radians)
-    private static final double[] DEFAULT_Z_ROTATION_ANGLES = new double[] {
-        0,                            // 0 degrees (no rotation)
-        Math.toRadians(45),          // 45 degrees
-        Math.toRadians(90),          // 90 degrees
-        Math.toRadians(135),         // 135 degrees
-        Math.toRadians(180),         // 180 degrees
-        Math.toRadians(-45),         // -45 degrees
-        Math.toRadians(-90),         // -90 degrees
-        Math.toRadians(-135)         // -135 degrees
-    };
-
-    // Singleton impedance configuration instance
+    // Cached configuration values
+    private static double[] cachedRedundancyOffsets = null;
+    private static double[] cachedZRotationAngles = null;
     private static ImpedanceConfig impedanceConfig = null;
+
+    /**
+     * Loads redundancy offsets from configuration.
+     * Defaults: -80, 80, -60, 60 degrees
+     */
+    private static synchronized double[] getRedundancyOffsets()
+    {
+        if (cachedRedundancyOffsets == null)
+        {
+            ConfigManager config = ConfigManager.getInstance();
+            String offsetsStr = config.getString("motion.redundancy.offsets", "-80,80,-60,60");
+            String[] parts = offsetsStr.split(",");
+            cachedRedundancyOffsets = new double[parts.length];
+            for (int i = 0; i < parts.length; i++)
+            {
+                cachedRedundancyOffsets[i] = Math.toRadians(Double.parseDouble(parts[i].trim()));
+            }
+        }
+        return cachedRedundancyOffsets;
+    }
+
+    /**
+     * Loads Z-rotation angles from configuration.
+     * Defaults: 0, 45, 90, 135, 180, -45, -90, -135 degrees
+     */
+    private static synchronized double[] getZRotationAngles()
+    {
+        if (cachedZRotationAngles == null)
+        {
+            ConfigManager config = ConfigManager.getInstance();
+            String anglesStr = config.getString("motion.place.z.rotations", "0,45,90,135,180,-45,-90,-135");
+            String[] parts = anglesStr.split(",");
+            cachedZRotationAngles = new double[parts.length];
+            for (int i = 0; i < parts.length; i++)
+            {
+                cachedZRotationAngles[i] = Math.toRadians(Double.parseDouble(parts[i].trim()));
+            }
+        }
+        return cachedZRotationAngles;
+    }
 
     /**
      * Gets or creates the impedance configuration singleton (thread-safe).
@@ -74,7 +97,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS);
+        return generateStrategies(tcp, robot, getRedundancyOffsets());
     }
 
     /**
@@ -125,7 +148,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithoutAlternate(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategiesWithoutAlternate(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS);
+        return generateStrategiesWithoutAlternate(tcp, robot, getRedundancyOffsets());
     }
 
     /**
@@ -167,7 +190,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generatePlaceStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_Z_ROTATION_ANGLES);
+        return generatePlaceStrategies(tcp, robot, getRedundancyOffsets(), getZRotationAngles());
     }
 
     /**
@@ -218,7 +241,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategiesWithToolCoordinates(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS);
+        return generateStrategiesWithToolCoordinates(tcp, robot, getRedundancyOffsets());
     }
 
     /**

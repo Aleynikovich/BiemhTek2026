@@ -1,5 +1,6 @@
 package biemhTekniker.vision;
 
+import biemhTekniker.config.ConfigManager;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 
@@ -14,18 +15,19 @@ public class SmartPickingThread extends Thread
 
     private static final Logger log = Logger.getLogger(SmartPickingThread.class);
 
-    // Exponential backoff constants
-    private static final int INITIAL_RETRY_DELAY_MS = 1000;
-    private static final int MAX_RETRY_DELAY_MS = 60000;
-    private static final double BACKOFF_MULTIPLIER = 2.0;
-    private static final int CONNECTION_CHECK_INTERVAL_MS = 5000;
+    // Configurable connection parameters (loaded from application.properties)
+    private final int initialRetryDelayMs;
+    private final int maxRetryDelayMs;
+    private final double backoffMultiplier;
+    private final int connectionCheckIntervalMs;
+    private final int maxConsecutiveErrors;
 
     private final String visionServerIP;
     private final int visionServerPort;
     private VisionSocketClient socketClient;
     private SmartPickingProtocol protocol;
     private volatile boolean running = true;
-    private int currentRetryDelay = INITIAL_RETRY_DELAY_MS;
+    private int currentRetryDelay;
 
     /**
      * Creates a SmartPicking thread.
@@ -39,6 +41,19 @@ public class SmartPickingThread extends Thread
         this.visionServerIP = visionServerIP;
         this.visionServerPort = visionServerPort;
         setDaemon(true); // Thread will not prevent JVM shutdown
+        
+        // Load configuration
+        ConfigManager config = ConfigManager.getInstance();
+        this.initialRetryDelayMs = config.getInt("vision.retry.initial.delay.ms", 1000);
+        this.maxRetryDelayMs = config.getInt("vision.retry.max.delay.ms", 60000);
+        this.backoffMultiplier = config.getDouble("vision.retry.backoff.multiplier", 2.0);
+        this.connectionCheckIntervalMs = config.getInt("vision.connection.check.interval.ms", 5000);
+        this.maxConsecutiveErrors = config.getInt("vision.max.consecutive.errors", 10);
+        this.currentRetryDelay = initialRetryDelayMs;
+        
+        log.debug("SmartPickingThread configuration: initialRetryDelay=" + initialRetryDelayMs + 
+                  "ms, maxRetryDelay=" + maxRetryDelayMs + "ms, backoffMultiplier=" + backoffMultiplier +
+                  ", checkInterval=" + connectionCheckIntervalMs + "ms, maxErrors=" + maxConsecutiveErrors);
     }
 
     /**
@@ -65,7 +80,6 @@ public class SmartPickingThread extends Thread
         }
 
         int consecutiveErrors = 0;
-        final int MAX_CONSECUTIVE_ERRORS = 10;
 
         // Main thread loop - monitors connection and maintains it
         while (running && !Thread.currentThread().isInterrupted())
@@ -90,34 +104,34 @@ public class SmartPickingThread extends Thread
                     if (socketClient.isConnected())
                     {
                         log.info("Reconnected to vision server");
-                        currentRetryDelay = INITIAL_RETRY_DELAY_MS; // Reset backoff on success
+                        currentRetryDelay = initialRetryDelayMs; // Reset backoff on success
                         consecutiveErrors = 0; // Reset on success
                     } else
                     {
                         // Increase delay for next attempt (exponential backoff)
-                        currentRetryDelay = (int) Math.min(currentRetryDelay * BACKOFF_MULTIPLIER, MAX_RETRY_DELAY_MS);
+                        currentRetryDelay = (int) Math.min(currentRetryDelay * backoffMultiplier, maxRetryDelayMs);
                     }
                 } else
                 {
                     // Connection is healthy, reset error counter and backoff
                     consecutiveErrors = 0;
-                    currentRetryDelay = INITIAL_RETRY_DELAY_MS;
+                    currentRetryDelay = initialRetryDelayMs;
                     // Check less frequently when connected
-                    ThreadUtil.milliSleep(CONNECTION_CHECK_INTERVAL_MS);
+                    ThreadUtil.milliSleep(connectionCheckIntervalMs);
                 }
             } catch (Exception e)
             {
                 consecutiveErrors++;
-                log.error("Connection monitor error (" + consecutiveErrors + "/" + MAX_CONSECUTIVE_ERRORS + "): " + e.getMessage());
+                log.error("Connection monitor error (" + consecutiveErrors + "/" + maxConsecutiveErrors + "): " + e.getMessage());
 
-                if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS)
+                if (consecutiveErrors >= maxConsecutiveErrors)
                 {
                     log.error("Maximum consecutive errors reached. Thread will exit.");
                     break; // Exit the while loop to properly shut down
                 }
 
                 // Increase delay for next attempt (exponential backoff)
-                currentRetryDelay = (int) Math.min(currentRetryDelay * BACKOFF_MULTIPLIER, MAX_RETRY_DELAY_MS);
+                currentRetryDelay = (int) Math.min(currentRetryDelay * backoffMultiplier, maxRetryDelayMs);
                 ThreadUtil.milliSleep(currentRetryDelay);
             }
         }
