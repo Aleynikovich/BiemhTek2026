@@ -16,10 +16,10 @@ import java.util.List;
  */
 public class MotionStrategyGenerator
 {
-    // Cached configuration values
-    private static double[] cachedRedundancyOffsets = null;
-    private static double[] cachedZRotationAngles = null;
-    private static ImpedanceConfig impedanceConfig = null;
+    // Cached configuration values (volatile for thread-safe lazy initialization)
+    private static volatile double[] cachedRedundancyOffsets = null;
+    private static volatile double[] cachedZRotationAngles = null;
+    private static volatile ImpedanceConfig impedanceConfig = null;
 
     /**
      * Loads redundancy offsets from configuration.

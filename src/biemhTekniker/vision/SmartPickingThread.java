@@ -27,7 +27,7 @@ public class SmartPickingThread extends Thread
     private VisionSocketClient socketClient;
     private SmartPickingProtocol protocol;
     private volatile boolean running = true;
-    private int currentRetryDelay;
+    private volatile int currentRetryDelay;
 
     /**
      * Creates a SmartPicking thread.
