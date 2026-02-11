@@ -4,13 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="move home after initialization and main">
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="add stiffness and refacotr">
+      <change afterPath="$PROJECT_DIR$/gui/modules/gripper_panel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gui/modules/log_manager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gui/modules/robot_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gui/modules/workpiece_canvas.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gui/modules/workpiece_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/configs/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/motions/MotionStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/motions/MotionStrategyGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategyGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/robot_control_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/robot_control_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/CalibrationProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/CalibrationProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotDispatcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/TestCalibrationProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/TestCalibrationProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/FullScanProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/subprograms/FullScanProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/IndividualVisionCommandProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/subprograms/IndividualVisionCommandProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/LoadReferencesProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/subprograms/LoadReferencesProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/VisionDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/VisionDispatcher.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -181,6 +191,29 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="robot_control_gui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BiemhTek2026" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/gui" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/gui/robot_control_gui.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="Tox" factoryName="Tox">
       <module name="BiehmTek" />
       <option name="ENV_FILES" value="" />
@@ -194,6 +227,11 @@
       <option name="RUN_TOOL" value="" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.robot_control_gui" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -221,7 +259,7 @@
       <workItem from="1770741875474" duration="2475000" />
       <workItem from="1770746329533" duration="15221000" />
       <workItem from="1770835674469" duration="5147000" />
-      <workItem from="1770840868530" duration="1031000" />
+      <workItem from="1770840868530" duration="2562000" />
     </task>
     <task id="LOCAL-00001" summary="update project">
       <option name="closed" value="true" />
@@ -415,7 +453,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770840814203</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="add stiffness and refacotr">
+      <option name="closed" value="true" />
+      <created>1770841922604</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1770841922604</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,7 +491,8 @@
     <MESSAGE value="remove bin" />
     <MESSAGE value="turbo refactor" />
     <MESSAGE value="move home after initialization and main" />
-    <option name="LAST_COMMIT_MESSAGE" value="move home after initialization and main" />
+    <MESSAGE value="add stiffness and refacotr" />
+    <option name="LAST_COMMIT_MESSAGE" value="add stiffness and refacotr" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

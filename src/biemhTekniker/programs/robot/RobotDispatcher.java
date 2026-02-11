@@ -4,6 +4,10 @@ import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.lib.vision.SmartPickingThread;
 import biemhTekniker.programs.ProgramRange;
+import biemhTekniker.programs.robot.subprograms.CalibrationProgram;
+import biemhTekniker.programs.robot.subprograms.PickNewWorkpieceProgram;
+import biemhTekniker.programs.robot.subprograms.PlaceNewWorkpieceProgram;
+import biemhTekniker.programs.robot.subprograms.TestCalibrationProgram;
 
 import java.util.HashMap;
 import java.util.Map;

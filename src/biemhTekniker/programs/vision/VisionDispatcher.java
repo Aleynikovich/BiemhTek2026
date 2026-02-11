@@ -4,6 +4,9 @@ import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.VisionManager;
 import biemhTekniker.lib.vision.VisionProgram;
 import biemhTekniker.programs.ProgramRange;
+import biemhTekniker.programs.vision.subprograms.FullScanProgram;
+import biemhTekniker.programs.vision.subprograms.IndividualVisionCommandProgram;
+import biemhTekniker.programs.vision.subprograms.LoadReferencesProgram;
 
 import java.util.HashMap;
 import java.util.Map;

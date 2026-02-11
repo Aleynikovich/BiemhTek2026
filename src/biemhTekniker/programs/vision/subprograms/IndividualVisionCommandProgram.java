@@ -1,10 +1,11 @@
-package biemhTekniker.programs.vision;
+package biemhTekniker.programs.vision.subprograms;
 
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.SmartPickingProtocol;
 import biemhTekniker.lib.vision.SmartPickingProtocol.Command;
 import biemhTekniker.lib.vision.SmartPickingProtocol.VisionResult;
 import biemhTekniker.lib.vision.VisionProgram;
+import biemhTekniker.programs.vision.VisionContext;
 
 /**
  * Vision task for individual vision commands.

@@ -1,9 +1,10 @@
-package biemhTekniker.programs.robot;
+package biemhTekniker.programs.robot.subprograms;
 
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.lib.vision.SmartPickingProtocol;
 import biemhTekniker.lib.vision.VisionRoutines;
+import biemhTekniker.programs.robot.RobotContext;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;

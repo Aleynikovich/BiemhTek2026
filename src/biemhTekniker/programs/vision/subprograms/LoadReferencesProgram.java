@@ -1,8 +1,9 @@
-package biemhTekniker.programs.vision;
+package biemhTekniker.programs.vision.subprograms;
 
 import biemhTekniker.lib.config.ConfigManager;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.VisionProgram;
+import biemhTekniker.programs.vision.VisionContext;
 
 /**
  * Vision task to load all configured references.
