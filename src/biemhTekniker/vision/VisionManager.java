@@ -1,8 +1,8 @@
 package biemhTekniker.vision;
 
 import biemhTekniker.logger.Logger;
-import biemhTekniker.programs.VisionContext;
-import biemhTekniker.programs.VisionTask;
+import biemhTekniker.lib.vision.VisionContext;
+import biemhTekniker.lib.vision.VisionTask;
 import com.kuka.common.ThreadUtil;
 
 import java.util.concurrent.atomic.AtomicBoolean;

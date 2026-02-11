@@ -1,4 +1,8 @@
-package biemhTekniker.programs;
+package biemhTekniker.programs.robot;
+
+import biemhTekniker.lib.robot.RobotProgram;
+import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.lib.motion.*;
 
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;

@@ -1,4 +1,8 @@
-package biemhTekniker.programs;
+package biemhTekniker.programs.robot;
+
+import biemhTekniker.lib.robot.RobotProgram;
+import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.lib.motion.*;
 
 import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;

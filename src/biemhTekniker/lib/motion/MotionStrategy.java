@@ -1,5 +1,6 @@
-package biemhTekniker.programs;
+package biemhTekniker.lib.motion;
 
+import biemhTekniker.lib.robot.RobotContext;
 import biemhTekniker.config.ImpedanceConfig;
 import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.deviceModel.LBR;
