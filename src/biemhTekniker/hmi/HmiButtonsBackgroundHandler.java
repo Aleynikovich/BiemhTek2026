@@ -12,9 +12,9 @@ import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class hmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
+public class HmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
 {
-    private static final Logger log = Logger.getLogger(hmiButtonsBackgroundHandler.class);
+    private static final Logger log = Logger.getLogger(HmiButtonsBackgroundHandler.class);
     @Inject
     RobotStateIOGroup robotStateIOGroup;
     @Inject

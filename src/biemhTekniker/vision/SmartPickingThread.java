@@ -112,14 +112,13 @@ public class SmartPickingThread extends Thread
 
                 if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS)
                 {
-                    log.error("Maximum consecutive errors reached. Shutting down SmartPickingThread.");
-                    running = false;
-                } else
-                {
-                    // Increase delay for next attempt (exponential backoff)
-                    currentRetryDelay = (int) Math.min(currentRetryDelay * BACKOFF_MULTIPLIER, MAX_RETRY_DELAY_MS);
-                    ThreadUtil.milliSleep(currentRetryDelay);
+                    log.error("Maximum consecutive errors reached. Thread will exit.");
+                    break; // Exit the while loop to properly shut down
                 }
+
+                // Increase delay for next attempt (exponential backoff)
+                currentRetryDelay = (int) Math.min(currentRetryDelay * BACKOFF_MULTIPLIER, MAX_RETRY_DELAY_MS);
+                ThreadUtil.milliSleep(currentRetryDelay);
             }
         }
 
