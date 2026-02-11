@@ -231,7 +231,7 @@ class RobotControlGUI:
             ("Get Queue Status", self.get_queue_status),
             ("Clear Queue", self.clear_workpiece_queue),
             ("Delete Selected", self.delete_selected_workpiece),
-            ("Pick Selected", self.pick_selected_workpiece)
+            ("Pick Selected", self.pick_selected_workpiece),
         ]
         for i, (text, cmd) in enumerate(actions):
             ttk.Button(btn_frame, text=text, command=cmd, width=18).grid(row=0, column=i, padx=3, pady=3)
@@ -367,9 +367,9 @@ class RobotControlGUI:
         
         # Update gripper states in the gripper panel
         if 'gripper1_closed' in data and 'gripper2_closed' in data and 'gripper3_closed' in data:
-            g1 = data.get('gripper1_closed', False)
-            g2 = data.get('gripper2_closed', False)
-            g3 = data.get('gripper3_closed', False)
+            g1 = data['gripper1_closed']
+            g2 = data['gripper2_closed']
+            g3 = data['gripper3_closed']
             if hasattr(self, 'gripper_panel') and self.gripper_panel is not None:
                 self.gripper_panel.set_gripper_states(g1, g2, g3)
 
