@@ -130,6 +130,64 @@ def disconnect_from_robot():
         st.session_state.client_socket = None
     st.session_state.connected = False
     log_message("Disconnected from robot", "INFO")
+        style.configure('Title.TLabel', font=('Helvetica', 14, 'bold'))
+        style.configure('Header.TLabel', font=('Helvetica', 10, 'bold'))
+        style.configure('Status.TLabel', font=('Helvetica', 9))
+        style.configure('Accent.TButton', padding=5)
+        
+        main_frame = ttk.Frame(self.root, padding="5")
+        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(3, weight=1)
+
+        ttk.Label(main_frame, text="BIEMH 2026 Control Panel", style='Title.TLabel').grid(row=0, column=0,
+                                                                                             pady=(0, 10),
+                                                                                             sticky=(tk.W, tk.E))
+        
+        self.create_connection_frame(main_frame)
+        self.create_status_frame(main_frame)
+        self.create_tabbed_interface(main_frame)
+
+    def create_connection_frame(self, parent):
+        frame = ttk.LabelFrame(parent, text="Connection", padding="5")
+        frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
+        
+        ttk.Label(frame, text="Robot IP:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        ttk.Entry(frame, textvariable=self.robot_ip, width=20).grid(row=0, column=1, sticky=tk.W, padx=(0, 20))
+        
+        ttk.Label(frame, text="Port:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
+        ttk.Entry(frame, textvariable=self.robot_port, width=10).grid(row=0, column=3, sticky=tk.W, padx=(0, 20))
+        
+        self.connect_btn = ttk.Button(frame, text="Connect", command=self.connect)
+        self.connect_btn.grid(row=0, column=4, padx=5)
+
+        self.disconnect_btn = ttk.Button(frame, text="Disconnect", command=self.disconnect, state=tk.DISABLED)
+        self.disconnect_btn.grid(row=0, column=5, padx=5)
+        
+        self.status_label = ttk.Label(frame, text="● Disconnected", foreground="red")
+        self.status_label.grid(row=0, column=6, padx=20)
+
+    def create_status_frame(self, parent):
+        frame = ttk.LabelFrame(parent, text="Robot Status", padding="5")
+        frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
+        frame.columnconfigure(1, weight=1)
+
+        ttk.Label(frame, text="Current Program:", style='Status.TLabel').grid(row=0, column=0, sticky=tk.W,
+                                                                              padx=(0, 10))
+        self.current_prog_label = ttk.Label(frame, text="0 - Idle", style='Status.TLabel', foreground="blue")
+        self.current_prog_label.grid(row=0, column=1, sticky=tk.W)
+
+        ttk.Label(frame, text="Vision Server:", style='Status.TLabel').grid(row=1, column=0, sticky=tk.W, padx=(0, 10),
+                                                                            pady=(5, 0))
+        self.vision_status_label = ttk.Label(frame, text="● Disconnected", foreground="red")
+        self.vision_status_label.grid(row=1, column=1, sticky=tk.W, pady=(5, 0))
+
+        ttk.Label(frame, text="Workpiece Position:", style='Status.TLabel').grid(row=2, column=0, sticky=tk.W,
+                                                                                 padx=(0, 10), pady=(5, 0))
+        ttk.Label(frame, textvariable=self.workpiece_position, style='Status.TLabel').grid(row=2, column=1, sticky=tk.W,
+                                                                                           pady=(5, 0))
 
 def message_listener():
     """Background thread to receive messages"""
