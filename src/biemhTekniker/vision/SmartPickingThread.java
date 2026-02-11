@@ -27,6 +27,8 @@ public class SmartPickingThread extends Thread
     private VisionSocketClient socketClient;
     private SmartPickingProtocol protocol;
     private volatile boolean running = true;
+    // Note: currentRetryDelay is thread-confined (only accessed by this thread's run() method)
+    // volatile ensures visibility if needed for debugging/monitoring but not required for correctness
     private volatile int currentRetryDelay;
 
     /**

@@ -37,18 +37,18 @@ public class SimpleJSON
             throw new IllegalArgumentException("JSON string cannot be empty");
         }
         
+        if (!trimmed.startsWith("{") || !trimmed.endsWith("}"))
+        {
+            throw new IllegalArgumentException("JSON string must start with '{' and end with '}'");
+        }
+        
         parse(trimmed);
     }
 
     private void parse(String jsonString)
     {
         // Simple parser for basic JSON objects
-        // jsonString is already trimmed by constructor
-        if (!jsonString.startsWith("{") || !jsonString.endsWith("}"))
-        {
-            throw new IllegalArgumentException("JSON string must start with '{' and end with '}'");
-        }
-        
+        // jsonString is already trimmed and validated by constructor
         jsonString = jsonString.substring(1, jsonString.length() - 1);
 
         String[] pairs = jsonString.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");

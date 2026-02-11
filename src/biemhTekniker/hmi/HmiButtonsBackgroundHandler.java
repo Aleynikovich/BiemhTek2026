@@ -31,7 +31,6 @@ public class HmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
         initializeCyclic(0, 5000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
         // Initialize HMI Buttons
         initializeHmiButtons();
-
     }
 
     @Override

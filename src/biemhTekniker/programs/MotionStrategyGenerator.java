@@ -2,6 +2,7 @@ package biemhTekniker.programs;
 
 import biemhTekniker.config.ConfigManager;
 import biemhTekniker.config.ImpedanceConfig;
+import biemhTekniker.logger.Logger;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
@@ -33,9 +34,20 @@ public class MotionStrategyGenerator
             String offsetsStr = config.getString("motion.redundancy.offsets", "-80,80,-60,60");
             String[] parts = offsetsStr.split(",");
             cachedRedundancyOffsets = new double[parts.length];
-            for (int i = 0; i < parts.length; i++)
+            try
             {
-                cachedRedundancyOffsets[i] = Math.toRadians(Double.parseDouble(parts[i].trim()));
+                for (int i = 0; i < parts.length; i++)
+                {
+                    cachedRedundancyOffsets[i] = Math.toRadians(Double.parseDouble(parts[i].trim()));
+                }
+            } catch (NumberFormatException e)
+            {
+                Logger.getLogger(MotionStrategyGenerator.class).error("Invalid redundancy offsets in configuration: " + offsetsStr + ", using defaults");
+                // Fallback to defaults
+                cachedRedundancyOffsets = new double[] {
+                    Math.toRadians(-80), Math.toRadians(80), 
+                    Math.toRadians(-60), Math.toRadians(60)
+                };
             }
         }
         return cachedRedundancyOffsets;
@@ -53,9 +65,20 @@ public class MotionStrategyGenerator
             String anglesStr = config.getString("motion.place.z.rotations", "0,45,90,135,180,-45,-90,-135");
             String[] parts = anglesStr.split(",");
             cachedZRotationAngles = new double[parts.length];
-            for (int i = 0; i < parts.length; i++)
+            try
             {
-                cachedZRotationAngles[i] = Math.toRadians(Double.parseDouble(parts[i].trim()));
+                for (int i = 0; i < parts.length; i++)
+                {
+                    cachedZRotationAngles[i] = Math.toRadians(Double.parseDouble(parts[i].trim()));
+                }
+            } catch (NumberFormatException e)
+            {
+                Logger.getLogger(MotionStrategyGenerator.class).error("Invalid Z-rotation angles in configuration: " + anglesStr + ", using defaults");
+                // Fallback to defaults
+                cachedZRotationAngles = new double[] {
+                    0, Math.toRadians(45), Math.toRadians(90), Math.toRadians(135),
+                    Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)
+                };
             }
         }
         return cachedZRotationAngles;
