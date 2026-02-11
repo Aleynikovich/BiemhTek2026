@@ -62,7 +62,7 @@ public class MotionStrategyGenerator
         if (cachedZRotationAngles == null)
         {
             ConfigManager config = ConfigManager.getInstance();
-            String anglesStr = config.getString("motion.place.z.rotations", "0,45,90,135,180,-45,-90,-135");
+            String anglesStr = config.getString("motion.place.z.rotations", "90,45,0,135,180,-45,-90,-135");
             String[] parts = anglesStr.split(",");
             cachedZRotationAngles = new double[parts.length];
             try
@@ -75,8 +75,9 @@ public class MotionStrategyGenerator
             {
                 Logger.getLogger(MotionStrategyGenerator.class).error("Invalid Z-rotation angles in configuration: " + anglesStr + ", using defaults");
                 // Fallback to defaults
+                // Load default 90 for testing purposes
                 cachedZRotationAngles = new double[] {
-                    0, Math.toRadians(45), Math.toRadians(90), Math.toRadians(135),
+                    90, Math.toRadians(45), Math.toRadians(0), Math.toRadians(135),
                     Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)
                 };
             }

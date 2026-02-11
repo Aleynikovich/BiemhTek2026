@@ -365,12 +365,12 @@ class RobotControlGUI:
         canvas.delete('workpiece')
         
         # Working plane dimensions (mm) - canvas size
-        canvas_width = 700
-        canvas_height = 500
+        canvas_width = 470
+        canvas_height = 650
         
         # Workpiece dimensions (mm)
-        wp_length = 75
-        wp_width = 35
+        wp_length = 80
+        wp_width = 40
         
         # Colors for different references
         ref_colors = {
