@@ -9,6 +9,7 @@ import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 import com.kuka.roboticsAPI.uiModel.userKeys.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.linRel;
 
@@ -35,8 +36,8 @@ public class ManualJogHandler
     private final AtomicBoolean jogCPlus = new AtomicBoolean(false);
     private final AtomicBoolean jogCMinus = new AtomicBoolean(false);
 
-    // Motion container for cancellation on key release
-    private volatile IMotionContainer activeMotion;
+    // Motion container for cancellation on key release (thread-safe)
+    private final AtomicReference<IMotionContainer> activeMotion = new AtomicReference<IMotionContainer>(null);
 
     // Robot and tool references
     private final LBR robot;
@@ -210,7 +211,7 @@ public class ManualJogHandler
      */
     private void cancelActiveMotion()
     {
-        IMotionContainer motion = activeMotion;
+        IMotionContainer motion = activeMotion.getAndSet(null);
         if (motion != null)
         {
             try
@@ -228,11 +229,19 @@ public class ManualJogHandler
      * Processes cyclic jog commands. Called from the background task's runCyclic().
      * Finds the first active flag (priority order: X > Y > Z > A > B > C) and executes
      * a small linRel increment in that direction.
+     * Skips execution if a previous motion is still in progress.
      */
     public void processCyclic()
     {
         try
         {
+            // Skip if a motion is already in progress
+            IMotionContainer currentMotion = activeMotion.get();
+            if (currentMotion != null && !currentMotion.isFinished())
+            {
+                return;
+            }
+
             // Priority order: X > Y > Z > A > B > C
             double dx = 0.0, dy = 0.0, dz = 0.0;
             double da = 0.0, db = 0.0, dc = 0.0;
@@ -281,10 +290,11 @@ public class ManualJogHandler
             }
 
             // Execute the linRel motion in WORLD coordinates
-            activeMotion = tool.move(
+            IMotionContainer motion = tool.move(
                     linRel(dx, dy, dz, da, db, dc, World.Current.getRootFrame())
                             .setJointVelocityRel(jogVelocityRel)
             );
+            activeMotion.set(motion);
 
         } catch (Exception e)
         {
