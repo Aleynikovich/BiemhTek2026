@@ -21,6 +21,7 @@ public class MotionStrategyGenerator
     private static volatile double[] cachedRedundancyOffsets = null;
     private static volatile double[] cachedZRotationAngles = null;
     private static volatile ImpedanceConfig impedanceConfig = null;
+    private static volatile boolean forceLineal;
 
     /**
      * Loads redundancy offsets from configuration.
@@ -115,7 +116,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategies(tcp, robot, getRedundancyOffsets());
+        return generateStrategies(tcp, robot, getRedundancyOffsets(), forceLineal);
     }
 
     /**
@@ -129,27 +130,27 @@ public class MotionStrategyGenerator
      * @param redundancyOffsets Array of E1 offsets in radians to try
      * @return List of motion strategies in priority order
      */
-    public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
+    public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, boolean forceLinealApproach)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode,false));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode,forceLinealApproach));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, false, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, false, impedanceMode,forceLinealApproach));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, false, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, false, impedanceMode,forceLinealApproach));
         }
 
         return strategies;
@@ -185,11 +186,11 @@ public class MotionStrategyGenerator
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode,forceLineal));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode,forceLineal));
         }
 
         return strategies;
@@ -235,11 +236,11 @@ public class MotionStrategyGenerator
                 Double zAngle = Double.valueOf(zRotationAngles[z]);
 
                 // First attempt without redundancy (null), then with offsets
-                strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode));
+                strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode,forceLineal));
                 for (int i = 0; i < redundancyOffsets.length; i++)
                 {
                     Double offset = Double.valueOf(redundancyOffsets[i]);
-                    strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode));
+                    strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode,forceLineal));
                 }
             }
         }
@@ -282,20 +283,20 @@ public class MotionStrategyGenerator
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode,forceLineal));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode, forceLineal));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode, forceLineal));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode, forceLineal));
         }
 
         return strategies;
