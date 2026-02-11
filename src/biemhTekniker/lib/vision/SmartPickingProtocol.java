@@ -109,17 +109,33 @@ public class SmartPickingProtocol
     }
 
     /**
-     * Locates parts across all references in a zone.
+     * Callback interface for processing workpieces as they are found.
+     */
+    public interface WorkpieceCallback
+    {
+        /**
+         * Called when a workpiece is found during scanning.
+         * This method is invoked immediately for each workpiece as it is discovered.
+         * 
+         * @param workpiece The found workpiece data (guaranteed non-null)
+         */
+        void onWorkpieceFound(biemhTekniker.lib.data.WorkpieceData workpiece);
+    }
+
+    /**
+     * Locates parts across all references in a zone with progressive processing.
      * Iterates through reference indices 1 to referenceCount.
      * For each reference, locates parts then retrieves all part positions using GET_PART_POS and GET_NEXT_PART_POS.
+     * The callback is invoked immediately for each found workpiece, enabling progressive processing.
      *
      * @param referenceCount Number of references to scan (e.g., 3)
      * @param zone           Zone number (e.g., 1)
-     * @return List of all found workpiece data across all references
+     * @param callback       Callback to process workpieces as they are found
+     * @return Total count of workpieces found across all references
      */
-    public java.util.List<biemhTekniker.lib.data.WorkpieceData> locateAllParts(int referenceCount, int zone)
+    public int locateAllParts(int referenceCount, int zone, WorkpieceCallback callback)
     {
-        java.util.List<biemhTekniker.lib.data.WorkpieceData> allWorkpieces = new java.util.ArrayList<biemhTekniker.lib.data.WorkpieceData>();
+        int totalCount = 0;
 
         for (int ref = 1; ref <= referenceCount; ref++)
         {
@@ -138,7 +154,8 @@ public class SmartPickingProtocol
             if (firstPartResult.isSuccess())
             {
                 biemhTekniker.lib.data.WorkpieceData wp = createWorkpieceFromResult(firstPartResult, ref);
-                allWorkpieces.add(wp);
+                callback.onWorkpieceFound(wp);
+                totalCount++;
                 log.debug("Found part 1 for reference " + ref + ": score=" + wp.getScore());
 
                 // Get remaining parts using GET_NEXT_PART_POS
@@ -151,7 +168,8 @@ public class SmartPickingProtocol
                         break;
                     }
                     biemhTekniker.lib.data.WorkpieceData nextWp = createWorkpieceFromResult(nextPartResult, ref);
-                    allWorkpieces.add(nextWp);
+                    callback.onWorkpieceFound(nextWp);
+                    totalCount++;
                     partCount++;
                     log.debug("Found part " + partCount + " for reference " + ref + ": score=" + nextWp.getScore());
                 }
@@ -163,8 +181,8 @@ public class SmartPickingProtocol
             }
         }
 
-        log.info("Total parts found across all references: " + allWorkpieces.size());
-        return allWorkpieces;
+        log.info("Total parts found across all references: " + totalCount);
+        return totalCount;
     }
 
     /**
