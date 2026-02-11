@@ -174,4 +174,35 @@ public class AppController implements ConsoleServerInterface
         }
         return false;
     }
+
+    @Override
+    public boolean isGripper1Closed()
+    {
+        try
+        {
+            return robotContext != null && robotContext.getGripperIO() != null && robotContext.getGripperIO().getGripper1_Switch();
+        } catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isGripper2Closed()
+    {
+        try
+        {
+            return robotContext != null && robotContext.getGripperIO() != null && robotContext.getGripperIO().getGripper2_Switch();
+        } catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isGripper3Closed()
+    {
+        // If only two physical grippers exist, report false for third
+        return false;
+    }
 }

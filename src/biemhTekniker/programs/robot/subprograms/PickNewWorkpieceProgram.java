@@ -49,9 +49,32 @@ public class PickNewWorkpieceProgram implements RobotProgram
         WorkpieceQueue queue = context.getWorkpieceQueue();
         ObjectFrame scanWorkpiecePosition = app.getApplicationData().getFrame("/ScanWorkpiece");
         Frame scanWorkpieceFrame = scanWorkpiecePosition.copyWithRedundancy();
-        
-        // Peek at next workpiece without consuming it yet
-        WorkpieceData workpieceData = queue.peekNextForPicking();
+
+        // Try forced selection first (from console), then fallback to next available
+        WorkpieceData workpieceData = null;
+        try
+        {
+            Long forcedId = biemhTekniker.lib.robot.motions.MotionOverrides.consumeForcedWorkpieceId();
+            if (forcedId != null)
+            {
+                WorkpieceData forced = queue.getById(forcedId.longValue());
+                if (forced != null && forced.isValid() && forced.getState() == biemhTekniker.lib.data.WorkpieceState.AVAILABLE)
+                {
+                    workpieceData = forced;
+                    log.info("Forced pick of workpiece ID " + forcedId + " requested via console");
+                } else
+                {
+                    log.warn("Forced workpiece ID " + forcedId + " not AVAILABLE/valid; falling back to next available");
+                }
+            }
+        } catch (Exception ex)
+        {
+            log.warn("Error checking forced workpiece selection: " + ex.getMessage());
+        }
+        if (workpieceData == null)
+        {
+            workpieceData = queue.peekNextForPicking();
+        }
         if (workpieceData == null)
         {
             log.error("No workpieces available to pick");

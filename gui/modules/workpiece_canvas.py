@@ -34,7 +34,9 @@ class WorkpieceCanvas(tk.Canvas):
         for wp in workpieces:
             x = float(wp.get('x', 0))
             y = float(wp.get('y', 0))
-            rz = float(wp.get('rz', 0))
+            rx_deg = float(wp.get('rx', 0))
+            ry_deg = float(wp.get('ry', 0))
+            rz_deg = float(wp.get('rz', 0))
             ref = wp.get('reference', 1)
             state = wp.get('state', 'AVAILABLE')
             gripper = wp.get('gripper', '')
@@ -50,25 +52,43 @@ class WorkpieceCanvas(tk.Canvas):
             outline_color = state_colors.get(state, 'black')
             outline_width = 3 if state == 'PICKED' else 2
 
-            angle_rad = math.radians(-rz)
-            cos_a = math.cos(angle_rad)
-            sin_a = math.sin(angle_rad)
+            # Rotation math: Rz -> Ry -> Rx
+            # We want to find the projection of the local X+ and Y+ axes onto the XY plane
+            az = math.radians(rz_deg)
+            ay = math.radians(ry_deg)
+            ax = math.radians(rx_deg)
+
+            # Local X+ unit vector after rotations:
+            # ux = [cos(az)cos(ay), sin(az)cos(ay), -sin(ay)]
+            ux_x = math.cos(az) * math.cos(ay)
+            ux_y = math.sin(az) * math.cos(ay)
+
+            # Local Y+ unit vector after rotations:
+            # uy = [cos(az)sin(ay)sin(ax) - sin(az)cos(ax), sin(az)sin(ay)sin(ax) + cos(az)cos(ax), cos(ay)sin(ax)]
+            uy_x = math.cos(az) * math.sin(ay) * math.sin(ax) - math.sin(az) * math.cos(ax)
+            uy_y = math.sin(az) * math.sin(ay) * math.sin(ax) + math.cos(az) * math.cos(ax)
+
+            # Rectangle corners calculation using projected basis
             half_l, half_w = wp_length / 2, wp_width / 2
-            corners = [(-half_l, -half_w), (+half_l, -half_w), (+half_l, +half_w), (-half_l, +half_w)]
+            corners_basis = [
+                (-half_l, -half_w), (+half_l, -half_w), (+half_l, +half_w), (-half_l, +half_w)
+            ]
             rotated_corners = []
-            for cx, cy in corners:
-                rx = cx * cos_a - cy * sin_a
-                ry = cx * sin_a + cy * cos_a
-                rotated_corners.extend([canvas_x + rx, canvas_y + ry])
+            for cl, cw in corners_basis:
+                px = cl * ux_x + cw * uy_x
+                py = cl * ux_y + cw * uy_y
+                # canvas_y increases downward, so we subtract py from canvas_y
+                rotated_corners.extend([canvas_x + px, canvas_y - py])
 
             self.create_polygon(rotated_corners, fill=fill_color, outline=outline_color, width=outline_width,
                                 tags='workpiece')
 
             orientation = wp.get('orientation', 0)
-            arrow_angle_rad = math.radians(-rz + (180 if orientation == 1 else 0))
-            arrow_dx = (wp_length / 2) * math.cos(arrow_angle_rad)
-            arrow_dy = (wp_length / 2) * math.sin(arrow_angle_rad)
-            self.create_line(canvas_x, canvas_y, canvas_x + arrow_dx, canvas_y + arrow_dy, arrow=tk.LAST, fill='yellow',
+            # Arrow follows local X+ (or X- if inverted)
+            flip = -1 if orientation == 1 else 1
+            arrow_dx = (wp_length / 2) * ux_x * flip
+            arrow_dy = (wp_length / 2) * ux_y * flip
+            self.create_line(canvas_x, canvas_y, canvas_x + arrow_dx, canvas_y - arrow_dy, arrow=tk.LAST, fill='yellow',
                              width=2, tags='workpiece')
 
             rev_rad = wp_length / 2 + wp_width / 4

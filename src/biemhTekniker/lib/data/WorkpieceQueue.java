@@ -373,6 +373,17 @@ public class WorkpieceQueue
     }
 
     /**
+     * Public accessor to get a workpiece by ID without changing its state.
+     *
+     * @param workpieceId the ID to search
+     * @return WorkpieceData or null if not found
+     */
+    public synchronized WorkpieceData getById(long workpieceId)
+    {
+        return findById(workpieceId);
+    }
+
+    /**
      * Finds an existing workpiece at the given position (within configured tolerance).
      * Used for tracking workpieces across scans to avoid creating duplicates.
      *

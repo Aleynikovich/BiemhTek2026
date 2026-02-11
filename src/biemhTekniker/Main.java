@@ -384,4 +384,22 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         return appController.removeWorkpiece(workpieceId);
     }
 
+    @Override
+    public boolean isGripper1Closed()
+    {
+        return appController.isGripper1Closed();
+    }
+
+    @Override
+    public boolean isGripper2Closed()
+    {
+        return appController.isGripper2Closed();
+    }
+
+    @Override
+    public boolean isGripper3Closed()
+    {
+        return appController.isGripper3Closed();
+    }
+
 }

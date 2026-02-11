@@ -30,6 +30,12 @@ public class MotionStrategyGenerator
      */
     private static synchronized double[] getRedundancyOffsets()
     {
+        // Runtime override takes precedence if provided
+        double[] override = MotionOverrides.getForcedRedundancyOffsets();
+        if (override != null && override.length > 0)
+        {
+            return override;
+        }
         if (cachedRedundancyOffsets == null)
         {
             ConfigManager config = ConfigManager.getInstance();
@@ -58,6 +64,12 @@ public class MotionStrategyGenerator
      */
     private static synchronized double[] getZRotationAngles()
     {
+        // Runtime override takes precedence if provided
+        double[] override = MotionOverrides.getForcedZRotationAngles();
+        if (override != null && override.length > 0)
+        {
+            return override;
+        }
         if (cachedZRotationAngles == null)
         {
             ConfigManager config = ConfigManager.getInstance();

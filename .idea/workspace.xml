@@ -4,23 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="add stiffness and refacotr">
-      <change afterPath="$PROJECT_DIR$/gui/modules/gripper_panel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gui/modules/log_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gui/modules/robot_client.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gui/modules/workpiece_canvas.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gui/modules/workpiece_manager.py" afterDir="false" />
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="update gui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/robot_control_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/robot_control_gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/CalibrationProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/CalibrationProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotDispatcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/TestCalibrationProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/TestCalibrationProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/FullScanProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/subprograms/FullScanProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/IndividualVisionCommandProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/subprograms/IndividualVisionCommandProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/LoadReferencesProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/subprograms/LoadReferencesProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/VisionDispatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/vision/VisionDispatcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleCommandHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleCommandHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleServerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleServerInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceQueue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategyGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategyGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -259,7 +251,7 @@
       <workItem from="1770741875474" duration="2475000" />
       <workItem from="1770746329533" duration="15221000" />
       <workItem from="1770835674469" duration="5147000" />
-      <workItem from="1770840868530" duration="2562000" />
+      <workItem from="1770840868530" duration="3569000" />
     </task>
     <task id="LOCAL-00001" summary="update project">
       <option name="closed" value="true" />
@@ -461,7 +453,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770841922604</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="update gui">
+      <option name="closed" value="true" />
+      <created>1770843484812</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1770843484812</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -492,7 +492,8 @@
     <MESSAGE value="turbo refactor" />
     <MESSAGE value="move home after initialization and main" />
     <MESSAGE value="add stiffness and refacotr" />
-    <option name="LAST_COMMIT_MESSAGE" value="add stiffness and refacotr" />
+    <MESSAGE value="update gui" />
+    <option name="LAST_COMMIT_MESSAGE" value="update gui" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

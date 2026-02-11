@@ -73,4 +73,11 @@ public interface ConsoleServerInterface
      * @return true if workpiece was found and removed, false otherwise
      */
     boolean removeWorkpiece(long workpieceId);
+
+    // --- Gripper state reporting (open/closed) ---
+    boolean isGripper1Closed();
+
+    boolean isGripper2Closed();
+
+    boolean isGripper3Closed();
 }
