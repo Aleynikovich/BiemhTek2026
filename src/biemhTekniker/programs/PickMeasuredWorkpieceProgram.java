@@ -51,8 +51,8 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
         Frame prePickPosition = new Frame(pickPosition.copyWithRedundancy());
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Generate motion strategies for pick operation with tool coordinates
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
+        // Generate motion strategies for pick operation
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
 
         // Create gripper activation action (close gripper 2)
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
@@ -70,7 +70,7 @@ public class PickMeasuredWorkpieceProgram implements RobotProgram
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), gripperAction, context))
+            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
             {
                 pickSucceeded = true;
                 break;

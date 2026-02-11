@@ -2,7 +2,6 @@ package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.logger.Logger;
-import biemhTekniker.vision.SmartPickingProtocol;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -23,7 +22,6 @@ public class RobotContext
     private final MediaFlangeIOGroup gripperIO;
     private final RoboticsAPIApplication application;
     private final WorkpieceQueue workpieceQueue;
-    private SmartPickingProtocol protocol;
     private volatile boolean cancellationRequested = false;
     private volatile IMotionContainer activeMotion = null;
 
@@ -68,28 +66,6 @@ public class RobotContext
     public WorkpieceQueue getWorkpieceQueue()
     {
         return workpieceQueue;
-    }
-
-    /**
-     * Sets the SmartPicking protocol for camera interaction.
-     * Optional - only needed for programs that directly interact with the camera.
-     *
-     * @param protocol SmartPicking protocol instance
-     */
-    public void setProtocol(SmartPickingProtocol protocol)
-    {
-        this.protocol = protocol;
-    }
-
-    /**
-     * Gets the SmartPicking protocol for camera interaction.
-     * May be null if not set.
-     *
-     * @return SmartPicking protocol instance or null
-     */
-    public SmartPickingProtocol getProtocol()
-    {
-        return protocol;
     }
 
     /**

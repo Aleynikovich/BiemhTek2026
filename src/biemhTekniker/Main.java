@@ -98,7 +98,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // Initialize contexts
         robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue);
-        robotContext.setProtocol(smartPickingThread.getProtocol());
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
 
         // Initialize vision manager
