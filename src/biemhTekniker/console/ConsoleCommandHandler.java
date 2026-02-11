@@ -80,7 +80,6 @@ public class ConsoleCommandHandler implements Runnable
             }
             
             SimpleJSON json = new SimpleJSON(command);
-            String type = json.getString("type", "unknown");
             
             // Validate type field exists
             if (!json.has("type"))
@@ -88,6 +87,8 @@ public class ConsoleCommandHandler implements Runnable
                 sendError("Missing required 'type' field in command");
                 return;
             }
+            
+            String type = json.getString("type", "unknown");
 
             if ("set_program".equals(type))
             {

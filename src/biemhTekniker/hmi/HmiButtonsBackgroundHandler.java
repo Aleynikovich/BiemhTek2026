@@ -51,7 +51,7 @@ public class HmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
             log.info("Initializing HMI programmable buttons...");
             hmiKeyBar = getApplicationUI().createUserKeyBar("BiemhTek_HMI");
 
-            biemhTekniker.hmi.HmiButtonHandler buttonHandler = new biemhTekniker.hmi.HmiButtonHandler(iiwa, gripper, gripperIO);
+            HmiButtonHandler buttonHandler = new HmiButtonHandler(iiwa, gripper, gripperIO);
 
             buttonHandler.registerUserKeys(hmiKeyBar);
             log.info("HMI programmable buttons initialized successfully");

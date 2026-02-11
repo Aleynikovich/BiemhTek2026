@@ -26,17 +26,24 @@ public class SimpleJSON
     public SimpleJSON(String jsonString)
     {
         this.data = new HashMap<String, Object>();
-        if (jsonString == null || jsonString.trim().isEmpty())
+        if (jsonString == null)
         {
-            throw new IllegalArgumentException("JSON string cannot be null or empty");
+            throw new IllegalArgumentException("JSON string cannot be null");
         }
-        parse(jsonString);
+        
+        String trimmed = jsonString.trim();
+        if (trimmed.isEmpty())
+        {
+            throw new IllegalArgumentException("JSON string cannot be empty");
+        }
+        
+        parse(trimmed);
     }
 
     private void parse(String jsonString)
     {
         // Simple parser for basic JSON objects
-        jsonString = jsonString.trim();
+        // jsonString is already trimmed by constructor
         if (!jsonString.startsWith("{") || !jsonString.endsWith("}"))
         {
             throw new IllegalArgumentException("JSON string must start with '{' and end with '}'");
