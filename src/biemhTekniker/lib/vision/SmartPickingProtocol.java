@@ -115,8 +115,9 @@ public class SmartPickingProtocol
     {
         /**
          * Called when a workpiece is found during scanning.
+         * This method is invoked immediately for each workpiece as it is discovered.
          * 
-         * @param workpiece The found workpiece data
+         * @param workpiece The found workpiece data (guaranteed non-null)
          */
         void onWorkpieceFound(biemhTekniker.lib.data.WorkpieceData workpiece);
     }

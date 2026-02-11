@@ -68,6 +68,7 @@ public class FullScanProgram implements VisionProgram
         // Create callback to add each workpiece to queue immediately as it's found
         SmartPickingProtocol.WorkpieceCallback callback = new SmartPickingProtocol.WorkpieceCallback()
         {
+            @Override
             public void onWorkpieceFound(WorkpieceData wp)
             {
                 // Add or update workpiece in the queue (with position tracking)
