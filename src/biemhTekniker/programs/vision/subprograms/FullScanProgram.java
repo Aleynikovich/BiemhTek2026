@@ -73,8 +73,18 @@ public class FullScanProgram implements VisionProgram
             {
                 // Add or update workpiece in the queue (with position tracking)
                 // This prevents creating duplicate workpieces on each scan
-                queue.addOrUpdateWorkpiece(workpiece.getX(), workpiece.getY(), workpiece.getZ(), workpiece.getRx(), workpiece.getRy(), workpiece.getRz(), workpiece.getScore(), workpiece.getReferenceIndex());
-                log.debug("Workpiece added to queue progressively: id=" + workpiece.getId() + ", ref=" + workpiece.getReferenceIndex() + ", score=" + workpiece.getScore());
+                double x = workpiece.getX();
+                double y = workpiece.getY();
+                double z = workpiece.getZ();
+                double rx = workpiece.getRx();
+                double ry = workpiece.getRy();
+                double rz = workpiece.getRz();
+                double score = workpiece.getScore();
+                int refIndex = workpiece.getReferenceIndex();
+                
+                queue.addOrUpdateWorkpiece(x, y, z, rx, ry, rz, score, refIndex);
+                log.debug("Workpiece added to queue progressively: id=" + workpiece.getId() 
+                    + ", ref=" + refIndex + ", score=" + score);
             }
         };
         
