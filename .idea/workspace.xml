@@ -5,14 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="update gui">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleCommandHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleCommandHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleServerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/console/ConsoleServerInterface.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/data/WorkpieceQueue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategyGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/robot/motions/MotionStrategyGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +124,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#72 on copilot/add-manual-jogging-background-task&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/aley/IdeaProjects/BiehmTek&quot;,
@@ -461,7 +460,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770843484812</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="update gui">
+      <option name="closed" value="true" />
+      <created>1770849181552</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1770849181552</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
