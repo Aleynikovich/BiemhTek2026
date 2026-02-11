@@ -352,6 +352,16 @@ public class MotionStrategy
     }
 
     /**
+     * Gets the orientation determined by this strategy.
+     * 
+     * @return 0 for regular position, 1 for alternate position (180° rotation)
+     */
+    public int getOrientation()
+    {
+        return useAlternatePosition ? 1 : 0;
+    }
+
+    /**
      * Gets a human-readable description of this strategy.
      */
     public String getDescription()

@@ -305,6 +305,8 @@ public class WorkpieceQueue
             sb.append("{");
             sb.append("\"id\":").append(wp.getId());
             sb.append(",\"reference\":").append(wp.getReferenceIndex());
+            sb.append(",\"orientation\":").append(wp.getOrientation());
+            sb.append(",\"referenceString\":\"").append(wp.getReferenceString()).append("\"");
             sb.append(",\"state\":\"").append(wp.getState()).append("\"");
             
             String gripperLoc = wp.getGripperLocation();
