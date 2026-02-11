@@ -39,6 +39,7 @@ public class MotionStrategy
     private final Double zRotationAngle; // Specific Z-axis rotation angle in radians (null if allowZRotation is false)
     private final boolean useToolCoordinates; // Use tool coordinate system (Z+) for approach/retract
     private final CartesianImpedanceControlMode impedanceMode; // Impedance control for compliance (null if disabled)
+    private final boolean forceLinealApproach; // Force linear motion for approach instead of PTP
 
     /**
      * Creates a motion strategy without redundancy.
@@ -48,7 +49,7 @@ public class MotionStrategy
      */
     public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition)
     {
-        this(tcp, useAlternatePosition, null, null, false, null, false, null);
+        this(tcp, useAlternatePosition, null, null, false, null, false, null, false);
     }
 
     /**
@@ -62,7 +63,7 @@ public class MotionStrategy
     public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
                          Double redundancyE1Offset, LBR robot)
     {
-        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false, null);
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false, null, false);
     }
 
     /**
@@ -82,7 +83,7 @@ public class MotionStrategy
                          boolean useToolCoordinates)
     {
         this(tcp, useAlternatePosition, redundancyE1Offset, robot, allowZRotation, 
-             zRotationAngle, useToolCoordinates, null);
+             zRotationAngle, useToolCoordinates, null, false);
     }
 
     /**
@@ -102,6 +103,29 @@ public class MotionStrategy
                          boolean allowZRotation, Double zRotationAngle, 
                          boolean useToolCoordinates, CartesianImpedanceControlMode impedanceMode)
     {
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, allowZRotation, 
+             zRotationAngle, useToolCoordinates, impedanceMode, false);
+    }
+
+    /**
+     * Creates a motion strategy with full feature support including impedance control and linear approach.
+     *
+     * @param tcp                  Tool center point frame
+     * @param useAlternatePosition If true, rotate position by 180 degrees around Z-axis
+     * @param redundancyE1Offset   E1 offset in radians for null space motion (null to disable)
+     * @param robot                Robot instance (required when redundancyE1Offset is not null)
+     * @param allowZRotation       If true, apply Z-axis rotation for place operations
+     * @param zRotationAngle       Z-axis rotation angle in radians (null for default 0)
+     * @param useToolCoordinates   If true, use tool coordinate system (Z+) for approach/retract
+     * @param impedanceMode        Cartesian impedance control mode for compliance (null to disable)
+     * @param forceLinealApproach  If true, use linear motion for approach instead of PTP
+     */
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
+                         Double redundancyE1Offset, LBR robot,
+                         boolean allowZRotation, Double zRotationAngle, 
+                         boolean useToolCoordinates, CartesianImpedanceControlMode impedanceMode,
+                         boolean forceLinealApproach)
+    {
         this.tcp = tcp;
         this.useAlternatePosition = useAlternatePosition;
         this.redundancyE1Offset = redundancyE1Offset;
@@ -110,6 +134,7 @@ public class MotionStrategy
         this.zRotationAngle = zRotationAngle;
         this.useToolCoordinates = useToolCoordinates;
         this.impedanceMode = impedanceMode;
+        this.forceLinealApproach = forceLinealApproach;
     }
 
     /**
@@ -227,8 +252,16 @@ public class MotionStrategy
                     approachFrame.setRedundancyInformation(robot, redundancy);
                 }
 
-                // Approach - move to position above target with PTP
-                IMotionContainer motionContainer = movePtpAsync(approachFrame, APPROACH_VELOCITY);
+                // Approach - move to position above target with PTP or LIN based on forceLinealApproach
+                IMotionContainer motionContainer;
+                if (forceLinealApproach)
+                {
+                    motionContainer = moveLinAsync(approachFrame, APPROACH_VELOCITY);
+                }
+                else
+                {
+                    motionContainer = movePtpAsync(approachFrame, APPROACH_VELOCITY);
+                }
                 if (context != null)
                 {
                     context.setActiveMotion(motionContainer);
@@ -394,6 +427,16 @@ public class MotionStrategy
             log.warn("Motion action failed with " + strategyDesc + ": " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Gets the orientation determined by this strategy.
+     *
+     * @return 0 for regular position, 1 for alternate position (180° rotation)
+     */
+    public int getOrientation()
+    {
+        return useAlternatePosition ? 1 : 0;
     }
 
     /**
