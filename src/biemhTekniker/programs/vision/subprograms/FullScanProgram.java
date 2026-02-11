@@ -66,8 +66,7 @@ public class FullScanProgram implements VisionProgram
         log.debug("Step 4: Locating parts across " + referenceCount + " references in zone " + zone);
         
         // Create callback to add each workpiece to queue immediately as it's found
-        SmartPickingProtocol.WorkpieceCallback callback = new SmartPickingProtocol.WorkpieceCallback()
-        {
+        SmartPickingProtocol.WorkpieceCallback callback = new SmartPickingProtocol.WorkpieceCallback() {
             @Override
             public void onWorkpieceFound(WorkpieceData workpiece)
             {
