@@ -1,6 +1,10 @@
 package biemhTekniker.programs;
 
 import biemhTekniker.exceptions.ProgramCancelledException;
+import biemhTekniker.lib.motion.MotionStrategy;
+import biemhTekniker.lib.motion.MotionStrategyGenerator;
+import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -91,7 +95,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         gripperIO.setGripper2_Switch(false);
         // Generate motion strategies for TCP B with tool coordinates (but no Z-rotation for pick)
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
+        // Use forceLinealApproach=true to ensure linear motion to approach position
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot, true);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
@@ -162,7 +167,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         gripperIO.setGripper3_Switch(false);
 
         // Generate motion strategies for TCP A with Z-axis rotation and tool coordinates
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot);
+        // Use forceLinealApproach=true to ensure linear motion to approach position
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot, true);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()

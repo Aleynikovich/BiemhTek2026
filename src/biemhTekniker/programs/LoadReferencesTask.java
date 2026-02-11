@@ -1,6 +1,8 @@
 package biemhTekniker.programs;
 
 import biemhTekniker.config.ConfigManager;
+import biemhTekniker.lib.vision.VisionContext;
+import biemhTekniker.lib.vision.VisionTask;
 import biemhTekniker.logger.Logger;
 
 /**

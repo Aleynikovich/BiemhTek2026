@@ -4,6 +4,8 @@ import biemhTekniker.config.ConfigManager;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.data.WorkpieceState;
+import biemhTekniker.lib.vision.VisionContext;
+import biemhTekniker.lib.vision.VisionTask;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;

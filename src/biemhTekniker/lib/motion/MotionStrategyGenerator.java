@@ -1,4 +1,4 @@
-package biemhTekniker.programs;
+package biemhTekniker.lib.motion;
 
 import biemhTekniker.config.ImpedanceConfig;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -34,6 +34,9 @@ public class MotionStrategyGenerator
         Math.toRadians(-90),         // -90 degrees
         Math.toRadians(-135)         // -135 degrees
     };
+
+    // Default value for force lineal approach (use PTP for approach by default)
+    private static final boolean DEFAULT_FORCE_LINEAL_APPROACH = false;
 
     // Singleton impedance configuration instance
     private static ImpedanceConfig impedanceConfig = null;
@@ -168,7 +171,23 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generatePlaceStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_Z_ROTATION_ANGLES);
+        return generatePlaceStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_Z_ROTATION_ANGLES, DEFAULT_FORCE_LINEAL_APPROACH);
+    }
+
+    /**
+     * Generates a list of motion strategies for place operations with Z-axis rotation freedom,
+     * tool coordinate system approach, and option to force linear approach.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
+     * Impedance control is automatically enabled if configured.
+     *
+     * @param tcp                 Tool center point frame to use
+     * @param robot               Robot instance for redundancy support
+     * @param forceLinealApproach If true, use linear motion for approach instead of PTP
+     * @return List of motion strategies in priority order
+     */
+    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, boolean forceLinealApproach)
+    {
+        return generatePlaceStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_Z_ROTATION_ANGLES, forceLinealApproach);
     }
 
     /**
@@ -187,6 +206,27 @@ public class MotionStrategyGenerator
                                                                double[] redundancyOffsets, 
                                                                double[] zRotationAngles)
     {
+        return generatePlaceStrategies(tcp, robot, redundancyOffsets, zRotationAngles, DEFAULT_FORCE_LINEAL_APPROACH);
+    }
+
+    /**
+     * Generates a list of motion strategies for place operations with custom Z-axis rotation angles,
+     * tool coordinate system approach, and option to force linear approach.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
+     * Impedance control is automatically enabled if configured.
+     *
+     * @param tcp                 Tool center point frame to use
+     * @param robot               Robot instance for redundancy support
+     * @param redundancyOffsets   Array of E1 offsets in radians to try
+     * @param zRotationAngles     Array of Z-axis rotation angles in radians to try
+     * @param forceLinealApproach If true, use linear motion for approach instead of PTP
+     * @return List of motion strategies in priority order
+     */
+    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, 
+                                                               double[] redundancyOffsets, 
+                                                               double[] zRotationAngles,
+                                                               boolean forceLinealApproach)
+    {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
@@ -196,11 +236,11 @@ public class MotionStrategyGenerator
             Double zAngle = Double.valueOf(zRotationAngles[z]);
             
             // First attempt without redundancy (null), then with offsets
-            strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode, forceLinealApproach));
             for (int i = 0; i < redundancyOffsets.length; i++)
             {
                 Double offset = Double.valueOf(redundancyOffsets[i]);
-                strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode));
+                strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode, forceLinealApproach));
             }
         }
 
@@ -221,7 +261,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategiesWithToolCoordinates(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS);
+        return generateStrategiesWithToolCoordinates(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_FORCE_LINEAL_APPROACH);
     }
 
     /**
@@ -237,25 +277,58 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
+        return generateStrategiesWithToolCoordinates(tcp, robot, redundancyOffsets, DEFAULT_FORCE_LINEAL_APPROACH);
+    }
+
+    /**
+     * Generates a list of motion strategies with tool coordinate system approach
+     * and option to force linear approach motion.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
+     * Impedance control is automatically enabled if configured.
+     *
+     * @param tcp                 Tool center point frame to use
+     * @param robot               Robot instance for redundancy support
+     * @param forceLinealApproach If true, use linear motion for approach instead of PTP
+     * @return List of motion strategies in priority order
+     */
+    public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot, boolean forceLinealApproach)
+    {
+        return generateStrategiesWithToolCoordinates(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, forceLinealApproach);
+    }
+
+    /**
+     * Generates a list of motion strategies with tool coordinate system approach,
+     * custom redundancy variations, and option to force linear approach motion.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
+     * Impedance control is automatically enabled if configured.
+     *
+     * @param tcp                 Tool center point frame to use
+     * @param robot               Robot instance for redundancy support
+     * @param redundancyOffsets   Array of E1 offsets in radians to try
+     * @param forceLinealApproach If true, use linear motion for approach instead of PTP
+     * @return List of motion strategies in priority order
+     */
+    public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, boolean forceLinealApproach)
+    {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode, forceLinealApproach));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode, forceLinealApproach));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode, forceLinealApproach));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode, forceLinealApproach));
         }
 
         return strategies;

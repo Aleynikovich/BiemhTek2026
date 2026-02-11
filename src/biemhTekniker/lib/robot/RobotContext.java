@@ -1,4 +1,4 @@
-package biemhTekniker.programs;
+package biemhTekniker.lib.robot;
 
 import biemhTekniker.config.FrameRepository;
 import biemhTekniker.data.WorkpieceQueue;

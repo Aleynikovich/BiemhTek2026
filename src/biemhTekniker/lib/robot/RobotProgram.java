@@ -1,4 +1,4 @@
-package biemhTekniker.programs;
+package biemhTekniker.lib.robot;
 
 /**
  * Interface for robot programs that execute on the main robot thread.

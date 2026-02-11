@@ -3,6 +3,10 @@ package biemhTekniker.programs;
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.ProgramCancelledException;
+import biemhTekniker.lib.motion.MotionStrategy;
+import biemhTekniker.lib.motion.MotionStrategyGenerator;
+import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;
 import biemhTekniker.vision.SmartPickingProtocol.Command;
@@ -81,7 +85,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
         // Generate motion strategies using tool coordinates for pick (no Z-rotation)
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpA, robot);
+        // Use forceLinealApproach=true to ensure linear motion to approach position
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpA, robot, true);
 
         // Create gripper activation action
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
@@ -96,6 +101,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
+        MotionStrategy successfulStrategy = null;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             // Check for cancellation between strategies
@@ -109,6 +115,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), gripperAction, context))
             {
                 pickSucceeded = true;
+                successfulStrategy = strategy;
                 break;
             }
             
@@ -133,6 +140,16 @@ public class PickNewWorkpieceProgram implements RobotProgram
             throw new Exception("Failed to pick workpiece - all strategies exhausted");
         }
 
+        // Set orientation based on successful pick strategy
+        // Robot determines orientation: 0=regular, 1=180deg rotation (alternate position)
+        if (successfulStrategy != null)
+        {
+            int orientation = successfulStrategy.getOrientation();
+            workpieceData.setOrientation(orientation);
+            log.info("Workpiece picked with orientation " + orientation + " (" + 
+                     (orientation == 0 ? "regular" : "180deg rotation") + ")");
+        }
+
         // Mark workpiece as PICKED only after successful pick
         queue.markPicked(workpieceData.getId());
         workpieceData.setGripperLocation("A"); // Track that it's in gripper A
@@ -151,7 +168,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Generate place strategies for TCP B with Z-rotation freedom and tool coordinates
-        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
+        // Use forceLinealApproach=true to ensure linear motion to approach position
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot, true);
         
         // Create gripper release action for measured workpiece
         MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()
