@@ -163,7 +163,7 @@ public class MotionStrategy
         if (useAlternatePosition)
         {
             // Create transformation: 180 degrees around Z-axis (alpha/C rotation)
-            Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, 0, 0, Math.PI);
+            Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, Math.PI, 0, 0);
             
             // Apply rotation to target frame
             finalTarget = new Frame(targetPosition.copy());
@@ -173,7 +173,7 @@ public class MotionStrategy
         // Apply Z-axis rotation if enabled
         if (allowZRotation && zRotationAngle != null)
         {
-            Transformation rotationZ = Transformation.ofRad(0, 0, 0, 0, 0, zRotationAngle.doubleValue());
+            Transformation rotationZ = Transformation.ofRad(0, 0, 0, zRotationAngle.doubleValue(), 0, 0);
             Frame rotatedTarget = new Frame(finalTarget.copy());
             rotatedTarget.transform(rotationZ);
             finalTarget = rotatedTarget;
