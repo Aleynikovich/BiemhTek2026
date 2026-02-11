@@ -44,10 +44,7 @@ public class MotionStrategyGenerator
             {
                 Logger.getLogger(MotionStrategyGenerator.class).error("Invalid redundancy offsets in configuration: " + offsetsStr + ", using defaults");
                 // Fallback to defaults
-                cachedRedundancyOffsets = new double[] {
-                    Math.toRadians(-80), Math.toRadians(80), 
-                    Math.toRadians(-60), Math.toRadians(60)
-                };
+                cachedRedundancyOffsets = new double[]{Math.toRadians(-80), Math.toRadians(80), Math.toRadians(-60), Math.toRadians(60)};
             }
         }
         return cachedRedundancyOffsets;
@@ -62,7 +59,7 @@ public class MotionStrategyGenerator
         if (cachedZRotationAngles == null)
         {
             ConfigManager config = ConfigManager.getInstance();
-            String anglesStr = config.getString("motion.place.z.rotations", "0,45,90,135,180,-45,-90,-135");
+            String anglesStr = config.getString("motion.place.z.rotations", "90,45,0,135,180,-45,-90,-135");
             String[] parts = anglesStr.split(",");
             cachedZRotationAngles = new double[parts.length];
             try
@@ -75,10 +72,8 @@ public class MotionStrategyGenerator
             {
                 Logger.getLogger(MotionStrategyGenerator.class).error("Invalid Z-rotation angles in configuration: " + anglesStr + ", using defaults");
                 // Fallback to defaults
-                cachedZRotationAngles = new double[] {
-                    0, Math.toRadians(45), Math.toRadians(90), Math.toRadians(135),
-                    Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)
-                };
+                // Load default 90 for testing purposes
+                cachedZRotationAngles = new double[]{90, Math.toRadians(45), Math.toRadians(0), Math.toRadians(135), Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)};
             }
         }
         return cachedZRotationAngles;
@@ -86,7 +81,7 @@ public class MotionStrategyGenerator
 
     /**
      * Gets or creates the impedance configuration singleton (thread-safe).
-     * 
+     *
      * @return ImpedanceConfig instance
      */
     private static synchronized ImpedanceConfig getImpedanceConfig()
@@ -100,7 +95,7 @@ public class MotionStrategyGenerator
 
     /**
      * Gets the impedance control mode if enabled in configuration.
-     * 
+     *
      * @return CartesianImpedanceControlMode or null if disabled
      */
     private static CartesianImpedanceControlMode getImpedanceMode()
@@ -212,9 +207,9 @@ public class MotionStrategyGenerator
      * @param robot Robot instance for redundancy support
      * @return List of motion strategies in priority order
      */
-    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot)
+    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, boolean allowConfigChange)
     {
-        return generatePlaceStrategies(tcp, robot, getRedundancyOffsets(), getZRotationAngles());
+        return generatePlaceStrategies(tcp, robot, getRedundancyOffsets(), getZRotationAngles(), allowConfigChange);
     }
 
     /**
@@ -223,30 +218,29 @@ public class MotionStrategyGenerator
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
-     * @param tcp                Tool center point frame to use
-     * @param robot              Robot instance for redundancy support
-     * @param redundancyOffsets  Array of E1 offsets in radians to try
-     * @param zRotationAngles    Array of Z-axis rotation angles in radians to try
+     * @param tcp               Tool center point frame to use
+     * @param robot             Robot instance for redundancy support
+     * @param redundancyOffsets Array of E1 offsets in radians to try
+     * @param zRotationAngles   Array of Z-axis rotation angles in radians to try
      * @return List of motion strategies in priority order
      */
-    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, 
-                                                               double[] redundancyOffsets, 
-                                                               double[] zRotationAngles)
+    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, double[] zRotationAngles, boolean allowConfigurationChange)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
-
-        // Try each Z-rotation angle with different redundancy configurations
-        for (int z = 0; z < zRotationAngles.length; z++)
-        {
-            Double zAngle = Double.valueOf(zRotationAngles[z]);
-            
-            // First attempt without redundancy (null), then with offsets
-            strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode));
-            for (int i = 0; i < redundancyOffsets.length; i++)
+        if (allowConfigurationChange)
+        {        // Try each Z-rotation angle with different redundancy configurations
+            for (int z = 0; z < zRotationAngles.length; z++)
             {
-                Double offset = Double.valueOf(redundancyOffsets[i]);
-                strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode));
+                Double zAngle = Double.valueOf(zRotationAngles[z]);
+
+                // First attempt without redundancy (null), then with offsets
+                strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode));
+                for (int i = 0; i < redundancyOffsets.length; i++)
+                {
+                    Double offset = Double.valueOf(redundancyOffsets[i]);
+                    strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode));
+                }
             }
         }
 

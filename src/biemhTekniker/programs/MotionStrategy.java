@@ -163,7 +163,7 @@ public class MotionStrategy
         if (useAlternatePosition)
         {
             // Create transformation: 180 degrees around Z-axis (alpha/C rotation)
-            Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, 0, 0, Math.PI);
+            Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, Math.PI, 0, 0);
             
             // Apply rotation to target frame
             finalTarget = new Frame(targetPosition.copy());
@@ -173,7 +173,7 @@ public class MotionStrategy
         // Apply Z-axis rotation if enabled
         if (allowZRotation && zRotationAngle != null)
         {
-            Transformation rotationZ = Transformation.ofRad(0, 0, 0, 0, 0, zRotationAngle.doubleValue());
+            Transformation rotationZ = Transformation.ofRad(0, 0, 0, zRotationAngle.doubleValue(), 0, 0);
             Frame rotatedTarget = new Frame(finalTarget.copy());
             rotatedTarget.transform(rotationZ);
             finalTarget = rotatedTarget;
@@ -224,7 +224,7 @@ public class MotionStrategy
                 }
 
                 // Approach - move to position above target with PTP
-                movePtp(approachFrame, APPROACH_VELOCITY);
+                moveLin(approachFrame, APPROACH_VELOCITY);
 
                 // Move down to target using LIN (world coordinate)
                 moveLin(finalTarget, ACTION_VELOCITY);
@@ -263,7 +263,7 @@ public class MotionStrategy
                     // Apply alternate position transformation to approach frame as well
                     if (useAlternatePosition)
                     {
-                        Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, 0, 0, Math.PI);
+                        Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, Math.PI, 0, 0);
                         finalApproach = new Frame(finalApproach.copy());
                         finalApproach.transform(rotationZ180);
                     }
@@ -271,7 +271,7 @@ public class MotionStrategy
                     // Apply Z-axis rotation to approach frame if enabled
                     if (allowZRotation && zRotationAngle != null)
                     {
-                        Transformation rotationZ = Transformation.ofRad(0, 0, 0, 0, 0, zRotationAngle.doubleValue());
+                        Transformation rotationZ = Transformation.ofRad(0, 0, 0, zRotationAngle.doubleValue(), 0,0 );
                         Frame rotatedApproach = new Frame(finalApproach.copy());
                         rotatedApproach.transform(rotationZ);
                         finalApproach = rotatedApproach;
@@ -349,6 +349,16 @@ public class MotionStrategy
             log.warn("Motion action failed with " + strategyDesc + ": " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Gets the orientation determined by this strategy.
+     * 
+     * @return 0 for regular position, 1 for alternate position (180° rotation)
+     */
+    public int getOrientation()
+    {
+        return useAlternatePosition ? 1 : 0;
     }
 
     /**

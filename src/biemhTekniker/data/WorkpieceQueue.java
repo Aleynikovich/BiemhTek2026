@@ -259,6 +259,28 @@ public class WorkpieceQueue
     }
 
     /**
+     * Removes a specific workpiece from the queue by ID.
+     * 
+     * @param workpieceId ID of the workpiece to remove
+     * @return true if workpiece was found and removed, false otherwise
+     */
+    public synchronized boolean removeWorkpiece(long workpieceId)
+    {
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            WorkpieceData wp = workpieces.get(i);
+            if (wp.getId() == workpieceId)
+            {
+                workpieces.remove(i);
+                log.info("Removed workpiece from queue: id=" + workpieceId);
+                return true;
+            }
+        }
+        log.warn("Workpiece not found in queue: id=" + workpieceId);
+        return false;
+    }
+
+    /**
      * Returns a formatted status string showing all workpieces and their states.
      *
      * @return Queue status string
@@ -305,6 +327,8 @@ public class WorkpieceQueue
             sb.append("{");
             sb.append("\"id\":").append(wp.getId());
             sb.append(",\"reference\":").append(wp.getReferenceIndex());
+            sb.append(",\"orientation\":").append(wp.getOrientation());
+            sb.append(",\"referenceString\":\"").append(wp.getReferenceString()).append("\"");
             sb.append(",\"state\":\"").append(wp.getState()).append("\"");
             
             String gripperLoc = wp.getGripperLocation();
@@ -319,6 +343,8 @@ public class WorkpieceQueue
             sb.append(",\"x\":").append(wp.getX());
             sb.append(",\"y\":").append(wp.getY());
             sb.append(",\"z\":").append(wp.getZ());
+            sb.append(",\"rx\":").append(wp.getRx());
+            sb.append(",\"ry\":").append(wp.getRy());
             sb.append(",\"rz\":").append(wp.getRz());
             sb.append(",\"score\":").append(wp.getScore());
             sb.append("}");

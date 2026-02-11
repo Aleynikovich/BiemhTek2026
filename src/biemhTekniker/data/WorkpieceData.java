@@ -234,8 +234,26 @@ public class WorkpieceData
     }
 
     /**
+     * Gets the reference string in "xy" format where:
+     * x = reference number (1, 2, 3)
+     * y = orientation (0=regular, 1=180deg rotation)
+     * 
+     * Examples:
+     * - Reference 1, regular: "10"
+     * - Reference 1, 180deg rotation: "11"
+     * - Reference 2, regular: "20"
+     * - Reference 3, 180deg rotation: "31"
+     *
+     * @return Reference string in "xy" format
+     */
+    public synchronized String getReferenceString()
+    {
+        return String.valueOf(referenceIndex) + String.valueOf(orientation);
+    }
+
+    /**
      * Checks if this workpiece is at approximately the same position as given coordinates.
-     * Uses a tolerance of ±5mm for position matching.
+     * Uses a tolerance of plus/minus 5mm for position matching.
      *
      * @param checkX X coordinate to check
      * @param checkY Y coordinate to check
@@ -259,6 +277,7 @@ public class WorkpieceData
             return "WorkpieceData{id=" + id + ", invalid}";
         }
         String gripperStr = (gripperLocation != null) ? ", gripper=" + gripperLocation : "";
-        return String.format("WorkpieceData{id=%d, ref=%d, state=%s, orientation=%d%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", id, referenceIndex, state, orientation, gripperStr, x, y, z, rx, ry, rz, score);
+        return String.format("WorkpieceData{id=%d, state=%s, ref=%s (idx=%d, ori=%d)%s, x=%.1f, y=%.1f, z=%.1f, rz(A)=%.1f, ry(B)=%.1f, rx(C)=%.1f, score=%.2f}", 
+            id, state, getReferenceString(), referenceIndex, orientation, gripperStr, x, y, z, rx, ry, rz, score);
     }
 }

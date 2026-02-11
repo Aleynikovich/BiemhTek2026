@@ -317,5 +317,17 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         return appController.getWorkpiecesJson();
     }
+    
+    @Override
+    public void clearWorkpieceQueue()
+    {
+        appController.clearWorkpieceQueue();
+    }
+    
+    @Override
+    public boolean removeWorkpiece(long workpieceId)
+    {
+        return appController.removeWorkpiece(workpieceId);
+    }
 
 }

@@ -60,4 +60,17 @@ public interface ConsoleServerInterface
      * @return JSON array of workpiece data
      */
     String getWorkpiecesJson();
+    
+    /**
+     * Clears all workpieces from the queue.
+     */
+    void clearWorkpieceQueue();
+    
+    /**
+     * Removes a specific workpiece from the queue by ID.
+     * 
+     * @param workpieceId ID of the workpiece to remove
+     * @return true if workpiece was found and removed, false otherwise
+     */
+    boolean removeWorkpiece(long workpieceId);
 }

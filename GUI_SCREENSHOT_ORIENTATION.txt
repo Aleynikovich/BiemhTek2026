@@ -1,0 +1,89 @@
+╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                         KUKA LBR iiwa Robot Control - BiemhTek2026                              ║
+╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                   ║
+║  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐ ║
+║  │ Workpiece Queue (Table View)                                                                │ ║
+║  ├──────────┬─────┬─────┬──────────┬─────────┬───────┬───────┬───────┬───────┬───────┬───────┬─┤ ║
+║  │    ID    │ Ref │ Ori │  State   │ Gripper │   X   │   Y   │   Z   │   Rx  │   Ry  │   Rz  │S│ ║
+║  ├──────────┼─────┼─────┼──────────┼─────────┼───────┼───────┼───────┼───────┼───────┼───────┼─┤ ║
+║  │ 12345678 │  10 │  →  │AVAILABLE │   N/A   │ 450.2 │-350.5 │  45.8 │  12.3 │  -5.1 │  90.5 │*│ ║
+║  │ 23456789 │  11 │  ↻  │  PICKED  │    A    │ 432.1 │-325.2 │  47.3 │  15.2 │  -3.8 │  92.1 │*│ ║
+║  │ 34567890 │  20 │  →  │AVAILABLE │   N/A   │ 415.6 │-298.9 │  46.2 │  10.5 │  -6.2 │  88.7 │*│ ║
+║  │ 45678901 │  21 │  ↻  │MEASURING │    B    │ 398.3 │-275.1 │  48.1 │  18.7 │  -2.5 │  87.3 │*│ ║
+║  │ 56789012 │  30 │  →  │AVAILABLE │   N/A   │ 380.9 │-252.4 │  45.5 │   9.8 │  -7.3 │  91.2 │*│ ║
+║  └──────────┴─────┴─────┴──────────┴─────────┴───────┴───────┴───────┴───────┴───────┴───────┴─┘ ║
+║                                                                                                   ║
+║  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐ ║
+║  │ 2D Visualization - Working Plane (700x400mm)                                                │ ║
+║  │                                                                                              │ ║
+║  │    Y ↑                                                                                       │ ║
+║  │      │                                                                                       │ ║
+║  │      │         ╭───────╮                                                                    │ ║
+║  │      │        ╱         ╲                                                                   │ ║
+║  │      │       │  ┌─────┐──▶  ← Yellow arrow (X+ tool axis, Ori 0)                          │ ║
+║  │      │       │  │RED  │  │                                                                 │ ║
+║  │      │       │  │ 678 │  │                                                                 │ ║
+║  │      │        ╲ │ G:A │ ╱                                                                  │ ║
+║  │      │         ╰└─────┘╯                                                                    │ ║
+║  │      │                                                                                       │ ║
+║  │      │                    ╭────────╮                                                        │ ║
+║  │      │                   ╱          ╲                                                       │ ║
+║  │      │                  │ ◀──┌────┐  │  ← Yellow arrow (X+ tool axis, Ori 1, 180deg flip)  │ ║
+║  │      │                  │    │PURP│  │                                                     │ ║
+║  │      │                  │    │789 │  │                                                     │ ║
+║  │      │                   ╲   │G:B │ ╱                                                      │ ║
+║  │      │                    ╰──└────┘╯                                                        │ ║
+║  │      │                                                                                       │ ║
+║  │ ─────┼──────────────────────────────────────────────────────────────────────────────▶ X    │ ║
+║  │      │                                         ╭───────╮                                    │ ║
+║  │      │                                        ╱         ╲                                   │ ║
+║  │      │                                       │  ┌─────┐──▶                                 │ ║
+║  │      │                                       │  │BLUE │  │                                 │ ║
+║  │      │                                       │  │ 890 │  │                                 │ ║
+║  │      │                                        ╲ └─────┘ ╱                                  │ ║
+║  │      │                                         ╰───────╯                                    │ ║
+║  │      │                                                                                       │ ║
+║  │  Legend:  ■ Ref 1 (Red)   ■ Ref 2 (Purple)   ■ Ref 3 (Blue)                               │ ║
+║  │           ──▶ = X+ tool axis (Yellow arrow)                                                │ ║
+║  │           ╭──╮ = Revolution circle (Red dashed)                                            │ ║
+║  └─────────────────────────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                                                   ║
+║  ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐                  ║
+║  │  Refresh         │  Get Queue       │  Clear Queue     │  Delete Selected │                  ║
+║  │  Workpieces      │  Status          │                  │                  │                  ║
+║  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘                  ║
+║                                                                                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+KEY FEATURES SHOWN:
+
+1. TABLE ENHANCEMENTS:
+   - "Ori" column with arrow symbols: → (regular/0) or ↻ (180deg/1)
+   - "Rx", "Ry", "Rz" columns showing all rotation angles
+   - "Ref" column showing reference string (10, 11, 20, 21, 30, 31)
+   - Shortened ID (last 8 digits)
+
+2. VISUALIZATION ENHANCEMENTS:
+   - Yellow arrows showing X+ tool axis direction
+   - Arrow direction accounts for both Rz and orientation
+   - Orientation 0: Arrow points forward (regular pick)
+   - Orientation 1: Arrow points backward (180deg rotated pick)
+
+3. CONTROL ENHANCEMENTS:
+   - "Delete Selected" button (NEW) - removes single workpiece
+   - "Clear Queue" button (FIXED) - now actually works
+
+4. ORIENTATION REPRESENTATION:
+   - Table: → or ↻ symbol
+   - Visualization: Yellow arrow direction
+   - Reference string: Last digit indicates orientation (10=ref1/ori0, 11=ref1/ori1)
+
+Example workpiece readings:
+- ID 12345678, Ref "10", Ori "→": Reference 1, picked regularly
+- ID 23456789, Ref "11", Ori "↻": Reference 1, picked with 180° rotation  
+- ID 34567890, Ref "20", Ori "→": Reference 2, picked regularly
+- ID 45678901, Ref "21", Ori "↻": Reference 2, picked with 180° rotation
+- ID 56789012, Ref "30", Ori "→": Reference 3, picked regularly
+
+The yellow arrows on the canvas visually confirm the orientation!

@@ -27,7 +27,7 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 public class PickNewWorkpieceProgram implements RobotProgram
 {
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
-    private static final int PRE_PICK_Z_OFFSET_MM = 100;
+    private static final int PRE_PICK_Z_OFFSET_MM = 200;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
     /**
@@ -95,6 +95,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
+        MotionStrategy successfulStrategy = null;
         for (int i = 0; i < motionStrategies.size(); i++)
         {
             // Check for cancellation between strategies
@@ -108,6 +109,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), gripperAction, context))
             {
                 pickSucceeded = true;
+                successfulStrategy = strategy;
                 break;
             }
             
@@ -131,6 +133,14 @@ public class PickNewWorkpieceProgram implements RobotProgram
             log.error("All pick strategies failed for workpiece: " + workpieceData.getId());
             throw new Exception("Failed to pick workpiece - all strategies exhausted");
         }
+        
+        // Pick succeeded - set orientation and mark workpiece
+        // Set orientation based on successful pick strategy
+        // Robot determines orientation: 0=regular, 1=180deg rotation (alternate position)
+        int orientation = successfulStrategy.getOrientation();
+        workpieceData.setOrientation(orientation);
+        log.info("Workpiece picked with orientation " + orientation + " (" + 
+                 (orientation == 0 ? "regular" : "180deg rotation") + ")");
 
         // Mark workpiece as PICKED only after successful pick
         queue.markPicked(workpieceData.getId());

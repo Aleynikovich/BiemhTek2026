@@ -117,6 +117,22 @@ public class SimpleJSON
             return defaultValue;
         }
     }
+    
+    public long getLong(String key, long defaultValue)
+    {
+        Object value = data.get(key);
+        if (value instanceof Number)
+        {
+            return ((Number) value).longValue();
+        }
+        try
+        {
+            return Long.parseLong(value.toString());
+        } catch (Exception e)
+        {
+            return defaultValue;
+        }
+    }
 
     public boolean getBoolean(String key, boolean defaultValue)
     {
