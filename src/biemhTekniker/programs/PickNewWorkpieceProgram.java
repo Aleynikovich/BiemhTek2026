@@ -150,9 +150,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             throw new ProgramCancelledException("Program cancelled by user");
         }
 
-        // Open gripper B before placing
-        gripperIO.setGripper2_Switch(false);
-        
+
         // Generate place strategies for TCP B with Z-rotation freedom and tool coordinates
         List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
         

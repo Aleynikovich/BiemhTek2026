@@ -128,7 +128,6 @@ public class PLCManager
                 return 0;
             }
         }
-        return plcProgram;
     }
 
     /**
