@@ -37,8 +37,8 @@ public class ManualJogBackgroundHandler extends RoboticsAPICyclicBackgroundTask
     {
         // Load cycle time from configuration
         ConfigManager config = ConfigManager.getInstance();
-        int cycleMs = config.getInt("jog.cycle.ms", 100);
-
+        int cycleMs = config.getInt("jog.cycle.ms", 10);
+        gripper.attachTo(iiwa.getFlange());
         // Initialize cyclic behavior
         initializeCyclic(0, cycleMs, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
 

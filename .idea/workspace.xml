@@ -5,6 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="update gui">
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/hmi/ManualJogHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogBackgroundHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/hmi/ManualJogHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

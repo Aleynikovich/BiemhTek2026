@@ -69,6 +69,7 @@ public class ManualJogHandler
         this.linearStepMm = config.getDouble("jog.linear.step.mm", 2.0);
         this.rotationalStepDeg = config.getDouble("jog.rotational.step.deg", 1.0);
         this.jogVelocityRel = config.getDouble("jog.velocity.rel", 0.1);
+        
 
         log.info("ManualJogHandler initialized: linearStep=" + linearStepMm + "mm, rotationalStep=" + rotationalStepDeg + "deg, velocityRel=" + jogVelocityRel);
     }
