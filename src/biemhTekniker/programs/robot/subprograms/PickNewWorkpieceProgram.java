@@ -169,10 +169,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
         log.info("Workpiece picked with orientation " + orientation + " (" + 
                  (orientation == 0 ? "regular" : "180deg rotation") + ")");
 
-        // Mark workpiece as PICKED only after successful pick
-        queue.markPicked(workpieceData.getId());
-        workpieceData.setGripperLocation("A"); // Track that it's in gripper A
-        log.info("Successfully picked workpiece with Gripper A: " + workpieceData.getId());
+        // Mark workpiece as held by Gripper 1 after successful pick
+        queue.markPicked(workpieceData.getId(), 1);
+        log.info("Successfully picked workpiece with Gripper 1: " + workpieceData.getId());
 
         // Now exchange: place measured workpiece at the same position with Gripper B
         // Go to pre-pick position with Gripper B for repositioning with different redundancies

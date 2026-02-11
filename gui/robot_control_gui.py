@@ -66,7 +66,7 @@ class RobotControlGUI:
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(3, weight=1)
 
-        ttk.Label(main_frame, text="KUKA LBR iiwa Robot Control", style='Title.TLabel').grid(row=0, column=0,
+        ttk.Label(main_frame, text="BIEMH 2026 Control Panel", style='Title.TLabel').grid(row=0, column=0,
                                                                                              pady=(0, 10),
                                                                                              sticky=(tk.W, tk.E))
         
@@ -230,10 +230,28 @@ class RobotControlGUI:
             ("Refresh Workpieces", self.refresh_workpieces),
             ("Get Queue Status", self.get_queue_status),
             ("Clear Queue", self.clear_workpiece_queue),
-            ("Delete Selected", self.delete_selected_workpiece)
+            ("Delete Selected", self.delete_selected_workpiece),
+            ("Pick Selected", self.pick_selected_workpiece),
         ]
         for i, (text, cmd) in enumerate(actions):
             ttk.Button(btn_frame, text=text, command=cmd, width=18).grid(row=0, column=i, padx=3, pady=3)
+        
+        # Motion Override Controls
+        override_frame = ttk.LabelFrame(parent, text="Motion Overrides (Advanced)", padding="5")
+        override_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        
+        ttk.Label(override_frame, text="Forced Redundancy (degrees, CSV):").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        self.redundancy_entry = ttk.Entry(override_frame, width=30)
+        self.redundancy_entry.grid(row=0, column=1, sticky=tk.W, padx=(0, 10))
+        
+        ttk.Label(override_frame, text="Forced Z-Rot (degrees, CSV):").grid(row=1, column=0, sticky=tk.W, padx=(0, 5), pady=(5, 0))
+        self.zrot_entry = ttk.Entry(override_frame, width=30)
+        self.zrot_entry.grid(row=1, column=1, sticky=tk.W, padx=(0, 10), pady=(5, 0))
+        
+        override_btn_frame = ttk.Frame(override_frame)
+        override_btn_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        ttk.Button(override_btn_frame, text="Apply Overrides", command=self.apply_motion_overrides, width=18).grid(row=0, column=0, padx=3, pady=3)
+        ttk.Button(override_btn_frame, text="Clear Overrides", command=self.clear_motion_overrides, width=18).grid(row=0, column=1, padx=3, pady=3)
 
     def create_console_tab(self, parent):
         parent.columnconfigure(0, weight=1)
@@ -346,6 +364,14 @@ class RobotControlGUI:
         if 'workpiece_position' in data:
             pos = data['workpiece_position']
             self.workpiece_position.set(pos if pos and pos != "invalid" else "Not retrieved")
+        
+        # Update gripper states in the gripper panel
+        if 'gripper1_closed' in data and 'gripper2_closed' in data and 'gripper3_closed' in data:
+            g1 = data['gripper1_closed']
+            g2 = data['gripper2_closed']
+            g3 = data['gripper3_closed']
+            if hasattr(self, 'gripper_panel') and self.gripper_panel is not None:
+                self.gripper_panel.set_gripper_states(g1, g2, g3)
 
     # Command Methods
     def send_cmd(self, cmd):
@@ -385,6 +411,43 @@ class RobotControlGUI:
         if wp and messagebox.askyesno("Delete", f"Delete workpiece {short_id}?"):
             if self.send_cmd({'type': 'delete_workpiece', 'id': wp.get('id')}):
                 self.refresh_workpieces()
+
+    def pick_selected_workpiece(self):
+        sel = self.workpiece_tree.selection()
+        if not sel:
+            return messagebox.showwarning("No Selection", "Please select a workpiece to pick")
+        
+        short_id = self.workpiece_tree.item(sel[0])['values'][0]
+        wp = self.wp_manager.find_workpiece_by_short_id(short_id)
+        if not wp:
+            return messagebox.showerror("Error", f"Could not find workpiece {short_id}")
+        
+        full_id = wp.get('id')
+        if messagebox.askyesno("Pick Workpiece", f"Pick workpiece {short_id}?"):
+            if self.send_cmd({'type': 'pick_specific_workpiece', 'id': full_id}):
+                self.log_manager.log(f"Forced pick requested for workpiece {short_id}", 'success')
+
+    def apply_motion_overrides(self):
+        redundancy = self.redundancy_entry.get().strip()
+        zrot = self.zrot_entry.get().strip()
+        
+        if not redundancy and not zrot:
+            return messagebox.showwarning("No Input", "Please enter at least one override value")
+        
+        cmd = {'type': 'set_motion_override'}
+        if redundancy:
+            cmd['redundancy'] = redundancy
+        if zrot:
+            cmd['zrot'] = zrot
+        
+        if self.send_cmd(cmd):
+            self.log_manager.log(f"Motion overrides applied: redundancy={redundancy or 'N/A'}, zrot={zrot or 'N/A'}", 'success')
+
+    def clear_motion_overrides(self):
+        if self.send_cmd({'type': 'clear_motion_override'}):
+            self.redundancy_entry.delete(0, tk.END)
+            self.zrot_entry.delete(0, tk.END)
+            self.log_manager.log("Motion overrides cleared", 'success')
 
     def on_log_level_changed(self, event=None):
         lvl = self.log_level.get()
