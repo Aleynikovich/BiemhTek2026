@@ -224,7 +224,7 @@ public class MotionStrategy
                 }
 
                 // Approach - move to position above target with PTP
-                movePtp(approachFrame, APPROACH_VELOCITY);
+                moveLin(approachFrame, APPROACH_VELOCITY);
 
                 // Move down to target using LIN (world coordinate)
                 moveLin(finalTarget, ACTION_VELOCITY);

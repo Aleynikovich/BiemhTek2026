@@ -122,7 +122,6 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Check for cancellation before final move
-        // Check for cancellation before final move
         if (context.isCancellationRequested())
         {
             log.warn("Program cancelled before final position move");
