@@ -162,7 +162,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         gripperIO.setGripper3_Switch(false);
 
         // Generate motion strategies for TCP A with Z-axis rotation and tool coordinates
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot,false);
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot,new double[]{0},new double[]{0});
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()

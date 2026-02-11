@@ -29,9 +29,9 @@ public class PickStrategy
      * @param useAlternatePosition If true, rotate position by 180 degrees
      * @param isGripperB           If true, use gripper B (2), otherwise gripper A (1)
      */
-    public PickStrategy(ObjectFrame tcp, boolean useAlternatePosition, boolean isGripperB, boolean forceLineal)
+    public PickStrategy(ObjectFrame tcp, boolean useAlternatePosition, boolean isGripperB)
     {
-        this(tcp, useAlternatePosition, isGripperB, null, null, forceLineal);
+        this(tcp, useAlternatePosition, isGripperB, null, null);
     }
 
     /**
@@ -44,9 +44,9 @@ public class PickStrategy
      * @param robot                Robot instance (required when redundancyE1Offset is not null)
      */
     public PickStrategy(ObjectFrame tcp, boolean useAlternatePosition, boolean isGripperB, 
-                       Double redundancyE1Offset, LBR robot, boolean forceLineal)
+                       Double redundancyE1Offset, LBR robot)
     {
-        this.motionStrategy = new MotionStrategy(tcp, useAlternatePosition, redundancyE1Offset, robot, forceLineal);
+        this.motionStrategy = new MotionStrategy(tcp, useAlternatePosition, redundancyE1Offset, robot);
         this.isGripperB = isGripperB;
         this.gripperNumber = isGripperB ? 2 : 1;
     }

@@ -21,7 +21,6 @@ public class MotionStrategyGenerator
     private static volatile double[] cachedRedundancyOffsets = null;
     private static volatile double[] cachedZRotationAngles = null;
     private static volatile ImpedanceConfig impedanceConfig = null;
-    private static volatile boolean forceLineal;
 
     /**
      * Loads redundancy offsets from configuration.
@@ -45,7 +44,10 @@ public class MotionStrategyGenerator
             {
                 Logger.getLogger(MotionStrategyGenerator.class).error("Invalid redundancy offsets in configuration: " + offsetsStr + ", using defaults");
                 // Fallback to defaults
-                cachedRedundancyOffsets = new double[]{Math.toRadians(-80), Math.toRadians(80), Math.toRadians(-60), Math.toRadians(60)};
+                cachedRedundancyOffsets = new double[] {
+                    Math.toRadians(-80), Math.toRadians(80), 
+                    Math.toRadians(-60), Math.toRadians(60)
+                };
             }
         }
         return cachedRedundancyOffsets;
@@ -74,7 +76,10 @@ public class MotionStrategyGenerator
                 Logger.getLogger(MotionStrategyGenerator.class).error("Invalid Z-rotation angles in configuration: " + anglesStr + ", using defaults");
                 // Fallback to defaults
                 // Load default 90 for testing purposes
-                cachedZRotationAngles = new double[]{90, Math.toRadians(45), Math.toRadians(0), Math.toRadians(135), Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)};
+                cachedZRotationAngles = new double[] {
+                    90, Math.toRadians(45), Math.toRadians(0), Math.toRadians(135),
+                    Math.toRadians(180), Math.toRadians(-45), Math.toRadians(-90), Math.toRadians(-135)
+                };
             }
         }
         return cachedZRotationAngles;
@@ -82,7 +87,7 @@ public class MotionStrategyGenerator
 
     /**
      * Gets or creates the impedance configuration singleton (thread-safe).
-     *
+     * 
      * @return ImpedanceConfig instance
      */
     private static synchronized ImpedanceConfig getImpedanceConfig()
@@ -96,7 +101,7 @@ public class MotionStrategyGenerator
 
     /**
      * Gets the impedance control mode if enabled in configuration.
-     *
+     * 
      * @return CartesianImpedanceControlMode or null if disabled
      */
     private static CartesianImpedanceControlMode getImpedanceMode()
@@ -116,7 +121,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategies(tcp, robot, getRedundancyOffsets(), forceLineal);
+        return generateStrategies(tcp, robot, getRedundancyOffsets());
     }
 
     /**
@@ -130,27 +135,27 @@ public class MotionStrategyGenerator
      * @param redundancyOffsets Array of E1 offsets in radians to try
      * @return List of motion strategies in priority order
      */
-    public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, boolean forceLinealApproach)
+    public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode,false));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode,forceLinealApproach));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, false, impedanceMode,forceLinealApproach));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, false, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, false, impedanceMode,forceLinealApproach));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, false, impedanceMode));
         }
 
         return strategies;
@@ -186,11 +191,11 @@ public class MotionStrategyGenerator
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode,forceLineal));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, false, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode,forceLineal));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, false, impedanceMode));
         }
 
         return strategies;
@@ -208,9 +213,9 @@ public class MotionStrategyGenerator
      * @param robot Robot instance for redundancy support
      * @return List of motion strategies in priority order
      */
-    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, boolean allowConfigChange)
+    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generatePlaceStrategies(tcp, robot, getRedundancyOffsets(), getZRotationAngles(), allowConfigChange);
+        return generatePlaceStrategies(tcp, robot, getRedundancyOffsets(), getZRotationAngles());
     }
 
     /**
@@ -219,29 +224,30 @@ public class MotionStrategyGenerator
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
-     * @param tcp               Tool center point frame to use
-     * @param robot             Robot instance for redundancy support
-     * @param redundancyOffsets Array of E1 offsets in radians to try
-     * @param zRotationAngles   Array of Z-axis rotation angles in radians to try
+     * @param tcp                Tool center point frame to use
+     * @param robot              Robot instance for redundancy support
+     * @param redundancyOffsets  Array of E1 offsets in radians to try
+     * @param zRotationAngles    Array of Z-axis rotation angles in radians to try
      * @return List of motion strategies in priority order
      */
-    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, double[] zRotationAngles, boolean allowConfigurationChange)
+    public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, 
+                                                               double[] redundancyOffsets, 
+                                                               double[] zRotationAngles)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
-        if (allowConfigurationChange)
-        {        // Try each Z-rotation angle with different redundancy configurations
-            for (int z = 0; z < zRotationAngles.length; z++)
-            {
-                Double zAngle = Double.valueOf(zRotationAngles[z]);
 
-                // First attempt without redundancy (null), then with offsets
-                strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode,forceLineal));
-                for (int i = 0; i < redundancyOffsets.length; i++)
-                {
-                    Double offset = Double.valueOf(redundancyOffsets[i]);
-                    strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode,forceLineal));
-                }
+        // Try each Z-rotation angle with different redundancy configurations
+        for (int z = 0; z < zRotationAngles.length; z++)
+        {
+            Double zAngle = Double.valueOf(zRotationAngles[z]);
+            
+            // First attempt without redundancy (null), then with offsets
+            strategies.add(new MotionStrategy(tcp, false, null, robot, true, zAngle, true, impedanceMode));
+            for (int i = 0; i < redundancyOffsets.length; i++)
+            {
+                Double offset = Double.valueOf(redundancyOffsets[i]);
+                strategies.add(new MotionStrategy(tcp, false, offset, robot, true, zAngle, true, impedanceMode));
             }
         }
 
@@ -283,20 +289,20 @@ public class MotionStrategyGenerator
 
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode,forceLineal));
+        strategies.add(new MotionStrategy(tcp, false, null, robot, false, null, true, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode, forceLineal));
+            strategies.add(new MotionStrategy(tcp, false, offset, robot, false, null, true, impedanceMode));
         }
 
         // Try alternate position (180° rotation) with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode, forceLineal));
+        strategies.add(new MotionStrategy(tcp, true, null, robot, false, null, true, impedanceMode));
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
-            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode, forceLineal));
+            strategies.add(new MotionStrategy(tcp, true, offset, robot, false, null, true, impedanceMode));
         }
 
         return strategies;

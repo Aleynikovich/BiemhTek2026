@@ -122,6 +122,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Check for cancellation before final move
+        // Check for cancellation before final move
         if (context.isCancellationRequested())
         {
             log.warn("Program cancelled before final position move");
@@ -160,7 +161,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Generate place strategies for TCP B with Z-rotation freedom and tool coordinates
-        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot,true);
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
         
         // Create gripper release action for measured workpiece
         MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()

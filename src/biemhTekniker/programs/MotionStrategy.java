@@ -17,7 +17,7 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
  * Generic motion strategy with support for alternate position (180° rotation),
  * Z-axis rotation freedom, redundancy (null space) motion, and impedance control.
  * Can be used for any robot motion operation (pick, place, etc.).
- * <p>
+ * 
  * Supports tool coordinate system approach for perpendicular approach to workpieces.
  * NOTE: In KUKA tool frames, Z+ typically points toward the flange/workpiece. Therefore,
  * approach offsets are NEGATED when using tool coordinates to move away from the workpiece.
@@ -37,7 +37,6 @@ public class MotionStrategy
     private final Double zRotationAngle; // Specific Z-axis rotation angle in radians (null if allowZRotation is false)
     private final boolean useToolCoordinates; // Use tool coordinate system (Z+) for approach/retract
     private final CartesianImpedanceControlMode impedanceMode; // Impedance control for compliance (null if disabled)
-    private final boolean forceLineal;
 
     /**
      * Creates a motion strategy without redundancy.
@@ -45,9 +44,9 @@ public class MotionStrategy
      * @param tcp                  Tool center point frame
      * @param useAlternatePosition If true, rotate position by 180 degrees around Z-axis
      */
-    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, boolean forceLineal)
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition)
     {
-        this(tcp, useAlternatePosition, null, null, false, null, false, null, forceLineal);
+        this(tcp, useAlternatePosition, null, null, false, null, false, null);
     }
 
     /**
@@ -58,9 +57,10 @@ public class MotionStrategy
      * @param redundancyE1Offset   E1 offset in radians for null space motion (null to disable)
      * @param robot                Robot instance (required when redundancyE1Offset is not null)
      */
-    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, Double redundancyE1Offset, LBR robot, boolean forceLineal)
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
+                         Double redundancyE1Offset, LBR robot)
     {
-        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false, null, forceLineal);
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false, null);
     }
 
     /**
@@ -74,9 +74,13 @@ public class MotionStrategy
      * @param zRotationAngle       Z-axis rotation angle in radians (null for default 0)
      * @param useToolCoordinates   If true, use tool coordinate system (Z+) for approach/retract
      */
-    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, Double redundancyE1Offset, LBR robot, boolean allowZRotation, Double zRotationAngle, boolean useToolCoordinates, boolean forceLineal)
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
+                         Double redundancyE1Offset, LBR robot,
+                         boolean allowZRotation, Double zRotationAngle, 
+                         boolean useToolCoordinates)
     {
-        this(tcp, useAlternatePosition, redundancyE1Offset, robot, allowZRotation, zRotationAngle, useToolCoordinates, null, forceLineal);
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, allowZRotation, 
+             zRotationAngle, useToolCoordinates, null);
     }
 
     /**
@@ -91,7 +95,10 @@ public class MotionStrategy
      * @param useToolCoordinates   If true, use tool coordinate system (Z+) for approach/retract
      * @param impedanceMode        Cartesian impedance control mode for compliance (null to disable)
      */
-    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, Double redundancyE1Offset, LBR robot, boolean allowZRotation, Double zRotationAngle, boolean useToolCoordinates, CartesianImpedanceControlMode impedanceMode, boolean forceLineal)
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
+                         Double redundancyE1Offset, LBR robot,
+                         boolean allowZRotation, Double zRotationAngle, 
+                         boolean useToolCoordinates, CartesianImpedanceControlMode impedanceMode)
     {
         this.tcp = tcp;
         this.useAlternatePosition = useAlternatePosition;
@@ -101,13 +108,12 @@ public class MotionStrategy
         this.zRotationAngle = zRotationAngle;
         this.useToolCoordinates = useToolCoordinates;
         this.impedanceMode = impedanceMode;
-        this.forceLineal = forceLineal;
     }
 
     /**
      * Helper method to create a PTP motion with impedance control if enabled.
-     *
-     * @param target      Target frame to move to
+     * 
+     * @param target Target frame to move to
      * @param velocityRel Relative joint velocity
      */
     private void movePtp(Frame target, double velocityRel)
@@ -115,7 +121,8 @@ public class MotionStrategy
         if (impedanceMode != null)
         {
             tcp.move(ptp(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
-        } else
+        }
+        else
         {
             tcp.move(ptp(target).setJointVelocityRel(velocityRel));
         }
@@ -123,8 +130,8 @@ public class MotionStrategy
 
     /**
      * Helper method to create a LIN motion with impedance control if enabled.
-     *
-     * @param target      Target frame to move to
+     * 
+     * @param target Target frame to move to
      * @param velocityRel Relative joint velocity
      */
     private void moveLin(Frame target, double velocityRel)
@@ -132,7 +139,8 @@ public class MotionStrategy
         if (impedanceMode != null)
         {
             tcp.move(lin(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
-        } else
+        }
+        else
         {
             tcp.move(lin(target).setJointVelocityRel(velocityRel));
         }
@@ -141,10 +149,10 @@ public class MotionStrategy
     /**
      * Attempts to execute a motion to target position with approach and retract.
      *
-     * @param targetPosition Target position for the action
-     * @param approachOffset Approach offset distance in mm (used with tool coordinates) or Frame (used without)
-     * @param action         Action to execute at target position (can be null for motion-only)
-     * @param context        Robot context for cancellation support (can be null if cancellation not needed)
+     * @param targetPosition   Target position for the action
+     * @param approachOffset   Approach offset distance in mm (used with tool coordinates) or Frame (used without)
+     * @param action           Action to execute at target position (can be null for motion-only)
+     * @param context          Robot context for cancellation support (can be null if cancellation not needed)
      * @return true if motion succeeded, false if motion failed
      */
     public boolean executeMotion(Frame targetPosition, Object approachOffset, MotionAction action, RobotContext context)
@@ -156,7 +164,7 @@ public class MotionStrategy
         {
             // Create transformation: 180 degrees around Z-axis (alpha/C rotation)
             Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, Math.PI, 0, 0);
-
+            
             // Apply rotation to target frame
             finalTarget = new Frame(targetPosition.copy());
             finalTarget.transform(rotationZ180);
@@ -191,7 +199,8 @@ public class MotionStrategy
                 if (approachOffset instanceof Double)
                 {
                     offsetMm = ((Double) approachOffset).doubleValue();
-                } else
+                }
+                else
                 {
                     log.error("Invalid approach offset type for tool coordinates: " + approachOffset.getClass() + " (expected Double)");
                     return false;
@@ -215,14 +224,7 @@ public class MotionStrategy
                 }
 
                 // Approach - move to position above target with PTP
-                if (forceLineal)
-                {
-                    moveLin(approachFrame, APPROACH_VELOCITY);
-                }
-                else
-                {
-                    movePtp(approachFrame, APPROACH_VELOCITY);
-                }
+                movePtp(approachFrame, APPROACH_VELOCITY);
 
                 // Move down to target using LIN (world coordinate)
                 moveLin(finalTarget, ACTION_VELOCITY);
@@ -249,18 +251,19 @@ public class MotionStrategy
 
                 // Retract back to approach position
                 moveLin(approachFrame, ACTION_VELOCITY);
-            } else
+            }
+            else
             {
                 // Use world coordinate system (original behavior)
                 Frame finalApproach = null;
                 if (approachOffset instanceof Frame)
                 {
                     finalApproach = (Frame) approachOffset;
-
+                    
                     // Apply alternate position transformation to approach frame as well
                     if (useAlternatePosition)
                     {
-                        Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, Math.PI, 0, 0);
+                        Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, 0, 0, Math.PI);
                         finalApproach = new Frame(finalApproach.copy());
                         finalApproach.transform(rotationZ180);
                     }
@@ -268,7 +271,7 @@ public class MotionStrategy
                     // Apply Z-axis rotation to approach frame if enabled
                     if (allowZRotation && zRotationAngle != null)
                     {
-                        Transformation rotationZ = Transformation.ofRad(0, 0, 0, zRotationAngle.doubleValue(), 0, 0);
+                        Transformation rotationZ = Transformation.ofRad(0, 0, 0, 0, 0, zRotationAngle.doubleValue());
                         Frame rotatedApproach = new Frame(finalApproach.copy());
                         rotatedApproach.transform(rotationZ);
                         finalApproach = rotatedApproach;
@@ -280,7 +283,8 @@ public class MotionStrategy
                         LBRE1Redundancy redundancy = new LBRE1Redundancy().setE1(redundancyE1Offset.doubleValue());
                         finalApproach.setRedundancyInformation(robot, redundancy);
                     }
-                } else
+                }
+                else
                 {
                     log.error("Invalid approach offset type for world coordinates: " + approachOffset.getClass());
                     return false;
@@ -315,7 +319,7 @@ public class MotionStrategy
                 // Retract
                 moveLin(finalApproach, ACTION_VELOCITY);
             }
-
+            
             log.info("Motion succeeded with " + strategyDesc);
             return true;
         } catch (CommandInvalidException e)
@@ -349,7 +353,7 @@ public class MotionStrategy
 
     /**
      * Gets the orientation determined by this strategy.
-     *
+     * 
      * @return 0 for regular position, 1 for alternate position (180° rotation)
      */
     public int getOrientation()
@@ -362,7 +366,12 @@ public class MotionStrategy
      */
     public String getDescription()
     {
-        String desc = "tcp=" + tcp.getName() + (useAlternatePosition ? " (alternate)" : " (regular)") + (redundancyE1Offset != null ? " [E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°]" : "") + (allowZRotation && zRotationAngle != null ? " [Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°]" : "") + (useToolCoordinates ? " [tool-coord]" : " [world-coord]") + (impedanceMode != null ? " [impedance]" : "");
+        String desc = "tcp=" + tcp.getName()
+            + (useAlternatePosition ? " (alternate)" : " (regular)")
+            + (redundancyE1Offset != null ? " [E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°]" : "")
+            + (allowZRotation && zRotationAngle != null ? " [Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°]" : "")
+            + (useToolCoordinates ? " [tool-coord]" : " [world-coord]")
+            + (impedanceMode != null ? " [impedance]" : "");
         return desc;
     }
 
@@ -373,7 +382,8 @@ public class MotionStrategy
         String zRotationStr = allowZRotation && zRotationAngle != null ? ", Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°" : "";
         String coordStr = useToolCoordinates ? ", tool-coord" : ", world-coord";
         String impedanceStr = impedanceMode != null ? ", impedance" : "";
-        return "MotionStrategy{tcp=" + tcp.getName() + ", alternate=" + useAlternatePosition + redundancyStr + zRotationStr + coordStr + impedanceStr + "}";
+        return "MotionStrategy{tcp=" + tcp.getName() 
+            + ", alternate=" + useAlternatePosition + redundancyStr + zRotationStr + coordStr + impedanceStr + "}";
     }
 
     /**
@@ -383,7 +393,6 @@ public class MotionStrategy
     {
         /**
          * Execute the action at the target position.
-         *
          * @throws Exception if the action fails
          */
         void execute() throws Exception;
