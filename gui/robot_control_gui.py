@@ -16,6 +16,21 @@ from modules.workpiece_canvas import WorkpieceCanvas
 from modules.workpiece_manager import WorkpieceManager
 
 
+# Redundancy options for motion override dropdowns
+REDUNDANCY_OPTIONS = [
+    "None (no E1 offset)",
+    "E1 = -100°",
+    "E1 = -80°",
+    "E1 = -60°",
+    "E1 = -40°",
+    "E1 = 0°",
+    "E1 = 40°",
+    "E1 = 60°",
+    "E1 = 80°",
+    "E1 = 100°",
+]
+
+
 class RobotControlGUI:
     def __init__(self, root):
         self.root = root
@@ -250,20 +265,6 @@ class RobotControlGUI:
         )
         override_enable_cb.grid(row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
         
-        # Redundancy options for dropdowns
-        self.REDUNDANCY_OPTIONS = [
-            "None (no E1 offset)",
-            "E1 = -100°",
-            "E1 = -80°",
-            "E1 = -60°",
-            "E1 = -40°",
-            "E1 = 0°",
-            "E1 = 40°",
-            "E1 = 60°",
-            "E1 = 80°",
-            "E1 = 100°",
-        ]
-        
         # Pick Section
         pick_label = ttk.Label(override_frame, text="── Pick ──", style='Header.TLabel')
         pick_label.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
@@ -273,7 +274,7 @@ class RobotControlGUI:
         self.pick_redundancy_combo = ttk.Combobox(
             override_frame, 
             textvariable=self.pick_redundancy_var, 
-            values=self.REDUNDANCY_OPTIONS,
+            values=REDUNDANCY_OPTIONS,
             width=20,
             state='readonly'
         )
@@ -295,7 +296,7 @@ class RobotControlGUI:
         self.place_redundancy_combo = ttk.Combobox(
             override_frame, 
             textvariable=self.place_redundancy_var, 
-            values=self.REDUNDANCY_OPTIONS,
+            values=REDUNDANCY_OPTIONS,
             width=20,
             state='readonly'
         )
@@ -535,7 +536,6 @@ class RobotControlGUI:
             return None
         
         # Extract number between "= " and "°"
-        import re
         match = re.search(r'=\s*(-?\d+)', redundancy_str)
         if match:
             return float(match.group(1))

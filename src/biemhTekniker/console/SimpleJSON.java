@@ -68,9 +68,18 @@ public class SimpleJSON
                     data.put(key, Boolean.parseBoolean(value));
                 } else
                 {
+                    // Try to parse as number (double first for broader compatibility)
                     try
                     {
-                        data.put(key, Integer.parseInt(value));
+                        double d = Double.parseDouble(value);
+                        // If it's a whole number that fits in int, store as int
+                        if (d == Math.floor(d) && !Double.isInfinite(d) && !value.contains(".") && !value.toLowerCase().contains("e"))
+                        {
+                            data.put(key, (int) d);
+                        } else
+                        {
+                            data.put(key, d);
+                        }
                     } catch (NumberFormatException e)
                     {
                         data.put(key, value);
@@ -142,6 +151,22 @@ public class SimpleJSON
             return (Boolean) value;
         }
         return defaultValue;
+    }
+    
+    public double getDouble(String key, double defaultValue)
+    {
+        Object value = data.get(key);
+        if (value instanceof Number)
+        {
+            return ((Number) value).doubleValue();
+        }
+        try
+        {
+            return Double.parseDouble(value.toString());
+        } catch (Exception e)
+        {
+            return defaultValue;
+        }
     }
 
     public String toString()
