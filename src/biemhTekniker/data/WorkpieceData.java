@@ -236,13 +236,13 @@ public class WorkpieceData
     /**
      * Gets the reference string in "xy" format where:
      * x = reference number (1, 2, 3)
-     * y = orientation (0=regular, 1=180° rotation)
+     * y = orientation (0=regular, 1=180deg rotation)
      * 
      * Examples:
      * - Reference 1, regular: "10"
-     * - Reference 1, 180° rotation: "11"
+     * - Reference 1, 180deg rotation: "11"
      * - Reference 2, regular: "20"
-     * - Reference 3, 180° rotation: "31"
+     * - Reference 3, 180deg rotation: "31"
      *
      * @return Reference string in "xy" format
      */
@@ -253,7 +253,7 @@ public class WorkpieceData
 
     /**
      * Checks if this workpiece is at approximately the same position as given coordinates.
-     * Uses a tolerance of ±5mm for position matching.
+     * Uses a tolerance of plus/minus 5mm for position matching.
      *
      * @param checkX X coordinate to check
      * @param checkY Y coordinate to check

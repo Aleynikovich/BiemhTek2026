@@ -122,6 +122,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Check for cancellation before final move
+        // Check for cancellation before final move
         if (context.isCancellationRequested())
         {
             log.warn("Program cancelled before final position move");
@@ -133,7 +134,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
             log.error("All pick strategies failed for workpiece: " + workpieceData.getId());
             throw new Exception("Failed to pick workpiece - all strategies exhausted");
         }
-
+        
+        // Pick succeeded - set orientation and mark workpiece
         // Set orientation based on successful pick strategy
         // Robot determines orientation: 0=regular, 1=180deg rotation (alternate position)
         int orientation = successfulStrategy.getOrientation();
