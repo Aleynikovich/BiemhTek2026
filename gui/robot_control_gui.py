@@ -79,6 +79,10 @@ if 'workpieces' not in st.session_state:
     st.session_state.workpieces = []
 if 'gripper_states' not in st.session_state:
     st.session_state.gripper_states = {'g1': False, 'g2': False, 'g3': False}
+if 'last_update' not in st.session_state:
+    st.session_state.last_update = time.time()
+if 'auto_refresh' not in st.session_state:
+    st.session_state.auto_refresh = True
 
 # Helper functions
 def log_message(message, level="INFO"):
@@ -353,6 +357,14 @@ with st.sidebar:
     
     if st.button("Get Status", use_container_width=True):
         send_command({'type': 'get_status'})
+    
+    st.divider()
+    
+    # Auto-refresh toggle
+    auto_refresh = st.checkbox("Auto-refresh (every 2s)", value=st.session_state.auto_refresh, key="auto_refresh_checkbox")
+    if auto_refresh != st.session_state.auto_refresh:
+        st.session_state.auto_refresh = auto_refresh
+        st.session_state.last_update = 0  # Force immediate update
 
 # Main content area with tabs
 tab1, tab2, tab3, tab4 = st.tabs(["Robot Programs", "Vision Commands", "Workpieces", "Console"])
@@ -582,4 +594,27 @@ with tab4:
 
 # Footer
 st.markdown("---")
-st.caption("KUKA LBR iiwa Robot Control - Streamlit Version | BiemhTek2026 | [Old tkinter GUI available as robot_control_gui_tkinter.py]")
+col1, col2 = st.columns([3, 1])
+with col1:
+    st.caption("KUKA LBR iiwa Robot Control - Streamlit Version | BiemhTek2026")
+with col2:
+    if st.session_state.connected:
+        st.caption(f"Last update: {time.strftime('%H:%M:%S', time.localtime(st.session_state.last_update))}")
+
+# Auto-refresh mechanism for live updates when connected
+if st.session_state.connected and st.session_state.auto_refresh:
+    current_time = time.time()
+    # Only refresh every 2 seconds
+    if current_time - st.session_state.last_update >= 2.0:
+        st.session_state.last_update = current_time
+        # Request status update to get latest data
+        send_command({'type': 'get_status'})
+        # Small delay to allow response to arrive
+        time.sleep(0.2)
+        # Trigger rerun to update UI
+        st.rerun()
+    elif current_time - st.session_state.last_update < 2.0:
+        # Wait for next cycle
+        remaining = 2.0 - (current_time - st.session_state.last_update)
+        time.sleep(min(remaining, 0.5))
+        st.rerun()
