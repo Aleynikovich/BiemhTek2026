@@ -16,6 +16,21 @@ from modules.workpiece_canvas import WorkpieceCanvas
 from modules.workpiece_manager import WorkpieceManager
 
 
+# Redundancy options for motion override dropdowns
+REDUNDANCY_OPTIONS = [
+    "None (no E1 offset)",
+    "E1 = -100°",
+    "E1 = -80°",
+    "E1 = -60°",
+    "E1 = -40°",
+    "E1 = 0°",
+    "E1 = 40°",
+    "E1 = 60°",
+    "E1 = 80°",
+    "E1 = 100°",
+]
+
+
 class RobotControlGUI:
     def __init__(self, root):
         self.root = root
@@ -236,76 +251,83 @@ class RobotControlGUI:
         for i, (text, cmd) in enumerate(actions):
             ttk.Button(btn_frame, text=text, command=cmd, width=18).grid(row=0, column=i, padx=3, pady=3)
         
-        # Motion Override Controls
-        override_frame = ttk.LabelFrame(parent, text="Motion Overrides (Advanced)", padding="10")
+        # Motion Override Controls - Redesigned for single-configuration testing
+        override_frame = ttk.LabelFrame(parent, text="Motion Overrides", padding="5")
         override_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
-        override_frame.columnconfigure(0, weight=1)
         
         # Master enable checkbox
-        self.motion_override_enabled = tk.BooleanVar(value=False)
-        enable_cb = ttk.Checkbutton(override_frame, text="Enable Motion Overrides", 
-                                     variable=self.motion_override_enabled,
-                                     command=self.on_motion_override_enabled_changed)
-        enable_cb.grid(row=0, column=0, sticky=tk.W, pady=(0, 10))
+        self.override_enabled_var = tk.BooleanVar(value=False)
+        override_enable_cb = ttk.Checkbutton(
+            override_frame, 
+            text="Override Motions (test one specific configuration)", 
+            variable=self.override_enabled_var,
+            command=self.on_override_enabled_changed
+        )
+        override_enable_cb.grid(row=0, column=0, columnspan=3, sticky=tk.W, pady=(0, 10))
         
-        # Pick Motion Section
-        pick_frame = ttk.LabelFrame(override_frame, text="Pick Motion", padding="5")
-        pick_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
-        pick_frame.columnconfigure(1, weight=1)
+        # Pick Section
+        pick_label = ttk.Label(override_frame, text="── Pick ──", style='Header.TLabel')
+        pick_label.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
         
-        ttk.Label(pick_frame, text="Redundancy Offsets:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
-        self.pick_redundancy_var = tk.StringVar(value="Default (-80,80,-60,60)")
-        self.pick_redundancy_combo = ttk.Combobox(pick_frame, textvariable=self.pick_redundancy_var,
-                                                   values=[
-                                                       "Default (-80,80,-60,60)",
-                                                       "Narrow (-40,40,-30,30)",
-                                                       "Wide (-100,100,-80,80)",
-                                                       "Single (0)",
-                                                       "None"
-                                                   ], state='readonly', width=35)
-        self.pick_redundancy_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(0, 5))
+        ttk.Label(override_frame, text="Redundancy:").grid(row=2, column=0, sticky=tk.W, padx=(15, 5))
+        self.pick_redundancy_var = tk.StringVar(value="E1 = -80°")
+        self.pick_redundancy_combo = ttk.Combobox(
+            override_frame, 
+            textvariable=self.pick_redundancy_var, 
+            values=REDUNDANCY_OPTIONS,
+            width=20,
+            state='readonly'
+        )
+        self.pick_redundancy_combo.grid(row=2, column=1, sticky=tk.W, padx=(0, 15))
         
-        self.pick_alternate_only = tk.BooleanVar(value=False)
-        ttk.Checkbutton(pick_frame, text="Alternate position only (180°)", 
-                        variable=self.pick_alternate_only).grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
+        # Regular/Alternate radio buttons
+        self.pick_alternate_var = tk.BooleanVar(value=False)
+        pick_radio_frame = ttk.Frame(override_frame)
+        pick_radio_frame.grid(row=2, column=2, sticky=tk.W)
+        ttk.Radiobutton(pick_radio_frame, text="Regular", variable=self.pick_alternate_var, value=False).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(pick_radio_frame, text="Alternate (180°)", variable=self.pick_alternate_var, value=True).pack(side=tk.LEFT)
         
-        # Place Motion Section
-        place_frame = ttk.LabelFrame(override_frame, text="Place Motion", padding="5")
-        place_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
-        place_frame.columnconfigure(1, weight=1)
+        # Place Section
+        place_label = ttk.Label(override_frame, text="── Place ──", style='Header.TLabel')
+        place_label.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(10, 5))
         
-        ttk.Label(place_frame, text="Redundancy Offsets:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
-        self.place_redundancy_var = tk.StringVar(value="Default (-80,80,-60,60)")
-        self.place_redundancy_combo = ttk.Combobox(place_frame, textvariable=self.place_redundancy_var,
-                                                    values=[
-                                                        "Default (-80,80,-60,60)",
-                                                        "Narrow (-40,40,-30,30)",
-                                                        "Wide (-100,100,-80,80)",
-                                                        "Single (0)",
-                                                        "None"
-                                                    ], state='readonly', width=35)
-        self.place_redundancy_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(0, 5))
+        ttk.Label(override_frame, text="Redundancy:").grid(row=4, column=0, sticky=tk.W, padx=(15, 5))
+        self.place_redundancy_var = tk.StringVar(value="E1 = 60°")
+        self.place_redundancy_combo = ttk.Combobox(
+            override_frame, 
+            textvariable=self.place_redundancy_var, 
+            values=REDUNDANCY_OPTIONS,
+            width=20,
+            state='readonly'
+        )
+        self.place_redundancy_combo.grid(row=4, column=1, sticky=tk.W, padx=(0, 15))
         
-        ttk.Label(place_frame, text="Z-Rotation Angles:").grid(row=1, column=0, sticky=tk.W, padx=(0, 5), pady=(5, 0))
-        self.place_zrot_var = tk.StringVar(value="Default (90,45,0,135,180,-45,-90,-135)")
-        self.place_zrot_combo = ttk.Combobox(place_frame, textvariable=self.place_zrot_var,
-                                              values=[
-                                                  "Default (90,45,0,135,180,-45,-90,-135)",
-                                                  "Cardinal (0,90,180,-90)",
-                                                  "Fine (0,15,30,45,60,75,90)",
-                                                  "Single (0)",
-                                                  "Single (90)"
-                                              ], state='readonly', width=35)
-        self.place_zrot_combo.grid(row=1, column=1, sticky=(tk.W, tk.E), padx=(0, 5), pady=(5, 0))
-        
-        self.place_alternate_only = tk.BooleanVar(value=False)
-        ttk.Checkbutton(place_frame, text="Alternate position only (180°)", 
-                        variable=self.place_alternate_only).grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
+        ttk.Label(override_frame, text="Z-Rot:").grid(row=4, column=2, sticky=tk.W, padx=(0, 5))
+        self.place_zrot_entry = ttk.Entry(override_frame, width=10)
+        self.place_zrot_entry.insert(0, "45")
+        self.place_zrot_entry.grid(row=4, column=2, sticky=tk.W, padx=(45, 0))
+        ttk.Label(override_frame, text="°").grid(row=4, column=2, sticky=tk.W, padx=(110, 0))
         
         # Apply button
-        self.apply_overrides_btn = ttk.Button(override_frame, text="Apply Overrides", 
-                                               command=self.apply_motion_overrides, width=20, state=tk.DISABLED)
-        self.apply_overrides_btn.grid(row=3, column=0, pady=(5, 0))
+        self.override_apply_btn = ttk.Button(
+            override_frame, 
+            text="Apply", 
+            command=self.apply_motion_overrides,
+            width=15
+        )
+        self.override_apply_btn.grid(row=5, column=0, columnspan=3, pady=(10, 0))
+        
+        # Store control widgets for enable/disable
+        self.override_controls = [
+            self.pick_redundancy_combo,
+            pick_radio_frame,
+            self.place_redundancy_combo,
+            self.place_zrot_entry,
+            self.override_apply_btn
+        ]
+        
+        # Initialize controls to disabled state
+        self.on_override_enabled_changed()
 
 
     def create_console_tab(self, parent):
@@ -482,73 +504,88 @@ class RobotControlGUI:
             if self.send_cmd({'type': 'pick_specific_workpiece', 'id': full_id}):
                 self.log_manager.log(f"Forced pick requested for workpiece {short_id}", 'success')
 
-    def on_motion_override_enabled_changed(self):
-        """Handle master enable checkbox change"""
-        if self.motion_override_enabled.get():
-            # Enable the apply button
-            self.apply_overrides_btn.config(state=tk.NORMAL)
-        else:
-            # Disable the apply button and clear overrides on the robot
-            self.apply_overrides_btn.config(state=tk.DISABLED)
-            if self.send_cmd({'type': 'clear_motion_override'}):
-                self.log_manager.log("Motion overrides disabled and cleared", 'success')
+    def on_override_enabled_changed(self):
+        """Handle the override checkbox being toggled."""
+        enabled = self.override_enabled_var.get()
+        
+        # Enable/disable all child controls
+        state = tk.NORMAL if enabled else tk.DISABLED
+        for control in self.override_controls:
+            try:
+                control.config(state=state)
+            except:
+                # For frames, disable all children
+                for child in control.winfo_children():
+                    try:
+                        child.config(state=state)
+                    except:
+                        pass
+        
+        # If disabling, send clear command to robot
+        if not enabled:
+            if self.client and self.client.connected:
+                if self.send_cmd({'type': 'clear_motion_override'}):
+                    self.log_manager.log("Motion overrides cleared (back to normal strategy lists)", 'info')
+
+    def parse_redundancy_value(self, redundancy_str):
+        """
+        Parse redundancy dropdown selection to extract degree value.
+        Returns None for "None (no E1 offset)", otherwise returns the float degree value.
+        """
+        if redundancy_str.startswith("None"):
+            return None
+        
+        # Extract number between "= " and "°"
+        match = re.search(r'=\s*(-?\d+)', redundancy_str)
+        if match:
+            return float(match.group(1))
+        return None
 
     def apply_motion_overrides(self):
-        """Apply motion overrides based on dropdown selections"""
-        if not self.motion_override_enabled.get():
-            return messagebox.showwarning("Overrides Disabled", "Please enable motion overrides first")
+        """Apply the selected motion override configuration."""
+        if not self.override_enabled_var.get():
+            messagebox.showwarning("Override Disabled", "Please enable 'Override Motions' first")
+            return
         
+        # Parse pick parameters
+        pick_redundancy = self.parse_redundancy_value(self.pick_redundancy_var.get())
+        pick_alternate = self.pick_alternate_var.get()
+        
+        # Parse place parameters
+        place_redundancy = self.parse_redundancy_value(self.place_redundancy_var.get())
+        
+        # Parse Z-rotation
+        try:
+            place_zrot_str = self.place_zrot_entry.get().strip()
+            if not place_zrot_str:
+                messagebox.showwarning("Missing Z-Rot", "Please enter a Z-rotation angle for place")
+                return
+            place_zrot = float(place_zrot_str)
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Z-Rot must be a valid number (e.g., 45, 90, -30)")
+            return
+        
+        # Build command
         cmd = {'type': 'set_motion_override'}
         
-        # Map dropdown values to CSV strings or None (for default)
-        redundancy_map = {
-            "Default (-80,80,-60,60)": None,  # Use robot defaults
-            "Narrow (-40,40,-30,30)": "-40,40,-30,30",
-            "Wide (-100,100,-80,80)": "-100,100,-80,80",
-            "Single (0)": "0",
-            "None": "0"
-        }
+        if pick_redundancy is not None:
+            cmd['pick_redundancy'] = pick_redundancy
         
-        zrot_map = {
-            "Default (90,45,0,135,180,-45,-90,-135)": None,  # Use robot defaults
-            "Cardinal (0,90,180,-90)": "0,90,180,-90",
-            "Fine (0,15,30,45,60,75,90)": "0,15,30,45,60,75,90",
-            "Single (0)": "0",
-            "Single (90)": "90"
-        }
+        cmd['pick_alternate'] = pick_alternate
         
-        # Pick redundancy
-        pick_red = redundancy_map.get(self.pick_redundancy_var.get())
-        if pick_red is not None:
-            cmd['pick_redundancy'] = pick_red
+        if place_redundancy is not None:
+            cmd['place_redundancy'] = place_redundancy
         
-        # Pick alternate only
-        if self.pick_alternate_only.get():
-            cmd['pick_alternate_only'] = True
-        else:
-            cmd['pick_alternate_only'] = False
+        cmd['place_zrot'] = place_zrot
         
-        # Place redundancy
-        place_red = redundancy_map.get(self.place_redundancy_var.get())
-        if place_red is not None:
-            cmd['place_redundancy'] = place_red
-        
-        # Place Z-rotation
-        place_zrot = zrot_map.get(self.place_zrot_var.get())
-        if place_zrot is not None:
-            cmd['place_zrot'] = place_zrot
-        
-        # Place alternate only
-        if self.place_alternate_only.get():
-            cmd['place_alternate_only'] = True
-        else:
-            cmd['place_alternate_only'] = False
-        
+        # Send to robot
         if self.send_cmd(cmd):
-            self.log_manager.log(f"Motion overrides applied: Pick={self.pick_redundancy_var.get()}, "
-                                f"Pick Alt={self.pick_alternate_only.get()}, Place={self.place_redundancy_var.get()}, "
-                                f"Place ZRot={self.place_zrot_var.get()}, Place Alt={self.place_alternate_only.get()}", 
-                                'success')
+            self.log_manager.log(
+                f"Motion override applied: pick_redundancy={pick_redundancy}, "
+                f"pick_alternate={pick_alternate}, place_redundancy={place_redundancy}, "
+                f"place_zrot={place_zrot}",
+                'success'
+            )
 
     def on_log_level_changed(self, event=None):
         lvl = self.log_level.get()

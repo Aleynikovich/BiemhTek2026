@@ -2,19 +2,23 @@ package biemhTekniker.lib.robot.motions;
 
 /**
  * Runtime overrides for motion generation and program flow, controlled via console commands.
+ * When override is enabled, the robot tests exactly ONE specific motion configuration
+ * instead of generating fallback lists.
  */
 public final class MotionOverrides
 {
     private static volatile Long forcedWorkpieceId = null;
     
-    // Pick motion overrides
-    private static volatile double[] pickRedundancyOverride = null;     // radians
-    private static volatile boolean pickAlternateOnly = false;
+    // Override enable flag
+    private static volatile boolean overrideEnabled = false;
     
-    // Place motion overrides
-    private static volatile double[] placeRedundancyOverride = null;    // radians
-    private static volatile double[] placeZRotOverride = null;          // radians
-    private static volatile boolean placeAlternateOnly = false;
+    // Pick overrides (single values)
+    private static volatile Double pickRedundancyE1 = null;  // single E1 offset in radians, null = no redundancy
+    private static volatile boolean pickAlternate = false;   // true = alternate (180°), false = regular
+    
+    // Place overrides (single values)
+    private static volatile Double placeRedundancyE1 = null; // single E1 offset in radians, null = no redundancy
+    private static volatile Double placeZRotation = null;    // single Z rotation in radians
 
     private MotionOverrides()
     {
@@ -33,68 +37,66 @@ public final class MotionOverrides
         return id;
     }
 
-    // ----- Pick redundancy offsets override (radians) -----
-    public static void setPickRedundancyOverride(double[] offsetsRad)
+    // ----- Override enabled flag -----
+    public static void setOverrideEnabled(boolean enabled)
     {
-        pickRedundancyOverride = offsetsRad;
+        overrideEnabled = enabled;
+    }
+    
+    public static boolean isOverrideEnabled()
+    {
+        return overrideEnabled;
     }
 
-    public static double[] getPickRedundancyOverride()
+    // ----- Pick overrides -----
+    public static void setPickRedundancyE1(Double offsetRad)
     {
-        return pickRedundancyOverride;
+        pickRedundancyE1 = offsetRad;
+    }
+    
+    public static Double getPickRedundancyE1()
+    {
+        return pickRedundancyE1;
+    }
+    
+    public static void setPickAlternate(boolean alternate)
+    {
+        pickAlternate = alternate;
+    }
+    
+    public static boolean isPickAlternate()
+    {
+        return pickAlternate;
     }
 
-    // ----- Pick alternate position only flag -----
-    public static void setPickAlternateOnly(boolean alternateOnly)
+    // ----- Place overrides -----
+    public static void setPlaceRedundancyE1(Double offsetRad)
     {
-        pickAlternateOnly = alternateOnly;
+        placeRedundancyE1 = offsetRad;
+    }
+    
+    public static Double getPlaceRedundancyE1()
+    {
+        return placeRedundancyE1;
+    }
+    
+    public static void setPlaceZRotation(Double angleRad)
+    {
+        placeZRotation = angleRad;
+    }
+    
+    public static Double getPlaceZRotation()
+    {
+        return placeZRotation;
     }
 
-    public static boolean isPickAlternateOnly()
-    {
-        return pickAlternateOnly;
-    }
-
-    // ----- Place redundancy offsets override (radians) -----
-    public static void setPlaceRedundancyOverride(double[] offsetsRad)
-    {
-        placeRedundancyOverride = offsetsRad;
-    }
-
-    public static double[] getPlaceRedundancyOverride()
-    {
-        return placeRedundancyOverride;
-    }
-
-    // ----- Place Z rotation angles override (radians) -----
-    public static void setPlaceZRotOverride(double[] anglesRad)
-    {
-        placeZRotOverride = anglesRad;
-    }
-
-    public static double[] getPlaceZRotOverride()
-    {
-        return placeZRotOverride;
-    }
-
-    // ----- Place alternate position only flag -----
-    public static void setPlaceAlternateOnly(boolean alternateOnly)
-    {
-        placeAlternateOnly = alternateOnly;
-    }
-
-    public static boolean isPlaceAlternateOnly()
-    {
-        return placeAlternateOnly;
-    }
-
-    // ----- Clear all motion overrides -----
+    // ----- Clear all overrides -----
     public static void clearMotionOverrides()
     {
-        pickRedundancyOverride = null;
-        pickAlternateOnly = false;
-        placeRedundancyOverride = null;
-        placeZRotOverride = null;
-        placeAlternateOnly = false;
+        overrideEnabled = false;
+        pickRedundancyE1 = null;
+        pickAlternate = false;
+        placeRedundancyE1 = null;
+        placeZRotation = null;
     }
 }
