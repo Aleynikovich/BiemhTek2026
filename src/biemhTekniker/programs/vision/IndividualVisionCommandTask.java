@@ -1,4 +1,7 @@
-package biemhTekniker.programs;
+package biemhTekniker.programs.vision;
+
+import biemhTekniker.lib.vision.VisionTask;
+import biemhTekniker.lib.vision.VisionContext;
 
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingProtocol;

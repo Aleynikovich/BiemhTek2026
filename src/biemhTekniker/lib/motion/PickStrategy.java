@@ -1,4 +1,4 @@
-package biemhTekniker.programs;
+package biemhTekniker.lib.motion;
 
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
