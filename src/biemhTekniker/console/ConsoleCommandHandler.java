@@ -413,27 +413,60 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
-            String redCsv = json.getString("redundancy", null);
-            String zCsv = json.getString("zrot", null);
             boolean any = false;
-            if (redCsv != null && !redCsv.trim().isEmpty())
+            
+            // Pick motion overrides
+            String pickRedCsv = json.getString("pick_redundancy", null);
+            if (pickRedCsv != null && !pickRedCsv.trim().isEmpty())
             {
-                double[] rads = parseCsvDegreesToRadians(redCsv);
-                MotionOverrides.setRedundancyOffsetsOverride(rads);
+                double[] rads = parseCsvDegreesToRadians(pickRedCsv);
+                MotionOverrides.setPickRedundancyOverride(rads);
                 any = true;
             }
-            if (zCsv != null && !zCsv.trim().isEmpty())
+            
+            boolean pickAltOnly = json.getBoolean("pick_alternate_only", false);
+            if (pickAltOnly)
             {
-                double[] rads = parseCsvDegreesToRadians(zCsv);
-                MotionOverrides.setZRotationAnglesOverride(rads);
+                MotionOverrides.setPickAlternateOnly(true);
+                any = true;
+            } else
+            {
+                MotionOverrides.setPickAlternateOnly(false);
+            }
+            
+            // Place motion overrides
+            String placeRedCsv = json.getString("place_redundancy", null);
+            if (placeRedCsv != null && !placeRedCsv.trim().isEmpty())
+            {
+                double[] rads = parseCsvDegreesToRadians(placeRedCsv);
+                MotionOverrides.setPlaceRedundancyOverride(rads);
                 any = true;
             }
+            
+            String placeZrotCsv = json.getString("place_zrot", null);
+            if (placeZrotCsv != null && !placeZrotCsv.trim().isEmpty())
+            {
+                double[] rads = parseCsvDegreesToRadians(placeZrotCsv);
+                MotionOverrides.setPlaceZRotOverride(rads);
+                any = true;
+            }
+            
+            boolean placeAltOnly = json.getBoolean("place_alternate_only", false);
+            if (placeAltOnly)
+            {
+                MotionOverrides.setPlaceAlternateOnly(true);
+                any = true;
+            } else
+            {
+                MotionOverrides.setPlaceAlternateOnly(false);
+            }
+            
             if (any)
             {
                 sendResponse("response", "Motion overrides applied", true);
             } else
             {
-                sendError("No overrides provided. Use fields 'redundancy' and/or 'zrot' with CSV degrees");
+                sendError("No overrides provided. Use fields 'pick_redundancy', 'pick_alternate_only', 'place_redundancy', 'place_zrot', and/or 'place_alternate_only'");
             }
         } catch (Exception e)
         {
