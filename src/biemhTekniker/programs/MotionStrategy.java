@@ -8,7 +8,6 @@ import com.kuka.roboticsAPI.executionModel.CommandInvalidException;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.math.Transformation;
-import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.CartesianImpedanceControlMode;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
@@ -116,17 +115,16 @@ public class MotionStrategy
      * 
      * @param target Target frame to move to
      * @param velocityRel Relative joint velocity
-     * @return IMotionContainer for the motion
      */
-    private IMotionContainer movePtpAsync(Frame target, double velocityRel)
+    private void movePtp(Frame target, double velocityRel)
     {
         if (impedanceMode != null)
         {
-            return tcp.moveAsync(ptp(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
+            tcp.move(ptp(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
         }
         else
         {
-            return tcp.moveAsync(ptp(target).setJointVelocityRel(velocityRel));
+            tcp.move(ptp(target).setJointVelocityRel(velocityRel));
         }
     }
 
@@ -135,17 +133,16 @@ public class MotionStrategy
      * 
      * @param target Target frame to move to
      * @param velocityRel Relative joint velocity
-     * @return IMotionContainer for the motion
      */
-    private IMotionContainer moveLinAsync(Frame target, double velocityRel)
+    private void moveLin(Frame target, double velocityRel)
     {
         if (impedanceMode != null)
         {
-            return tcp.moveAsync(lin(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
+            tcp.move(lin(target).setJointVelocityRel(velocityRel).setMode(impedanceMode));
         }
         else
         {
-            return tcp.moveAsync(lin(target).setJointVelocityRel(velocityRel));
+            tcp.move(lin(target).setJointVelocityRel(velocityRel));
         }
     }
 
@@ -227,26 +224,15 @@ public class MotionStrategy
                 }
 
                 // Approach - move to position above target with PTP
-                IMotionContainer motionContainer = movePtpAsync(approachFrame, APPROACH_VELOCITY);
-                if (context != null)
-                {
-                    context.setActiveMotion(motionContainer);
-                }
-                motionContainer.await();
+                movePtp(approachFrame, APPROACH_VELOCITY);
 
                 // Move down to target using LIN (world coordinate)
-                motionContainer = moveLinAsync(finalTarget, ACTION_VELOCITY);
-                if (context != null)
-                {
-                    context.setActiveMotion(motionContainer);
-                }
-                motionContainer.await();
+                moveLin(finalTarget, ACTION_VELOCITY);
 
                 // Check for cancellation before executing action
                 if (context != null && context.isCancellationRequested())
                 {
                     log.warn("Motion cancelled before action execution");
-                    context.setActiveMotion(null);
                     return false;
                 }
 
@@ -260,17 +246,11 @@ public class MotionStrategy
                 if (context != null && context.isCancellationRequested())
                 {
                     log.warn("Motion cancelled before retract");
-                    context.setActiveMotion(null);
                     return false;
                 }
 
                 // Retract back to approach position
-                motionContainer = moveLinAsync(approachFrame, ACTION_VELOCITY);
-                if (context != null)
-                {
-                    context.setActiveMotion(motionContainer);
-                }
-                motionContainer.await();
+                moveLin(approachFrame, ACTION_VELOCITY);
             }
             else
             {
@@ -311,26 +291,15 @@ public class MotionStrategy
                 }
 
                 // Approach
-                IMotionContainer motionContainer = movePtpAsync(finalApproach, APPROACH_VELOCITY);
-                if (context != null)
-                {
-                    context.setActiveMotion(motionContainer);
-                }
-                motionContainer.await();
+                movePtp(finalApproach, APPROACH_VELOCITY);
 
                 // Move to target position
-                motionContainer = moveLinAsync(finalTarget, ACTION_VELOCITY);
-                if (context != null)
-                {
-                    context.setActiveMotion(motionContainer);
-                }
-                motionContainer.await();
+                moveLin(finalTarget, ACTION_VELOCITY);
 
                 // Check for cancellation before executing action
                 if (context != null && context.isCancellationRequested())
                 {
                     log.warn("Motion cancelled before action execution");
-                    context.setActiveMotion(null);
                     return false;
                 }
 
@@ -344,31 +313,19 @@ public class MotionStrategy
                 if (context != null && context.isCancellationRequested())
                 {
                     log.warn("Motion cancelled before retract");
-                    context.setActiveMotion(null);
                     return false;
                 }
 
                 // Retract
-                motionContainer = moveLinAsync(finalApproach, ACTION_VELOCITY);
-                if (context != null)
-                {
-                    context.setActiveMotion(motionContainer);
-                }
-                motionContainer.await();
+                moveLin(finalApproach, ACTION_VELOCITY);
             }
             
-            if (context != null)
-            {
-                context.setActiveMotion(null);
-            }
-
             log.info("Motion succeeded with " + strategyDesc);
             return true;
         } catch (CommandInvalidException e)
         {
             if (context != null)
             {
-                context.setActiveMotion(null);
                 // Check if cancellation was requested - if so, propagate as cancellation exception
                 if (context.isCancellationRequested())
                 {
@@ -382,7 +339,6 @@ public class MotionStrategy
         {
             if (context != null)
             {
-                context.setActiveMotion(null);
                 // Check if cancellation was requested - if so, propagate as cancellation exception
                 if (context.isCancellationRequested())
                 {
@@ -393,6 +349,16 @@ public class MotionStrategy
             log.warn("Motion action failed with " + strategyDesc + ": " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Gets the orientation determined by this strategy.
+     * 
+     * @return 0 for regular position, 1 for alternate position (180° rotation)
+     */
+    public int getOrientation()
+    {
+        return useAlternatePosition ? 1 : 0;
     }
 
     /**

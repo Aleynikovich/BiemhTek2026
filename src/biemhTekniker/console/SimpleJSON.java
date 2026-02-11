@@ -17,24 +17,39 @@ public class SimpleJSON
         this.data = new HashMap<String, Object>();
     }
 
+    /**
+     * Creates a SimpleJSON object from a JSON string.
+     * 
+     * @param jsonString JSON string to parse
+     * @throws IllegalArgumentException if JSON string is null, empty, or malformed
+     */
     public SimpleJSON(String jsonString)
     {
         this.data = new HashMap<String, Object>();
-        parse(jsonString);
+        if (jsonString == null)
+        {
+            throw new IllegalArgumentException("JSON string cannot be null");
+        }
+        
+        String trimmed = jsonString.trim();
+        if (trimmed.isEmpty())
+        {
+            throw new IllegalArgumentException("JSON string cannot be empty");
+        }
+        
+        if (!trimmed.startsWith("{") || !trimmed.endsWith("}"))
+        {
+            throw new IllegalArgumentException("JSON string must start with '{' and end with '}'");
+        }
+        
+        parse(trimmed);
     }
 
     private void parse(String jsonString)
     {
         // Simple parser for basic JSON objects
-        jsonString = jsonString.trim();
-        if (jsonString.startsWith("{"))
-        {
-            jsonString = jsonString.substring(1);
-        }
-        if (jsonString.endsWith("}"))
-        {
-            jsonString = jsonString.substring(0, jsonString.length() - 1);
-        }
+        // jsonString is already trimmed and validated by constructor
+        jsonString = jsonString.substring(1, jsonString.length() - 1);
 
         String[] pairs = jsonString.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
         for (String pair : pairs)
@@ -65,6 +80,17 @@ public class SimpleJSON
         }
     }
 
+    /**
+     * Checks if a key exists in the JSON object.
+     * 
+     * @param key Key to check
+     * @return true if key exists, false otherwise
+     */
+    public boolean has(String key)
+    {
+        return data.containsKey(key);
+    }
+
     public void put(String key, Object value)
     {
         data.put(key, value);
@@ -86,6 +112,22 @@ public class SimpleJSON
         try
         {
             return Integer.parseInt(value.toString());
+        } catch (Exception e)
+        {
+            return defaultValue;
+        }
+    }
+    
+    public long getLong(String key, long defaultValue)
+    {
+        Object value = data.get(key);
+        if (value instanceof Number)
+        {
+            return ((Number) value).longValue();
+        }
+        try
+        {
+            return Long.parseLong(value.toString());
         } catch (Exception e)
         {
             return defaultValue;

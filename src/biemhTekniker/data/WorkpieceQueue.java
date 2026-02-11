@@ -1,5 +1,6 @@
 package biemhTekniker.data;
 
+import biemhTekniker.config.ConfigManager;
 import biemhTekniker.logger.Logger;
 
 import java.util.ArrayList;
@@ -15,12 +16,23 @@ public class WorkpieceQueue
     
     /**
      * Position tolerance for workpiece matching in millimeters.
-     * Set to 5mm based on vision system accuracy and mechanical repeatability.
+     * Configurable via application.properties (workpiece.position.tolerance.mm).
+     * Default is 5mm based on vision system accuracy and mechanical repeatability.
      * Workpieces within this tolerance are considered to be at the same position.
      */
-    private static final double POSITION_TOLERANCE_MM = 5.0;
+    private final double positionToleranceMm;
     
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
+
+    /**
+     * Default constructor using configuration from application.properties.
+     */
+    public WorkpieceQueue()
+    {
+        ConfigManager config = ConfigManager.getInstance();
+        this.positionToleranceMm = config.getDouble("workpiece.position.tolerance.mm", 5.0);
+        log.debug("WorkpieceQueue initialized with position tolerance: " + positionToleranceMm + "mm");
+    }
 
     /**
      * Adds a workpiece to the queue with AVAILABLE state.
@@ -247,6 +259,28 @@ public class WorkpieceQueue
     }
 
     /**
+     * Removes a specific workpiece from the queue by ID.
+     * 
+     * @param workpieceId ID of the workpiece to remove
+     * @return true if workpiece was found and removed, false otherwise
+     */
+    public synchronized boolean removeWorkpiece(long workpieceId)
+    {
+        for (int i = 0; i < workpieces.size(); i++)
+        {
+            WorkpieceData wp = workpieces.get(i);
+            if (wp.getId() == workpieceId)
+            {
+                workpieces.remove(i);
+                log.info("Removed workpiece from queue: id=" + workpieceId);
+                return true;
+            }
+        }
+        log.warn("Workpiece not found in queue: id=" + workpieceId);
+        return false;
+    }
+
+    /**
      * Returns a formatted status string showing all workpieces and their states.
      *
      * @return Queue status string
@@ -293,6 +327,8 @@ public class WorkpieceQueue
             sb.append("{");
             sb.append("\"id\":").append(wp.getId());
             sb.append(",\"reference\":").append(wp.getReferenceIndex());
+            sb.append(",\"orientation\":").append(wp.getOrientation());
+            sb.append(",\"referenceString\":\"").append(wp.getReferenceString()).append("\"");
             sb.append(",\"state\":\"").append(wp.getState()).append("\"");
             
             String gripperLoc = wp.getGripperLocation();
@@ -307,6 +343,8 @@ public class WorkpieceQueue
             sb.append(",\"x\":").append(wp.getX());
             sb.append(",\"y\":").append(wp.getY());
             sb.append(",\"z\":").append(wp.getZ());
+            sb.append(",\"rx\":").append(wp.getRx());
+            sb.append(",\"ry\":").append(wp.getRy());
             sb.append(",\"rz\":").append(wp.getRz());
             sb.append(",\"score\":").append(wp.getScore());
             sb.append("}");
@@ -335,7 +373,7 @@ public class WorkpieceQueue
     }
 
     /**
-     * Finds an existing workpiece at the given position (within ±5mm tolerance).
+     * Finds an existing workpiece at the given position (within configured tolerance).
      * Used for tracking workpieces across scans to avoid creating duplicates.
      *
      * @param x X coordinate
@@ -349,7 +387,7 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, POSITION_TOLERANCE_MM))
+            if (wp.getReferenceIndex() == referenceIndex && wp.isAtPosition(x, y, z, positionToleranceMm))
             {
                 log.debug("Found existing workpiece at position: id=" + wp.getId());
                 return wp;

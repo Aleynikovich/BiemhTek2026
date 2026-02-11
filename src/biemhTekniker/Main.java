@@ -72,8 +72,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     private RobotContext robotContext;
     private VisionContext visionContext;
 
-    private int lastProgramNumber = 0;
-
     @Override
     public void initialize()
     {
@@ -208,7 +206,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
                 // Reset to idle after execution (or submission for vision)
                 appController.resetProgramNumber();
-                lastProgramNumber = currentProgram;
 
                 // Only request home move if it was a robot program
                 if (ProgramRange.isRobotProgram(currentProgram))
@@ -319,6 +316,18 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     public String getWorkpiecesJson()
     {
         return appController.getWorkpiecesJson();
+    }
+    
+    @Override
+    public void clearWorkpieceQueue()
+    {
+        appController.clearWorkpieceQueue();
+    }
+    
+    @Override
+    public boolean removeWorkpiece(long workpieceId)
+    {
+        return appController.removeWorkpiece(workpieceId);
     }
 
 }

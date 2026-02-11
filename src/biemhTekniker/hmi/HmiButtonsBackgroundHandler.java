@@ -12,9 +12,9 @@ import com.kuka.roboticsAPI.uiModel.userKeys.IUserKeyBar;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class hmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
+public class HmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
 {
-    private static final Logger log = Logger.getLogger(hmiButtonsBackgroundHandler.class);
+    private static final Logger log = Logger.getLogger(HmiButtonsBackgroundHandler.class);
     @Inject
     RobotStateIOGroup robotStateIOGroup;
     @Inject
@@ -31,7 +31,6 @@ public class hmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
         initializeCyclic(0, 5000, TimeUnit.MILLISECONDS, CycleBehavior.BestEffort);
         // Initialize HMI Buttons
         initializeHmiButtons();
-
     }
 
     @Override
@@ -51,7 +50,7 @@ public class hmiButtonsBackgroundHandler extends RoboticsAPICyclicBackgroundTask
             log.info("Initializing HMI programmable buttons...");
             hmiKeyBar = getApplicationUI().createUserKeyBar("BiemhTek_HMI");
 
-            biemhTekniker.hmi.HmiButtonHandler buttonHandler = new biemhTekniker.hmi.HmiButtonHandler(iiwa, gripper, gripperIO);
+            HmiButtonHandler buttonHandler = new HmiButtonHandler(iiwa, gripper, gripperIO);
 
             buttonHandler.registerUserKeys(hmiKeyBar);
             log.info("HMI programmable buttons initialized successfully");

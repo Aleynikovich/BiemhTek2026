@@ -94,16 +94,18 @@ public class ScanPickedWorkpiece implements VisionTask
         double refWithOrientation = orientationResult.getWorkpieceRefWithOrientation();
         int refWithOrientationInt = (int) refWithOrientation;
         
-        // Extract orientation: last digit (0=regular, 1=inverted)
-        int orientation = refWithOrientationInt % 10;
+        // Extract orientation from vision result: last digit (0=regular, 1=inverted)
+        int visionOrientation = refWithOrientationInt % 10;
         
-        log.info("Workpiece reference with orientation: " + refWithOrientationInt + 
-                 " (reference=" + reference + ", orientation=" + orientation + 
-                 (orientation == 0 ? " [REGULAR]" : " [INVERTED]") + ")");
-
-        // Store orientation in workpiece data
-        workpieceData.setOrientation(orientation);
+        // NOTE: Robot determines the actual orientation during pick based on strategy used.
+        // The vision system always reports orientation 0, but we keep this scan for visual effect.
+        // Do NOT override the orientation that was already set during pick operation.
+        int robotOrientation = workpieceData.getOrientation();
         
-        log.info("Workpiece orientation scan completed successfully");
+        log.info("Vision scan result: " + refWithOrientationInt + 
+                 " (vision orientation=" + visionOrientation + ", robot orientation=" + robotOrientation + 
+                 (robotOrientation == 0 ? " [REGULAR]" : " [180deg ROTATION]") + ")");
+        
+        log.info("Workpiece orientation scan completed - keeping robot-determined orientation");
     }
 }
