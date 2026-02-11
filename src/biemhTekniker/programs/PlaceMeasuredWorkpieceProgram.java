@@ -11,7 +11,6 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
-import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
 {
 
     private static final Logger log = Logger.getLogger(PlaceMeasuredWorkpieceProgram.class);
-    private static final int PRE_PLACE_Z_OFFSET_MM = 100;
+    private static final int PRE_PLACE_Z_OFFSET_MM = 150;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
 
     /**
@@ -77,10 +76,7 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
 
         // Move to exit position (safe approach)
         log.info("Moving to exit position...");
-        IMotionContainer motion = tcpB.moveAsync(ptp(exitPosition));
-        context.setActiveMotion(motion);
-        motion.await();
-        context.setActiveMotion(null);
+        tcpB.move(ptp(exitPosition));
 
         // Generate motion strategies for place operation with Z-rotation and tool coordinates
         List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
@@ -124,10 +120,7 @@ public class PlaceMeasuredWorkpieceProgram implements RobotProgram
 
         // Return to exit position
         log.info("Returning to exit position...");
-        motion = tcpB.moveAsync(ptp(exitPosition));
-        context.setActiveMotion(motion);
-        motion.await();
-        context.setActiveMotion(null);
+        tcpB.move(ptp(exitPosition));
 
         // Mark workpiece as returned
         queue.markReturned(workpieceData.getId());
