@@ -69,12 +69,12 @@ public class FullScanProgram implements VisionProgram
         SmartPickingProtocol.WorkpieceCallback callback = new SmartPickingProtocol.WorkpieceCallback()
         {
             @Override
-            public void onWorkpieceFound(WorkpieceData wp)
+            public void onWorkpieceFound(WorkpieceData workpiece)
             {
                 // Add or update workpiece in the queue (with position tracking)
                 // This prevents creating duplicate workpieces on each scan
-                queue.addOrUpdateWorkpiece(wp.getX(), wp.getY(), wp.getZ(), wp.getRx(), wp.getRy(), wp.getRz(), wp.getScore(), wp.getReferenceIndex());
-                log.debug("Workpiece added to queue progressively: id=" + wp.getId() + ", ref=" + wp.getReferenceIndex() + ", score=" + wp.getScore());
+                queue.addOrUpdateWorkpiece(workpiece.getX(), workpiece.getY(), workpiece.getZ(), workpiece.getRx(), workpiece.getRy(), workpiece.getRz(), workpiece.getScore(), workpiece.getReferenceIndex());
+                log.debug("Workpiece added to queue progressively: id=" + workpiece.getId() + ", ref=" + workpiece.getReferenceIndex() + ", score=" + workpiece.getScore());
             }
         };
         
