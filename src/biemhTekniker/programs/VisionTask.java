@@ -1,4 +1,4 @@
-package biemhTekniker.lib.vision;
+package biemhTekniker.programs;
 
 /**
  * Interface for vision tasks that execute on the vision thread.

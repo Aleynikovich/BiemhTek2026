@@ -1,4 +1,4 @@
-package biemhTekniker.lib.motion;
+package biemhTekniker.programs;
 
 import biemhTekniker.config.ConfigManager;
 import biemhTekniker.config.ImpedanceConfig;

@@ -1,7 +1,4 @@
-package biemhTekniker.programs.vision;
-
-import biemhTekniker.lib.vision.VisionTask;
-import biemhTekniker.lib.vision.VisionContext;
+package biemhTekniker.programs;
 
 import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
