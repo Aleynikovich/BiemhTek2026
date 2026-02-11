@@ -10,12 +10,14 @@ import com.kuka.roboticsAPI.geometricModel.math.Transformation;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.linRel;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 
 /**
- * Generic motion strategy with support for alternate position (180° rotation) 
- * and redundancy (null space) motion.
+ * Generic motion strategy with support for alternate position (180° rotation),
+ * Z-axis rotation freedom, and redundancy (null space) motion.
  * Can be used for any robot motion operation (pick, place, etc.).
+ * Supports tool coordinate system approach (Z+) for perpendicular approach to workpieces.
  */
 public class MotionStrategy
 {
@@ -28,6 +30,9 @@ public class MotionStrategy
     private final boolean useAlternatePosition;
     private final Double redundancyE1Offset; // E1 offset in radians for null space motion (null if not used)
     private final LBR robot; // Robot instance needed for redundancy
+    private final boolean allowZRotation; // Allow free rotation around Z-axis
+    private final Double zRotationAngle; // Specific Z-axis rotation angle in radians (null if allowZRotation is false)
+    private final boolean useToolCoordinates; // Use tool coordinate system (Z+) for approach/retract
 
     /**
      * Creates a motion strategy without redundancy.
@@ -37,7 +42,7 @@ public class MotionStrategy
      */
     public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition)
     {
-        this(tcp, useAlternatePosition, null, null);
+        this(tcp, useAlternatePosition, null, null, false, null, false);
     }
 
     /**
@@ -51,25 +56,46 @@ public class MotionStrategy
     public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
                          Double redundancyE1Offset, LBR robot)
     {
+        this(tcp, useAlternatePosition, redundancyE1Offset, robot, false, null, false);
+    }
+
+    /**
+     * Creates a motion strategy with Z-axis rotation support.
+     *
+     * @param tcp                  Tool center point frame
+     * @param useAlternatePosition If true, rotate position by 180 degrees around Z-axis
+     * @param redundancyE1Offset   E1 offset in radians for null space motion (null to disable)
+     * @param robot                Robot instance (required when redundancyE1Offset is not null)
+     * @param allowZRotation       If true, apply Z-axis rotation for place operations
+     * @param zRotationAngle       Z-axis rotation angle in radians (null for default 0)
+     * @param useToolCoordinates   If true, use tool coordinate system (Z+) for approach/retract
+     */
+    public MotionStrategy(ObjectFrame tcp, boolean useAlternatePosition, 
+                         Double redundancyE1Offset, LBR robot,
+                         boolean allowZRotation, Double zRotationAngle, 
+                         boolean useToolCoordinates)
+    {
         this.tcp = tcp;
         this.useAlternatePosition = useAlternatePosition;
         this.redundancyE1Offset = redundancyE1Offset;
         this.robot = robot;
+        this.allowZRotation = allowZRotation;
+        this.zRotationAngle = zRotationAngle;
+        this.useToolCoordinates = useToolCoordinates;
     }
 
     /**
      * Attempts to execute a motion to target position with approach and retract.
      *
      * @param targetPosition   Target position for the action
-     * @param approachPosition Approach position before action
+     * @param approachOffset   Approach offset distance in mm (used with tool coordinates) or Frame (used without)
      * @param action           Action to execute at target position (can be null for motion-only)
      * @param context          Robot context for cancellation support (can be null if cancellation not needed)
      * @return true if motion succeeded, false if motion failed
      */
-    public boolean executeMotion(Frame targetPosition, Frame approachPosition, MotionAction action, RobotContext context)
+    public boolean executeMotion(Frame targetPosition, Object approachOffset, MotionAction action, RobotContext context)
     {
         Frame finalTarget = targetPosition;
-        Frame finalApproach = approachPosition;
 
         // Apply alternate position transformation (180 degree rotation around Z-axis)
         if (useAlternatePosition)
@@ -77,12 +103,18 @@ public class MotionStrategy
             // Create transformation: 180 degrees around Z-axis (alpha/C rotation)
             Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, 0, 0, Math.PI);
             
-            // Apply rotation to both frames
+            // Apply rotation to target frame
             finalTarget = new Frame(targetPosition.copy());
             finalTarget.transform(rotationZ180);
-            
-            finalApproach = new Frame(approachPosition.copy());
-            finalApproach.transform(rotationZ180);
+        }
+
+        // Apply Z-axis rotation if enabled
+        if (allowZRotation && zRotationAngle != null)
+        {
+            Transformation rotationZ = Transformation.ofRad(0, 0, 0, 0, 0, zRotationAngle.doubleValue());
+            Frame rotatedTarget = new Frame(finalTarget.copy());
+            rotatedTarget.transform(rotationZ);
+            finalTarget = rotatedTarget;
         }
 
         // Apply redundancy information if specified
@@ -90,7 +122,6 @@ public class MotionStrategy
         {
             LBRE1Redundancy redundancy = new LBRE1Redundancy().setE1(redundancyE1Offset.doubleValue());
             finalTarget.setRedundancyInformation(robot, redundancy);
-            finalApproach.setRedundancyInformation(robot, redundancy);
         }
 
         String strategyDesc = getDescription();
@@ -99,53 +130,166 @@ public class MotionStrategy
         {
             log.info("Attempting motion with " + strategyDesc + ": " + finalTarget);
 
-            // Approach
-            IMotionContainer motionContainer = 
-                tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
-            if (context != null)
+            if (useToolCoordinates)
             {
-                context.setActiveMotion(motionContainer);
-            }
-            motionContainer.await();
+                // Use tool coordinate system for approach/retract (Z+ direction)
+                double offsetMm = 0;
+                if (approachOffset instanceof Double)
+                {
+                    offsetMm = ((Double) approachOffset).doubleValue();
+                }
+                else
+                {
+                    log.error("Invalid approach offset type for tool coordinates: " + approachOffset.getClass() + " (expected Double)");
+                    return false;
+                }
 
-            // Move to target position
-            motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
-            if (context != null)
-            {
-                context.setActiveMotion(motionContainer);
-            }
-            motionContainer.await();
+                // Create approach frame by applying offset in tool Z direction
+                // The offset is applied in the local (tool) coordinate system
+                // ofRad takes (x, y, z translation in mm, a, b, c rotation in radians)
+                Transformation offsetTransform = Transformation.ofRad(0, 0, offsetMm, 0, 0, 0);
+                Frame approachFrame = new Frame(finalTarget.copy());
+                approachFrame.transform(offsetTransform);
 
-            // Check for cancellation before executing action
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before action execution");
-                context.setActiveMotion(null);
-                return false;
-            }
+                // Apply redundancy to approach frame if needed
+                if (redundancyE1Offset != null && robot != null)
+                {
+                    LBRE1Redundancy redundancy = new LBRE1Redundancy().setE1(redundancyE1Offset.doubleValue());
+                    approachFrame.setRedundancyInformation(robot, redundancy);
+                }
 
-            // Execute action at target position (e.g., activate/deactivate gripper)
-            // The robot has already reached the target position (await() completed above)
-            if (action != null)
-            {
-                action.execute();
-            }
+                // Approach - move to position above target with PTP
+                IMotionContainer motionContainer = 
+                    tcp.moveAsync(ptp(approachFrame).setJointVelocityRel(APPROACH_VELOCITY));
+                if (context != null)
+                {
+                    context.setActiveMotion(motionContainer);
+                }
+                motionContainer.await();
 
-            // Check for cancellation before retract
-            if (context != null && context.isCancellationRequested())
-            {
-                log.warn("Motion cancelled before retract");
-                context.setActiveMotion(null);
-                return false;
-            }
+                // Move down to target using LIN (world coordinate)
+                motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
+                if (context != null)
+                {
+                    context.setActiveMotion(motionContainer);
+                }
+                motionContainer.await();
 
-            // Retract
-            motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
-            if (context != null)
-            {
-                context.setActiveMotion(motionContainer);
+                // Check for cancellation before executing action
+                if (context != null && context.isCancellationRequested())
+                {
+                    log.warn("Motion cancelled before action execution");
+                    context.setActiveMotion(null);
+                    return false;
+                }
+
+                // Execute action at target position (e.g., activate/deactivate gripper)
+                if (action != null)
+                {
+                    action.execute();
+                }
+
+                // Check for cancellation before retract
+                if (context != null && context.isCancellationRequested())
+                {
+                    log.warn("Motion cancelled before retract");
+                    context.setActiveMotion(null);
+                    return false;
+                }
+
+                // Retract back to approach position
+                motionContainer = tcp.moveAsync(lin(approachFrame).setJointVelocityRel(ACTION_VELOCITY));
+                if (context != null)
+                {
+                    context.setActiveMotion(motionContainer);
+                }
+                motionContainer.await();
             }
-            motionContainer.await();
+            else
+            {
+                // Use world coordinate system (original behavior)
+                Frame finalApproach = null;
+                if (approachOffset instanceof Frame)
+                {
+                    finalApproach = (Frame) approachOffset;
+                    
+                    // Apply alternate position transformation to approach frame as well
+                    if (useAlternatePosition)
+                    {
+                        Transformation rotationZ180 = Transformation.ofRad(0, 0, 0, 0, 0, Math.PI);
+                        finalApproach = new Frame(finalApproach.copy());
+                        finalApproach.transform(rotationZ180);
+                    }
+
+                    // Apply Z-axis rotation to approach frame if enabled
+                    if (allowZRotation && zRotationAngle != null)
+                    {
+                        Transformation rotationZ = Transformation.ofRad(0, 0, 0, 0, 0, zRotationAngle.doubleValue());
+                        Frame rotatedApproach = new Frame(finalApproach.copy());
+                        rotatedApproach.transform(rotationZ);
+                        finalApproach = rotatedApproach;
+                    }
+
+                    // Apply redundancy to approach frame
+                    if (redundancyE1Offset != null && robot != null)
+                    {
+                        LBRE1Redundancy redundancy = new LBRE1Redundancy().setE1(redundancyE1Offset.doubleValue());
+                        finalApproach.setRedundancyInformation(robot, redundancy);
+                    }
+                }
+                else
+                {
+                    log.error("Invalid approach offset type for world coordinates: " + approachOffset.getClass());
+                    return false;
+                }
+
+                // Approach
+                IMotionContainer motionContainer = 
+                    tcp.moveAsync(ptp(finalApproach).setJointVelocityRel(APPROACH_VELOCITY));
+                if (context != null)
+                {
+                    context.setActiveMotion(motionContainer);
+                }
+                motionContainer.await();
+
+                // Move to target position
+                motionContainer = tcp.moveAsync(lin(finalTarget).setJointVelocityRel(ACTION_VELOCITY));
+                if (context != null)
+                {
+                    context.setActiveMotion(motionContainer);
+                }
+                motionContainer.await();
+
+                // Check for cancellation before executing action
+                if (context != null && context.isCancellationRequested())
+                {
+                    log.warn("Motion cancelled before action execution");
+                    context.setActiveMotion(null);
+                    return false;
+                }
+
+                // Execute action at target position (e.g., activate/deactivate gripper)
+                if (action != null)
+                {
+                    action.execute();
+                }
+
+                // Check for cancellation before retract
+                if (context != null && context.isCancellationRequested())
+                {
+                    log.warn("Motion cancelled before retract");
+                    context.setActiveMotion(null);
+                    return false;
+                }
+
+                // Retract
+                motionContainer = tcp.moveAsync(lin(finalApproach).setJointVelocityRel(ACTION_VELOCITY));
+                if (context != null)
+                {
+                    context.setActiveMotion(motionContainer);
+                }
+                motionContainer.await();
+            }
             
             if (context != null)
             {
@@ -192,7 +336,9 @@ public class MotionStrategy
     {
         String desc = "tcp=" + tcp.getName()
             + (useAlternatePosition ? " (alternate)" : " (regular)")
-            + (redundancyE1Offset != null ? " [E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°]" : "");
+            + (redundancyE1Offset != null ? " [E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°]" : "")
+            + (allowZRotation && zRotationAngle != null ? " [Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°]" : "")
+            + (useToolCoordinates ? " [tool-coord]" : " [world-coord]");
         return desc;
     }
 
@@ -200,8 +346,10 @@ public class MotionStrategy
     public String toString()
     {
         String redundancyStr = redundancyE1Offset != null ? ", E1=" + Math.toDegrees(redundancyE1Offset.doubleValue()) + "°" : "";
+        String zRotationStr = allowZRotation && zRotationAngle != null ? ", Rz=" + Math.toDegrees(zRotationAngle.doubleValue()) + "°" : "";
+        String coordStr = useToolCoordinates ? ", tool-coord" : ", world-coord";
         return "MotionStrategy{tcp=" + tcp.getName() 
-            + ", alternate=" + useAlternatePosition + redundancyStr + "}";
+            + ", alternate=" + useAlternatePosition + redundancyStr + zRotationStr + coordStr + "}";
     }
 
     /**

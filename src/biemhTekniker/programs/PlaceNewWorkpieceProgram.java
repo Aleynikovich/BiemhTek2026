@@ -93,8 +93,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         log.info("Picking measured workpiece with TCP B...");
 
         gripperIO.setGripper2_Switch(false);
-        // Generate motion strategies for TCP B
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpB, robot);
+        // Generate motion strategies for TCP B with tool coordinates (but no Z-rotation for pick)
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
@@ -120,7 +120,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             }
 
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePositionB, prepickPlacePositionB, gripperActivateAction, context))
+            if (strategy.executeMotion(pickPlacePositionB, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperActivateAction, context))
             {
                 pickSucceeded = true;
                 break;
@@ -152,7 +152,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      * @param tcpA TCP A frame (gripper 1)
      * @param gripperIO Gripper IO group
      * @param placePositionA Place position frame
-     * @param prepickPlacePositionA Pre-place position frame (with Z offset)
+     * @param prepickPlacePositionA Pre-place position frame (with Z offset) - NOT USED with tool coordinates
      * @param context Robot context for cancellation support
      * @throws Exception if place operation fails
      */
@@ -164,8 +164,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
 
-        // Generate motion strategies for TCP A
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithoutAlternate(tcpA, robot);
+        // Generate motion strategies for TCP A with Z-axis rotation and tool coordinates
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()
@@ -180,6 +180,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         };
 
         // Try each strategy until one succeeds
+        // Pass offset as Double for tool coordinate approach
         boolean placeSucceeded = false;
         for (MotionStrategy strategy : motionStrategies)
         {
@@ -190,7 +191,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 throw new ProgramCancelledException("Program cancelled by user");
             }
 
-            if (strategy.executeMotion(placePositionA, prepickPlacePositionA, gripperReleaseAction, context))
+            if (strategy.executeMotion(placePositionA, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperReleaseAction, context))
             {
                 placeSucceeded = true;
                 break;

@@ -4,15 +4,14 @@ import biemhTekniker.data.WorkpieceData;
 import biemhTekniker.data.WorkpieceQueue;
 import biemhTekniker.exceptions.ProgramCancelledException;
 import biemhTekniker.logger.Logger;
+import biemhTekniker.vision.SmartPickingProtocol;
+import biemhTekniker.vision.SmartPickingProtocol.Command;
+import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
-import biemhTekniker.vision.SmartPickingProtocol;
-import biemhTekniker.vision.SmartPickingProtocol.Command;
-import biemhTekniker.vision.SmartPickingProtocol.VisionResult;
-
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.roboticsAPI.motionModel.IMotionContainer;
@@ -81,8 +80,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Pick position with offset
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
-        // Generate motion strategies using the generator utility
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategies(tcpA, robot);
+        // Generate motion strategies using tool coordinates for pick (no Z-rotation)
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpA, robot);
 
         // Create gripper activation action
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
@@ -107,7 +106,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, gripperAction, context))
+            if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), gripperAction, context))
             {
                 pickSucceeded = true;
                 break;
@@ -153,8 +152,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // Open gripper B before placing
         gripperIO.setGripper2_Switch(false);
         
-        // Generate motion strategies for TCP B with different redundancies
-        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generateStrategies(tcpB, robot);
+        // Generate place strategies for TCP B with Z-rotation freedom and tool coordinates
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
         
         // Create gripper release action for measured workpiece
         MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()
@@ -167,7 +166,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
         };
 
-        // Try placing measured workpiece at the same position
+        // Try placing measured workpiece at the same position where new workpiece was picked
+        // Note: pickPosition here refers to where the NEW workpiece was picked, which becomes 
+        // the place position for the measured workpiece (workpiece exchange)
         boolean placeSucceeded = false;
         for (int i = 0; i < exchangeStrategies.size(); i++)
         {
@@ -179,7 +180,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
             
             MotionStrategy strategy = exchangeStrategies.get(i);
-            if (strategy.executeMotion(pickPosition, prePickPosition, releaseAction, context))
+            // Using pickPosition as the target because we're placing at the same spot we just picked from
+            if (strategy.executeMotion(pickPosition, Double.valueOf(PRE_PICK_Z_OFFSET_MM), releaseAction, context))
             {
                 placeSucceeded = true;
                 break;
@@ -207,6 +209,33 @@ public class PickNewWorkpieceProgram implements RobotProgram
         finalMotion.await();
         context.setActiveMotion(null);
         
+        // Robot is now at scan position - capture image with camera
+        // This blocks the robot at the scan position until camera completes capture
+        log.info("Robot at scan position, requesting camera capture...");
+        SmartPickingProtocol protocol = context.getProtocol();
+        if (protocol != null)
+        {
+            try
+            {
+                // Send command "2" (CAPTURE_DATA) to camera and wait for response "0" (success)
+                VisionResult captureResult = protocol.execute(Command.CAPTURE_DATA, true);
+                if (captureResult.isSuccess())
+                {
+                    log.info("Camera capture completed successfully, robot can now move");
+                } else
+                {
+                    log.warn("Camera capture failed or returned error, but continuing");
+                }
+            } catch (Exception e)
+            {
+                log.error("Error during camera capture: " + e.getMessage());
+                // Continue anyway - camera failure shouldn't stop the robot
+            }
+        } else
+        {
+            log.warn("Protocol not available - cannot trigger camera capture");
+        }
+        
         // Scan the picked workpiece to determine orientation
         log.info("Scanning workpiece to determine orientation...");
         
@@ -217,7 +246,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         // 3. Get the orientation result (0=regular, 1=inverted)
         // 4. Store the orientation in the workpiece data
         // Note: This is a vision task, so it runs asynchronously via ProgramDispatcher
-        // We don't need to wait for it here as it will complete before the robot moves on
+        // The camera has already captured the image above, so the vision task can process it
         
         log.info("Pick new workpiece with exchange completed successfully");
 
