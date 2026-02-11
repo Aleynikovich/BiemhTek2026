@@ -46,7 +46,7 @@ public class PickStrategy
     public PickStrategy(ObjectFrame tcp, boolean useAlternatePosition, boolean isGripperB, 
                        Double redundancyE1Offset, LBR robot)
     {
-        this.motionStrategy = new MotionStrategy(tcp, useAlternatePosition, redundancyE1Offset, robot);
+        this.motionStrategy = new MotionStrategy(tcp, useAlternatePosition, redundancyE1Offset, robot, false);
         this.isGripperB = isGripperB;
         this.gripperNumber = isGripperB ? 2 : 1;
     }
@@ -80,7 +80,7 @@ public class PickStrategy
         };
 
         // Execute motion with gripper activation
-        return motionStrategy.executeMotion(pickPosition, prePickPosition, gripperAction, context);
+        return motionStrategy.executeMotion(pickPosition, prePickPosition, gripperAction, context, false);
     }
 
     @Override

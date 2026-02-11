@@ -91,7 +91,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         gripperIO.setGripper2_Switch(false);
         // Generate motion strategies for TCP B with tool coordinates (but no Z-rotation for pick)
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot, false);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
@@ -117,7 +117,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             }
 
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePositionB, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperActivateAction, context))
+            if (strategy.executeMotion(pickPlacePositionB, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperActivateAction, context, false))
             {
                 pickSucceeded = true;
                 break;
@@ -162,7 +162,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         gripperIO.setGripper3_Switch(false);
 
         // Generate motion strategies for TCP A with Z-axis rotation and tool coordinates
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot,new double[]{0},new double[]{0});
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot,new double[]{0},new double[]{0}, false);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()
@@ -188,7 +188,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 throw new ProgramCancelledException("Program cancelled by user");
             }
 
-            if (strategy.executeMotion(placePositionA, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperReleaseAction, context))
+            if (strategy.executeMotion(placePositionA, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperReleaseAction, context, false))
             {
                 placeSucceeded = true;
                 break;
