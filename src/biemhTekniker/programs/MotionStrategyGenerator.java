@@ -156,9 +156,10 @@ public class MotionStrategyGenerator
 
     /**
      * Generates a list of motion strategies for place operations with Z-axis rotation freedom
-     * and tool coordinate system approach (Z+).
+     * and tool coordinate system approach.
      * This allows the robot to place workpieces at different rotations around Z-axis
      * and approach perpendicular to the workpiece surface.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
      * @param tcp   Tool center point frame to use
@@ -172,7 +173,8 @@ public class MotionStrategyGenerator
 
     /**
      * Generates a list of motion strategies for place operations with custom Z-axis rotation angles
-     * and tool coordinate system approach (Z+).
+     * and tool coordinate system approach.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
      * @param tcp                Tool center point frame to use
@@ -206,10 +208,11 @@ public class MotionStrategyGenerator
     }
 
     /**
-     * Generates a list of motion strategies with tool coordinate system approach (Z+)
+     * Generates a list of motion strategies with tool coordinate system approach
      * but without Z-axis rotation freedom. Use this for pick operations where orientation matters.
      * Strategy order: regular position, then alternate position (180° rotation),
      * each with multiple redundancy configurations.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
      * @param tcp   Tool center point frame to use
@@ -222,8 +225,9 @@ public class MotionStrategyGenerator
     }
 
     /**
-     * Generates a list of motion strategies with tool coordinate system approach (Z+)
+     * Generates a list of motion strategies with tool coordinate system approach
      * and custom redundancy variations.
+     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
      * @param tcp               Tool center point frame to use

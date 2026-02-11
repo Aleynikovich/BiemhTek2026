@@ -18,7 +18,10 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
  * Generic motion strategy with support for alternate position (180° rotation),
  * Z-axis rotation freedom, redundancy (null space) motion, and impedance control.
  * Can be used for any robot motion operation (pick, place, etc.).
- * Supports tool coordinate system approach (Z+) for perpendicular approach to workpieces.
+ * 
+ * Supports tool coordinate system approach for perpendicular approach to workpieces.
+ * NOTE: In KUKA tool frames, Z+ typically points toward the flange/workpiece. Therefore,
+ * approach offsets are NEGATED when using tool coordinates to move away from the workpiece.
  */
 public class MotionStrategy
 {
@@ -209,7 +212,10 @@ public class MotionStrategy
                 // Create approach frame by applying offset in tool Z direction
                 // The offset is applied in the local (tool) coordinate system
                 // ofRad takes (x, y, z translation in mm, a, b, c rotation in radians)
-                Transformation offsetTransform = Transformation.ofRad(0, 0, offsetMm, 0, 0, 0);
+                // IMPORTANT: Negate the offset because in KUKA tool frames, Z+ typically points
+                // toward the flange/workpiece. A positive offset value should move AWAY from
+                // the workpiece (upward in tool coordinates), so we use -offsetMm.
+                Transformation offsetTransform = Transformation.ofRad(0, 0, -offsetMm, 0, 0, 0);
                 Frame approachFrame = new Frame(finalTarget.copy());
                 approachFrame.transform(offsetTransform);
 
