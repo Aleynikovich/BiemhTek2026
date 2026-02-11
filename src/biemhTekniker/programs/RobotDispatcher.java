@@ -1,5 +1,7 @@
 package biemhTekniker.programs;
 
+import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.logger.Logger;
 import biemhTekniker.vision.SmartPickingThread;
 

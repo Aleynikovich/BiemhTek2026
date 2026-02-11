@@ -1,4 +1,4 @@
-package biemhTekniker.programs;
+package biemhTekniker.lib.motion;
 
 import biemhTekniker.config.ImpedanceConfig;
 import com.kuka.roboticsAPI.deviceModel.LBR;

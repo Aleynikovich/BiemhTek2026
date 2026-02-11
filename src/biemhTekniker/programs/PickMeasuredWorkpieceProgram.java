@@ -1,6 +1,10 @@
 package biemhTekniker.programs;
 
 import biemhTekniker.exceptions.ProgramCancelledException;
+import biemhTekniker.lib.motion.MotionStrategy;
+import biemhTekniker.lib.motion.MotionStrategyGenerator;
+import biemhTekniker.lib.robot.RobotContext;
+import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.logger.Logger;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
