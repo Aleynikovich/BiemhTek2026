@@ -160,7 +160,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         // Generate place strategies for TCP B with Z-rotation freedom and tool coordinates
-        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot);
+        List<MotionStrategy> exchangeStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpB, robot,true);
         
         // Create gripper release action for measured workpiece
         MotionStrategy.MotionAction releaseAction = new MotionStrategy.MotionAction()
