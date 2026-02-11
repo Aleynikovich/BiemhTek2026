@@ -142,10 +142,13 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Set orientation based on successful pick strategy
         // Robot determines orientation: 0=regular, 1=180deg rotation (alternate position)
-        int orientation = successfulStrategy.getOrientation();
-        workpieceData.setOrientation(orientation);
-        log.info("Workpiece picked with orientation " + orientation + " (" + 
-                 (orientation == 0 ? "regular" : "180deg rotation") + ")");
+        if (successfulStrategy != null)
+        {
+            int orientation = successfulStrategy.getOrientation();
+            workpieceData.setOrientation(orientation);
+            log.info("Workpiece picked with orientation " + orientation + " (" + 
+                     (orientation == 0 ? "regular" : "180deg rotation") + ")");
+        }
 
         // Mark workpiece as PICKED only after successful pick
         queue.markPicked(workpieceData.getId());

@@ -35,6 +35,9 @@ public class MotionStrategyGenerator
         Math.toRadians(-135)         // -135 degrees
     };
 
+    // Default value for force lineal approach (use PTP for approach by default)
+    private static final boolean DEFAULT_FORCE_LINEAL_APPROACH = false;
+
     // Singleton impedance configuration instance
     private static ImpedanceConfig impedanceConfig = null;
 
@@ -168,7 +171,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot)
     {
-        return generatePlaceStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_Z_ROTATION_ANGLES, false);
+        return generatePlaceStrategies(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_Z_ROTATION_ANGLES, DEFAULT_FORCE_LINEAL_APPROACH);
     }
 
     /**
@@ -203,7 +206,7 @@ public class MotionStrategyGenerator
                                                                double[] redundancyOffsets, 
                                                                double[] zRotationAngles)
     {
-        return generatePlaceStrategies(tcp, robot, redundancyOffsets, zRotationAngles, false);
+        return generatePlaceStrategies(tcp, robot, redundancyOffsets, zRotationAngles, DEFAULT_FORCE_LINEAL_APPROACH);
     }
 
     /**
@@ -258,7 +261,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot)
     {
-        return generateStrategiesWithToolCoordinates(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, false);
+        return generateStrategiesWithToolCoordinates(tcp, robot, DEFAULT_REDUNDANCY_OFFSETS, DEFAULT_FORCE_LINEAL_APPROACH);
     }
 
     /**
@@ -274,7 +277,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
-        return generateStrategiesWithToolCoordinates(tcp, robot, redundancyOffsets, false);
+        return generateStrategiesWithToolCoordinates(tcp, robot, redundancyOffsets, DEFAULT_FORCE_LINEAL_APPROACH);
     }
 
     /**
