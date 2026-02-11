@@ -12,11 +12,15 @@ import time
 import socket
 import threading
 from datetime import datetime
+import math
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.patches import Rectangle, Circle
+import numpy as np
 
 # Page configuration
 st.set_page_config(
     page_title="KUKA Robot Control",
-    page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -130,64 +134,6 @@ def disconnect_from_robot():
         st.session_state.client_socket = None
     st.session_state.connected = False
     log_message("Disconnected from robot", "INFO")
-        style.configure('Title.TLabel', font=('Helvetica', 14, 'bold'))
-        style.configure('Header.TLabel', font=('Helvetica', 10, 'bold'))
-        style.configure('Status.TLabel', font=('Helvetica', 9))
-        style.configure('Accent.TButton', padding=5)
-        
-        main_frame = ttk.Frame(self.root, padding="5")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(0, weight=1)
-        main_frame.rowconfigure(3, weight=1)
-
-        ttk.Label(main_frame, text="BIEMH 2026 Control Panel", style='Title.TLabel').grid(row=0, column=0,
-                                                                                             pady=(0, 10),
-                                                                                             sticky=(tk.W, tk.E))
-        
-        self.create_connection_frame(main_frame)
-        self.create_status_frame(main_frame)
-        self.create_tabbed_interface(main_frame)
-
-    def create_connection_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Connection", padding="5")
-        frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
-        
-        ttk.Label(frame, text="Robot IP:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
-        ttk.Entry(frame, textvariable=self.robot_ip, width=20).grid(row=0, column=1, sticky=tk.W, padx=(0, 20))
-        
-        ttk.Label(frame, text="Port:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
-        ttk.Entry(frame, textvariable=self.robot_port, width=10).grid(row=0, column=3, sticky=tk.W, padx=(0, 20))
-        
-        self.connect_btn = ttk.Button(frame, text="Connect", command=self.connect)
-        self.connect_btn.grid(row=0, column=4, padx=5)
-
-        self.disconnect_btn = ttk.Button(frame, text="Disconnect", command=self.disconnect, state=tk.DISABLED)
-        self.disconnect_btn.grid(row=0, column=5, padx=5)
-        
-        self.status_label = ttk.Label(frame, text="● Disconnected", foreground="red")
-        self.status_label.grid(row=0, column=6, padx=20)
-
-    def create_status_frame(self, parent):
-        frame = ttk.LabelFrame(parent, text="Robot Status", padding="5")
-        frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
-        frame.columnconfigure(1, weight=1)
-
-        ttk.Label(frame, text="Current Program:", style='Status.TLabel').grid(row=0, column=0, sticky=tk.W,
-                                                                              padx=(0, 10))
-        self.current_prog_label = ttk.Label(frame, text="0 - Idle", style='Status.TLabel', foreground="blue")
-        self.current_prog_label.grid(row=0, column=1, sticky=tk.W)
-
-        ttk.Label(frame, text="Vision Server:", style='Status.TLabel').grid(row=1, column=0, sticky=tk.W, padx=(0, 10),
-                                                                            pady=(5, 0))
-        self.vision_status_label = ttk.Label(frame, text="● Disconnected", foreground="red")
-        self.vision_status_label.grid(row=1, column=1, sticky=tk.W, pady=(5, 0))
-
-        ttk.Label(frame, text="Workpiece Position:", style='Status.TLabel').grid(row=2, column=0, sticky=tk.W,
-                                                                                 padx=(0, 10), pady=(5, 0))
-        ttk.Label(frame, textvariable=self.workpiece_position, style='Status.TLabel').grid(row=2, column=1, sticky=tk.W,
-                                                                                           pady=(5, 0))
 
 def message_listener():
     """Background thread to receive messages"""
@@ -229,9 +175,129 @@ def handle_response(response):
     except json.JSONDecodeError:
         log_message(f"[ROBOT] {response}", "INFO")
 
+def create_workpiece_canvas(workpieces):
+    """Create matplotlib figure showing workpiece positions on working plane (650x480mm)"""
+    fig, ax = plt.subplots(figsize=(10, 7.5))
+    
+    # Canvas dimensions - 650x480mm working plane
+    canvas_width = 650
+    canvas_height = 480
+    
+    # Set up the plot
+    ax.set_xlim(-50, canvas_width + 50)
+    ax.set_ylim(-50, canvas_height + 50)
+    ax.set_aspect('equal')
+    ax.set_xlabel('X (mm)', fontsize=10)
+    ax.set_ylabel('Y (mm)', fontsize=10)
+    ax.set_title(f'Working Plane ({canvas_width}x{canvas_height}mm)', fontsize=12, fontweight='bold')
+    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.5)
+    
+    # Draw border
+    border = Rectangle((0, 0), canvas_width, canvas_height, 
+                       fill=False, edgecolor='black', linewidth=2)
+    ax.add_patch(border)
+    
+    # Workpiece dimensions and colors
+    wp_length = 80
+    wp_width = 40
+    ref_colors = {1: '#FF0000', 2: '#800080', 3: '#0000FF'}
+    state_colors = {'AVAILABLE': 'black', 'PICKED': 'orange', 'MEASURING': 'purple', 
+                   'MEASURED': 'blue', 'RETURNED': 'gray', 'NEW': 'green', 'PROCESSING': 'orange'}
+    
+    # Draw each workpiece
+    for wp in workpieces:
+        x = float(wp.get('x', 0))
+        y = float(wp.get('y', 0))
+        rx_deg = float(wp.get('rx', 0))
+        ry_deg = float(wp.get('ry', 0))
+        rz_deg = float(wp.get('rz', 0))
+        ref = wp.get('reference', 1)
+        state = wp.get('state', 'AVAILABLE')
+        gripper = wp.get('gripper', '')
+        wp_id = str(wp.get('id', '?'))
+        orientation = wp.get('orientation', 0)
+        
+        # Convert to canvas coordinates
+        canvas_x = x + 150
+        canvas_y = -y - 250 + canvas_height
+        
+        # Skip if out of bounds
+        if canvas_x < -100 or canvas_x > canvas_width + 100 or canvas_y < -100 or canvas_y > canvas_height + 100:
+            continue
+        
+        # Get colors
+        fill_color = ref_colors.get(ref, '#CCCCCC')
+        outline_color = state_colors.get(state, 'black')
+        outline_width = 3 if state in ['PICKED', 'PROCESSING'] else 2
+        
+        # Calculate rotation
+        az = math.radians(rz_deg)
+        ay = math.radians(ry_deg)
+        ax = math.radians(rx_deg)
+        
+        # Rotation matrices for projection
+        ux_x = math.cos(az) * math.cos(ay)
+        ux_y = math.sin(az) * math.cos(ay)
+        uy_x = math.cos(az) * math.sin(ay) * math.sin(ax) - math.sin(az) * math.cos(ax)
+        uy_y = math.sin(az) * math.sin(ay) * math.sin(ax) + math.cos(az) * math.cos(ax)
+        
+        # Calculate rectangle corners
+        half_l, half_w = wp_length / 2, wp_width / 2
+        corners_basis = [
+            (-half_l, -half_w), (+half_l, -half_w), (+half_l, +half_w), (-half_l, +half_w)
+        ]
+        rotated_corners = []
+        for cl, cw in corners_basis:
+            px = cl * ux_x + cw * uy_x
+            py = cl * ux_y + cw * uy_y
+            rotated_corners.extend([canvas_x + px, canvas_y - py])
+        
+        # Draw workpiece polygon
+        polygon = plt.Polygon(
+            [(rotated_corners[i], rotated_corners[i+1]) for i in range(0, len(rotated_corners), 2)],
+            facecolor=fill_color, edgecolor=outline_color, linewidth=outline_width
+        )
+        ax.add_patch(polygon)
+        
+        # Draw orientation arrow
+        flip = -1 if orientation == 1 else 1
+        arrow_length = wp_length / 2
+        arrow_dx = arrow_length * ux_x * flip
+        arrow_dy = arrow_length * ux_y * flip
+        
+        ax.arrow(canvas_x, canvas_y, arrow_dx, -arrow_dy,
+                head_width=10, head_length=8, fc='yellow', ec='yellow', 
+                linewidth=2, length_includes_head=True, zorder=5)
+        
+        # Draw rotation radius circle
+        rev_rad = wp_length / 2 + wp_width / 4
+        circle = Circle((canvas_x, canvas_y), rev_rad, 
+                       fill=False, edgecolor='red', linestyle='--', linewidth=1, zorder=1)
+        ax.add_patch(circle)
+        
+        # Add label
+        label = f"ID:{wp_id[-4:]}"
+        if gripper and str(gripper) != 'None':
+            label += f"\nG:{gripper}"
+        ax.text(canvas_x, canvas_y, label, 
+               ha='center', va='center', fontsize=8, 
+               color='white', fontweight='bold', zorder=10,
+               bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.7))
+    
+    # Add legend
+    legend_elements = [
+        mpatches.Patch(facecolor='#FF0000', edgecolor='black', label='Ref 1'),
+        mpatches.Patch(facecolor='#800080', edgecolor='black', label='Ref 2'),
+        mpatches.Patch(facecolor='#0000FF', edgecolor='black', label='Ref 3'),
+    ]
+    ax.legend(handles=legend_elements, loc='upper left', fontsize=9)
+    
+    plt.tight_layout()
+    return fig
+
 # Header
-st.title("🤖 KUKA LBR iiwa Robot Control")
-st.caption("Modern Streamlit Interface - BiemhTek2026")
+st.title("KUKA LBR iiwa Robot Control")
+st.caption("Streamlit Interface - BiemhTek2026")
 
 # Sidebar - Connection and Status
 with st.sidebar:
@@ -276,20 +342,20 @@ with st.sidebar:
     st.subheader("Gripper States")
     col1, col2, col3 = st.columns(3)
     with col1:
-        g1_icon = "🔴" if st.session_state.gripper_states['g1'] else "⚪"
-        st.text(f"{g1_icon} G1")
+        g1_status = "CLOSED" if st.session_state.gripper_states['g1'] else "OPEN"
+        st.text(f"G1: {g1_status}")
     with col2:
-        g2_icon = "🔴" if st.session_state.gripper_states['g2'] else "⚪"
-        st.text(f"{g2_icon} G2")
+        g2_status = "CLOSED" if st.session_state.gripper_states['g2'] else "OPEN"
+        st.text(f"G2: {g2_status}")
     with col3:
-        g3_icon = "🔴" if st.session_state.gripper_states['g3'] else "⚪"
-        st.text(f"{g3_icon} G3")
+        g3_status = "CLOSED" if st.session_state.gripper_states['g3'] else "OPEN"
+        st.text(f"G3: {g3_status}")
     
     if st.button("Get Status", use_container_width=True):
         send_command({'type': 'get_status'})
 
 # Main content area with tabs
-tab1, tab2, tab3, tab4 = st.tabs(["🤖 Robot Programs", "👁️ Vision Commands", "📦 Workpieces", "💬 Console"])
+tab1, tab2, tab3, tab4 = st.tabs(["Robot Programs", "Vision Commands", "Workpieces", "Console"])
 
 # Tab 1: Robot Programs
 with tab1:
@@ -313,13 +379,13 @@ with tab1:
     st.subheader("Quick Actions")
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("🛑 Emergency Stop (Program 0)", use_container_width=True):
+        if st.button("Emergency Stop (Program 0)", use_container_width=True):
             send_command({'type': 'set_program', 'program': 0})
     with col2:
-        if st.button("🏠 Cancel & Return Home", use_container_width=True):
+        if st.button("Cancel & Return Home", use_container_width=True):
             send_command({'type': 'cancel_program'})
     with col3:
-        if st.button("🔄 Refresh Status", use_container_width=True):
+        if st.button("Refresh Status", use_container_width=True):
             send_command({'type': 'get_status'})
 
 # Tab 2: Vision Commands
@@ -348,19 +414,19 @@ with tab3:
     # Action buttons
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        if st.button("🔄 Refresh Workpieces", use_container_width=True):
+        if st.button("Refresh Workpieces", use_container_width=True):
             send_command({'type': 'get_workpieces'})
     with col2:
-        if st.button("📊 Get Queue Status", use_container_width=True):
+        if st.button("Get Queue Status", use_container_width=True):
             send_command({'type': 'get_queue_status'})
     with col3:
-        if st.button("🗑️ Clear Queue", use_container_width=True):
+        if st.button("Clear Queue", use_container_width=True):
             send_command({'type': 'clear_queue'})
     with col4:
-        if st.button("❌ Delete Selected", use_container_width=True, disabled=True):
+        if st.button("Delete Selected", use_container_width=True, disabled=True):
             st.info("Select a workpiece first")
     with col5:
-        if st.button("🤏 Pick Selected", use_container_width=True, disabled=True):
+        if st.button("Pick Selected", use_container_width=True, disabled=True):
             st.info("Select a workpiece first")
     
     st.divider()
@@ -369,7 +435,7 @@ with tab3:
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.markdown("#### 📋 Workpiece List")
+        st.markdown("#### Workpiece List")
         if st.session_state.workpieces:
             # Scrollable container
             for wp in st.session_state.workpieces:
@@ -382,29 +448,58 @@ with tab3:
             st.info("No workpieces in queue. Click 'Refresh Workpieces' to load.")
     
     with col2:
-        st.markdown("#### 🎯 Working Plane Visualization")
-        st.info("Canvas visualization - placeholder for workpiece positions")
-        st.markdown("**Note:** Gripper states are shown in the sidebar →")
-        st.markdown("---")
-        st.markdown("##### Workpiece Distribution")
+        st.markdown("#### Working Plane Visualization")
+        
         if st.session_state.workpieces:
-            # Simple stats
+            # Create and display the canvas
+            fig = create_workpiece_canvas(st.session_state.workpieces)
+            st.pyplot(fig)
+            plt.close(fig)  # Clean up
+            
+            # Stats
+            st.markdown("---")
+            st.markdown("##### Statistics")
             total = len(st.session_state.workpieces)
-            st.metric("Total Workpieces", total)
-            # Could add more visualization here with plotly
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.metric("Total", total)
+            with col_b:
+                states = {}
+                for wp in st.session_state.workpieces:
+                    state = wp.get('state', 'UNKNOWN')
+                    states[state] = states.get(state, 0) + 1
+                if states:
+                    most_common = max(states, key=states.get)
+                    st.metric("Common State", most_common)
         else:
-            st.info("No data to visualize")
+            st.info("No workpieces. Click 'Refresh Workpieces' to load.")
+            # Show empty canvas
+            fig, ax = plt.subplots(figsize=(10, 7.5))
+            ax.set_xlim(-50, 700)
+            ax.set_ylim(-50, 530)
+            ax.set_aspect('equal')
+            ax.set_xlabel('X (mm)', fontsize=10)
+            ax.set_ylabel('Y (mm)', fontsize=10)
+            ax.set_title('Working Plane (650x480mm) - No Data', fontsize=12)
+            ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.5)
+            border = Rectangle((0, 0), 650, 480, fill=False, edgecolor='black', linewidth=2)
+            ax.add_patch(border)
+            ax.text(325, 240, 'No Workpieces\nClick "Refresh Workpieces"', 
+                   ha='center', va='center', fontsize=14, color='gray')
+            plt.tight_layout()
+            st.pyplot(fig)
+            plt.close(fig)
     
     st.divider()
     
     # Motion Overrides - Collapsible section (saves vertical space!)
-    with st.expander("⚙️ Motion Overrides (Advanced)", expanded=False):
+    with st.expander("Motion Overrides (Advanced)", expanded=False):
         st.markdown("**Test one specific motion configuration** (not fallback lists)")
         
-        override_enabled = st.checkbox("✅ Override Motions (test one specific configuration)")
+        override_enabled = st.checkbox("Override Motions (test one specific configuration)")
         
         if override_enabled:
-            st.markdown("##### 📍 Pick Parameters")
+            st.markdown("##### Pick Parameters")
             col1, col2 = st.columns(2)
             with col1:
                 redundancy_options = [
@@ -415,14 +510,14 @@ with tab3:
             with col2:
                 pick_alternate = st.radio("Orientation", ["Regular", "Alternate (180°)"], horizontal=True)
             
-            st.markdown("##### 🎯 Place Parameters")
+            st.markdown("##### Place Parameters")
             col1, col2 = st.columns(2)
             with col1:
                 place_redundancy = st.selectbox("Redundancy ", redundancy_options, index=7, key="place_red")
             with col2:
                 place_zrot = st.number_input("Z-Rotation (degrees)", value=45.0, step=1.0)
             
-            if st.button("✓ Apply Motion Override", use_container_width=True):
+            if st.button("Apply Motion Override", use_container_width=True):
                 # Parse redundancy values
                 def parse_redundancy(val):
                     if val.startswith("None"):
