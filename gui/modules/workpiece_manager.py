@@ -27,15 +27,21 @@ class WorkpieceManager:
             wp = dict(wp)  # shallow copy to adjust presentation fields safely
             state = str(wp.get('state', 'AVAILABLE')).upper()
             gripper = wp.get('gripper')
-            # Treat returned/measured on table as AVAILABLE when not in any gripper
-            if state in ('MEASURED', 'RETURNED') and (not gripper or str(gripper) in ('', 'None', '0')):
-                wp['state'] = 'AVAILABLE'
-                state = 'AVAILABLE'
-            # Route to grippers if being held or explicitly assigned
-            if str(gripper).isdigit() and int(gripper) in (1, 2, 3):
+            
+            # Display gripper location in state if workpiece is held by a gripper
+            if gripper and str(gripper) not in ('', 'None', '0', 'null'):
+                if str(gripper).isdigit() and int(gripper) in (1, 2, 3):
+                    wp['state'] = f'In Gripper {gripper}'
+                    state = wp['state']
+            
+            # Route to grippers if being held
+            if gripper and str(gripper).isdigit() and int(gripper) in (1, 2, 3):
                 in_grippers[int(gripper)] = wp
-            elif state in ('PICKED', 'MEASURING'):
-                # Picked/measuring: hide from table even if gripper unknown
+            elif state == 'MEASURING':
+                # Measuring: hide from table
+                pass
+            elif 'In Gripper' in state:
+                # Workpiece is in a gripper - hide from table
                 pass
             else:
                 available_on_table.append(wp)

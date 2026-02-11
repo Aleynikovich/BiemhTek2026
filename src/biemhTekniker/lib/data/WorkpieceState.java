@@ -7,13 +7,9 @@ public enum WorkpieceState
 {
     /**
      * Camera found the workpiece, ready to be picked.
+     * Also used when workpiece is returned to table.
      */
     AVAILABLE,
-
-    /**
-     * Robot has picked up the workpiece.
-     */
-    PICKED,
 
     /**
      * Workpiece has been placed on measuring machine.
@@ -23,10 +19,5 @@ public enum WorkpieceState
     /**
      * Measuring is complete, ready to be removed from machine.
      */
-    MEASURED,
-
-    /**
-     * Workpiece has been returned to bin at its origin position.
-     */
-    RETURNED
+    MEASURED
 }
