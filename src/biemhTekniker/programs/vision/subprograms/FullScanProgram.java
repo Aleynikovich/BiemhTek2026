@@ -11,8 +11,6 @@ import biemhTekniker.lib.vision.VisionProgram;
 import biemhTekniker.programs.vision.VisionContext;
 import com.kuka.common.ThreadUtil;
 
-import java.util.List;
-
 /**
  * Full scan sequence vision task.
  * Program 109: Composite scan that populates the full WorkpieceQueue.
@@ -28,7 +26,7 @@ public class FullScanProgram implements VisionProgram
         log.info("Starting full scan sequence...");
 
         SmartPickingProtocol protocol = context.getProtocol();
-        WorkpieceQueue queue = context.getWorkpieceQueue();
+        final WorkpieceQueue queue = context.getWorkpieceQueue();
         ConfigManager config = ConfigManager.getInstance();
 
         int referenceCount = config.getInt("vision.reference.count", 3);
@@ -64,17 +62,29 @@ public class FullScanProgram implements VisionProgram
         ThreadUtil.milliSleep(DELAY_MS);
 
         // Step 4: Locate all parts across all references
+        // Use callback to add workpieces to queue progressively as they are found
         log.debug("Step 4: Locating parts across " + referenceCount + " references in zone " + zone);
-        List<WorkpieceData> foundWorkpieces = protocol.locateAllParts(referenceCount, zone);
+        
+        // Create callback to add each workpiece to queue immediately as it's found
+        SmartPickingProtocol.WorkpieceCallback callback = new SmartPickingProtocol.WorkpieceCallback() {
+            @Override
+            public void onWorkpieceFound(WorkpieceData workpiece)
+            {
+                // Add or update workpiece in the queue (with position tracking)
+                // This prevents creating duplicate workpieces on each scan
+                queue.addOrUpdateWorkpiece(
+                    workpiece.getX(), workpiece.getY(), workpiece.getZ(),
+                    workpiece.getRx(), workpiece.getRy(), workpiece.getRz(),
+                    workpiece.getScore(), workpiece.getReferenceIndex()
+                );
+                log.debug("Workpiece added to queue progressively: id=" + workpiece.getId() 
+                    + ", ref=" + workpiece.getReferenceIndex() + ", score=" + workpiece.getScore());
+            }
+        };
+        
+        int totalFound = protocol.locateAllParts(referenceCount, zone, callback);
 
-        // Step 5: Add or update workpieces in the queue (with position tracking)
-        // This prevents creating duplicate workpieces on each scan
-        for (WorkpieceData wp : foundWorkpieces)
-        {
-            queue.addOrUpdateWorkpiece(wp.getX(), wp.getY(), wp.getZ(), wp.getRx(), wp.getRy(), wp.getRz(), wp.getScore(), wp.getReferenceIndex());
-        }
-
-        log.info("Full scan complete");
+        log.info("Full scan complete - found " + totalFound + " workpieces");
         log.info("Queue status: " + queue.getAvailableCount() + " available, " + queue.getTotalCount() + " total");
     }
 }
