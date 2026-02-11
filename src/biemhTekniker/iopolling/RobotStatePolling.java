@@ -1,4 +1,4 @@
-package biemhTekniker.IOPolling;
+package biemhTekniker.iopolling;
 
 import biemhTekniker.logger.Logger;
 import com.kuka.generated.ioAccess.RobotStateIOGroup;

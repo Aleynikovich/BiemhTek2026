@@ -1,4 +1,4 @@
-package biemhTekniker.IOPolling;
+package biemhTekniker.iopolling;
 
 import com.kuka.generated.ioAccess.RobotJointPositionIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
