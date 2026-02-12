@@ -413,45 +413,28 @@ public class ConsoleCommandHandler implements Runnable
     {
         try
         {
-            // Read pick overrides
-            if (json.has("pick_redundancy"))
+            String redCsv = json.getString("redundancy", null);
+            String zCsv = json.getString("zrot", null);
+            boolean any = false;
+            if (redCsv != null && !redCsv.trim().isEmpty())
             {
-                double degrees = json.getDouble("pick_redundancy", 0.0);
-                MotionOverrides.setPickRedundancyE1(Double.valueOf(Math.toRadians(degrees)));
+                double[] rads = parseCsvDegreesToRadians(redCsv);
+                MotionOverrides.setRedundancyOffsetsOverride(rads);
+                any = true;
+            }
+            if (zCsv != null && !zCsv.trim().isEmpty())
+            {
+                double[] rads = parseCsvDegreesToRadians(zCsv);
+                MotionOverrides.setZRotationAnglesOverride(rads);
+                any = true;
+            }
+            if (any)
+            {
+                sendResponse("response", "Motion overrides applied", true);
             } else
             {
-                MotionOverrides.setPickRedundancyE1(null);
+                sendError("No overrides provided. Use fields 'redundancy' and/or 'zrot' with CSV degrees");
             }
-            
-            boolean pickAlternate = json.getBoolean("pick_alternate", false);
-            MotionOverrides.setPickAlternate(pickAlternate);
-            
-            // Read place overrides
-            if (json.has("place_redundancy"))
-            {
-                double degrees = json.getDouble("place_redundancy", 0.0);
-                MotionOverrides.setPlaceRedundancyE1(Double.valueOf(Math.toRadians(degrees)));
-            } else
-            {
-                MotionOverrides.setPlaceRedundancyE1(null);
-            }
-            
-            if (json.has("place_zrot"))
-            {
-                double degrees = json.getDouble("place_zrot", 0.0);
-                MotionOverrides.setPlaceZRotation(Double.valueOf(Math.toRadians(degrees)));
-            } else
-            {
-                MotionOverrides.setPlaceZRotation(null);
-            }
-            
-            // Enable override mode
-            MotionOverrides.setOverrideEnabled(true);
-            sendResponse("response", "Motion overrides applied (testing single configuration)", true);
-            log.info("Motion override applied: pick_redundancy=" + json.getString("pick_redundancy", "null") 
-                + ", pick_alternate=" + pickAlternate 
-                + ", place_redundancy=" + json.getString("place_redundancy", "null")
-                + ", place_zrot=" + json.getString("place_zrot", "null"));
         } catch (Exception e)
         {
             log.error("Error in handleSetMotionOverride: " + e.getMessage(), e);
@@ -464,13 +447,30 @@ public class ConsoleCommandHandler implements Runnable
         try
         {
             MotionOverrides.clearMotionOverrides();
-            sendResponse("response", "Motion overrides cleared (back to normal strategy lists)", true);
-            log.info("Motion overrides cleared");
+            sendResponse("response", "Motion overrides cleared", true);
         } catch (Exception e)
         {
             log.error("Error in handleClearMotionOverride: " + e.getMessage(), e);
             sendError("Error clearing motion overrides: " + e.getMessage());
         }
+    }
+
+    private double[] parseCsvDegreesToRadians(String csv)
+    {
+        String[] parts = csv.split(",");
+        double[] arr = new double[parts.length];
+        for (int i = 0; i < parts.length; i++)
+        {
+            String p = parts[i].trim();
+            if (p.isEmpty())
+            {
+                arr[i] = 0.0;
+            } else
+            {
+                arr[i] = Math.toRadians(Double.parseDouble(p));
+            }
+        }
+        return arr;
     }
 
     private void sendResponse(String type, String message, boolean success)
