@@ -58,7 +58,8 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getState() == WorkpieceState.AVAILABLE)
+            // Only consider AVAILABLE workpieces that are NOT already held by a gripper
+            if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
                 if (best == null || wp.getScore() > best.getScore())
                 {
@@ -91,7 +92,8 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getState() == WorkpieceState.AVAILABLE)
+            // Only consider AVAILABLE workpieces that are NOT already held by a gripper
+            if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
                 if (best == null || wp.getScore() > best.getScore())
                 {
@@ -123,6 +125,7 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setGripperLocation(String.valueOf(gripperNumber));
+            wp.setState(WorkpieceState.PICKED);
             log.info("Marked workpiece as held by gripper " + gripperNumber + ": id=" + workpieceId);
         } else
         {
@@ -241,7 +244,8 @@ public class WorkpieceQueue
     }
 
     /**
-     * Gets count of AVAILABLE workpieces.
+     * Gets count of AVAILABLE workpieces that are not held by any gripper.
+     * Excludes workpieces that have been picked (gripper set).
      *
      * @return Number of available workpieces
      */
@@ -250,7 +254,9 @@ public class WorkpieceQueue
         int count = 0;
         for (int i = 0; i < workpieces.size(); i++)
         {
-            if (workpieces.get(i).getState() == WorkpieceState.AVAILABLE)
+            WorkpieceData wp = workpieces.get(i);
+            // Only count AVAILABLE workpieces that are NOT already held by a gripper
+            if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
                 count++;
             }
