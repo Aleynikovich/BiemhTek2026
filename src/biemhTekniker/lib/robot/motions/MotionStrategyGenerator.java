@@ -154,17 +154,16 @@ public class MotionStrategyGenerator
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
-        // First attempt without redundancy (null), then with offsets
+        // First attempt without redundancy (null), then with alternate then with alternate
         strategies.add(new MotionStrategy.Builder(tcp).impedanceMode(impedanceMode).build());
+        strategies.add(new MotionStrategy.Builder(tcp).useAlternatePosition(true).impedanceMode(impedanceMode).build());
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
             strategies.add(new MotionStrategy.Builder(tcp).redundancy(offset, robot).impedanceMode(impedanceMode).build());
         }
 
-        // Try alternate position (180° rotation) with different redundancy configurations
-        // First attempt without redundancy (null), then with offsets
-        strategies.add(new MotionStrategy.Builder(tcp).useAlternatePosition(true).impedanceMode(impedanceMode).build());
+
         for (int i = 0; i < redundancyOffsets.length; i++)
         {
             Double offset = Double.valueOf(redundancyOffsets[i]);
