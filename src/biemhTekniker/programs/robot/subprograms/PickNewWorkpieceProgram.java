@@ -234,6 +234,18 @@ public class PickNewWorkpieceProgram implements RobotProgram
         } else
         {
             log.info("Placed measured workpiece at new workpiece position");
+            
+            // Clear gripper location for the placed workpiece and mark as available
+            // Vision will update its rotation when it detects it again
+            WorkpieceData placedWorkpiece = queue.getPickedWorkpiece(2);
+            if (placedWorkpiece != null)
+            {
+                log.info("Marking placed workpiece as available: id=" + placedWorkpiece.getId());
+                queue.markReturned(placedWorkpiece.getId());
+            } else
+            {
+                log.debug("No workpiece found in gripper 2 to mark as available");
+            }
         }
 
         // Move to scan position with cancellable motion
