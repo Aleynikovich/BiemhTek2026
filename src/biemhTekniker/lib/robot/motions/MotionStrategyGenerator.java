@@ -150,7 +150,7 @@ public class MotionStrategyGenerator
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
-        List<MotionStrategy> strategies = new ArrayList<>();
+        List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
         // Try regular position with different redundancy configurations
