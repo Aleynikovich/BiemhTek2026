@@ -2,7 +2,15 @@
 
 ## Issue Fixed
 **Problem**: Robot keeps attempting to pick already-picked workpieces
-**Root Cause**: Vision system was clearing gripper location when scanning AVAILABLE workpieces
+**Root Causes**: 
+1. Vision system was clearing gripper location when scanning AVAILABLE workpieces
+2. Available workpiece queries were not filtering out picked workpieces (gripper set)
+
+## Solution Implemented
+**Part 1**: Vision system now skips updates for workpieces with gripper set  
+**Part 2**: Available queries (`takeNextForPicking`, `peekNextForPicking`, `getAvailableCount`) now filter out workpieces with gripper != null
+
+This effectively "removes workpieces from the available database" when picked, as requested.
 
 ## Testing Instructions
 
@@ -44,10 +52,12 @@
 6. Complete the workflow
 
 **Expected Result**:
-- ✅ All 3 workpieces detected initially
+- ✅ All 3 workpieces detected initially (available count = 3)
+- ✅ After picking first: available count = 2 (picked workpiece filtered out)
 - ✅ Picked workpiece is NOT reset by subsequent scans
 - ✅ Other workpieces can still be updated by vision
 - ✅ Robot picks different workpieces sequentially
+- ✅ Next call to `takeNextForPicking()` returns a different workpiece
 
 ### Test Case 3: Workpiece Return Flow (Should Work)
 **Objective**: Verify returned workpieces can be picked again
@@ -92,9 +102,15 @@ DEBUG: Skipping vision update for workpiece held by gripper X: id=Y
 
 ### Code Changes
 - **File**: `src/biemhTekniker/lib/data/WorkpieceQueue.java`
-- **Method**: `addOrUpdateWorkpiece()` at lines 469-495
+- **Methods Changed**:
+  1. `addOrUpdateWorkpiece()` - Lines 469-495 (vision update logic)
+  2. `takeNextForPicking()` - Line 62 (gripper filter added)
+  3. `peekNextForPicking()` - Line 96 (gripper filter added)
+  4. `getAvailableCount()` - Line 258 (gripper filter added)
 
-### Before Fix (BUGGY CODE):
+### Fix Part 1: Prevent Vision from Clearing Gripper State
+
+**Before (BUGGY CODE):**
 ```java
 if (existing.getState() == WorkpieceState.AVAILABLE) {
     existing.set(x, y, z, rx, ry, rz, score);
@@ -104,7 +120,7 @@ if (existing.getState() == WorkpieceState.AVAILABLE) {
 }
 ```
 
-### After Fix (CORRECT CODE):
+**After (CORRECT CODE):**
 ```java
 if (existing.getState() == WorkpieceState.AVAILABLE) {
     if (existing.getGripperLocation() != null) {
@@ -113,6 +129,28 @@ if (existing.getState() == WorkpieceState.AVAILABLE) {
     existing.set(x, y, z, rx, ry, rz, score); // ✅ Only update table workpieces
 }
 ```
+
+### Fix Part 2: Filter Picked Workpieces from Available Queries
+
+**Before (INCOMPLETE):**
+```java
+if (wp.getState() == WorkpieceState.AVAILABLE) {
+    // Process workpiece
+}
+```
+
+**After (COMPLETE):**
+```java
+// Only consider workpieces that are NOT already held by a gripper
+if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null) {
+    // Process workpiece
+}
+```
+
+This change applied to:
+- `takeNextForPicking()` - Won't select picked workpieces
+- `peekNextForPicking()` - Won't preview picked workpieces
+- `getAvailableCount()` - Won't count picked workpieces
 
 ## Troubleshooting
 
