@@ -108,7 +108,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
-        
+
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
         for (int i = 0; i < motionStrategies.size(); i++)
@@ -121,12 +121,12 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             }
 
             MotionStrategy strategy = motionStrategies.get(i);
-            if (strategy.executeMotion(pickPlacePositionB, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperActivateAction, context))
+            if (strategy.executeMotion(pickPlacePositionB, Double.valueOf(PRE_PLACE_Z_OFFSET_MM), gripperActivateAction, context ))
             {
                 pickSucceeded = true;
                 break;
             }
-            
+
             // Check for cancellation after failed strategy - stop trying other strategies
             if (context.isCancellationRequested())
             {
@@ -134,7 +134,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                 throw new ProgramCancelledException("Program cancelled by user");
             }
         }
-        
+
         if (!pickSucceeded)
         {
             gripperIO.setGripper3_Switch(true);
