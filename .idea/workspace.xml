@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="use fixed motion strategy" />
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="use fixed motion strategy">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -492,7 +494,23 @@
       <option name="project" value="LOCAL" />
       <updated>1770890940440</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="use fixed motion strategy">
+      <option name="closed" value="true" />
+      <created>1770890957025</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1770890957025</updated>
+    </task>
+    <task id="LOCAL-00033" summary="use fixed motion strategy">
+      <option name="closed" value="true" />
+      <created>1770891178299</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1770891178299</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
