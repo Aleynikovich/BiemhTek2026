@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="use alternate second option" />
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="stop putting workpiece as available">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -130,7 +132,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "#83 on copilot/fix-picked-workpiece-issue",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/aley/IdeaProjects/BiehmTek",
@@ -531,31 +533,23 @@
       <option name="project" value="LOCAL" />
       <updated>1770893775872</updated>
     </task>
-    <task id="LOCAL-00035" summary="use fixed motion strategy">
+    <task id="LOCAL-00035" summary="stop putting workpiece as available">
       <option name="closed" value="true" />
-      <created>1770894433529</created>
+      <created>1770896475103</created>
       <option name="number" value="00035" />
       <option name="presentableId" value="LOCAL-00035" />
       <option name="project" value="LOCAL" />
-      <updated>1770894433529</updated>
+      <updated>1770896475103</updated>
     </task>
-    <task id="LOCAL-00036" summary="use alternate second option">
+    <task id="LOCAL-00036" summary="stop putting workpiece as available">
       <option name="closed" value="true" />
-      <created>1770894534795</created>
+      <created>1770896566088</created>
       <option name="number" value="00036" />
       <option name="presentableId" value="LOCAL-00036" />
       <option name="project" value="LOCAL" />
-      <updated>1770894534795</updated>
+      <updated>1770896566088</updated>
     </task>
-    <task id="LOCAL-00037" summary="use alternate second option">
-      <option name="closed" value="true" />
-      <created>1770894970084</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1770894970084</updated>
-    </task>
-    <option name="localTasksCounter" value="38" />
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

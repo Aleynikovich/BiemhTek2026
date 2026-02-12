@@ -58,7 +58,8 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getState() == WorkpieceState.AVAILABLE)
+            // Only consider AVAILABLE workpieces that are NOT already held by a gripper
+            if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
                 if (best == null || wp.getScore() > best.getScore())
                 {
@@ -91,7 +92,8 @@ public class WorkpieceQueue
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
-            if (wp.getState() == WorkpieceState.AVAILABLE)
+            // Only consider AVAILABLE workpieces that are NOT already held by a gripper
+            if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
                 if (best == null || wp.getScore() > best.getScore())
                 {
@@ -123,6 +125,7 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setGripperLocation(String.valueOf(gripperNumber));
+            wp.setState(WorkpieceState.PICKED);
             log.info("Marked workpiece as held by gripper " + gripperNumber + ": id=" + workpieceId);
         } else
         {
@@ -241,7 +244,8 @@ public class WorkpieceQueue
     }
 
     /**
-     * Gets count of AVAILABLE workpieces.
+     * Gets count of AVAILABLE workpieces that are not held by any gripper.
+     * Excludes workpieces that have been picked (gripper set).
      *
      * @return Number of available workpieces
      */
@@ -250,7 +254,9 @@ public class WorkpieceQueue
         int count = 0;
         for (int i = 0; i < workpieces.size(); i++)
         {
-            if (workpieces.get(i).getState() == WorkpieceState.AVAILABLE)
+            WorkpieceData wp = workpieces.get(i);
+            // Only count AVAILABLE workpieces that are NOT already held by a gripper
+            if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
                 count++;
             }
@@ -448,8 +454,9 @@ public class WorkpieceQueue
      * Adds or updates a workpiece. If a workpiece exists at the same position
      * with the same reference, updates it instead of creating a new one.
      * 
-     * Vision data ALWAYS overrides robot data for AVAILABLE workpieces, even if gripper location is set.
-     * This ensures that workpieces placed with rotation offsets are correctly updated when detected by vision.
+     * Vision data ONLY updates AVAILABLE workpieces that are on the table (gripper=null).
+     * Workpieces held by grippers are NEVER updated by vision - only robot operations can change gripper state.
+     * This prevents the vision system from incorrectly marking picked workpieces as available.
      *
      * @param x X coordinate
      * @param y Y coordinate
@@ -468,24 +475,27 @@ public class WorkpieceQueue
 
         if (existing != null)
         {
-            // Vision data overrides for AVAILABLE workpieces (regardless of gripper location)
-            // This handles cases where workpieces were placed with rotation offsets
+            // Vision data should ONLY update workpieces that are truly on the table (gripper=null)
+            // NEVER override workpieces currently held by robot grippers
             if (existing.getState() == WorkpieceState.AVAILABLE)
             {
-                existing.set(x, y, z, rx, ry, rz, score);
-                existing.setState(WorkpieceState.AVAILABLE);
-                // Clear stale gripper location if any - workpiece is now available in bin
+                // Check if workpiece is currently held by a gripper
                 if (existing.getGripperLocation() != null)
                 {
-                    log.info("Clearing stale gripper location for workpiece: id=" + existing.getId());
-                    existing.setGripperLocation(null);
+                    // Workpiece is held by robot - vision should NOT override this
+                    // Only robot operations can change gripper state
+                    log.debug("Skipping vision update for workpiece held by gripper " + existing.getGripperLocation() + ": id=" + existing.getId());
+                    return existing;
                 }
+                
+                // Workpiece is on table (gripper=null) - safe to update with vision data
+                existing.set(x, y, z, rx, ry, rz, score);
+                existing.setState(WorkpieceState.AVAILABLE);
                 log.info("Updated existing workpiece with vision data: id=" + existing.getId() + ", ref=" + referenceIndex + ", score=" + score);
                 return existing;
             } else
             {
                 // Workpiece is actively being used (MEASURING, MEASURED) - don't override with vision data
-                // Note: AVAILABLE workpieces are always overridden by vision, even if gripper location is set
                 log.debug("Workpiece at position is actively in use (state=" + existing.getState() + ", gripper=" + existing.getGripperLocation() + "), creating new entry");
             }
         }
