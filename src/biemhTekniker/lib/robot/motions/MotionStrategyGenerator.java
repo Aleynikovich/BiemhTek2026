@@ -289,7 +289,7 @@ public class MotionStrategyGenerator
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      * 
-     * When override is enabled, returns exactly ONE strategy with the specified parameters.
+     * NOTE: Place operations IGNORE motion overrides. Overrides only apply to pick operations.
      *
      * @param tcp                      Tool center point frame to use
      * @param robot                    Robot instance for redundancy support
@@ -297,44 +297,15 @@ public class MotionStrategyGenerator
      * @param zRotationAngles          Array of Z-axis rotation angles in radians to try
      * @param allowConfigurationChange If true, tries all combinations of rotations and offsets.
      *                                 If false, only tries the first rotation angle and default redundancy.
-     * @return List of motion strategies in priority order (single strategy if override enabled)
+     * @return List of motion strategies in priority order
      */
     public static List<MotionStrategy> generatePlaceStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets, double[] zRotationAngles, boolean allowConfigurationChange)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
-        // Check if override is enabled
-        if (MotionOverrides.isOverrideEnabled())
-        {
-            // Return exactly ONE strategy with the specified parameters
-            Double redundancyE1 = MotionOverrides.getPlaceRedundancyE1();
-            Double zRotation = MotionOverrides.getPlaceZRotation();
-            
-            // Use the first configured Z-rotation angle if override doesn't specify one
-            if (zRotation == null && zRotationAngles.length > 0)
-            {
-                zRotation = Double.valueOf(zRotationAngles[0]);
-            }
-            if (zRotation == null)
-            {
-                zRotation = Double.valueOf(0.0);
-            }
-            
-            MotionStrategy.Builder builder = new MotionStrategy.Builder(tcp)
-                .allowZRotation(true)
-                .zRotationAngle(zRotation)
-                .useToolCoordinates(true)
-                .impedanceMode(impedanceMode);
-            
-            if (redundancyE1 != null)
-            {
-                builder.redundancy(redundancyE1, robot);
-            }
-            
-            strategies.add(builder.build());
-            return strategies;
-        }
+        // NOTE: Motion overrides do NOT apply to place operations, only to pick operations
+        // Always generate full list of strategies for place operations
 
         // Normal behavior: generate full list of strategies
         if (allowConfigurationChange)

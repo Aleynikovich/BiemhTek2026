@@ -360,7 +360,7 @@ class RobotControlGUI:
         pick_label.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
         
         ttk.Label(override_frame, text="Redundancy:").grid(row=2, column=0, sticky=tk.W, padx=(15, 5))
-        self.pick_redundancy_var = tk.StringVar(value="E1 = -80°")
+        self.pick_redundancy_var = tk.StringVar(value="None (no E1 offset)")
         self.pick_redundancy_combo = ttk.Combobox(
             override_frame, 
             textvariable=self.pick_redundancy_var, 
@@ -382,7 +382,7 @@ class RobotControlGUI:
         place_label.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(10, 5))
         
         ttk.Label(override_frame, text="Redundancy:").grid(row=4, column=0, sticky=tk.W, padx=(15, 5))
-        self.place_redundancy_var = tk.StringVar(value="E1 = 60°")
+        self.place_redundancy_var = tk.StringVar(value="None (no E1 offset)")
         self.place_redundancy_combo = ttk.Combobox(
             override_frame, 
             textvariable=self.place_redundancy_var, 
@@ -394,7 +394,7 @@ class RobotControlGUI:
         
         ttk.Label(override_frame, text="Z-Rot:").grid(row=4, column=2, sticky=tk.W, padx=(0, 5))
         self.place_zrot_entry = ttk.Entry(override_frame, width=10)
-        self.place_zrot_entry.insert(0, "45")
+        self.place_zrot_entry.insert(0, "0")
         self.place_zrot_entry.grid(row=4, column=2, sticky=tk.W, padx=(45, 0))
         ttk.Label(override_frame, text="°").grid(row=4, column=2, sticky=tk.W, padx=(110, 0))
         
