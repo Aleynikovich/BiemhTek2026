@@ -449,6 +449,22 @@
                     <info type="com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy$E1Parameter" value="0.21269302758534736" valueType="java.lang.Double"/>
                 </redundancy>
             </redundancyData>
+            <frame id="_602a386f-44f3-4c1a-83ce-5ca5ab330337" name="P1">
+                <transformation a="8.179512396795314E-5" b="-3.3415519772110577E-5" c="-1.592843870241002E-6" x="-0.019144083474770923" y="-0.020000348646107113" z="0.02689830105236979"/>
+                <additionalInformation>
+                    <info key="LastModificationTime" type="java.lang.Long" value="1770885795532"/>
+                    <info base="iiwa" controller="Sunrise" device="iiwa" tcpName="Flange" tool="Flange" type="com.kuka.roboticsAPI.deviceModel.TeachInformation">
+                        <tcpTransformation a="0.0" b="0.0" c="0.0" x="0.0" y="0.0" z="0.0"/>
+                    </info>
+                </additionalInformation>
+                <redundancyData>
+                    <redundancy transformationProviderName="Sunrise/iiwa" type="com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy">
+                        <info type="com.kuka.roboticsAPI.deviceModel.StatusTurnRedundancy$StatusParameter" value="2" valueType="java.lang.Integer"/>
+                        <info type="com.kuka.roboticsAPI.deviceModel.StatusTurnRedundancy$TurnParameter" value="25" valueType="java.lang.Integer"/>
+                        <info type="com.kuka.roboticsAPI.deviceModel.LBRE1Redundancy$E1Parameter" value="0.212712921393577" valueType="java.lang.Double"/>
+                    </redundancy>
+                </redundancyData>
+            </frame>
         </frame>
     </world>
     <objectTemplates>
