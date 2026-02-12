@@ -9,13 +9,6 @@ class WorkpieceManager:
         self.canvas = canvas_widget
         self.gripper_panel = gripper_panel
         self.last_workpieces_data = []
-        self._updating_selection = False  # Flag to prevent selection loops
-        
-        # Set up tree selection callback
-        self.tree.bind('<<TreeviewSelect>>', self._on_tree_select)
-        
-        # Set up canvas click callback
-        self.canvas.on_workpiece_click = self._on_canvas_click
 
     def update_data(self, workpieces_data):
         if isinstance(workpieces_data, str):
@@ -72,14 +65,8 @@ class WorkpieceManager:
         selected_items = self.tree.selection()
         selected_short_id = None
         if selected_items:
-            try:
-                # Get the short ID (first column) of the selected item
-                values = self.tree.item(selected_items[0])['values']
-                if values and len(values) > 0:
-                    selected_short_id = str(values[0])
-            except (IndexError, KeyError, TypeError):
-                # If we can't get the selected ID, just continue without preserving selection
-                pass
+            # Get the short ID (first column) of the selected item
+            selected_short_id = self.tree.item(selected_items[0])['values'][0]
         
         self.tree.delete(*self.tree.get_children())
         item_to_select = None
@@ -108,12 +95,8 @@ class WorkpieceManager:
         
         # Restore selection if the item still exists
         if item_to_select:
-            try:
-                self.tree.selection_set(item_to_select)
-                self.tree.see(item_to_select)
-            except Exception:
-                # If restoring selection fails, just continue
-                pass
+            self.tree.selection_set(item_to_select)
+            self.tree.see(item_to_select)
 
     def find_workpiece_by_short_id(self, short_id):
         short_id = str(short_id)
@@ -122,60 +105,3 @@ class WorkpieceManager:
             if full_id.endswith(short_id) or full_id == short_id:
                 return wp
         return None
-    
-    def _on_tree_select(self, event=None):
-        """Handle tree selection changes - highlight on canvas."""
-        if self._updating_selection:
-            return
-        
-        selected_items = self.tree.selection()
-        if selected_items:
-            try:
-                values = self.tree.item(selected_items[0])['values']
-                if values and len(values) > 0:
-                    short_id = str(values[0])
-                    # Highlight on canvas
-                    self._updating_selection = True
-                    self.canvas.highlight_workpiece(short_id)
-                    # Trigger a canvas redraw to show highlight
-                    self._redraw_canvas()
-                    self._updating_selection = False
-            except (IndexError, KeyError, TypeError):
-                pass
-        else:
-            # No selection - clear highlight
-            self._updating_selection = True
-            self.canvas.clear_highlight()
-            self._redraw_canvas()
-            self._updating_selection = False
-    
-    def _on_canvas_click(self, short_id):
-        """Handle canvas clicks - select in tree."""
-        if self._updating_selection:
-            return
-        
-        # Find the tree item with this short_id
-        for item in self.tree.get_children():
-            values = self.tree.item(item)['values']
-            if values and len(values) > 0 and str(values[0]) == short_id:
-                # Select this item in the tree
-                self._updating_selection = True
-                self.tree.selection_set(item)
-                self.tree.see(item)
-                self._updating_selection = False
-                break
-    
-    def _redraw_canvas(self):
-        """Redraw the canvas to reflect highlight changes."""
-        # Filter to only show available workpieces on table
-        available_on_table = []
-        for wp in self.last_workpieces_data:
-            state = wp.get('state', 'AVAILABLE')
-            gripper = wp.get('gripper')
-            # Skip workpieces in grippers
-            if gripper and str(gripper).isdigit() and int(gripper) in (1, 2, 3):
-                continue
-            if 'In Gripper' not in str(state):
-                available_on_table.append(wp)
-        
-        self.canvas.update_visualization(available_on_table)

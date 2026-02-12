@@ -30,12 +30,6 @@ public class MotionStrategyGenerator
      */
     private static synchronized double[] getRedundancyOffsets()
     {
-        // Runtime override takes precedence if provided
-        double[] override = MotionOverrides.getForcedRedundancyOffsets();
-        if (override != null && override.length > 0)
-        {
-            return override;
-        }
         if (cachedRedundancyOffsets == null)
         {
             ConfigManager config = ConfigManager.getInstance();
@@ -64,12 +58,6 @@ public class MotionStrategyGenerator
      */
     private static synchronized double[] getZRotationAngles()
     {
-        // Runtime override takes precedence if provided
-        double[] override = MotionOverrides.getForcedZRotationAngles();
-        if (override != null && override.length > 0)
-        {
-            return override;
-        }
         if (cachedZRotationAngles == null)
         {
             ConfigManager config = ConfigManager.getInstance();
@@ -142,17 +130,40 @@ public class MotionStrategyGenerator
      * Strategy order: regular position, then alternate position (180° rotation),
      * each with multiple redundancy configurations.
      * Impedance control is automatically enabled if configured.
+     * 
+     * When override is enabled, returns exactly ONE strategy with the specified parameters.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
      * @param redundancyOffsets Array of E1 offsets in radians to try
-     * @return List of motion strategies in priority order
+     * @return List of motion strategies in priority order (single strategy if override enabled)
      */
     public static List<MotionStrategy> generateStrategies(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
-        List<MotionStrategy> strategies = new ArrayList<>();
+        List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
+        // Check if override is enabled
+        if (MotionOverrides.isOverrideEnabled())
+        {
+            // Return exactly ONE strategy with the specified parameters
+            Double redundancyE1 = MotionOverrides.getPickRedundancyE1();
+            boolean useAlternate = MotionOverrides.isPickAlternate();
+            
+            MotionStrategy.Builder builder = new MotionStrategy.Builder(tcp)
+                .useAlternatePosition(useAlternate)
+                .impedanceMode(impedanceMode);
+            
+            if (redundancyE1 != null)
+            {
+                builder.redundancy(redundancyE1, robot);
+            }
+            
+            strategies.add(builder.build());
+            return strategies;
+        }
+
+        // Normal behavior: generate full list of strategies
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
         strategies.add(new MotionStrategy.Builder(tcp).impedanceMode(impedanceMode).build());
@@ -192,17 +203,39 @@ public class MotionStrategyGenerator
      * Generates a simplified list of motion strategies without alternate position.
      * Only tries regular position with redundancy variations.
      * Impedance control is automatically enabled if configured.
+     * 
+     * When override is enabled, returns exactly ONE strategy with the specified parameters.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
      * @param redundancyOffsets Array of E1 offsets in radians to try
-     * @return List of motion strategies in priority order
+     * @return List of motion strategies in priority order (single strategy if override enabled)
      */
     public static List<MotionStrategy> generateStrategiesWithoutAlternate(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
+        // Check if override is enabled
+        if (MotionOverrides.isOverrideEnabled())
+        {
+            // Return exactly ONE strategy with the specified parameters
+            Double redundancyE1 = MotionOverrides.getPickRedundancyE1();
+            // Note: alternate position not supported in this method, always use regular
+            
+            MotionStrategy.Builder builder = new MotionStrategy.Builder(tcp)
+                .impedanceMode(impedanceMode);
+            
+            if (redundancyE1 != null)
+            {
+                builder.redundancy(redundancyE1, robot);
+            }
+            
+            strategies.add(builder.build());
+            return strategies;
+        }
+
+        // Normal behavior: generate full list of strategies
         // Try regular position with different redundancy configurations
         strategies.add(new MotionStrategy.Builder(tcp).impedanceMode(impedanceMode).build());
         for (int i = 0; i < redundancyOffsets.length; i++)
@@ -255,6 +288,8 @@ public class MotionStrategyGenerator
      * and tool coordinate system approach.
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
+     * 
+     * NOTE: Place operations IGNORE motion overrides. Overrides only apply to pick operations.
      *
      * @param tcp                      Tool center point frame to use
      * @param robot                    Robot instance for redundancy support
@@ -269,6 +304,10 @@ public class MotionStrategyGenerator
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
+        // NOTE: Motion overrides do NOT apply to place operations, only to pick operations
+        // Always generate full list of strategies for place operations
+
+        // Normal behavior: generate full list of strategies
         if (allowConfigurationChange)
         {        // Try each Z-rotation angle with different redundancy configurations
             for (int z = 0; z < zRotationAngles.length; z++)
@@ -315,17 +354,41 @@ public class MotionStrategyGenerator
      * and custom redundancy variations.
      * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
+     * 
+     * When override is enabled, returns exactly ONE strategy with the specified parameters.
      *
      * @param tcp               Tool center point frame to use
      * @param robot             Robot instance for redundancy support
      * @param redundancyOffsets Array of E1 offsets in radians to try
-     * @return List of motion strategies in priority order
+     * @return List of motion strategies in priority order (single strategy if override enabled)
      */
     public static List<MotionStrategy> generateStrategiesWithToolCoordinates(ObjectFrame tcp, LBR robot, double[] redundancyOffsets)
     {
         List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
         CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
 
+        // Check if override is enabled
+        if (MotionOverrides.isOverrideEnabled())
+        {
+            // Return exactly ONE strategy with the specified parameters
+            Double redundancyE1 = MotionOverrides.getPickRedundancyE1();
+            boolean useAlternate = MotionOverrides.isPickAlternate();
+            
+            MotionStrategy.Builder builder = new MotionStrategy.Builder(tcp)
+                .useAlternatePosition(useAlternate)
+                .useToolCoordinates(true)
+                .impedanceMode(impedanceMode);
+            
+            if (redundancyE1 != null)
+            {
+                builder.redundancy(redundancyE1, robot);
+            }
+            
+            strategies.add(builder.build());
+            return strategies;
+        }
+
+        // Normal behavior: generate full list of strategies
         // Try regular position with different redundancy configurations
         // First attempt without redundancy (null), then with offsets
         strategies.add(new MotionStrategy.Builder(tcp).useToolCoordinates(true).impedanceMode(impedanceMode).build());

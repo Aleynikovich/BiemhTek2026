@@ -8,12 +8,6 @@ class WorkpieceCanvas(tk.Canvas):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, bg='white', **kwargs)
         self.draw_grid()
-        self.workpiece_items = {}  # Maps workpiece short_id to list of canvas item IDs
-        self.selected_wp_id = None  # Currently highlighted workpiece
-        self.on_workpiece_click = None  # Callback for when a workpiece is clicked
-        
-        # Bind click events
-        self.bind('<Button-1>', self._handle_click)
 
     def draw_grid(self):
         width = int(self.cget('width'))
@@ -29,8 +23,6 @@ class WorkpieceCanvas(tk.Canvas):
 
     def update_visualization(self, workpieces):
         self.delete('workpiece')
-        self.workpiece_items = {}  # Reset mapping
-        
         canvas_width = 470
         canvas_height = 650
         wp_length = 80
@@ -49,7 +41,6 @@ class WorkpieceCanvas(tk.Canvas):
             state = wp.get('state', 'AVAILABLE')
             gripper = wp.get('gripper', '')
             wp_id = wp.get('id', '?')
-            short_id = str(wp_id)[-8:]
 
             canvas_x = x + 150
             canvas_y = -y - 250
@@ -89,41 +80,25 @@ class WorkpieceCanvas(tk.Canvas):
                 # canvas_y increases downward, so we subtract py from canvas_y
                 rotated_corners.extend([canvas_x + px, canvas_y - py])
 
-            # Track all canvas items for this workpiece
-            wp_items = []
-            
-            # Check if this workpiece is selected for highlighting
-            is_selected = (self.selected_wp_id == short_id)
-            highlight_outline = 'lime' if is_selected else outline_color
-            highlight_width = 5 if is_selected else outline_width
-            
-            polygon_id = self.create_polygon(rotated_corners, fill=fill_color, outline=highlight_outline, 
-                                            width=highlight_width, tags='workpiece')
-            wp_items.append(polygon_id)
+            self.create_polygon(rotated_corners, fill=fill_color, outline=outline_color, width=outline_width,
+                                tags='workpiece')
 
             orientation = wp.get('orientation', 0)
             # Arrow follows local X+ (or X- if inverted)
             flip = -1 if orientation == 1 else 1
             arrow_dx = (wp_length / 2) * ux_x * flip
             arrow_dy = (wp_length / 2) * ux_y * flip
-            arrow_id = self.create_line(canvas_x, canvas_y, canvas_x + arrow_dx, canvas_y - arrow_dy, arrow=tk.LAST, 
-                                       fill='yellow', width=2, tags='workpiece')
-            wp_items.append(arrow_id)
+            self.create_line(canvas_x, canvas_y, canvas_x + arrow_dx, canvas_y - arrow_dy, arrow=tk.LAST, fill='yellow',
+                             width=2, tags='workpiece')
 
             rev_rad = wp_length / 2 + wp_width / 4
-            circle_id = self.create_oval(canvas_x - rev_rad, canvas_y - rev_rad, canvas_x + rev_rad, canvas_y + rev_rad,
+            self.create_oval(canvas_x - rev_rad, canvas_y - rev_rad, canvas_x + rev_rad, canvas_y + rev_rad,
                              outline='red', dash=(2, 2), width=1, tags='workpiece')
-            wp_items.append(circle_id)
 
             label = f"ID:{str(wp_id)[-4:]}"
             if gripper and gripper != 'None':
                 label += f"\nG:{gripper}"
-            text_id = self.create_text(canvas_x, canvas_y, text=label, fill='white', font=('Arial', 8, 'bold'), 
-                                      tags='workpiece')
-            wp_items.append(text_id)
-            
-            # Store mapping of short_id to canvas items
-            self.workpiece_items[short_id] = wp_items
+            self.create_text(canvas_x, canvas_y, text=label, fill='white', font=('Arial', 8, 'bold'), tags='workpiece')
 
         # Legend
         lx, ly = 10, 350
@@ -133,29 +108,3 @@ class WorkpieceCanvas(tk.Canvas):
             self.create_rectangle(lx, ly, lx + 15, ly + 10, fill=color, outline='black', tags='workpiece')
             self.create_text(lx + 20, ly + 5, text=f"Ref {ref}", anchor='w', font=('Arial', 8), tags='workpiece')
             ly += 12
-    
-    def highlight_workpiece(self, short_id):
-        """Highlight a specific workpiece on the canvas."""
-        if self.selected_wp_id == short_id:
-            return  # Already highlighted
-        
-        # Clear previous highlight by redrawing (we'll trigger a refresh from the manager)
-        self.selected_wp_id = short_id
-    
-    def clear_highlight(self):
-        """Clear the current workpiece highlight."""
-        self.selected_wp_id = None
-    
-    def _handle_click(self, event):
-        """Handle click events on the canvas to detect workpiece clicks."""
-        # Find which canvas item was clicked
-        clicked_items = self.find_overlapping(event.x - 2, event.y - 2, event.x + 2, event.y + 2)
-        
-        # Check if any clicked item belongs to a workpiece
-        for short_id, item_list in self.workpiece_items.items():
-            for item_id in item_list:
-                if item_id in clicked_items:
-                    # Found a workpiece click
-                    if self.on_workpiece_click:
-                        self.on_workpiece_click(short_id)
-                    return

@@ -2,20 +2,26 @@
 
 Python-based GUI application for controlling the KUKA LBR iiwa robot remotely.
 
+## Current Version: Tkinter Desktop GUI
+
+The GUI uses tkinter for a native desktop experience with reliable real-time updates.
+
 ## Features
 
 - **Connection Management**: Connect/disconnect to robot console server
 - **Program Control**: Set program number (0-7) with dedicated buttons
 - **Real-time Status**: Display current program, vision connection status, and workpiece position
+- **Workpiece Visualization**: 650x480mm canvas showing workpiece positions with orientations
 - **Console Output**: View robot logs and command responses
-- **Log Level Filtering**: Select minimum log level (DEBUG, INFO, WARN, ERROR) to filter console output and reduce network traffic
+- **Log Level Filtering**: Select minimum log level (DEBUG, INFO, WARN, ERROR)
+- **Motion Override Testing**: Test single-configuration motion strategies
 - **Quick Actions**: Emergency stop, status requests, console clearing
 
 ## Requirements
 
 - Python 3.x
 - tkinter (usually included with Python)
-- Network access to robot (default: 172.31.1.69:30001)
+- Network access to robot (default: 172.31.1.147:30001)
 
 ## Installation
 

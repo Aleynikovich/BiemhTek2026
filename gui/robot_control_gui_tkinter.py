@@ -79,7 +79,7 @@ class RobotControlGUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(0, weight=1)
-        main_frame.rowconfigure(5, weight=1)  # Row 5 now contains the tabs
+        main_frame.rowconfigure(3, weight=1)
 
         ttk.Label(main_frame, text="KUKA LBR iiwa Robot Control", style='Title.TLabel').grid(row=0, column=0,
                                                                                              pady=(0, 10),
@@ -90,105 +90,47 @@ class RobotControlGUI:
         self.create_tabbed_interface(main_frame)
 
     def create_connection_frame(self, parent):
-        # Collapsible connection frame
-        self.connection_visible = tk.BooleanVar(value=True)
+        frame = ttk.LabelFrame(parent, text="Connection", padding="5")
+        frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
         
-        toggle_frame = ttk.Frame(parent)
-        toggle_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 2))
+        ttk.Label(frame, text="Robot IP:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        ttk.Entry(frame, textvariable=self.robot_ip, width=20).grid(row=0, column=1, sticky=tk.W, padx=(0, 20))
         
-        self.connection_toggle_btn = ttk.Button(
-            toggle_frame, 
-            text="▼ Connection", 
-            command=self.toggle_connection_frame,
-            width=15
-        )
-        self.connection_toggle_btn.grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Port:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
+        ttk.Entry(frame, textvariable=self.robot_port, width=10).grid(row=0, column=3, sticky=tk.W, padx=(0, 20))
         
-        self.connection_frame = ttk.Frame(parent, padding="5")
-        self.connection_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
-        
-        ttk.Label(self.connection_frame, text="Robot IP:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
-        ttk.Entry(self.connection_frame, textvariable=self.robot_ip, width=20).grid(row=0, column=1, sticky=tk.W, padx=(0, 20))
-        
-        ttk.Label(self.connection_frame, text="Port:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
-        ttk.Entry(self.connection_frame, textvariable=self.robot_port, width=10).grid(row=0, column=3, sticky=tk.W, padx=(0, 20))
-        
-        self.connect_btn = ttk.Button(self.connection_frame, text="Connect", command=self.connect)
+        self.connect_btn = ttk.Button(frame, text="Connect", command=self.connect)
         self.connect_btn.grid(row=0, column=4, padx=5)
 
-        self.disconnect_btn = ttk.Button(self.connection_frame, text="Disconnect", command=self.disconnect, state=tk.DISABLED)
+        self.disconnect_btn = ttk.Button(frame, text="Disconnect", command=self.disconnect, state=tk.DISABLED)
         self.disconnect_btn.grid(row=0, column=5, padx=5)
         
-        self.status_label = ttk.Label(self.connection_frame, text="● Disconnected", foreground="red")
+        self.status_label = ttk.Label(frame, text="● Disconnected", foreground="red")
         self.status_label.grid(row=0, column=6, padx=20)
-    
-    def toggle_connection_frame(self):
-        if self.connection_visible.get():
-            self.connection_frame.grid_remove()
-            self.connection_toggle_btn.configure(text="▶ Connection")
-            self.connection_visible.set(False)
-        else:
-            self.connection_frame.grid()
-            self.connection_toggle_btn.configure(text="▼ Connection")
-            self.connection_visible.set(True)
 
     def create_status_frame(self, parent):
-        # Collapsible status frame
-        self.status_visible = tk.BooleanVar(value=True)
-        
-        toggle_frame = ttk.Frame(parent)
-        toggle_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(0, 2))
-        
-        self.status_toggle_btn = ttk.Button(
-            toggle_frame, 
-            text="▼ Robot Status", 
-            command=self.toggle_status_frame,
-            width=15
-        )
-        self.status_toggle_btn.grid(row=0, column=0, sticky=tk.W)
-        
-        self.status_frame = ttk.Frame(parent, padding="5")
-        self.status_frame.grid(row=4, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
-        self.status_frame.columnconfigure(1, weight=1)
+        frame = ttk.LabelFrame(parent, text="Robot Status", padding="5")
+        frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
+        frame.columnconfigure(1, weight=1)
 
-        ttk.Label(self.status_frame, text="Current Program:", style='Status.TLabel').grid(row=0, column=0, sticky=tk.W,
+        ttk.Label(frame, text="Current Program:", style='Status.TLabel').grid(row=0, column=0, sticky=tk.W,
                                                                               padx=(0, 10))
-        self.current_prog_label = ttk.Label(self.status_frame, text="0 - Idle", style='Status.TLabel', foreground="blue")
+        self.current_prog_label = ttk.Label(frame, text="0 - Idle", style='Status.TLabel', foreground="blue")
         self.current_prog_label.grid(row=0, column=1, sticky=tk.W)
 
-        ttk.Label(self.status_frame, text="Vision Server:", style='Status.TLabel').grid(row=1, column=0, sticky=tk.W, padx=(0, 10),
+        ttk.Label(frame, text="Vision Server:", style='Status.TLabel').grid(row=1, column=0, sticky=tk.W, padx=(0, 10),
                                                                             pady=(5, 0))
-        self.vision_status_label = ttk.Label(self.status_frame, text="● Disconnected", foreground="red")
+        self.vision_status_label = ttk.Label(frame, text="● Disconnected", foreground="red")
         self.vision_status_label.grid(row=1, column=1, sticky=tk.W, pady=(5, 0))
 
-        ttk.Label(self.status_frame, text="Workpiece Position:", style='Status.TLabel').grid(row=2, column=0, sticky=tk.W,
+        ttk.Label(frame, text="Workpiece Position:", style='Status.TLabel').grid(row=2, column=0, sticky=tk.W,
                                                                                  padx=(0, 10), pady=(5, 0))
-        ttk.Label(self.status_frame, textvariable=self.workpiece_position, style='Status.TLabel').grid(row=2, column=1, sticky=tk.W,
+        ttk.Label(frame, textvariable=self.workpiece_position, style='Status.TLabel').grid(row=2, column=1, sticky=tk.W,
                                                                                            pady=(5, 0))
-    
-    def toggle_status_frame(self):
-        if self.status_visible.get():
-            self.status_frame.grid_remove()
-            self.status_toggle_btn.configure(text="▶ Robot Status")
-            self.status_visible.set(False)
-        else:
-            self.status_frame.grid()
-            self.status_toggle_btn.configure(text="▼ Robot Status")
-            self.status_visible.set(True)
-    
-    def toggle_override_frame(self):
-        if self.override_visible.get():
-            self.override_frame.grid_remove()
-            self.override_toggle_btn.configure(text="▶ Motion Overrides")
-            self.override_visible.set(False)
-        else:
-            self.override_frame.grid()
-            self.override_toggle_btn.configure(text="▼ Motion Overrides")
-            self.override_visible.set(True)
 
     def create_tabbed_interface(self, parent):
         notebook = ttk.Notebook(parent)
-        notebook.grid(row=5, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 5))
+        notebook.grid(row=3, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 5))
 
         tabs = [
             ("Robot Programs", self.create_program_control_tab),
@@ -284,13 +226,13 @@ class RobotControlGUI:
         vsb.grid(row=0, column=1, sticky=(tk.N, tk.S))
         hsb.grid(row=1, column=0, sticky=(tk.W, tk.E))
         
-        viz_frame = ttk.LabelFrame(parent, text="Working Plane (650x480mm)", padding="5")
+        viz_frame = ttk.LabelFrame(parent, text="Working Plane (700x400mm)", padding="5")
         viz_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S))
         viz_frame.columnconfigure(0, weight=1)
         viz_frame.rowconfigure(0, weight=1)
         viz_frame.rowconfigure(1, weight=0)
 
-        self.workpiece_canvas = WorkpieceCanvas(viz_frame, width=650, height=480)
+        self.workpiece_canvas = WorkpieceCanvas(viz_frame, width=700, height=400)
         self.workpiece_canvas.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         # Gripper digital twin panel
         self.gripper_panel = GripperPanel(viz_frame)
@@ -309,41 +251,9 @@ class RobotControlGUI:
         for i, (text, cmd) in enumerate(actions):
             ttk.Button(btn_frame, text=text, command=cmd, width=18).grid(row=0, column=i, padx=3, pady=3)
         
-        # Auto-refresh control
-        auto_refresh_frame = ttk.Frame(parent)
-        auto_refresh_frame.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=(5, 5), padx=(3, 0))
-        
-        self.auto_refresh_var = tk.BooleanVar(value=False)  # Default OFF to avoid annoying refreshes
-        auto_refresh_cb = ttk.Checkbutton(
-            auto_refresh_frame,
-            text="Auto-refresh workpieces (every 2s)",
-            variable=self.auto_refresh_var,
-            command=self.on_auto_refresh_changed
-        )
-        auto_refresh_cb.grid(row=0, column=0, sticky=tk.W)
-        
-        ttk.Label(auto_refresh_frame, text="  (disable if selecting workpieces)", 
-                 foreground="gray", font=('Helvetica', 8, 'italic')).grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
-        
-        # Motion Override Controls - Collapsible section for more canvas space
-        self.override_visible = tk.BooleanVar(value=False)  # Default collapsed
-        
-        toggle_frame = ttk.Frame(parent)
-        toggle_frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 2))
-        
-        self.override_toggle_btn = ttk.Button(
-            toggle_frame, 
-            text="▶ Motion Overrides", 
-            command=self.toggle_override_frame,
-            width=18
-        )
-        self.override_toggle_btn.grid(row=0, column=0, sticky=tk.W)
-        
-        # Create the override frame but start hidden
-        override_frame = ttk.Frame(parent, padding="5")
-        override_frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 0))
-        self.override_frame = override_frame
-        override_frame.grid_remove()  # Start hidden
+        # Motion Override Controls - Redesigned for single-configuration testing
+        override_frame = ttk.LabelFrame(parent, text="Motion Overrides", padding="5")
+        override_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
         
         # Master enable checkbox
         self.override_enabled_var = tk.BooleanVar(value=False)
@@ -360,7 +270,7 @@ class RobotControlGUI:
         pick_label.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(0, 5))
         
         ttk.Label(override_frame, text="Redundancy:").grid(row=2, column=0, sticky=tk.W, padx=(15, 5))
-        self.pick_redundancy_var = tk.StringVar(value="None (no E1 offset)")
+        self.pick_redundancy_var = tk.StringVar(value="E1 = -80°")
         self.pick_redundancy_combo = ttk.Combobox(
             override_frame, 
             textvariable=self.pick_redundancy_var, 
@@ -382,7 +292,7 @@ class RobotControlGUI:
         place_label.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(10, 5))
         
         ttk.Label(override_frame, text="Redundancy:").grid(row=4, column=0, sticky=tk.W, padx=(15, 5))
-        self.place_redundancy_var = tk.StringVar(value="None (no E1 offset)")
+        self.place_redundancy_var = tk.StringVar(value="E1 = 60°")
         self.place_redundancy_combo = ttk.Combobox(
             override_frame, 
             textvariable=self.place_redundancy_var, 
@@ -394,7 +304,7 @@ class RobotControlGUI:
         
         ttk.Label(override_frame, text="Z-Rot:").grid(row=4, column=2, sticky=tk.W, padx=(0, 5))
         self.place_zrot_entry = ttk.Entry(override_frame, width=10)
-        self.place_zrot_entry.insert(0, "0")
+        self.place_zrot_entry.insert(0, "45")
         self.place_zrot_entry.grid(row=4, column=2, sticky=tk.W, padx=(45, 0))
         ttk.Label(override_frame, text="°").grid(row=4, column=2, sticky=tk.W, padx=(110, 0))
         
@@ -474,8 +384,7 @@ class RobotControlGUI:
         self.log_manager.log(msg, 'success')
 
         self.on_log_level_changed()
-        # Only start auto-refresh if the checkbox is enabled
-        if not reconnected and hasattr(self, 'auto_refresh_var') and self.auto_refresh_var.get():
+        if not reconnected:
             self.root.after(3000, self.start_auto_refresh)
 
     def on_disconnect(self):
@@ -683,16 +592,6 @@ class RobotControlGUI:
         self.log_manager.log(f"Local log level: {lvl}", 'info')
         if self.client and self.client.connected:
             self.client.send_command({'type': 'set_log_level', 'level': lvl})
-    
-    def on_auto_refresh_changed(self):
-        """Handle auto-refresh checkbox toggle"""
-        if self.auto_refresh_var.get():
-            # Enable auto-refresh
-            if self.client and self.client.connected:
-                self.start_auto_refresh()
-        else:
-            # Disable auto-refresh
-            self.stop_auto_refresh()
 
     # Auto-refresh logic
     def start_auto_refresh(self):
