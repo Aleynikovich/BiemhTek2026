@@ -583,8 +583,8 @@
     <MESSAGE value="update gui" />
     <MESSAGE value="gen single strategy without tool motion for ptp" />
     <MESSAGE value="use fixed motion strategy" />
-    <MESSAGE value="stop putting workpiece as available" />
-    <option name="LAST_COMMIT_MESSAGE" value="stop putting workpiece as available" />
+    <MESSAGE value="use alternate second option" />
+    <option name="LAST_COMMIT_MESSAGE" value="use alternate second option" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
