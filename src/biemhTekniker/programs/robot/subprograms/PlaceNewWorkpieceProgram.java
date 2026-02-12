@@ -94,8 +94,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         log.info("Picking measured workpiece with TCP B...");
 
         gripperIO.setGripper2_Switch(false);
-        // Generate motion strategies for TCP B with tool coordinates (but no Z-rotation for pick)
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateStrategiesWithToolCoordinates(tcpB, robot);
+        // Use exact taught position with tool coordinates (no configuration changes)
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateSingleStrategyWithToolCoordinates(tcpB);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperActivateAction = new MotionStrategy.MotionAction()
@@ -165,8 +165,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
 
-        // Generate motion strategies for TCP A with Z-axis rotation and tool coordinates
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generatePlaceStrategies(tcpA, robot,false);
+        // Use exact taught position with tool coordinates (no configuration changes)
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateSingleStrategyWithToolCoordinates(tcpA);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()
