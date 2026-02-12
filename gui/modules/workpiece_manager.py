@@ -65,8 +65,14 @@ class WorkpieceManager:
         selected_items = self.tree.selection()
         selected_short_id = None
         if selected_items:
-            # Get the short ID (first column) of the selected item
-            selected_short_id = self.tree.item(selected_items[0])['values'][0]
+            try:
+                # Get the short ID (first column) of the selected item
+                values = self.tree.item(selected_items[0])['values']
+                if values and len(values) > 0:
+                    selected_short_id = str(values[0])
+            except (IndexError, KeyError, TypeError):
+                # If we can't get the selected ID, just continue without preserving selection
+                pass
         
         self.tree.delete(*self.tree.get_children())
         item_to_select = None
@@ -95,8 +101,12 @@ class WorkpieceManager:
         
         # Restore selection if the item still exists
         if item_to_select:
-            self.tree.selection_set(item_to_select)
-            self.tree.see(item_to_select)
+            try:
+                self.tree.selection_set(item_to_select)
+                self.tree.see(item_to_select)
+            except Exception:
+                # If restoring selection fails, just continue
+                pass
 
     def find_workpiece_by_short_id(self, short_id):
         short_id = str(short_id)

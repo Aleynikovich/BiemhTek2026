@@ -309,11 +309,27 @@ class RobotControlGUI:
         for i, (text, cmd) in enumerate(actions):
             ttk.Button(btn_frame, text=text, command=cmd, width=18).grid(row=0, column=i, padx=3, pady=3)
         
+        # Auto-refresh control
+        auto_refresh_frame = ttk.Frame(parent)
+        auto_refresh_frame.grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=(5, 5), padx=(3, 0))
+        
+        self.auto_refresh_var = tk.BooleanVar(value=False)  # Default OFF to avoid annoying refreshes
+        auto_refresh_cb = ttk.Checkbutton(
+            auto_refresh_frame,
+            text="Auto-refresh workpieces (every 2s)",
+            variable=self.auto_refresh_var,
+            command=self.on_auto_refresh_changed
+        )
+        auto_refresh_cb.grid(row=0, column=0, sticky=tk.W)
+        
+        ttk.Label(auto_refresh_frame, text="  (disable if selecting workpieces)", 
+                 foreground="gray", font=('Helvetica', 8, 'italic')).grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
+        
         # Motion Override Controls - Collapsible section for more canvas space
         self.override_visible = tk.BooleanVar(value=False)  # Default collapsed
         
         toggle_frame = ttk.Frame(parent)
-        toggle_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 2))
+        toggle_frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 2))
         
         self.override_toggle_btn = ttk.Button(
             toggle_frame, 
@@ -325,7 +341,7 @@ class RobotControlGUI:
         
         # Create the override frame but start hidden
         override_frame = ttk.Frame(parent, padding="5")
-        override_frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 0))
+        override_frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 0))
         self.override_frame = override_frame
         override_frame.grid_remove()  # Start hidden
         
@@ -458,7 +474,8 @@ class RobotControlGUI:
         self.log_manager.log(msg, 'success')
 
         self.on_log_level_changed()
-        if not reconnected:
+        # Only start auto-refresh if the checkbox is enabled
+        if not reconnected and hasattr(self, 'auto_refresh_var') and self.auto_refresh_var.get():
             self.root.after(3000, self.start_auto_refresh)
 
     def on_disconnect(self):
@@ -666,6 +683,16 @@ class RobotControlGUI:
         self.log_manager.log(f"Local log level: {lvl}", 'info')
         if self.client and self.client.connected:
             self.client.send_command({'type': 'set_log_level', 'level': lvl})
+    
+    def on_auto_refresh_changed(self):
+        """Handle auto-refresh checkbox toggle"""
+        if self.auto_refresh_var.get():
+            # Enable auto-refresh
+            if self.client and self.client.connected:
+                self.start_auto_refresh()
+        else:
+            # Disable auto-refresh
+            self.stop_auto_refresh()
 
     # Auto-refresh logic
     def start_auto_refresh(self):
