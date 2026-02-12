@@ -119,7 +119,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
-
+        robot.getFlange().moveAsync(ptp(app.getApplicationData().getFrame("/binCenter")).setBlendingCart(0.5));
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
         MotionStrategy successfulStrategy = null;
