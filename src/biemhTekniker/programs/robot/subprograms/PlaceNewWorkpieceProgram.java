@@ -58,10 +58,10 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         Frame pickPlacePositionB = pickPlaceFrameB.copyWithRedundancy();
 
         Frame prepickPlacePositionAZ = new Frame(pickPlacePositionA.copyWithRedundancy());
-        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        prepickPlacePositionAZ.setZ(prepickPlacePositionAZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
         Frame prepickPlacePositionBZ = new Frame(pickPlacePositionB.copyWithRedundancy());
-        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() + PRE_PLACE_Z_OFFSET_MM);
+        prepickPlacePositionBZ.setZ(prepickPlacePositionBZ.getZ() - PRE_PLACE_Z_OFFSET_MM);
 
         log.info("Picking measured workpiece with TCP B (override part presence check)...");
         pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ, context);
