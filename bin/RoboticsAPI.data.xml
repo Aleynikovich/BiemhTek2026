@@ -456,14 +456,24 @@
             <frames>
                 <frame id="_e7d278ca-75c4-42fa-ac1f-c643bc26e7dc" name="TCPA">
                     <transformation a="-1.5707963267948966" b="0.0" c="0.7853981633974483" x="-124.5" y="0.0" z="130.0"/>
+                    <additionalInformation>
+                        <info key="Radius" type="java.lang.Integer" value="50"/>
+                        <info key="SafetyID" type="java.lang.Integer" value="0"/>
+                    </additionalInformation>
                 </frame>
                 <frame id="_e3763e42-1593-48dd-90be-4068608c7a97" name="TCPB">
                     <transformation a="-1.5707963267948966" b="0.0" c="-0.7853981633974483" x="124.5" y="0.0" z="130.0"/>
+                    <additionalInformation>
+                        <info key="Radius" type="java.lang.Integer" value="50"/>
+                        <info key="SafetyID" type="java.lang.Integer" value="1"/>
+                    </additionalInformation>
                 </frame>
             </frames>
             <additionalInformation>
                 <info key="ID" type="java.lang.String" value="8fb966b3-83ca-4d23-8bc7-bdfc7440c6e0"/>
                 <info key="SafetyID" type="java.lang.Integer" value="0"/>
+                <info key="ToolVelocityPointPath" type="java.lang.String" value="/TCPB"/>
+                <info key="ToolVelocityPointPath" type="java.lang.String" value="/TCPA"/>
             </additionalInformation>
             <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="3.884487255951194" cogY="-6.717026972060215" cogZ="71.44449641775539" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="2.55"/>
         </toolTemplate>

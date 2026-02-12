@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources xmlns="http://www.kuka.com/schemas/kxr/2009">
-   <module name="UserDefinedSafetyNames"/>
+   <module name="UserDefinedSafetyNames">
+      <message key="E_AMF_TYPE_CART_WORKSPACE_1_Name">
+         <text xml:lang="en">RobotWorkspace</text>
+      </message>
+      <message key="E_AMF_TYPE_CART_WORKSPACE_0_Name">
+         <text xml:lang="en">TCPWorkSpace</text>
+      </message>
+   </module>
 </resources>
