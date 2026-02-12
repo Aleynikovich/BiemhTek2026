@@ -125,6 +125,7 @@ public class WorkpieceQueue
         if (wp != null)
         {
             wp.setGripperLocation(String.valueOf(gripperNumber));
+            wp.setState(WorkpieceState.PICKED);
             log.info("Marked workpiece as held by gripper " + gripperNumber + ": id=" + workpieceId);
         } else
         {
