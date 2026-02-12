@@ -244,7 +244,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 queue.markReturned(placedWorkpiece.getId());
             } else
             {
-                log.debug("No workpiece found in gripper 2 to mark as returned");
+                log.debug("No workpiece found in gripper 2 to mark as available");
             }
         }
 

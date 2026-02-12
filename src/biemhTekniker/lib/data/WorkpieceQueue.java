@@ -484,7 +484,8 @@ public class WorkpieceQueue
                 return existing;
             } else
             {
-                // Workpiece is actively being used (MEASURING, MEASURED) - don't override
+                // Workpiece is actively being used (MEASURING, MEASURED) - don't override with vision data
+                // Note: AVAILABLE workpieces are always overridden by vision, even if gripper location is set
                 log.debug("Workpiece at position is actively in use (state=" + existing.getState() + ", gripper=" + existing.getGripperLocation() + "), creating new entry");
             }
         }
