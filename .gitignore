@@ -7,6 +7,8 @@ out/
 .Sunrise/
 ._*
 *.tmp
+*.iml
+workspace.xml
 
 ### Java ###
 *.class
