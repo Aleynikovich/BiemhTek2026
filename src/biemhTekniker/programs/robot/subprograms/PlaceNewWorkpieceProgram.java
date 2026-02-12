@@ -29,7 +29,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     private static final int PRE_PLACE_Z_OFFSET_MM = 75;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
-
+    private final boolean forceAlternate = false;
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
@@ -67,7 +67,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         pickMeasuredWorkpieceWithTcpB(robot, tcpB, gripperIO, pickPlacePositionB, prepickPlacePositionBZ, context);
 
         // Place new workpiece with TCP A (gripper 1)
-        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context);
+        placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context, forceAlternate);
 
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
@@ -113,18 +113,23 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
      */
     private void placeNewWorkpieceWithTcpA(LBR robot, ObjectFrame tcpA,
                                           MediaFlangeIOGroup gripperIO,
-                                          Frame placePositionA, Frame prepickPlacePositionA,
-                                           RobotContext context) throws Exception
+                                          Frame placePositionA, Frame prepickPlacePositionA, RobotContext context, boolean forceAlternate) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
         gripperIO.setGripper3_Switch(false);
+        if (forceAlternate)
+        {
+            //TODO: Add alternate position
+        } else
+        {
+            tcpA.move(ptp(prepickPlacePositionA));
+            tcpA.move(lin(placePositionA));
+            gripperIO.setGripper3_Switch(true);
+            gripperIO.setGripper3_PartPresence(true);
+            gripperIO.setGripper1_Switch(false);
+            tcpA.move(lin(prepickPlacePositionA));
+            log.info("New workpiece placed successfully with TCP A");
+        }
 
-        tcpA.move(ptp(prepickPlacePositionA));
-        tcpA.move(lin(placePositionA));
-        gripperIO.setGripper3_Switch(true);
-        gripperIO.setGripper3_PartPresence(true);
-        gripperIO.setGripper1_Switch(false);
-        tcpA.move(lin(prepickPlacePositionA));
-        log.info("New workpiece placed successfully with TCP A");
     }
 }
