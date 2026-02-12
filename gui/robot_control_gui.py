@@ -311,7 +311,7 @@ class RobotControlGUI:
         
         # Auto-refresh control
         auto_refresh_frame = ttk.Frame(parent)
-        auto_refresh_frame.grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=(5, 5), padx=(3, 0))
+        auto_refresh_frame.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=(5, 5), padx=(3, 0))
         
         self.auto_refresh_var = tk.BooleanVar(value=False)  # Default OFF to avoid annoying refreshes
         auto_refresh_cb = ttk.Checkbutton(
