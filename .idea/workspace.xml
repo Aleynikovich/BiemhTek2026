@@ -32,7 +32,7 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="copilot/redesign-motion-override-ui" />
+        <entry key="$PROJECT_DIR$" value="copilot/fix-pick-new-workpiece" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -76,6 +76,20 @@
         &quot;number&quot;: 63
       },
       &quot;lastSeen&quot;: 1770837336707
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7DPRRf&quot;,
+        &quot;number&quot;: 81
+      },
+      &quot;lastSeen&quot;: 1770893229540
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQtM6fs7DPKWf&quot;,
+        &quot;number&quot;: 79
+      },
+      &quot;lastSeen&quot;: 1770893301500
     }
   ]
 }</component>
@@ -118,7 +132,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#79 on master&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/aley/IdeaProjects/BiehmTek&quot;,
