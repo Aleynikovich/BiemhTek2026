@@ -3,6 +3,21 @@
 ## Repository Overview
 This is a KUKA LBR iiwa 14 R820 robotics project using Sunrise OS. The project includes robot control applications, I/O integration with Profinet, gripper control, and PLC communication. The codebase is built on the KUKA Sunrise.Workbench framework and follows strict Java 1.7 compatibility requirements due to the embedded controller environment.
 
+**Project Type**: Industrial robotics application (Java 1.7 + Python GUI)  
+**Size**: ~50 Java files, ~10 Python files, ~8,000 lines of code  
+**Key Technologies**: KUKA Sunrise OS, TCP/IP communication, vision system integration
+
+## Quick Reference - Key Files
+- **Main Application**: `src/application/Main.java` - Application entry point
+- **App Controller**: `src/biemhTekniker/managers/AppController.java` - Core robot control logic
+- **Console Server**: `src/biemhTekniker/console/ConsoleServer.java` - TCP command interface
+- **Configuration**: `configs/application.properties` - All tunable parameters
+- **Station Setup**: `StationSetup.cat` - KUKA station configuration (binary)
+- **I/O Config**: `IOConfiguration.wvs` - Profinet I/O mapping (binary)
+- **Documentation**: `README.md`, `PROJECT_HANDOVER.md`, `Documentation/KUKA_SunriseOS_116_END_en.pdf`
+- **Generated I/O**: `src/com/kuka/generated/ioAccess/` - DO NOT MODIFY (auto-generated)
+
+
 ## 1. Technical Constraints
 - **Java Version**: Strictly Java 1.7 or lower. Avoid all features from Java 8+ (No lambdas, streams, or diamond operators).
 - **Concurrency**: Use background backgroundPrograms (see sunrise docs as reference on how to do background tasks in sunrise) for TCP/IP and PLC polling to ensure non-blocking robot motion.
@@ -33,16 +48,46 @@ This is a KUKA LBR iiwa 14 R820 robotics project using Sunrise OS. The project i
 
 ## 5. Setup and Build
 - **Environment**: KUKA Sunrise.Workbench (Eclipse-based IDE) is required for development
-- **Build Process**: Projects are built within Sunrise.Workbench and deployed to the KUKA controller
-- **Dependencies**: All required libraries are provided by the Sunrise SDK in the `KUKAJavaLib` directory
-- **Configuration Files**: Station configuration in `StationSetup.cat`, I/O configuration in `IOConfiguration.wvs`
+  - Java 1.7 JDK must be configured in Eclipse
+  - Custom builders: `com.kuka.roboticsAPI.eclipseBase.sunriseBuilder` and standard `javabuilder`
+- **Build Process**: 
+  - Projects are built within Sunrise.Workbench using Eclipse's automatic build
+  - Compiled output goes to `bin/` directory
+  - DO NOT attempt to build via command line - this is IDE-managed only
+  - Build happens automatically when files are saved in Sunrise.Workbench
+- **Dependencies**: 
+  - All required libraries are provided by the Sunrise SDK in the `KUKAJavaLib` directory
+  - 11 JAR files are referenced in `.classpath` including `roboticsAPI.core.jar`, `roboticsAPI.communication.jar`, etc.
+  - No external dependency management (no Maven/Gradle)
+- **Configuration Files**: 
+  - Station configuration in `StationSetup.cat`
+  - I/O configuration in `IOConfiguration.wvs`
+  - Application settings in `configs/application.properties`
+  - Eclipse project config in `.project` and `.classpath`
 - **No External Build Tools**: Do not suggest Maven, Gradle, or other build systems - they are incompatible with Sunrise
 
 ## 6. Testing and Deployment
-- **Testing Approach**: Code must be tested on actual hardware or in Sunrise simulation environment
-- **No Unit Tests**: Due to the embedded nature and hardware dependencies, traditional unit testing is not used
-- **Validation**: Static code analysis and syntax checking are the primary validation methods
-- **Deployment**: Applications are synced to the robot controller via Sunrise.Workbench
+- **Testing Approach**: 
+  - Code must be tested on actual hardware or in Sunrise simulation environment
+  - Manual testing through SmartPad HMI on the robot controller
+  - GUI-based validation using Python control interface (Tkinter/Streamlit)
+- **No Unit Tests**: 
+  - Due to the embedded nature and hardware dependencies, traditional unit testing is not used
+  - No JUnit, TestNG, or automated test frameworks
+  - Test programs exist: `TestCalibrationProgram.java`, `TestKUKA.java` (backup)
+- **No CI/CD**: 
+  - No GitHub Actions, Jenkins, or other CI/CD pipelines
+  - No automated builds or test runs
+  - Quality assurance relies on Sunrise IDE validation and runtime testing
+- **Validation Methods**:
+  - Static code analysis and syntax checking in Sunrise.Workbench
+  - Runtime logging through centralized LogManager and console server
+  - Visual verification via GUI workpiece canvas and status displays
+  - Calibration programs for vision-robot coordinate validation
+- **Deployment**: 
+  - Applications are synced to the robot controller via Sunrise.Workbench
+  - No command-line deployment - use IDE's "Synchronize Project" feature
+  - Configuration files must be copied to controller separately
 
 ## 7. Code Style and Conventions
 - **Naming**: Follow Java naming conventions (camelCase for variables/methods, PascalCase for classes)
@@ -73,7 +118,14 @@ This is a KUKA LBR iiwa 14 R820 robotics project using Sunrise OS. The project i
 - **`generatedFiles/`**: Generated configuration files and I/O descriptions
 - **`Documentation/`**: Project documentation including Sunrise API reference PDF
 
-## 9. Configuration Parameters (application.properties)
+## 9. Python GUI (Optional Component)
+- **Location**: `gui/` directory contains Python control interface
+- **Dependencies**: Install via `pip install -r requirements.txt` in the gui directory
+- **Run Command**: `python robot_control_gui_streamlit.py` (Streamlit version) or `python robot_control_gui.py` (Tkinter version)
+- **Purpose**: Remote monitoring and control of robot via TCP console server
+- **Features**: Program execution, workpiece visualization, log monitoring, motion overrides
+
+## 10. Configuration Parameters (application.properties)
 - **Vision Server**: `vision.server.ip`, `vision.server.port`, `vision.references`, `vision.zone`
 - **Vision Connection**: `vision.retry.initial.delay.ms`, `vision.retry.max.delay.ms`, `vision.retry.backoff.multiplier`, `vision.connection.check.interval.ms`, `vision.max.consecutive.errors`
 - **Console Server**: `console.server.port`
@@ -82,3 +134,24 @@ This is a KUKA LBR iiwa 14 R820 robotics project using Sunrise OS. The project i
 - **Workpiece Queue**: `workpiece.position.tolerance.mm`
 - **Calibration**: `calibration.points.count`, `calibration.points.root`
 - **Pick Parameters**: `pick.prepick.offset.z`
+
+## 11. Common Pitfalls and Critical Warnings
+- **DO NOT** use Java 8+ features (lambdas, streams, Optional, try-with-resources, etc.) - they will compile but fail on the controller
+- **DO NOT** modify files in `src/com/kuka/generated/ioAccess/` - they are regenerated from WorkVisual
+- **DO NOT** attempt to build or run the Java code outside of Sunrise.Workbench - it requires the KUKA runtime
+- **DO NOT** use command-line `git` operations on `.cat`, `.wvs`, or `.sconf` files - they are binary and managed by KUKA tools
+- **ALWAYS** use `AtomicBoolean`, `AtomicReference`, or `volatile` for variables shared between threads
+- **ALWAYS** check for null before accessing variables passed between threads
+- **ALWAYS** externalize magic numbers to `application.properties` with sensible defaults
+- **REMEMBER** the PLC owns the cell - never bypass Profinet handshake signals
+- **REMEMBER** motion programs run in background threads - use proper synchronization
+
+## 12. How to Verify Changes
+Since there are no automated tests or CI/CD:
+1. **Syntax Check**: Code must compile without errors in Sunrise.Workbench
+2. **Static Analysis**: Review for Java 1.7 compatibility and thread safety
+3. **Configuration Check**: Verify all new parameters are in `application.properties` with defaults
+4. **API Check**: Reference `/Documentation/KUKA_SunriseOS_116_END_en.pdf` for correct API usage
+5. **Manual Review**: Check that motion sequences respect PLC handshake requirements
+6. **Runtime Testing**: Deploy to controller or simulator and test with GUI
+7. **Log Review**: Monitor console output for errors or warnings during operation
