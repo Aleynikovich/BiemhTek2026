@@ -19,5 +19,12 @@ public enum WorkpieceState
     /**
      * Measuring is complete, ready to be removed from machine.
      */
-    MEASURED
+    MEASURED,
+
+    /**
+     * Workpiece picked and not available.
+     */
+    PICKED,
+
+
 }
