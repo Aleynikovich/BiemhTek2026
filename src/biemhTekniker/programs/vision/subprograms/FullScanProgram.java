@@ -10,6 +10,7 @@ import biemhTekniker.lib.vision.SmartPickingProtocol.VisionResult;
 import biemhTekniker.lib.vision.VisionProgram;
 import biemhTekniker.programs.vision.VisionContext;
 import com.kuka.common.ThreadUtil;
+import biemhTekniker.console.ConsoleServer;
 
 /**
  * Full scan sequence vision task.
@@ -24,6 +25,8 @@ public class FullScanProgram implements VisionProgram
     public void execute(VisionContext context) throws Exception
     {
         log.info("Starting full scan sequence...");
+        log.debug("Clearing current queue...");
+
 
         SmartPickingProtocol protocol = context.getProtocol();
         final WorkpieceQueue queue = context.getWorkpieceQueue();

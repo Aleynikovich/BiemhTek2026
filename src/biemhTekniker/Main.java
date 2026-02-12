@@ -141,6 +141,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         if (isVisionProgram)
         {
+            appController.clearWorkpieceQueue();
             success = visionDispatcher.dispatch(programNumber);
         } else if (ProgramRange.isRobotProgram(programNumber))
         {
