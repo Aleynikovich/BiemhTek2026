@@ -166,7 +166,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         gripperIO.setGripper3_Switch(false);
 
         // Use exact taught position with tool coordinates (no configuration changes)
-        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateSingleStrategyWithToolCoordinates(tcpA);
+        List<MotionStrategy> motionStrategies = MotionStrategyGenerator.generateSingleStrategy(tcpA);
 
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
         MotionStrategy.MotionAction gripperReleaseAction = new MotionStrategy.MotionAction()

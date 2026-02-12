@@ -297,7 +297,7 @@ public class MotionStrategyGenerator
      * Generates a single motion strategy with tool coordinate system approach
      * using the exact taught position without any configuration changes.
      * This is used when the robot should always go to the same position with the same configuration.
-     * NOTE: Approach offsets are applied in tool coordinates (negated internally to move away from workpiece).
+     * NOTE: Approach offsets are appli1ed in tool coordinates (negated internally to move away from workpiece).
      * Impedance control is automatically enabled if configured.
      *
      * @param tcp Tool center point frame to use
@@ -315,6 +315,28 @@ public class MotionStrategyGenerator
             .impedanceMode(impedanceMode)
             .build());
         
+        return strategies;
+    }
+
+    /**
+     * Generates a single motion strategy with tool coordinate system approach
+     * using the exact taught position without any configuration changes.
+     * This is used when the robot should always go to the same position with the same configuration.
+     * NOTE: Approach offsets are appli1ed in tool coordinates (negated internally to move away from workpiece).
+     * Impedance control is automatically enabled if configured.
+     *
+     * @param tcp Tool center point frame to use
+     * @return List containing exactly one motion strategy with the taught configuration
+     */
+    public static List<MotionStrategy> generateSingleStrategy(ObjectFrame tcp)
+    {
+        List<MotionStrategy> strategies = new ArrayList<MotionStrategy>();
+        CartesianImpedanceControlMode impedanceMode = getImpedanceMode();
+
+        // Generate exactly ONE strategy using the taught position with tool coordinates
+        // No redundancy offsets, no alternate positions, no Z-rotations
+        strategies.add(new MotionStrategy.Builder(tcp).useToolCoordinates(false).impedanceMode(impedanceMode).build());
+
         return strategies;
     }
 
