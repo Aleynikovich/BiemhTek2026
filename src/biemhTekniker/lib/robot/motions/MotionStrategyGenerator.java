@@ -32,7 +32,7 @@ public class MotionStrategyGenerator
     {
         // Runtime override takes precedence if provided
         double[] override = MotionOverrides.getForcedRedundancyOffsets();
-        if (override != null && override.length > 0)
+        if (override != null)
         {
             return override;
         }
@@ -66,7 +66,7 @@ public class MotionStrategyGenerator
     {
         // Runtime override takes precedence if provided
         double[] override = MotionOverrides.getForcedZRotationAngles();
-        if (override != null && override.length > 0)
+        if (override != null)
         {
             return override;
         }
