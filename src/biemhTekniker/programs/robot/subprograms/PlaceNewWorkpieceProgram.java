@@ -126,7 +126,9 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             tcpA.move(lin(placePositionA));
             gripperIO.setGripper3_Switch(true);
             gripperIO.setGripper3_PartPresence(true);
+            ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             gripperIO.setGripper1_Switch(false);
+            ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             tcpA.move(lin(prepickPlacePositionA));
             log.info("New workpiece placed successfully with TCP A");
         }

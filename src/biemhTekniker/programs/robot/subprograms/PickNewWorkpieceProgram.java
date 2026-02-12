@@ -7,9 +7,6 @@ import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.lib.robot.motions.MotionStrategy;
 import biemhTekniker.lib.robot.motions.MotionStrategyGenerator;
-import biemhTekniker.lib.vision.SmartPickingProtocol;
-import biemhTekniker.lib.vision.SmartPickingProtocol.Command;
-import biemhTekniker.lib.vision.SmartPickingProtocol.VisionResult;
 import biemhTekniker.programs.robot.RobotContext;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
@@ -248,48 +245,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
         }
 
-        // Move to scan position with cancellable motion
-        tcpA.move(ptp(scanWorkpieceFrame));
-        
-        // Robot is now at scan position - capture image with camera
-        // This blocks the robot at the scan position until camera completes capture
-        log.info("Robot at scan position, requesting camera capture...");
-        SmartPickingProtocol protocol = context.getProtocol();
-        if (protocol != null)
-        {
-            try
-            {
-                // Send command "2" (CAPTURE_DATA) to camera and wait for response "0" (success)
-                VisionResult captureResult = protocol.execute(Command.CAPTURE_DATA, true);
-                if (captureResult.isSuccess())
-                {
-                    log.info("Camera capture completed successfully, robot can now move");
-                } else
-                {
-                    log.warn("Camera capture failed or returned error, but continuing");
-                }
-            } catch (Exception e)
-            {
-                log.error("Error during camera capture: " + e.getMessage());
-                // Continue anyway - camera failure shouldn't stop the robot
-            }
-        } else
-        {
-            log.warn("Protocol not available - cannot trigger camera capture");
-        }
-        
-        // Scan the picked workpiece to determine orientation
-        log.info("Scanning workpiece to determine orientation...");
-        
-        // The vision system needs to scan the workpiece at the scan position
-        // Program 110 (ScanPickedWorkpiece) will:
-        // 1. Get the picked workpiece from the queue
-        // 2. Send the appropriate scan command based on reference (1->53, 2->55, 3->60)
-        // 3. Get the orientation result (0=regular, 1=inverted)
-        // 4. Store the orientation in the workpiece data
-        // Note: This is a vision task, so it runs asynchronously via VisionDispatcher
-        // The camera has already captured the image above, so the vision task can process it
-        
+
         log.info("Pick new workpiece with exchange completed successfully");
 
     }
