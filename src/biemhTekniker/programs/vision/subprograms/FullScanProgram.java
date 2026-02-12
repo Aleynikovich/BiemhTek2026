@@ -25,11 +25,13 @@ public class FullScanProgram implements VisionProgram
     public void execute(VisionContext context) throws Exception
     {
         log.info("Starting full scan sequence...");
-        log.debug("Clearing current queue...");
-
-
+        
         SmartPickingProtocol protocol = context.getProtocol();
         final WorkpieceQueue queue = context.getWorkpieceQueue();
+        
+        // Clear existing workpieces before full scan
+        log.debug("Clearing current queue...");
+        queue.clear();
         ConfigManager config = ConfigManager.getInstance();
 
         int referenceCount = config.getInt("vision.reference.count", 3);
