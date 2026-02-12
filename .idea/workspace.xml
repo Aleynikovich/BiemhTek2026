@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="use fixed motion strategy">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.java" afterDir="false" />
-    </list>
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="use alternate second option" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -535,7 +531,31 @@
       <option name="project" value="LOCAL" />
       <updated>1770893775872</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="use fixed motion strategy">
+      <option name="closed" value="true" />
+      <created>1770894433529</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1770894433529</updated>
+    </task>
+    <task id="LOCAL-00036" summary="use alternate second option">
+      <option name="closed" value="true" />
+      <created>1770894534795</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1770894534795</updated>
+    </task>
+    <task id="LOCAL-00037" summary="use alternate second option">
+      <option name="closed" value="true" />
+      <created>1770894970084</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1770894970084</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -569,7 +589,8 @@
     <MESSAGE value="update gui" />
     <MESSAGE value="gen single strategy without tool motion for ptp" />
     <MESSAGE value="use fixed motion strategy" />
-    <option name="LAST_COMMIT_MESSAGE" value="use fixed motion strategy" />
+    <MESSAGE value="use alternate second option" />
+    <option name="LAST_COMMIT_MESSAGE" value="use alternate second option" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
