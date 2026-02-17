@@ -98,6 +98,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         plcManager.echoProgramNumber(programNumber);
 
         appController.setProgramNumberFromPLC(109);
+        programNumber=109;
         //comentado javi
         //if (programNumber == 0 && !appController.hasActiveClients())
         	 //{
@@ -123,7 +124,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         //comentado javi
 
         // 3. Execute programs
-        if (programNumber != 0)
+        if ( programNumber != 0)
         {
             executeProgram(programNumber);
         }
