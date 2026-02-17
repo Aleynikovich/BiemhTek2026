@@ -78,6 +78,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         log.info("Main application running, entering main loop.");
         moveToHomePosition();
+        gripperIO.setSecuritySwitch(true);
         while (true) //AutExtIO.getMoveEnable()
         {
             processMainLoop();
