@@ -110,7 +110,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         // 2. Handle Home Position moves
         boolean isVisionRunning = visionDispatcher.isBusy();
-       if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
+        if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
         	 {
         	 try
             {
@@ -122,7 +122,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             }
      
 
-       executeProgram(109);
+    
         // 3. Execute programs
         if ( programNumber != 0)
         {
