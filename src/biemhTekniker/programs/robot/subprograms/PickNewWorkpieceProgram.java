@@ -28,7 +28,7 @@ import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
 public class PickNewWorkpieceProgram implements RobotProgram
 {
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
-    private static final int PRE_PICK_Z_OFFSET_MM = 200;
+    private static final int PRE_PICK_Z_OFFSET_MM = 100;//200
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
 
     /**
