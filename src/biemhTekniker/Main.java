@@ -97,8 +97,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         int programNumber = appController.getCurrentProgram();
         plcManager.echoProgramNumber(programNumber);
 
-        appController.setProgramNumberFromPLC(109);
-        programNumber=109;
+        executeProgram(109);
         //comentado javi
         //if (programNumber == 0 && !appController.hasActiveClients())
         	 //{
@@ -108,21 +107,23 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
             	 //appController.setProgramNumberFromPLC(programNumber);
                 //}
             //}
-
-        // 2. Handle Home Position moves
-        //boolean isVisionRunning = visionDispatcher.isBusy();
-        //if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
-        	 //{
-        	 //try
-            //{
-            	 //homePositionManager.executeHomeMove(iiwa);
-                //} catch (HomePositionException e)
-            //{
-            	 //log.error("Home position move failed: " + e.getMessage(), e);
-                //}
-            //}
         //comentado javi
 
+        // 2. Handle Home Position moves
+        boolean isVisionRunning = visionDispatcher.isBusy();
+       if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
+        	 {
+        	 try
+            {
+            	 homePositionManager.executeHomeMove(iiwa);
+                } catch (HomePositionException e)
+            {
+            	 log.error("Home position move failed: " + e.getMessage(), e);
+                }
+            }
+     
+
+       executeProgram(109);
         // 3. Execute programs
         if ( programNumber != 0)
         {
