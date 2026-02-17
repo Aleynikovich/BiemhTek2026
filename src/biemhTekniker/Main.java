@@ -408,4 +408,22 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         return appController.isGripper3Closed();
     }
 
+    @Override
+    public void startAutoCycle()
+    {
+        appController.startAutoCycle();
+    }
+
+    @Override
+    public void stopAutoCycle()
+    {
+        appController.stopAutoCycle();
+    }
+
+    @Override
+    public boolean isAutoCycleRunning()
+    {
+        return appController.isAutoCycleRunning();
+    }
+
 }
