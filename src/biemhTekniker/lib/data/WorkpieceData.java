@@ -223,15 +223,7 @@ public class WorkpieceData
         this.gripperLocation = gripperLocation;
     }
 
-    /**
-     * Gets the origin position of the workpiece.
-     *
-     * @return Array [x, y, z, rx, ry, rz]
-     */
-    public synchronized double[] getOriginPosition()
-    {
-        return new double[]{originX, originY, originZ, originRx, originRy, originRz};
-    }
+
 
     /**
      * Gets the reference string in "xy" format where:

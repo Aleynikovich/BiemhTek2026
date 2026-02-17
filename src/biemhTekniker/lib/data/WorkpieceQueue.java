@@ -424,24 +424,6 @@ public class WorkpieceQueue
     }
 
     /**
-     * Clears the gripper location for a workpiece (e.g., when placed).
-     *
-     * @param workpieceId Workpiece ID
-     */
-    public synchronized void clearGripper(long workpieceId)
-    {
-        WorkpieceData wp = findById(workpieceId);
-        if (wp != null)
-        {
-            wp.setGripperLocation(null);
-            log.info("Cleared gripper location for workpiece: id=" + workpieceId);
-        } else
-        {
-            log.warn("Cannot clear gripper - workpiece not found: id=" + workpieceId);
-        }
-    }
-
-    /**
      * Finds an existing workpiece at the given position (within configured tolerance).
      * Used for tracking workpieces across scans to avoid creating duplicates.
      *
@@ -451,7 +433,7 @@ public class WorkpieceQueue
      * @param referenceIndex Reference index to match
      * @return Existing workpiece if found, null otherwise
      */
-    public synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
+    private synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
     {
         for (int i = 0; i < workpieces.size(); i++)
         {
