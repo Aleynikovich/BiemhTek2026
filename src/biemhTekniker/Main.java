@@ -78,13 +78,13 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
     {
         log.info("Main application running, entering main loop.");
         moveToHomePosition();
-        while (AutExtIO.getMoveEnable())
+        while (true) //AutExtIO.getMoveEnable()
         {
             processMainLoop();
             ThreadUtil.milliSleep(MAIN_LOOP_DELAY_MS);
         }
 
-        log.warn("MoveEnable signal lost. Exiting main loop.");
+        //log.warn("MoveEnable signal lost. Exiting main loop.");
     }
 
     /**
