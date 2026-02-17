@@ -88,14 +88,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                                                Frame pickPlacePositionB, Frame prepickPlacePositionB,
                                                RobotContext context) throws Exception
     {
-    	RoboticsAPIApplication app = context.getApplication();
-    	ObjectFrame pivot = app.getApplicationData().getFrame("/Pivot");
-    	
         log.info("Picking measured workpiece with TCP B...");
         gripperIO.setGripper2_Switch(false);
-        
-        tcpB.move(ptp(pivot));
-        
         tcpB.move(ptp(prepickPlacePositionB));
         tcpB.move(lin(pickPlacePositionB));
         gripperIO.setGripper2_Switch(true);
