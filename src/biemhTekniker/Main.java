@@ -97,27 +97,30 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         int programNumber = appController.getCurrentProgram();
         plcManager.echoProgramNumber(programNumber);
 
-        if (programNumber == 0 && !appController.hasActiveClients())
-        {
-            programNumber = plcManager.checkProgramRequest();
-            if (programNumber != 0)
-            {
-                appController.setProgramNumberFromPLC(programNumber);
-            }
-        }
+        appController.setProgramNumberFromPLC(109);
+        //comentado javi
+        //if (programNumber == 0 && !appController.hasActiveClients())
+        	 //{
+        	 //programNumber = plcManager.checkProgramRequest();
+            //if (programNumber != 0)
+            	 //{
+            	 //appController.setProgramNumberFromPLC(programNumber);
+                //}
+            //}
 
         // 2. Handle Home Position moves
-        boolean isVisionRunning = visionDispatcher.isBusy();
-        if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
-        {
-            try
-            {
-                homePositionManager.executeHomeMove(iiwa);
-            } catch (HomePositionException e)
-            {
-                log.error("Home position move failed: " + e.getMessage(), e);
-            }
-        }
+        //boolean isVisionRunning = visionDispatcher.isBusy();
+        //if (homePositionManager.shouldMoveHome(programNumber, isVisionRunning))
+        	 //{
+        	 //try
+            //{
+            	 //homePositionManager.executeHomeMove(iiwa);
+                //} catch (HomePositionException e)
+            //{
+            	 //log.error("Home position move failed: " + e.getMessage(), e);
+                //}
+            //}
+        //comentado javi
 
         // 3. Execute programs
         if (programNumber != 0)
