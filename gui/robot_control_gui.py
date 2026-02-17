@@ -49,6 +49,10 @@ class RobotControlGUI:
         self.auto_refresh_enabled = False
         self.auto_refresh_interval = 2000
         self.auto_refresh_timer = None
+        
+        # Auto cycle state
+        self.auto_cycle_running = tk.BooleanVar(value=False)
+        self.auto_cycle_status_timer = None
 
         # Components (Initialized after widgets)
         self.client = None
@@ -228,6 +232,20 @@ class RobotControlGUI:
         ]
         for i, (text, cmd) in enumerate(actions):
             ttk.Button(actions_frame, text=text, command=cmd, width=22).grid(row=0, column=i, padx=3, pady=3)
+        
+        # Auto Cycle Frame
+        auto_cycle_frame = ttk.LabelFrame(parent, text="Automatic Cycle", padding="5")
+        auto_cycle_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(5, 0))
+        
+        ttk.Label(auto_cycle_frame, text="Full Auto Sequence:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
+        ttk.Button(auto_cycle_frame, text="START AUTO CYCLE", command=self.start_auto_cycle, 
+                   width=22, style='Accent.TButton').grid(row=0, column=1, padx=3, pady=3)
+        ttk.Button(auto_cycle_frame, text="STOP AUTO CYCLE", command=self.stop_auto_cycle, 
+                   width=22).grid(row=0, column=2, padx=3, pady=3)
+        
+        self.auto_cycle_status_label = ttk.Label(auto_cycle_frame, text="Status: Stopped", 
+                                                  style='Status.TLabel', foreground='gray')
+        self.auto_cycle_status_label.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
 
     def create_vision_commands_tab(self, parent):
         parent.columnconfigure(0, weight=1)
@@ -503,6 +521,11 @@ class RobotControlGUI:
                 self.log_manager.log(f"Log level changed to {data.get('level', 'DEBUG')}", 'info')
             elif rtype == 'response':
                 self.log_manager.log(f"Response: {data.get('message', '')}", 'success')
+            elif rtype == 'auto_cycle_status':
+                # Handle auto cycle status updates (silent - no logging)
+                running = data.get('running', False)
+                self.auto_cycle_running.set(running)
+                self.update_auto_cycle_status_display()
         except json.JSONDecodeError:
             self.parse_raw_log(response)
 
@@ -558,6 +581,9 @@ class RobotControlGUI:
 
     def get_status(self):
         self.send_cmd({'type': 'get_status'})
+        # Start auto-refresh if not already running
+        if not self.auto_refresh_enabled:
+            self.start_auto_refresh()
 
     def get_queue_status(self):
         self.send_cmd({'type': 'get_queue_status'})
@@ -718,6 +744,66 @@ class RobotControlGUI:
         if self.auto_refresh_timer:
             self.root.after_cancel(self.auto_refresh_timer)
             self.auto_refresh_timer = None
+    
+    # Auto cycle methods
+    def start_auto_cycle(self):
+        """Start the automatic cycle sequence"""
+        if not self.client or not self.client.connected:
+            messagebox.showwarning("Not Connected", "Please connect to the robot first")
+            return
+        
+        if self.send_cmd({'type': 'start_auto_cycle'}):
+            self.log_manager.log("Auto cycle started", 'success')
+            self.auto_cycle_running.set(True)
+            self.update_auto_cycle_status_display()
+            # Start polling auto cycle status
+            self.start_auto_cycle_status_polling()
+    
+    def stop_auto_cycle(self):
+        """Stop the automatic cycle sequence"""
+        if not self.client or not self.client.connected:
+            messagebox.showwarning("Not Connected", "Please connect to the robot first")
+            return
+        
+        if self.send_cmd({'type': 'stop_auto_cycle'}):
+            self.log_manager.log("Auto cycle stopped", 'warning')
+            self.auto_cycle_running.set(False)
+            self.update_auto_cycle_status_display()
+            # Stop polling
+            self.stop_auto_cycle_status_polling()
+    
+    def start_auto_cycle_status_polling(self):
+        """Start polling auto cycle status"""
+        if self.client and self.client.connected:
+            self.poll_auto_cycle_status()
+    
+    def poll_auto_cycle_status(self):
+        """Poll auto cycle status from robot"""
+        if not self.client or not self.client.connected:
+            self.stop_auto_cycle_status_polling()
+            return
+        
+        try:
+            # Send silent status request (no console logging on robot side)
+            self.client.send_command({'type': 'get_auto_cycle_status'})
+        except Exception:
+            pass
+        
+        # Schedule next poll
+        self.auto_cycle_status_timer = self.root.after(1000, self.poll_auto_cycle_status)
+    
+    def stop_auto_cycle_status_polling(self):
+        """Stop polling auto cycle status"""
+        if self.auto_cycle_status_timer:
+            self.root.after_cancel(self.auto_cycle_status_timer)
+            self.auto_cycle_status_timer = None
+    
+    def update_auto_cycle_status_display(self):
+        """Update the auto cycle status label"""
+        if self.auto_cycle_running.get():
+            self.auto_cycle_status_label.config(text="Status: Running", foreground='green')
+        else:
+            self.auto_cycle_status_label.config(text="Status: Stopped", foreground='gray')
 
 def main():
     root = tk.Tk()

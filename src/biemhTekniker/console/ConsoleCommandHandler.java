@@ -130,6 +130,15 @@ public class ConsoleCommandHandler implements Runnable
             } else if ("clear_motion_override".equals(type))
             {
                 handleClearMotionOverride();
+            } else if ("start_auto_cycle".equals(type))
+            {
+                handleStartAutoCycle();
+            } else if ("stop_auto_cycle".equals(type))
+            {
+                handleStopAutoCycle();
+            } else if ("get_auto_cycle_status".equals(type))
+            {
+                handleGetAutoCycleStatus();
             } else
             {
                 sendError("Unknown command type: " + type);
@@ -452,6 +461,53 @@ public class ConsoleCommandHandler implements Runnable
         {
             log.error("Error in handleClearMotionOverride: " + e.getMessage(), e);
             sendError("Error clearing motion overrides: " + e.getMessage());
+        }
+    }
+    
+    private void handleStartAutoCycle()
+    {
+        try
+        {
+            log.info("handleStartAutoCycle called");
+            serverInterface.startAutoCycle();
+            sendResponse("response", "Auto cycle started", true);
+            log.info("Auto cycle started successfully");
+        } catch (Exception e)
+        {
+            log.error("Error in handleStartAutoCycle: " + e.getMessage(), e);
+            sendError("Error starting auto cycle: " + e.getMessage());
+        }
+    }
+    
+    private void handleStopAutoCycle()
+    {
+        try
+        {
+            log.info("handleStopAutoCycle called");
+            serverInterface.stopAutoCycle();
+            sendResponse("response", "Auto cycle stopped", true);
+            log.info("Auto cycle stopped successfully");
+        } catch (Exception e)
+        {
+            log.error("Error in handleStopAutoCycle: " + e.getMessage(), e);
+            sendError("Error stopping auto cycle: " + e.getMessage());
+        }
+    }
+    
+    private void handleGetAutoCycleStatus()
+    {
+        try
+        {
+            // Silent for cyclic calls - no debug logging
+            boolean isRunning = serverInterface.isAutoCycleRunning();
+            SimpleJSON status = new SimpleJSON();
+            status.put("type", "auto_cycle_status");
+            status.put("running", isRunning);
+            sendJson(status);
+        } catch (Exception e)
+        {
+            log.error("Error in handleGetAutoCycleStatus: " + e.getMessage(), e);
+            sendError("Error getting auto cycle status: " + e.getMessage());
         }
     }
 
