@@ -7,6 +7,7 @@ import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.VisionManager;
 import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.programs.robot.RobotContext;
+import biemhTekniker.programs.robot.RobotDispatcher;
 import biemhTekniker.programs.vision.VisionDispatcher;
 
 /**
@@ -24,17 +25,21 @@ public class AppController implements ConsoleServerInterface
     private final ConsoleServer consoleServer;
     private final RobotContext robotContext;
     private final HomePositionManager homePositionManager;
+    private final RobotDispatcher robotDispatcher;
+    private final AutoCycleManager autoCycleManager;
     private volatile int programNumber = 0;
 
     public AppController(VisionManager visionManager, VisionDispatcher visionDispatcher, WorkpieceQueue workpieceQueue, 
-                         RobotContext robotContext, HomePositionManager homePositionManager, int consolePort)
+                         RobotContext robotContext, HomePositionManager homePositionManager, RobotDispatcher robotDispatcher, int consolePort)
     {
         this.visionManager = visionManager;
         this.visionDispatcher = visionDispatcher;
         this.workpieceQueue = workpieceQueue;
         this.robotContext = robotContext;
         this.homePositionManager = homePositionManager;
+        this.robotDispatcher = robotDispatcher;
         this.consoleServer = new ConsoleServer(this, consolePort);
+        this.autoCycleManager = new AutoCycleManager(robotDispatcher, visionDispatcher, homePositionManager);
     }
 
     public void initialize()
@@ -204,5 +209,31 @@ public class AppController implements ConsoleServerInterface
     {
         // If only two physical grippers exist, report false for third
         return false;
+    }
+    
+    @Override
+    public void startAutoCycle()
+    {
+        if (autoCycleManager != null)
+        {
+            autoCycleManager.startCycle();
+            log.info("Auto cycle started via console command");
+        }
+    }
+    
+    @Override
+    public void stopAutoCycle()
+    {
+        if (autoCycleManager != null)
+        {
+            autoCycleManager.stopCycle();
+            log.info("Auto cycle stopped via console command");
+        }
+    }
+    
+    @Override
+    public boolean isAutoCycleRunning()
+    {
+        return autoCycleManager != null && autoCycleManager.isRunning();
     }
 }

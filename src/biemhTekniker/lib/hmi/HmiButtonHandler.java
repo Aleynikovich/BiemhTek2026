@@ -177,38 +177,9 @@ public class HmiButtonHandler implements IUserKeyListener
     {
         try
         {
-            boolean currentState = false;
-            boolean newState;
-
-            // Get current state
-            switch (gripperNum)
-            {
-                case 1:
-                    currentState = gripperIO.getGripper1_Switch();
-                    break;
-                case 2:
-                    currentState = gripperIO.getGripper2_Switch();
-                    break;
-                case 3:
-                    currentState = gripperIO.getGripper3_Switch();
-                    break;
-            }
-
-            newState = !currentState;
-
-            // Set new state
-            switch (gripperNum)
-            {
-                case 1:
-                    gripperIO.setGripper1_Switch(newState);
-                    break;
-                case 2:
-                    gripperIO.setGripper2_Switch(newState);
-                    break;
-                case 3:
-                    gripperIO.setGripper3_Switch(newState);
-                    break;
-            }
+            boolean currentState = getGripperState(gripperNum);
+            boolean newState = !currentState;
+            setGripperState(gripperNum, newState);
 
             updateGripperButtonText(button, gripperNum);
             log.debug("HMI: Gripper " + gripperNum + " " + (newState ? "closed" : "opened"));
@@ -217,6 +188,51 @@ public class HmiButtonHandler implements IUserKeyListener
         {
             log.error("Error toggling gripper " + gripperNum + ": " + e.getMessage(), e);
             button.setText(UserKeyAlignment.TopMiddle, "Gripper " + gripperNum + " ERROR");
+        }
+    }
+
+    /**
+     * Gets the current state of a gripper.
+     *
+     * @param gripperNum Gripper number (1, 2, or 3)
+     * @return true if gripper is closed, false if open
+     */
+    private boolean getGripperState(int gripperNum)
+    {
+        switch (gripperNum)
+        {
+            case 1:
+                return gripperIO.getGripper1_Switch();
+            case 2:
+                return gripperIO.getGripper2_Switch();
+            case 3:
+                return gripperIO.getGripper3_Switch();
+            default:
+                throw new IllegalArgumentException("Invalid gripper number: " + gripperNum);
+        }
+    }
+
+    /**
+     * Sets the state of a gripper.
+     *
+     * @param gripperNum Gripper number (1, 2, or 3)
+     * @param state true to close, false to open
+     */
+    private void setGripperState(int gripperNum, boolean state)
+    {
+        switch (gripperNum)
+        {
+            case 1:
+                gripperIO.setGripper1_Switch(state);
+                break;
+            case 2:
+                gripperIO.setGripper2_Switch(state);
+                break;
+            case 3:
+                gripperIO.setGripper3_Switch(state);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid gripper number: " + gripperNum);
         }
     }
 

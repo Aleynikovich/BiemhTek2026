@@ -5,6 +5,7 @@ import biemhTekniker.lib.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Thread-safe queue for managing multiple workpieces.
@@ -22,6 +23,11 @@ public class WorkpieceQueue
      */
     private final double positionToleranceMm;
     
+    /**
+     * Random number generator for random workpiece selection.
+     */
+    private final Random random;
+    
     private final List<WorkpieceData> workpieces = new ArrayList<WorkpieceData>();
 
     /**
@@ -31,6 +37,7 @@ public class WorkpieceQueue
     {
         ConfigManager config = ConfigManager.getInstance();
         this.positionToleranceMm = config.getDouble("workpiece.position.tolerance.mm", 5.0);
+        this.random = new Random();
         log.debug("WorkpieceQueue initialized with position tolerance: " + positionToleranceMm + "mm");
     }
 
@@ -46,70 +53,78 @@ public class WorkpieceQueue
     }
 
     /**
-     * Returns the highest-score AVAILABLE workpiece and marks it with gripper location.
+     * Returns a random AVAILABLE workpiece and marks it with gripper location.
      * Returns null if no AVAILABLE workpieces exist.
+     * Selection is random regardless of score or reference index.
      *
      * @param gripperNumber Gripper number (1, 2, or 3)
      * @return The workpiece to pick, or null
      */
     public synchronized WorkpieceData takeNextForPicking(int gripperNumber)
     {
-        WorkpieceData best = null;
+        // Build list of available workpieces
+        List<WorkpieceData> available = new ArrayList<WorkpieceData>();
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
             // Only consider AVAILABLE workpieces that are NOT already held by a gripper
             if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
-                if (best == null || wp.getScore() > best.getScore())
-                {
-                    best = wp;
-                }
+                available.add(wp);
             }
         }
 
-        if (best != null)
-        {
-            best.setGripperLocation(String.valueOf(gripperNumber));
-            log.info("Selected workpiece for picking: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", gripper=" + gripperNumber + ", score=" + best.getScore());
-        } else
+        if (available.isEmpty())
         {
             log.debug("No AVAILABLE workpieces to pick");
+            return null;
         }
-        return best;
+
+        // Select random workpiece from available list
+        int randomIndex = random.nextInt(available.size());
+        WorkpieceData selected = available.get(randomIndex);
+        
+        selected.setGripperLocation(String.valueOf(gripperNumber));
+        log.info("Selected random workpiece for picking: id=" + selected.getId() + ", ref=" + selected.getReferenceIndex() + ", gripper=" + gripperNumber + ", score=" + selected.getScore());
+        
+        return selected;
     }
 
     /**
-     * Returns the highest-score AVAILABLE workpiece WITHOUT marking it with gripper.
+     * Returns a random AVAILABLE workpiece WITHOUT marking it with gripper.
      * Returns null if no AVAILABLE workpieces exist.
      * Use this to preview the next workpiece before attempting to pick it.
+     * Selection is random regardless of score or reference index.
      *
      * @return The workpiece that would be picked next, or null
      */
     public synchronized WorkpieceData peekNextForPicking()
     {
-        WorkpieceData best = null;
+        // Build list of available workpieces
+        List<WorkpieceData> available = new ArrayList<WorkpieceData>();
         for (int i = 0; i < workpieces.size(); i++)
         {
             WorkpieceData wp = workpieces.get(i);
             // Only consider AVAILABLE workpieces that are NOT already held by a gripper
             if (wp.getState() == WorkpieceState.AVAILABLE && wp.getGripperLocation() == null)
             {
-                if (best == null || wp.getScore() > best.getScore())
-                {
-                    best = wp;
-                }
+                available.add(wp);
             }
         }
 
-        if (best != null)
-        {
-            log.debug("Peeked at next workpiece: id=" + best.getId() + ", ref=" + best.getReferenceIndex() + ", score=" + best.getScore());
-        } else
+        if (available.isEmpty())
         {
             log.debug("No AVAILABLE workpieces to peek");
+            return null;
         }
-        return best;
+
+        // Select random workpiece from available list
+        int randomIndex = random.nextInt(available.size());
+        WorkpieceData selected = available.get(randomIndex);
+        
+        log.debug("Peeked at random workpiece: id=" + selected.getId() + ", ref=" + selected.getReferenceIndex() + ", score=" + selected.getScore());
+        
+        return selected;
     }
 
     /**
@@ -409,24 +424,6 @@ public class WorkpieceQueue
     }
 
     /**
-     * Clears the gripper location for a workpiece (e.g., when placed).
-     *
-     * @param workpieceId Workpiece ID
-     */
-    public synchronized void clearGripper(long workpieceId)
-    {
-        WorkpieceData wp = findById(workpieceId);
-        if (wp != null)
-        {
-            wp.setGripperLocation(null);
-            log.info("Cleared gripper location for workpiece: id=" + workpieceId);
-        } else
-        {
-            log.warn("Cannot clear gripper - workpiece not found: id=" + workpieceId);
-        }
-    }
-
-    /**
      * Finds an existing workpiece at the given position (within configured tolerance).
      * Used for tracking workpieces across scans to avoid creating duplicates.
      *
@@ -436,7 +433,7 @@ public class WorkpieceQueue
      * @param referenceIndex Reference index to match
      * @return Existing workpiece if found, null otherwise
      */
-    public synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
+    private synchronized WorkpieceData findAtPosition(double x, double y, double z, int referenceIndex)
     {
         for (int i = 0; i < workpieces.size(); i++)
         {

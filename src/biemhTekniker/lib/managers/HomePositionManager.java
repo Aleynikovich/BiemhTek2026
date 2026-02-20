@@ -71,16 +71,6 @@ public class HomePositionManager
     }
 
     /**
-     * Resets the home move request flag.
-     * Used if a home move is no longer needed or was cancelled.
-     */
-    public void cancelHomeMove()
-    {
-        needsHomeMove = false;
-        log.debug("Home position move cancelled");
-    }
-
-    /**
      * Checks if a home move is currently requested.
      *
      * @return true if a home move is pending
