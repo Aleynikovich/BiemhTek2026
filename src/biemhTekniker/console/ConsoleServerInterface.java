@@ -80,4 +80,22 @@ public interface ConsoleServerInterface
     boolean isGripper2Closed();
 
     boolean isGripper3Closed();
+    
+    // --- Auto cycle control ---
+    /**
+     * Starts the automatic cycle sequence.
+     */
+    void startAutoCycle();
+    
+    /**
+     * Stops the automatic cycle sequence.
+     */
+    void stopAutoCycle();
+    
+    /**
+     * Checks if auto cycle is currently running.
+     *
+     * @return true if auto cycle is active
+     */
+    boolean isAutoCycleRunning();
 }
