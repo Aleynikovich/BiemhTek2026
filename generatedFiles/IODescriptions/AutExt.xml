@@ -2,7 +2,7 @@
 <!--
 Automatically generated IO group description. Please do NOT modify!
 -->
-<SunriseIOGroupDescription Version="1.0.0">
+<SunriseIOGroupDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0">
   <IOGroup DisplayName="AutExt" IconName="AutExt" SignalTypes="InOut" TemplateName="AutExt">
     <IOs>
       <DigitalIOItem Name="ExtStart" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
@@ -30,6 +30,30 @@ Automatically generated IO group description. Please do NOT modify!
         <Description />
       </DigitalIOItem>
       <DigitalIOItem Name="CurrentProgramNumber" DataType="USINT" IOType="Output" UsedBitWidth="8" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="Part_Loaded" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+        <Description>Part Loaded in Zeiss</Description>
+      </DigitalIOItem>
+      <DigitalIOItem Name="Part_Unloaded" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+        <Description>Part_Unloaded_from_Zeiss</Description>
+      </DigitalIOItem>
+      <DigitalIOItem Name="Robot_Out_Zeiss_Zone" DataType="BOOL" IOType="Output" UsedBitWidth="1" IsConnected="true">
+        <Description>Robot_Out_Zeiss_Zone</Description>
+      </DigitalIOItem>
+      <DigitalIOItem Name="Zeiss_Ready" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description>Zeiss_Ready</Description>
+      </DigitalIOItem>
+      <DigitalIOItem Name="Zeiss_Measure_Running" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="Zeiss_Load_Resquest" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="Zeiss_Unload_Request" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="Zeiss_Part_Type_Loaded" DataType="BYTE" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
     </IOs>

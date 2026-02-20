@@ -39,6 +39,14 @@ public class AutExtIOGroup extends AbstractIOGroup
 		addDigitalOutput("ProgramNumberRequest", IOTypes.BOOLEAN, 1);
 		addInput("ProgramNumberIN", IOTypes.UNSIGNED_INTEGER, 8);
 		addDigitalOutput("CurrentProgramNumber", IOTypes.UNSIGNED_INTEGER, 8);
+		addDigitalOutput("Part_Loaded", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Part_Unloaded", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Robot_Out_Zeiss_Zone", IOTypes.BOOLEAN, 1);
+		addInput("Zeiss_Ready", IOTypes.BOOLEAN, 1);
+		addInput("Zeiss_Measure_Running", IOTypes.BOOLEAN, 1);
+		addInput("Zeiss_Load_Resquest", IOTypes.BOOLEAN, 1);
+		addInput("Zeiss_Unload_Request", IOTypes.BOOLEAN, 1);
+		addDigitalOutput("Zeiss_Part_Type_Loaded", IOTypes.UNSIGNED_INTEGER, 1);
 	}
 
 	/**
@@ -377,6 +385,250 @@ public class AutExtIOGroup extends AbstractIOGroup
 	public void setCurrentProgramNumber(java.lang.Integer value)
 	{
 		setDigitalOutput("CurrentProgramNumber", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Part_Loaded</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Part Loaded in Zeiss
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Part_Loaded'
+	 */
+	public boolean getPart_Loaded()
+	{
+		return getBooleanIOValue("Part_Loaded", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Part_Loaded</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Part Loaded in Zeiss
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Part_Loaded'
+	 */
+	public void setPart_Loaded(java.lang.Boolean value)
+	{
+		setDigitalOutput("Part_Loaded", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Part_Unloaded</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Part_Unloaded_from_Zeiss
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Part_Unloaded'
+	 */
+	public boolean getPart_Unloaded()
+	{
+		return getBooleanIOValue("Part_Unloaded", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Part_Unloaded</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Part_Unloaded_from_Zeiss
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Part_Unloaded'
+	 */
+	public void setPart_Unloaded(java.lang.Boolean value)
+	{
+		setDigitalOutput("Part_Unloaded", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Robot_Out_Zeiss_Zone</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Robot_Out_Zeiss_Zone
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital output 'Robot_Out_Zeiss_Zone'
+	 */
+	public boolean getRobot_Out_Zeiss_Zone()
+	{
+		return getBooleanIOValue("Robot_Out_Zeiss_Zone", true);
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Robot_Out_Zeiss_Zone</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Robot_Out_Zeiss_Zone
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Robot_Out_Zeiss_Zone'
+	 */
+	public void setRobot_Out_Zeiss_Zone(java.lang.Boolean value)
+	{
+		setDigitalOutput("Robot_Out_Zeiss_Zone", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>Zeiss_Ready</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * Zeiss_Ready
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'Zeiss_Ready'
+	 */
+	public boolean getZeiss_Ready()
+	{
+		return getBooleanIOValue("Zeiss_Ready", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>Zeiss_Measure_Running</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'Zeiss_Measure_Running'
+	 */
+	public boolean getZeiss_Measure_Running()
+	{
+		return getBooleanIOValue("Zeiss_Measure_Running", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>Zeiss_Load_Resquest</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'Zeiss_Load_Resquest'
+	 */
+	public boolean getZeiss_Load_Resquest()
+	{
+		return getBooleanIOValue("Zeiss_Load_Resquest", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>Zeiss_Unload_Request</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'Zeiss_Unload_Request'
+	 */
+	public boolean getZeiss_Unload_Request()
+	{
+		return getBooleanIOValue("Zeiss_Unload_Request", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital output '<i>Zeiss_Part_Type_Loaded</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [0; 1]
+	 *
+	 * @return current value of the digital output 'Zeiss_Part_Type_Loaded'
+	 */
+	public java.lang.Integer getZeiss_Part_Type_Loaded()
+	{
+		return getNumberIOValue("Zeiss_Part_Type_Loaded", true).intValue();
+	}
+
+	/**
+	 * Sets the value of the <b>digital output '<i>Zeiss_Part_Type_Loaded</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital output
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [0; 1]
+	 *
+	 * @param value
+	 *            the value, which has to be written to the digital output 'Zeiss_Part_Type_Loaded'
+	 */
+	public void setZeiss_Part_Type_Loaded(java.lang.Integer value)
+	{
+		setDigitalOutput("Zeiss_Part_Type_Loaded", value);
 	}
 
 }

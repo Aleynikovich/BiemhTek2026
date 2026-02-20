@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<IOManager>
+<IOManager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Version Label="">
     <Info Version="IOManager V0.1.0" />
     <Schema Version="1" />
@@ -135,6 +135,30 @@
           <Description />
         </DigitalIO>
         <DigitalIO Name="MediaFlange.Gripper3_PartPresence" Type="OUTPUT" Scope="USER_IO" StartBit="2321" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Zeiss_Ready" Type="INPUT" Scope="USER_IO" StartBit="402" BitSize="1" Signed="false">
+          <Description>Zeiss_Ready</Description>
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Zeiss_Unload_Request" Type="INPUT" Scope="USER_IO" StartBit="404" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Zeiss_Load_Resquest" Type="INPUT" Scope="USER_IO" StartBit="405" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Part_Loaded" Type="OUTPUT" Scope="USER_IO" StartBit="2581" BitSize="1" Signed="false">
+          <Description>Part Loaded in Zeiss</Description>
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Part_Unloaded" Type="OUTPUT" Scope="USER_IO" StartBit="2582" BitSize="1" Signed="false">
+          <Description>Part_Unloaded_from_Zeiss</Description>
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Robot_Out_Zeiss_Zone" Type="OUTPUT" Scope="USER_IO" StartBit="2583" BitSize="1" Signed="false">
+          <Description>Robot_Out_Zeiss_Zone</Description>
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Zeiss_Part_Type_Loaded" Type="OUTPUT" Scope="USER_IO" StartBit="2592" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.Zeiss_Measure_Running" Type="INPUT" Scope="USER_IO" StartBit="406" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
