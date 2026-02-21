@@ -4,6 +4,7 @@ import biemhTekniker.lib.config.FrameRepository;
 import biemhTekniker.lib.data.WorkpieceQueue;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.SmartPickingProtocol;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -22,6 +23,7 @@ public class RobotContext
     private final LBR robot;
     private final Tool gripper;
     private final MediaFlangeIOGroup gripperIO;
+    private final AutExtIOGroup autExtIO;
     private final RoboticsAPIApplication application;
     private final WorkpieceQueue workpieceQueue;
     private final FrameRepository frameRepository;
@@ -35,15 +37,17 @@ public class RobotContext
      * @param robot          LBR robot instance
      * @param gripper        Gripper tool
      * @param gripperIO      Gripper I/O group
+     * @param autExtIO       AutExt I/O group for PLC communication
      * @param application    Main application instance (for getFrame, getApplicationData, etc.)
      * @param workpieceQueue Shared workpiece queue
      * @param frameRepository Frame repository for accessing station frames
      */
-    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, RoboticsAPIApplication application, WorkpieceQueue workpieceQueue, FrameRepository frameRepository)
+    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, AutExtIOGroup autExtIO, RoboticsAPIApplication application, WorkpieceQueue workpieceQueue, FrameRepository frameRepository)
     {
         this.robot = robot;
         this.gripper = gripper;
         this.gripperIO = gripperIO;
+        this.autExtIO = autExtIO;
         this.application = application;
         this.workpieceQueue = workpieceQueue;
         this.frameRepository = frameRepository;
@@ -62,6 +66,11 @@ public class RobotContext
     public MediaFlangeIOGroup getGripperIO()
     {
         return gripperIO;
+    }
+
+    public AutExtIOGroup getAutExtIO()
+    {
+        return autExtIO;
     }
 
     public RoboticsAPIApplication getApplication()

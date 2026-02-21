@@ -1,10 +1,13 @@
 package biemhTekniker.programs.robot.subprograms;
 
+import biemhTekniker.lib.data.WorkpieceData;
+import biemhTekniker.lib.data.WorkpieceQueue;
 import biemhTekniker.lib.exceptions.ProgramCancelledException;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.robot.RobotProgram;
 import biemhTekniker.programs.robot.RobotContext;
 import com.kuka.common.ThreadUtil;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -29,6 +32,12 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     private static final int PRE_PLACE_Z_OFFSET_MM = 75;
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
+    /**
+     * Multiplier applied to referenceIndex when orientation is alternate (1).
+     * Encodes orientation into the PLC code: regular => referenceIndex, alternate => referenceIndex * 11.
+     * E.g. ref=1 regular=>1, ref=1 alternate=>11, ref=2 regular=>2, ref=2 alternate=>22.
+     */
+    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 11;
     private final boolean forceAlternate = false;
     public void execute(RobotContext context) throws Exception
     {
@@ -68,6 +77,29 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context, forceAlternate);
+
+        // On successful placement, write PLC code representing reference + orientation
+        WorkpieceQueue queue = context.getWorkpieceQueue();
+        WorkpieceData wp = queue.getPickedWorkpiece(1);
+        if (wp != null)
+        {
+            int referenceIndex = wp.getReferenceIndex();
+            int orientation = wp.getOrientation();
+            int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
+            AutExtIOGroup autExtIO = context.getAutExtIO();
+            if (autExtIO != null)
+            {
+                autExtIO.setZeiss_Part_Type_Loaded(plcCode);
+                log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
+                        + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
+            } else
+            {
+                log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
+            }
+        } else
+        {
+            log.warn("No workpiece found in gripper 1 after placement - skipping Zeiss_Part_Type_Loaded output");
+        }
 
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
