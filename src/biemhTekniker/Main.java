@@ -226,7 +226,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         smartPickingThread.start();
 
         FrameRepository frameRepository = new FrameRepository(this);
-        robotContext = new RobotContext(iiwa, gripper, gripperIO, this, workpieceQueue, frameRepository);
+        robotContext = new RobotContext(iiwa, gripper, gripperIO, AutExtIO, this, workpieceQueue, frameRepository);
         robotContext.setProtocol(smartPickingThread.getProtocol());
 
         visionContext = new VisionContext(smartPickingThread.getProtocol(), workpieceQueue);
