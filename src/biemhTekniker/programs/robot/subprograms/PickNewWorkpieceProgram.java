@@ -32,7 +32,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;//200
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
-    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 10;
+    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 1;
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -187,7 +187,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             AutExtIOGroup autExtIO = context.getAutExtIO();
             //if (autExtIO != null)
             //{
-                autExtIO.setCurrentProgramNumber(plcCode);
+                autExtIO.setCurrentProgramNumber(55);
                 log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
                     + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
             //}
