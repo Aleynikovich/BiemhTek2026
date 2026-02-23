@@ -9,6 +9,8 @@ import biemhTekniker.programs.ProgramRange;
 import biemhTekniker.programs.robot.RobotContext;
 import biemhTekniker.programs.robot.RobotDispatcher;
 import biemhTekniker.programs.vision.VisionDispatcher;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
+import com.kuka.roboticsAPI.conditionModel.ObserverManager;
 
 /**
  * Controller class that manages the application state and implements the ConsoleServerInterface.
@@ -28,8 +30,8 @@ public class AppController implements ConsoleServerInterface
     private final RobotDispatcher robotDispatcher;
     private final AutoCycleManager autoCycleManager;
     private volatile int programNumber = 0;
-
-    public AppController(VisionManager visionManager, VisionDispatcher visionDispatcher, WorkpieceQueue workpieceQueue, 
+/*
+    public AppController(VisionManager visionManager, VisionDispatcher visionDispatcher, WorkpieceQueue workpieceQueue,
                          RobotContext robotContext, HomePositionManager homePositionManager, RobotDispatcher robotDispatcher, int consolePort)
     {
         this.visionManager = visionManager;
@@ -40,7 +42,21 @@ public class AppController implements ConsoleServerInterface
         this.robotDispatcher = robotDispatcher;
         this.consoleServer = new ConsoleServer(this, consolePort);
         this.autoCycleManager = new AutoCycleManager(robotDispatcher, visionDispatcher, homePositionManager);
+    }*/
+
+    //JAVI
+    public AppController(VisionManager visionManager, VisionDispatcher visionDispatcher, WorkpieceQueue workpieceQueue, RobotContext robotContext, HomePositionManager homePositionManager, RobotDispatcher robotDispatcher, AutExtIOGroup autExtIO, ObserverManager observerManager, int consolePort)
+    {
+        this.visionManager = visionManager;
+        this.visionDispatcher = visionDispatcher;
+        this.workpieceQueue = workpieceQueue;
+        this.robotContext = robotContext;
+        this.homePositionManager = homePositionManager;
+        this.robotDispatcher = robotDispatcher;
+        this.consoleServer = new ConsoleServer(this, consolePort);
+        this.autoCycleManager = new AutoCycleManager(robotDispatcher, visionDispatcher, homePositionManager, autExtIO, observerManager);
     }
+    //NEW JAVI
 
     public void initialize()
     {
