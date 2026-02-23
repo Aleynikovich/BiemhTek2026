@@ -1,7 +1,5 @@
 package biemhTekniker.programs.robot.subprograms;
 
-import biemhTekniker.lib.data.WorkpieceData;
-import biemhTekniker.lib.data.WorkpieceQueue;
 import biemhTekniker.lib.exceptions.ProgramCancelledException;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.robot.RobotProgram;
@@ -9,18 +7,12 @@ import biemhTekniker.programs.robot.RobotContext;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
-import com.kuka.roboticsAPI.conditionModel.BooleanIOCondition;
-import com.kuka.roboticsAPI.conditionModel.ICondition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
-import com.kuka.generated.ioAccess.AutExtIOGroup;
 
-
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
-import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.*;
 
 /**
  * Program to place a new workpiece at a predefined location.
@@ -103,7 +95,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         log.info("Picking measured workpiece with TCP B...");
         
         tcpB.move(ptp(prepickPlacePositionB));
-        gripperIO.setGripper2_Switch(false);
+        gripperIO.setGripper1_Switch(false);
         
         //long timeoutMs = 180000;
         //long start = System.currentTimeMillis();
@@ -123,7 +115,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 		//observerManager.waitFor(gripper2isopen);
         
         tcpB.move(lin(pickPlacePositionB));
-        gripperIO.setGripper2_Switch(true);
+        gripperIO.setGripper1_Switch(true);
         ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
         gripperIO.setGripper3_Switch(false);
         ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
@@ -161,7 +153,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             gripperIO.setGripper3_PartPresence(true);
             ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             //gripperIO.setGripper3_Switch(true);
-            gripperIO.setGripper1_Switch(false);
+            gripperIO.setGripper2_Switch(false);
             ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             tcpA.move(lin(prepickPlacePositionA));
             log.info("New workpiece placed successfully with TCP A");
