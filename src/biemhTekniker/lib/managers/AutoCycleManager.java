@@ -184,7 +184,7 @@ public class AutoCycleManager
      *
      * @return true if cycle completed successfully, false otherwise
      */
-    private boolean executeOneCycle()
+    private boolean executeOneCycle_Alex()
     {
         if (!running.get())
         {
@@ -301,7 +301,7 @@ public class AutoCycleManager
     }
     
     //NEW JAVI
-    private boolean executeOneCycle_1()
+    private boolean executeOneCycle()
     {
         if (!running.get()) return false;
 
