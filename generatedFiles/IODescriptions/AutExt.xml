@@ -53,7 +53,7 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="Zeiss_Unload_Request" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
-      <DigitalIOItem Name="Zeiss_Part_Type_Loaded" DataType="BYTE" IOType="Output" UsedBitWidth="1" IsConnected="true">
+      <DigitalIOItem Name="Zeiss_Part_Type_Loaded" DataType="USINT" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
     </IOs>

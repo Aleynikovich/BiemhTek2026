@@ -155,10 +155,10 @@
         <DigitalIO Name="AutExt.Robot_Out_Zeiss_Zone" Type="OUTPUT" Scope="USER_IO" StartBit="2583" BitSize="1" Signed="false">
           <Description>Robot_Out_Zeiss_Zone</Description>
         </DigitalIO>
-        <DigitalIO Name="AutExt.Zeiss_Part_Type_Loaded" Type="OUTPUT" Scope="USER_IO" StartBit="2592" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.Zeiss_Measure_Running" Type="INPUT" Scope="USER_IO" StartBit="406" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
-        <DigitalIO Name="AutExt.Zeiss_Measure_Running" Type="INPUT" Scope="USER_IO" StartBit="406" BitSize="1" Signed="false">
+        <DigitalIO Name="AutExt.Zeiss_Part_Type_Loaded" Type="OUTPUT" Scope="USER_IO" StartBit="2592" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
       </IOList>
