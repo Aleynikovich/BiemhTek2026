@@ -143,7 +143,7 @@ public class PLCManager
     {
         try
         {
-            AutExtIO.setCurrentProgramNumber(programNumber);
+            //AutExtIO.setCurrentProgramNumber(programNumber);
         } catch (Exception e)
         {
             // Log error but continue - PLC may be in STOP mode
