@@ -50,6 +50,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         WorkpieceQueue queue = context.getWorkpieceQueue();
         ObjectFrame scanWorkpiecePosition = app.getApplicationData().getFrame("/ScanWorkpiece");
         Frame scanWorkpieceFrame = scanWorkpiecePosition.copyWithRedundancy();
+        AutExtIOGroup autExtIO = context.getAutExtIO();
 
         // Try forced selection first (from console), then fallback to next available
         WorkpieceData workpieceData = null;
@@ -97,6 +98,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
             throw new ProgramCancelledException("Program cancelled by user");
         }
 
+        
+        autExtIO.setCurrentProgramNumber(11);
+        
         // Gripper TCP declaration - use only gripper A
         ObjectFrame tcpA = gripper.getFrame("TCPA");
 
@@ -172,8 +176,11 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Mark workpiece as held by Gripper 1 after successful pick
         queue.markPicked(workpieceData.getId(), 1);
+        
         log.info("Successfully picked workpiece with Gripper 1: " + workpieceData.getId());
-
+        
+        
+        
         //new alex
         // On successful placement, write PLC code representing reference + orientation
         //WorkpieceQueue queue = context.getWorkpieceQueue();
@@ -184,7 +191,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             //int orientation = wp.getOrientation();
             int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
 
-            AutExtIOGroup autExtIO = context.getAutExtIO();
+          
             if (autExtIO != null)
             {
                 autExtIO.setCurrentProgramNumber(plcCode);
