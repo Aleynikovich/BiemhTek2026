@@ -256,6 +256,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 break;
             }
             
+            
             // Check for cancellation after failed strategy - stop trying other strategies
             if (context.isCancellationRequested())
             {
@@ -263,6 +264,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 throw new ProgramCancelledException("Program cancelled by user");
             }
         }
+        
+        robot.getFlange().moveAsync(ptp(app.getApplicationData().getFrame("/binCenter")).setBlendingCart(0.5));
 
         if (!placeSucceeded)
         {
