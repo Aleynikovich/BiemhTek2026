@@ -73,37 +73,6 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context, forceAlternate);
  
-        
-        //new alex
-        // On successful placement, write PLC code representing reference + orientation
-        WorkpieceQueue queue = context.getWorkpieceQueue();
-        WorkpieceData wp = queue.getPickedWorkpiece(1);
-        if (wp != null)
-        {
-            int referenceIndex = wp.getReferenceIndex();
-            int orientation = wp.getOrientation();
-            int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
-
-            AutExtIOGroup autExtIO = context.getAutExtIO();
-            if (autExtIO != null)
-            {
-                autExtIO.setCurrentProgramNumber(plcCode);
-                log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
-                    + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
-            }
-            else
-            {
-                log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
-            }
-        }
-        else
-        {
-            log.warn("No workpiece found in gripper 1 after placement - skipping Zeiss_Part_Type_Loaded output");
-        }
-
-        
-        //end alex
-
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
 

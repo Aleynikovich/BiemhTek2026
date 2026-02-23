@@ -9,12 +9,14 @@ import biemhTekniker.lib.robot.motions.MotionStrategy;
 import biemhTekniker.lib.robot.motions.MotionStrategyGenerator;
 import biemhTekniker.programs.robot.RobotContext;
 import com.kuka.common.ThreadUtil;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+
 
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;//200
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
+    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 10;
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -170,6 +173,37 @@ public class PickNewWorkpieceProgram implements RobotProgram
         queue.markPicked(workpieceData.getId(), 1);
         log.info("Successfully picked workpiece with Gripper 1: " + workpieceData.getId());
 
+        
+        //new alex
+        // On successful placement, write PLC code representing reference + orientation
+       // WorkpieceQueue queue = context.getWorkpieceQueue();
+        WorkpieceData wp = queue.getPickedWorkpiece(1);
+        if (wp != null)
+        {
+            int referenceIndex = wp.getReferenceIndex();
+            //int orientation = wp.getOrientation();
+            int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
+
+            AutExtIOGroup autExtIO = context.getAutExtIO();
+            if (autExtIO != null)
+            {
+                autExtIO.setCurrentProgramNumber(plcCode);
+                log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
+                    + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
+            }
+            else
+            {
+                log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
+            }
+        }
+        else
+        {
+            log.warn("No workpiece found in gripper 1 after placement - skipping Zeiss_Part_Type_Loaded output");
+        }
+
+        
+        //end alex
+        
         // Now exchange: place measured workpiece at the same position with Gripper B
         // Go to pre-pick position with Gripper B for repositioning with different redundancies
         log.info("Repositioning to place measured workpiece with Gripper B...");
