@@ -1,5 +1,7 @@
 package biemhTekniker.programs.robot.subprograms;
 
+import biemhTekniker.lib.data.WorkpieceData;
+import biemhTekniker.lib.data.WorkpieceQueue;
 import biemhTekniker.lib.exceptions.ProgramCancelledException;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.robot.RobotProgram;
@@ -11,6 +13,7 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
@@ -30,6 +33,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     private static final int GRIPPER_RELEASE_DELAY_MS = 500;
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
     private final boolean forceAlternate = false;
+    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 10;
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
@@ -68,6 +72,37 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
 
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context, forceAlternate);
+ 
+        
+        //new alex
+        // On successful placement, write PLC code representing reference + orientation
+        WorkpieceQueue queue = context.getWorkpieceQueue();
+        WorkpieceData wp = queue.getPickedWorkpiece(1);
+        if (wp != null)
+        {
+            int referenceIndex = wp.getReferenceIndex();
+            int orientation = wp.getOrientation();
+            int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
+
+            AutExtIOGroup autExtIO = context.getAutExtIO();
+            if (autExtIO != null)
+            {
+                autExtIO.setZeiss_Part_Type_Loaded(plcCode);
+                log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
+                    + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
+            }
+            else
+            {
+                log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
+            }
+        }
+        else
+        {
+            log.warn("No workpiece found in gripper 1 after placement - skipping Zeiss_Part_Type_Loaded output");
+        }
+
+        
+        //end alex
 
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }

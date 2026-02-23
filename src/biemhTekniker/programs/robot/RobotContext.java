@@ -4,6 +4,8 @@ import biemhTekniker.lib.config.FrameRepository;
 import biemhTekniker.lib.data.WorkpieceQueue;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.SmartPickingProtocol;
+
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -28,7 +30,9 @@ public class RobotContext
     private SmartPickingProtocol protocol;
     private volatile boolean cancellationRequested = false;
     private volatile IMotionContainer activeMotion = null;
-
+    //alex
+    private AutExtIOGroup autExtIO;
+    //alex
     /**
      * Creates a new robot context.
      *
@@ -167,4 +171,11 @@ public class RobotContext
             }
         }
     }
+
+    //alex
+    public AutExtIOGroup getAutExtIO()
+    {
+        return autExtIO;
+    }
+    //alex
 }

@@ -1,5 +1,9 @@
 package biemhTekniker.lib.managers;
 
+import com.kuka.roboticsAPI.conditionModel.BooleanIOCondition;
+import com.kuka.roboticsAPI.conditionModel.ICondition;
+import com.kuka.roboticsAPI.conditionModel.ObserverManager;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.programs.robot.RobotDispatcher;
 import biemhTekniker.programs.vision.VisionDispatcher;
@@ -34,14 +38,32 @@ public class AutoCycleManager
     
     private final AtomicBoolean running;
     private Thread cycleThread;
+    private final AutExtIOGroup autExtIO;
+    private final ObserverManager observerManager;
     
-    public AutoCycleManager(RobotDispatcher robotDispatcher, VisionDispatcher visionDispatcher, HomePositionManager homePositionManager)
+    //JAVI
+    public AutoCycleManager(RobotDispatcher robotDispatcher,
+            VisionDispatcher visionDispatcher,
+            HomePositionManager homePositionManager,
+            AutExtIOGroup autExtIO,
+            ObserverManager observerManager)
+	{
+		this.robotDispatcher = robotDispatcher;
+		this.visionDispatcher = visionDispatcher;
+		this.homePositionManager = homePositionManager;
+		this.autExtIO = autExtIO;
+		this.observerManager = observerManager;
+		this.running = new AtomicBoolean(false);
+	}
+    
+    /*
+    public AutoCycleManager(RobotDispatcher robotDispatcher, VisionDispatcher visionDispatcher, HomePositionManager homePositionManager, AutExtIOGroup autExtIO, observerManager)
     {
         this.robotDispatcher = robotDispatcher;
         this.visionDispatcher = visionDispatcher;
         this.homePositionManager = homePositionManager;
         this.running = new AtomicBoolean(false);
-    }
+    }*/
     
     /**
      * Starts the automatic cycle.
@@ -126,7 +148,10 @@ public class AutoCycleManager
     private void executeCycle()
     {
         log.info("Auto cycle thread started");
-        
+        autExtIO.setPart_Unloaded(false);
+        ThreadUtil.milliSleep(500);
+        autExtIO.setPart_Loaded(false);
+        ThreadUtil.milliSleep(500);
         while (running.get())
         {
             try
@@ -190,7 +215,8 @@ public class AutoCycleManager
         }
         
         // Step 4: Pick new workpiece (robot program 1)
-        log.info("Auto cycle: Step 4 - Pick new workpiece");
+        log.info("Auto cycle: Step 4 - Pick new workpiece");      
+            
         if (!executeRobotProgram(PROGRAM_PICK_NEW))
         {
             return false;
@@ -215,6 +241,27 @@ public class AutoCycleManager
         }
         */
         
+        // NEW JAVI STEP 5.1
+	    log.info("Auto cycle: Steo 5.1 Waiting Zeiss request...");
+	
+	    // Condicion Load
+	    BooleanIOCondition loadCondition =
+	             new BooleanIOCondition(
+	                     autExtIO.getInput("Zeiss_Load_Resquest"), true);
+	
+	    // Condicion Unload
+	    BooleanIOCondition unloadCondition =
+	             new BooleanIOCondition(
+	                     autExtIO.getInput("Zeiss_Unload_Request"), true);
+	
+	    // OR logico entre ambas
+	    ICondition zeissCondition = loadCondition.or(unloadCondition);
+        
+	    observerManager.waitFor(zeissCondition);
+	     
+	    
+	    // END JAVI
+        
         log.info("Auto cycle: Step 6 - Place new workpiece");
         if (!executeRobotProgram(PROGRAM_PLACE_NEW))
         {
@@ -228,9 +275,148 @@ public class AutoCycleManager
             return false;
         }
         
+        //NEW JAVI
+        //DECIMOS QUE HEMOS DESCARGADO Y LUEGO QUE HEMOS CARGADO
+        
+        autExtIO.setPart_Unloaded(true);
+
+        ThreadUtil.milliSleep(500); //
+
+        autExtIO.setPart_Unloaded(false);
+        
+        ThreadUtil.milliSleep(500);         
+        
+        // Senalizar que la pieza ha sido cargada
+        
+        autExtIO.setPart_Loaded(true);
+
+        ThreadUtil.milliSleep(500); //
+
+        autExtIO.setPart_Loaded(false);
+        
+        //END JAVI
+              
         log.info("Auto cycle: Iteration completed successfully");
         return true;
     }
+    
+    //NEW JAVI
+    private boolean executeOneCycle_1()
+    {
+        if (!running.get()) return false;
+
+        log.info("Auto cycle: Starting new iteration");
+        
+        autExtIO.setPart_Unloaded(false);
+        ThreadUtil.milliSleep(500);
+        autExtIO.setPart_Loaded(false);
+        ThreadUtil.milliSleep(500);
+        // Step 1: Move to home
+        log.info("Auto cycle: Step 1 - Moving to home");
+        if (!executeHomeMove()) return false;
+
+        // Step 2: Load reference
+        log.info("Auto cycle: Step 2 - Loading reference");
+        if (!executeVisionProgram(PROGRAM_LOAD_REFERENCE)) return false;
+
+        // Step 3: Full scan (primer ciclo bloqueante)
+        log.info("Auto cycle: Step 3 - Full scan");
+        if (!executeVisionProgram(PROGRAM_FULL_SCAN)) return false;
+
+        // Step 4: Pick new workpiece
+        log.info("Auto cycle: Step 4 - Pick new workpiece");
+        if (!executeRobotProgram(PROGRAM_PICK_NEW)) return false;
+
+        // Step 5: Move to home
+        log.info("Auto cycle: Step 5 - Moving to home");
+        if (!executeHomeMove()) return false;
+
+        // ----------------------------
+        // Disparar full scan no bloqueante
+        // ----------------------------
+        log.info("Auto cycle: Step 3b - Full scan (non-blocking dispatch)");
+        visionDispatcher.dispatch(PROGRAM_FULL_SCAN);
+
+        // Step 5.1: Wait Zeiss request
+        log.info("Auto cycle: Step 5.1 Waiting Zeiss request...");
+        BooleanIOCondition loadCondition =
+                new BooleanIOCondition(autExtIO.getInput("Zeiss_Load_Resquest"), true);
+        BooleanIOCondition unloadCondition =
+                new BooleanIOCondition(autExtIO.getInput("Zeiss_Unload_Request"), true);
+        ICondition zeissCondition = loadCondition.or(unloadCondition);
+        observerManager.waitFor(zeissCondition);
+
+        // Step 6: Place new workpiece
+        log.info("Auto cycle: Step 6 - Place new workpiece");
+        if (!executeRobotProgram(PROGRAM_PLACE_NEW)) return false;
+
+        // Step 7: Move to home
+        log.info("Auto cycle: Step 7 - Moving to home");
+        if (!executeHomeMove()) return false;
+
+        // Senalizar descarga/carga de pieza
+        autExtIO.setPart_Unloaded(true);
+        ThreadUtil.milliSleep(500);
+        autExtIO.setPart_Unloaded(false);
+        ThreadUtil.milliSleep(500);
+        autExtIO.setPart_Loaded(true);
+        ThreadUtil.milliSleep(500);
+        autExtIO.setPart_Loaded(false);
+
+        log.info("Auto cycle: First iteration completed successfully");
+
+        // ----------------------------
+        // BUCLE REPETITIVO
+        // ----------------------------
+        while (running.get())
+        {
+            // Step 4: Pick new workpiece esperar full scan si sigue en ejecucion
+            log.info("Auto cycle: Step 4 - Waiting for full scan before picking new workpiece");
+            while (visionDispatcher.isBusy())
+            {
+                ThreadUtil.milliSleep(200); // espera activa ligera
+            }
+
+            log.info("Auto cycle: Step 4 - Pick new workpiece");
+            if (!executeRobotProgram(PROGRAM_PICK_NEW)) return false;
+
+            // Step 5: Move to home
+            log.info("Auto cycle: Step 5 - Moving to home");
+            if (!executeHomeMove()) return false;
+
+            // Disparar full scan no bloqueante para siguiente iteracion
+            log.info("Auto cycle: Step 3b - Full scan (non-blocking dispatch)");
+            visionDispatcher.dispatch(PROGRAM_FULL_SCAN);
+
+            // Step 5.1: Wait Zeiss request
+            log.info("Auto cycle: Step 5.1 Waiting Zeiss request...");
+            observerManager.waitFor(zeissCondition);
+
+            // Step 6: Place new workpiece
+            log.info("Auto cycle: Step 6 - Place new workpiece");
+            if (!executeRobotProgram(PROGRAM_PLACE_NEW)) return false;
+
+            // Step 7: Move to home
+            log.info("Auto cycle: Step 7 - Moving to home");
+            if (!executeHomeMove()) return false;
+
+            // Senalizar descarga/carga de pieza
+            autExtIO.setPart_Unloaded(true);
+            ThreadUtil.milliSleep(500);
+            autExtIO.setPart_Unloaded(false);
+            ThreadUtil.milliSleep(500);
+            autExtIO.setPart_Loaded(true);
+            ThreadUtil.milliSleep(500);
+            autExtIO.setPart_Loaded(false);
+
+            // Pequena pausa antes de la siguiente iteracion
+            ThreadUtil.milliSleep(100);
+        }
+
+        return true;
+    }
+    
+    //END JAVI
     
     /**
      * Executes a home position move.

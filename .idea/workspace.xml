@@ -4,7 +4,43 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="reduce stiffness" />
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="reduce stiffness">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_11_48_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_11_48__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_11_49_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_11_49_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_11_49__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_11_49__Changes_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_13_12_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_02_2026_13_12__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_10_41_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_10_41__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_10_42_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_10_42__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_13_10_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_13_10__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_9_52_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_02_2026_9_52__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]2/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IOConfiguration.wvs" beforeDir="false" afterPath="$PROJECT_DIR$/IOConfiguration.wvs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AppController.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AppController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/RobotContext.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/RobotContext.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AutoCycleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AutoCycleManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PlaceNewWorkpieceProgram.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,7 +65,7 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="copilot/fix-picked-workpiece-issue" />
+        <entry key="$PROJECT_DIR$" value="master-biemh" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
