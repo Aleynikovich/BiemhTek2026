@@ -4,7 +4,6 @@ import biemhTekniker.lib.config.FrameRepository;
 import biemhTekniker.lib.data.WorkpieceQueue;
 import biemhTekniker.lib.logger.Logger;
 import biemhTekniker.lib.vision.SmartPickingProtocol;
-
 import com.kuka.generated.ioAccess.AutExtIOGroup;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
@@ -31,7 +30,7 @@ public class RobotContext
     private volatile boolean cancellationRequested = false;
     private volatile IMotionContainer activeMotion = null;
     //alex
-    private AutExtIOGroup autExtIO;
+    private final AutExtIOGroup autExtIO;
     //alex
     /**
      * Creates a new robot context.
@@ -43,11 +42,12 @@ public class RobotContext
      * @param workpieceQueue Shared workpiece queue
      * @param frameRepository Frame repository for accessing station frames
      */
-    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, RoboticsAPIApplication application, WorkpieceQueue workpieceQueue, FrameRepository frameRepository)
+    public RobotContext(LBR robot, Tool gripper, MediaFlangeIOGroup gripperIO, RoboticsAPIApplication application, AutExtIOGroup autExtIO, WorkpieceQueue workpieceQueue, FrameRepository frameRepository)
     {
         this.robot = robot;
         this.gripper = gripper;
         this.gripperIO = gripperIO;
+        this.autExtIO = autExtIO;
         this.application = application;
         this.workpieceQueue = workpieceQueue;
         this.frameRepository = frameRepository;
