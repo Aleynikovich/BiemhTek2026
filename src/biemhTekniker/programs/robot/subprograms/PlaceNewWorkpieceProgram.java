@@ -87,7 +87,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             AutExtIOGroup autExtIO = context.getAutExtIO();
             if (autExtIO != null)
             {
-                autExtIO.setZeiss_Part_Type_Loaded(plcCode);
+                autExtIO.setCurrentProgramNumber(plcCode);
                 log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
                     + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
             }
