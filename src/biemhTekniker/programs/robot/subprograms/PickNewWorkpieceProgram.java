@@ -185,16 +185,16 @@ public class PickNewWorkpieceProgram implements RobotProgram
             int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
 
             AutExtIOGroup autExtIO = context.getAutExtIO();
-            if (autExtIO != null)
-            {
+            //if (autExtIO != null)
+            //{
                 autExtIO.setCurrentProgramNumber(plcCode);
                 log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
                     + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
-            }
-            else
-            {
-                log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
-            }
+            //}
+            //else
+            //{
+            //    log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
+            //}
         }
         else
         {
