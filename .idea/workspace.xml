@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="reduce stiffness">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/RobotContext.java" afterDir="false" />
-    </list>
+    <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="reduce stiffness" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

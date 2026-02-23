@@ -99,7 +99,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
         }
 
         
-        autExtIO.setZeiss_Part_Type_Loaded(11);
+        autExtIO.setZeiss_Part_Type_Loaded(1);
         
         // Gripper TCP declaration - use only gripper A
         ObjectFrame tcpA = gripper.getFrame("TCPA");
