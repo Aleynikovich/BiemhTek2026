@@ -32,7 +32,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
     private static final Logger log = Logger.getLogger(PickNewWorkpieceProgram.class);
     private static final int PRE_PICK_Z_OFFSET_MM = 100;//200
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
-    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 1;
+    private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 10;
+    
 
     /**
      * Executes the pick operation for a new workpiece.
@@ -173,10 +174,9 @@ public class PickNewWorkpieceProgram implements RobotProgram
         queue.markPicked(workpieceData.getId(), 1);
         log.info("Successfully picked workpiece with Gripper 1: " + workpieceData.getId());
 
-        
         //new alex
         // On successful placement, write PLC code representing reference + orientation
-       // WorkpieceQueue queue = context.getWorkpieceQueue();
+        //WorkpieceQueue queue = context.getWorkpieceQueue();
         WorkpieceData wp = queue.getPickedWorkpiece(1);
         if (wp != null)
         {
@@ -185,16 +185,16 @@ public class PickNewWorkpieceProgram implements RobotProgram
             int plcCode = (orientation == 1) ? referenceIndex * ALTERNATE_ORIENTATION_MULTIPLIER : referenceIndex;
 
             AutExtIOGroup autExtIO = context.getAutExtIO();
-            //if (autExtIO != null)
-            //{
-                autExtIO.setCurrentProgramNumber(55);
+            if (autExtIO != null)
+            {
+                autExtIO.setCurrentProgramNumber(plcCode);
                 log.info("PLC output Zeiss_Part_Type_Loaded set to " + plcCode
                     + " (id=" + wp.getId() + ", ref=" + referenceIndex + ", ori=" + orientation + ")");
-            //}
-            //else
-            //{
-            //    log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
-            //}
+            }
+            else
+            {
+                log.warn("AutExtIO not available - skipping Zeiss_Part_Type_Loaded output");
+            }
         }
         else
         {

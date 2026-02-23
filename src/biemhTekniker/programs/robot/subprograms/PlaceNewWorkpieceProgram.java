@@ -73,6 +73,9 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         // Place new workpiece with TCP A (gripper 1)
         placeNewWorkpieceWithTcpA(robot, tcpA, gripperIO, pickPlacePositionA, prepickPlacePositionAZ, context, forceAlternate);
  
+        
+   
+
         log.info("PlaceNewWorkpieceProgram: Placement completed successfully");
     }
 

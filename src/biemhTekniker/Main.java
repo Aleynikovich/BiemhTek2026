@@ -22,10 +22,6 @@ import com.kuka.generated.ioAccess.*;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Tool;
-import com.kuka.roboticsAPI.conditionModel.BooleanIOCondition;
-import com.kuka.roboticsAPI.conditionModel.ICondition;
-import com.kuka.roboticsAPI.conditionModel.ObserverManager;
-import com.kuka.generated.ioAccess.AutExtIOGroup;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -254,7 +250,6 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         homePositionManager = new HomePositionManager();
     }
 
-    /*
     private void initializeAppControl()
     {
         ConfigManager config = ConfigManager.getInstance();
@@ -265,34 +260,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
 
         getApplicationControl().setApplicationOverride(0.5);
         getApplicationControl().clipManualOverride(0.0);
-    }*/
-    //JAVI
-    private void initializeAppControl()
-    {
-        ConfigManager config = ConfigManager.getInstance();
-        int consolePort = config.getInt("console.server.port", 30001);
-
-        AutExtIOGroup autExtIO = this.AutExtIO;
-
-        ObserverManager observerManager = this.getObserverManager();
-
-        appController = new AppController(
-                visionDispatcher.getVisionManager(),
-                visionDispatcher,
-                workpieceQueue,
-                robotContext,
-                homePositionManager,
-                robotDispatcher,
-                AutExtIO,
-                observerManager,
-                consolePort
-        );
-        appController.initialize();
-
-        getApplicationControl().setApplicationOverride(0.5);
-        getApplicationControl().clipManualOverride(0.0);
     }
-    //ENDJAVI
 
     private void moveToHomePosition()
     {
