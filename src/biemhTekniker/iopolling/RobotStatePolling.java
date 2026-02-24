@@ -6,6 +6,7 @@ import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.generated.ioAccess.EK1100IOGroup;
+import com.kuka.generated.ioAccess.AutExtIOGroup;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,8 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
     LBR iiwa;
     @Inject
     EK1100IOGroup EK1100IOGroup;
+    @Inject
+    AutExtIOGroup AutExtIOGroup;
 
     @Override
     public void initialize()
@@ -39,9 +42,9 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
             robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
             
 
-            EK1100IOGroup.setLED_GREEN(EK1100IOGroup.getLED_GREEN());
-            EK1100IOGroup.setLED_RED(EK1100IOGroup.getLED_RED());
-            EK1100IOGroup.setLED_YELLOW(EK1100IOGroup.getLED_YELLOW());
+            EK1100IOGroup.setLED_GREEN(AutExtIOGroup.getLED_GREEN());
+            EK1100IOGroup.setLED_RED(AutExtIOGroup.getLED_RED());
+            EK1100IOGroup.setLED_YELLOW(AutExtIOGroup.getLED_YELLOW());
         
         } catch (Exception e)
         {
