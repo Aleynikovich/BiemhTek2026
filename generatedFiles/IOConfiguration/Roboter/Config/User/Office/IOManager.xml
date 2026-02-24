@@ -188,5 +188,18 @@
         </DigitalIO>
       </IOList>
     </Bus>
+    <Bus BusDriverName="ECatIODriver" BusInstanceName="SYS-X44">
+      <IOList>
+        <DigitalIO Name="EK1100.LED_GREEN" Type="OUTPUT" Scope="USER_IO" StartBit="12576" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="EK1100.LED_RED" Type="OUTPUT" Scope="USER_IO" StartBit="12577" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="EK1100.LED_YELLOW" Type="OUTPUT" Scope="USER_IO" StartBit="12578" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+      </IOList>
+    </Bus>
   </BusList>
 </IOManager>
