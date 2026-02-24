@@ -56,6 +56,15 @@ Automatically generated IO group description. Please do NOT modify!
       <DigitalIOItem Name="Zeiss_Part_Type_Loaded" DataType="USINT" IOType="Output" UsedBitWidth="1" IsConnected="true">
         <Description />
       </DigitalIOItem>
+      <DigitalIOItem Name="LED_RED" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="LED_GREEN" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
+      <DigitalIOItem Name="LED_YELLOW" DataType="BOOL" IOType="Input" UsedBitWidth="1" IsConnected="true">
+        <Description />
+      </DigitalIOItem>
     </IOs>
     <Description />
   </IOGroup>

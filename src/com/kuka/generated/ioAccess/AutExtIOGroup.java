@@ -47,6 +47,9 @@ public class AutExtIOGroup extends AbstractIOGroup
 		addInput("Zeiss_Load_Resquest", IOTypes.BOOLEAN, 1);
 		addInput("Zeiss_Unload_Request", IOTypes.BOOLEAN, 1);
 		addDigitalOutput("Zeiss_Part_Type_Loaded", IOTypes.UNSIGNED_INTEGER, 1);
+		addInput("LED_RED", IOTypes.BOOLEAN, 1);
+		addInput("LED_GREEN", IOTypes.BOOLEAN, 1);
+		addInput("LED_YELLOW", IOTypes.BOOLEAN, 1);
 	}
 
 	/**
@@ -629,6 +632,66 @@ public class AutExtIOGroup extends AbstractIOGroup
 	public void setZeiss_Part_Type_Loaded(java.lang.Integer value)
 	{
 		setDigitalOutput("Zeiss_Part_Type_Loaded", value);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>LED_RED</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'LED_RED'
+	 */
+	public boolean getLED_RED()
+	{
+		return getBooleanIOValue("LED_RED", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>LED_GREEN</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'LED_GREEN'
+	 */
+	public boolean getLED_GREEN()
+	{
+		return getBooleanIOValue("LED_GREEN", false);
+	}
+
+	/**
+	 * Gets the value of the <b>digital input '<i>LED_YELLOW</i>'</b>.<br>
+	 * <i>This method is automatically generated. Please, do not modify!</i>
+	 * <p>
+	 * <b>I/O direction and type:</b><br>
+	 * digital input
+	 * <p>
+	 * <b>User description of the I/O:</b><br>
+	 * ./.
+	 * <p>
+	 * <b>Range of the I/O value:</b><br>
+	 * [false; true]
+	 *
+	 * @return current value of the digital input 'LED_YELLOW'
+	 */
+	public boolean getLED_YELLOW()
+	{
+		return getBooleanIOValue("LED_YELLOW", false);
 	}
 
 }

@@ -161,6 +161,15 @@
         <DigitalIO Name="AutExt.Zeiss_Part_Type_Loaded" Type="OUTPUT" Scope="USER_IO" StartBit="2592" BitSize="1" Signed="false">
           <Description />
         </DigitalIO>
+        <DigitalIO Name="AutExt.LED_GREEN" Type="INPUT" Scope="USER_IO" StartBit="407" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.LED_RED" Type="INPUT" Scope="USER_IO" StartBit="416" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
+        <DigitalIO Name="AutExt.LED_YELLOW" Type="INPUT" Scope="USER_IO" StartBit="417" BitSize="1" Signed="false">
+          <Description />
+        </DigitalIO>
       </IOList>
     </Bus>
     <Bus BusDriverName="ECatIODriver" BusInstanceName="SYS-X48">
