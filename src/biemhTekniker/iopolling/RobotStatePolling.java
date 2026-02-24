@@ -5,6 +5,7 @@ import com.kuka.generated.ioAccess.RobotStateIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.deviceModel.LBR;
+import com.kuka.generated.ioAccess.EK1100IOGroup;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,8 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
     RobotStateIOGroup robotStateIOGroup;
     @Inject
     LBR iiwa;
+    @Inject
+    EK1100IOGroup EK1100IOGroup;
 
     @Override
     public void initialize()
@@ -34,6 +37,7 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
             robotStateIOGroup.setIsReadyToMove(iiwa.isReadyToMove());
             robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
             robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
+            EK1100IOGroup.setLED_GREEN(true);
         } catch (Exception e)
         {
             // Log error but continue running - PLC may be in STOP mode
