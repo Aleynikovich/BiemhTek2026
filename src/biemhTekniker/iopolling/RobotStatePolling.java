@@ -37,7 +37,12 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
             robotStateIOGroup.setIsReadyToMove(iiwa.isReadyToMove());
             robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
             robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
-            EK1100IOGroup.setLED_GREEN(true);
+            
+
+            EK1100IOGroup.setLED_GREEN(EK1100IOGroup.getLED_GREEN());
+            EK1100IOGroup.setLED_RED(EK1100IOGroup.getLED_RED());
+            EK1100IOGroup.setLED_YELLOW(EK1100IOGroup.getLED_YELLOW());
+        
         } catch (Exception e)
         {
             // Log error but continue running - PLC may be in STOP mode
