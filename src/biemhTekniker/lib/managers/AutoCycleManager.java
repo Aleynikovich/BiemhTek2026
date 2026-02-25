@@ -29,7 +29,7 @@ public class AutoCycleManager
     
     // Timing configuration
     private static final int CYCLE_DELAY_MS = 500;
-    private static final int VISION_WAIT_MS = 200;
+    private static final int VISION_WAIT_MS = 2000;
     private static final int MAX_VISION_WAIT_ITERATIONS = 150; // 30 seconds max wait
     
     private final RobotDispatcher robotDispatcher;
@@ -440,7 +440,7 @@ public class AutoCycleManager
             int iterations = 0;
             while (homePositionManager.isHomeMoveRequested() && iterations < 100)
             {
-                ThreadUtil.milliSleep(100);
+                ThreadUtil.milliSleep(1000);
                 iterations++;
                 
                 if (!running.get())
