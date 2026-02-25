@@ -400,6 +400,7 @@ public class AutoCycleManager
             observerManager.waitFor(zeissCondition);
 
             // Step 6: Place new workpiece
+            autExtIO.setRobot_Out_Zeiss_Zone(false);
             log.info("Auto cycle: Step 6 - Place new workpiece");
             if (!executeRobotProgram(PROGRAM_PLACE_NEW))
                 return false;

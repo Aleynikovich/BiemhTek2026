@@ -277,7 +277,7 @@ public class Main extends RoboticsAPIApplication implements ConsoleServerInterfa
         appController.initialize();
 
         getApplicationControl().setApplicationOverride(0.5);
-        getApplicationControl().clipManualOverride(0.0);
+        getApplicationControl().clipManualOverride(0.3);
     }
     //ENDJAVI
 
