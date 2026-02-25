@@ -96,8 +96,9 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                                                RobotContext context) throws Exception
     {
         log.info("Picking measured workpiece with TCP B...");
-        gripperIO.setGripper2_Switch(false);
+        
         tcpB.move(ptp(prepickPlacePositionB));
+        gripperIO.setGripper2_Switch(false);
         tcpB.move(lin(pickPlacePositionB));
         gripperIO.setGripper2_Switch(true);
         ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);

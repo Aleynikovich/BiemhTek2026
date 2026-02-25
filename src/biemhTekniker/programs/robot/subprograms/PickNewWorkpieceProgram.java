@@ -265,6 +265,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
         }
         
+        finalGripperIO.setGripper2_Switch(true);
+        ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
         robot.getFlange().moveAsync(ptp(app.getApplicationData().getFrame("/binCenter")).setBlendingCart(0.5));
 
         if (!placeSucceeded)
