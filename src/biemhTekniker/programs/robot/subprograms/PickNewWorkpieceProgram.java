@@ -109,7 +109,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Pick position with offset
         robot.move(ptpHome());
-        gripperIO.setGripper1_Switch(false);
+        
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
         // Generate motion strategies using tool coordinates for pick (no Z-rotation)
@@ -126,6 +126,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
         };
         robot.getFlange().moveAsync(ptp(app.getApplicationData().getFrame("/binCenter")).setBlendingCart(0.5));
+        //gripperIO.setGripper1_Switch(false);
         // Try each strategy until one succeeds
         boolean pickSucceeded = false;
         MotionStrategy successfulStrategy = null;
