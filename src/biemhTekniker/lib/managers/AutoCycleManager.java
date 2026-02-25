@@ -303,11 +303,14 @@ public class AutoCycleManager
         autExtIO.setPart_Unloaded(false);
         ThreadUtil.milliSleep(500);
         autExtIO.setPart_Loaded(false);
+        autExtIO.setRobot_Out_Zeiss_Zone(false);
         ThreadUtil.milliSleep(500);
         // Step 1: Move to home
         log.info("Auto cycle: Step 1 - Moving to home");
         if (!executeHomeMove())
             return false;
+        else
+        	autExtIO.setRobot_Out_Zeiss_Zone(true);
 
         // Step 2: Load reference
         log.info("Auto cycle: Step 2 - Loading reference");
@@ -328,7 +331,7 @@ public class AutoCycleManager
         log.info("Auto cycle: Step 5 - Moving to home");
         if (!executeHomeMove())
             return false;
-
+        
         // ----------------------------
         // Disparar full scan no bloqueante
         // ----------------------------
@@ -344,6 +347,7 @@ public class AutoCycleManager
 
         // Step 6: Place new workpiece
         log.info("Auto cycle: Step 6 - Place new workpiece");
+        autExtIO.setRobot_Out_Zeiss_Zone(false);
         if (!executeRobotProgram(PROGRAM_PLACE_NEW))
             return false;
 
@@ -351,6 +355,9 @@ public class AutoCycleManager
         log.info("Auto cycle: Step 7 - Moving to home");
         if (!executeHomeMove())
             return false;
+        else
+        	autExtIO.setRobot_Out_Zeiss_Zone(true);
+        	ThreadUtil.milliSleep(500);
 
         // Senalizar descarga/carga de pieza
         autExtIO.setPart_Unloaded(true);
