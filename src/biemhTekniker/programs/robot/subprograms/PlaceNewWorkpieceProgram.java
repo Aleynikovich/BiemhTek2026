@@ -9,11 +9,14 @@ import biemhTekniker.programs.robot.RobotContext;
 import com.kuka.common.ThreadUtil;
 import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
+import com.kuka.roboticsAPI.conditionModel.BooleanIOCondition;
+import com.kuka.roboticsAPI.conditionModel.ICondition;
 import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.geometricModel.Frame;
 import com.kuka.roboticsAPI.geometricModel.ObjectFrame;
 import com.kuka.roboticsAPI.geometricModel.Tool;
 import com.kuka.generated.ioAccess.AutExtIOGroup;
+import com.kuka.roboticsAPI.conditionModel.ObserverManager;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
@@ -34,6 +37,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
     private static final int GRIPPER_ACTIVATION_DELAY_MS = 500;
     private final boolean forceAlternate = false;
     private static final int ALTERNATE_ORIENTATION_MULTIPLIER = 10;
+    private final ObserverManager observerManager = null;
+    
     public void execute(RobotContext context) throws Exception
     {
         log.info("Placing new workpiece...");
@@ -99,6 +104,11 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         
         tcpB.move(ptp(prepickPlacePositionB));
         gripperIO.setGripper2_Switch(false);
+        
+        BooleanIOCondition open = new BooleanIOCondition(gripperIO.getInput("Gripper2_isOpen"), true);
+        ICondition gripper2isopen = open;
+		observerManager.waitFor(gripper2isopen);
+        
         tcpB.move(lin(pickPlacePositionB));
         gripperIO.setGripper2_Switch(true);
         ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
