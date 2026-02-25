@@ -21,6 +21,7 @@ import com.kuka.roboticsAPI.geometricModel.Tool;
 import java.util.List;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
 
 /**
  * Program to pick a new workpiece using position from the workpiece queue.
@@ -107,6 +108,8 @@ public class PickNewWorkpieceProgram implements RobotProgram
         Frame prePickPosition = workpieceData.getWorkPiecePickFrame();
 
         // Pick position with offset
+        robot.move(ptpHome());
+        gripperIO.setGripper1_Switch(false);
         prePickPosition.setZ(prePickPosition.getZ() + PRE_PICK_Z_OFFSET_MM);
 
         // Generate motion strategies using tool coordinates for pick (no Z-rotation)

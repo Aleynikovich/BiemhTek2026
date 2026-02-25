@@ -20,6 +20,7 @@ import com.kuka.generated.ioAccess.AutExtIOGroup;
 
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.lin;
 import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptp;
+import static com.kuka.roboticsAPI.motionModel.BasicMotions.ptpHome;
 
 /**
  * Program to place a new workpiece at a predefined location.
@@ -128,6 +129,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
         tcpB.move(lin(prepickPlacePositionB));
         log.info("Measured workpiece picked successfully with TCP B");
+
     }
 
     /**
@@ -163,6 +165,8 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             tcpA.move(lin(prepickPlacePositionA));
             log.info("New workpiece placed successfully with TCP A");
+            robot.move(ptpHome());
+            gripperIO.setGripper1_Switch(true);
         }
 
     }
