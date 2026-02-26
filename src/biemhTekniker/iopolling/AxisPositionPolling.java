@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
-    private final int decimalMultiplier = 1000;
+    private final int decimalMultiplier = 10;
 
     @Inject
     private Controller sunrise;
