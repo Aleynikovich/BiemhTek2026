@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 {
-    private final int decimalMultiplier = 10;
+    private final int decimalMultiplier = 1000;
 
     @Inject
     private Controller sunrise;
@@ -81,31 +81,30 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
 
             for (int i = 0; i < axisSetters.length; i++)
             {
-                int scaledValue = (int) Math.round(Math.toDegrees(jointPos.get(i)) * decimalMultiplier);
-                axisSetters[i].set(scaledValue);
+                // jointPos.get(i) viene en RADIANES
+                double deg = Math.toDegrees(jointPos.get(i));
+                int scaledDeg = (int) Math.round(deg * decimalMultiplier); // decimalMultiplier = 1000 por ejemplo
+
+                axisSetters[i].set(scaledDeg);
+
                 switch (i) {
-                	case 1:
-                		currentAxisPosition.setA1((int)(jointPos.get(i)));
-                	case 2:
-                		currentAxisPosition.setA2(scaledValue);
-                	case 3:
-                		currentAxisPosition.setA3(scaledValue);
-                	case 4:
-                		currentAxisPosition.setA4(scaledValue);
-                	case 5:
-                		currentAxisPosition.setA5(scaledValue);
-                	case 6:
-                		currentAxisPosition.setA6(scaledValue);
-                	case 7:
-                		currentAxisPosition.setA7(scaledValue);
+                    case 0: currentAxisPosition.setA1(scaledDeg); break;
+                    case 1: currentAxisPosition.setA2(scaledDeg); break;
+                    case 2: currentAxisPosition.setA3(scaledDeg); break;
+                    case 3: currentAxisPosition.setA4(scaledDeg); break;
+                    case 4: currentAxisPosition.setA5(scaledDeg); break;
+                    case 5: currentAxisPosition.setA6(scaledDeg); break;
+                    case 6: currentAxisPosition.setA7(scaledDeg); break;
+                    default: break;
                 }
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             getLogger().error(e.getMessage());
         }
     }
-
+    
     @Override
     public void dispose()
     {
