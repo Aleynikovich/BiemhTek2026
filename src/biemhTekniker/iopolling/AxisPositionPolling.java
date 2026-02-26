@@ -83,6 +83,22 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
             {
                 int scaledValue = (int) Math.round(Math.toDegrees(jointPos.get(i)) * decimalMultiplier);
                 axisSetters[i].set(scaledValue);
+                switch (i) {
+                	case 1:
+                		currentAxisPosition.setA1(scaledValue);
+                	case 2:
+                		currentAxisPosition.setA2(scaledValue);
+                	case 3:
+                		currentAxisPosition.setA3(scaledValue);
+                	case 4:
+                		currentAxisPosition.setA4(scaledValue);
+                	case 5:
+                		currentAxisPosition.setA5(scaledValue);
+                	case 6:
+                		currentAxisPosition.setA6(scaledValue);
+                	case 7:
+                		currentAxisPosition.setA7(scaledValue);
+                }
             }
         } catch (Exception e)
         {
