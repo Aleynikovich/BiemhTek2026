@@ -82,7 +82,7 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
             for (int i = 0; i < axisSetters.length; i++)
             {
                 // jointPos.get(i) viene en RADIANES
-                double deg = Math.toDegrees(jointPos.get(i));
+                double deg = (3.14*(jointPos.get(i))/180);
                 int scaledDeg = (int) Math.round(deg * decimalMultiplier); // decimalMultiplier = 1000 por ejemplo
 
                 axisSetters[i].set(scaledDeg);
