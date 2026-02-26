@@ -85,7 +85,7 @@ public class AxisPositionPolling extends RoboticsAPICyclicBackgroundTask
                 axisSetters[i].set(scaledValue);
                 switch (i) {
                 	case 1:
-                		currentAxisPosition.setA1(scaledValue);
+                		currentAxisPosition.setA1((int)(jointPos.get(i)));
                 	case 2:
                 		currentAxisPosition.setA2(scaledValue);
                 	case 3:
