@@ -368,9 +368,9 @@ public class AutoCycleManager
         ThreadUtil.milliSleep(500);
         autExtIO.setPart_Unloaded(false);
         ThreadUtil.milliSleep(500);
-        
+    	
         BooleanIOCondition loadCondition2 = new BooleanIOCondition(autExtIO.getInput("Zeiss_Load_Resquest"), true);
-        ICondition zeissCondition_load = loadCondition.or(unloadCondition);
+        ICondition zeissCondition_load = (loadCondition2);
         observerManager.waitFor(zeissCondition_load);
         
         autExtIO.setPart_Loaded(true);
@@ -399,6 +399,9 @@ public class AutoCycleManager
             log.info("Auto cycle: Step 5 - Moving to home");
             if (!executeHomeMove())
                 return false;
+            else
+            	autExtIO.setRobot_Out_Zeiss_Zone(true);
+            	ThreadUtil.milliSleep(500);
 
             // Disparar full scan no bloqueante para siguiente iteracion
             log.info("Auto cycle: Step 3b - Full scan (non-blocking dispatch)");
@@ -418,12 +421,22 @@ public class AutoCycleManager
             log.info("Auto cycle: Step 7 - Moving to home");
             if (!executeHomeMove())
                 return false;
+            else
+            	autExtIO.setRobot_Out_Zeiss_Zone(true);
+            	ThreadUtil.milliSleep(500);
 
             // Senalizar descarga/carga de pieza
             autExtIO.setPart_Unloaded(true);
             ThreadUtil.milliSleep(500);
             autExtIO.setPart_Unloaded(false);
             ThreadUtil.milliSleep(500);
+            
+        	
+            BooleanIOCondition loadCondition3 = new BooleanIOCondition(autExtIO.getInput("Zeiss_Load_Resquest"), true);
+            ICondition zeissCondition_load2 = loadCondition3;
+            observerManager.waitFor(zeissCondition_load2);
+            
+            
             autExtIO.setPart_Loaded(true);
             ThreadUtil.milliSleep(500);
             autExtIO.setPart_Loaded(false);
