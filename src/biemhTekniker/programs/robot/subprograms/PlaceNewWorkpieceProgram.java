@@ -105,7 +105,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
         tcpB.move(ptp(prepickPlacePositionB));
         gripperIO.setGripper2_Switch(false);
         
-        long timeoutMs = 5000;
+        long timeoutMs = 180000;
         long start = System.currentTimeMillis();
         while (!gripperIO.getGripper2_isOpen()) {
             if (System.currentTimeMillis() - start > timeoutMs) {
