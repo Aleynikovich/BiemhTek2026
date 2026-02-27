@@ -117,6 +117,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Create gripper activation action
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
+        finalGripperIO.setGripper1_Switch(true);
         MotionStrategy.MotionAction gripperAction = new MotionStrategy.MotionAction()
         {
             public void execute() throws Exception

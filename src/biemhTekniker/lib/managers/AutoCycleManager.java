@@ -315,7 +315,7 @@ public class AutoCycleManager
             return false;
         else
         	autExtIO.setRobot_Out_Zeiss_Zone(true);
-
+        
         // Step 2: Load reference
         log.info("Auto cycle: Step 2 - Loading reference");
         if (!executeVisionProgram(PROGRAM_LOAD_REFERENCE))
