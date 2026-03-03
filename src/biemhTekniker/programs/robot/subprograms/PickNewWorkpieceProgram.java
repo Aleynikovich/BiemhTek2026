@@ -237,6 +237,17 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 // Release measured workpiece (even if we don't have one, we still do the motion)
                 finalGripperIO.setGripper2_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
+               
+                
+                long timeoutMs = 180000;
+                long start = System.currentTimeMillis();
+                while (!finalGripperIO.getGripper2_isOpen()) {
+                    if (System.currentTimeMillis() - start > timeoutMs) {
+                        throw new RuntimeException("Timeout esperando a Gripper2_isOpen");
+                    }
+
+                    ThreadUtil.milliSleep(50);
+                }
             }
         };
 
