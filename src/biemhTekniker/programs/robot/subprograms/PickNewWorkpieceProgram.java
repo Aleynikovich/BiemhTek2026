@@ -239,15 +239,15 @@ public class PickNewWorkpieceProgram implements RobotProgram
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
                
                 
-                long timeoutMs = 180000;
-                long start = System.currentTimeMillis();
-                while (!finalGripperIO.getGripper2_isOpen()) {
-                    if (System.currentTimeMillis() - start > timeoutMs) {
-                        throw new RuntimeException("Timeout esperando a Gripper2_isOpen");
-                    }
+                //long timeoutMs = 180000;
+                //long start = System.currentTimeMillis();
+                //while (!finalGripperIO.getGripper2_isOpen()) {
+                 //   if (System.currentTimeMillis() - start > timeoutMs) {
+                  //      throw new RuntimeException("Timeout esperando a Gripper2_isOpen");
+                  //  }
 
-                    ThreadUtil.milliSleep(50);
-                }
+                 //   ThreadUtil.milliSleep(50);
+                //}
             }
         };
 
@@ -281,7 +281,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             }
         }
         
-        finalGripperIO.setGripper2_Switch(true);
+        //finalGripperIO.setGripper2_Switch(true);
         ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
         robot.getFlange().moveAsync(ptp(app.getApplicationData().getFrame("/binCenter")).setBlendingCart(0.5));
 
