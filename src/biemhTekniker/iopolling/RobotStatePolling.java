@@ -5,7 +5,7 @@ import com.kuka.generated.ioAccess.RobotStateIOGroup;
 import com.kuka.roboticsAPI.applicationModel.tasks.CycleBehavior;
 import com.kuka.roboticsAPI.applicationModel.tasks.RoboticsAPICyclicBackgroundTask;
 import com.kuka.roboticsAPI.deviceModel.LBR;
-import com.kuka.generated.ioAccess.EK1100IOGroup;
+//import com.kuka.generated.ioAccess.EK1100IOGroup; Quito LEDS en zeiss -- Kalis 02/07/2026
 import com.kuka.generated.ioAccess.AutExtIOGroup;
 
 import javax.inject.Inject;
@@ -18,8 +18,9 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
     RobotStateIOGroup robotStateIOGroup;
     @Inject
     LBR iiwa;
-    @Inject
-    EK1100IOGroup EK1100IOGroup;
+    //Se quitan los LEDS de demostrador en Zeiss -- Kalis  02/07/2026
+    //@Inject
+    //EK1100IOGroup EK1100IOGroup;
     @Inject
     AutExtIOGroup AutExtIOGroup;
 
@@ -41,10 +42,10 @@ public class RobotStatePolling extends RoboticsAPICyclicBackgroundTask
             robotStateIOGroup.setIsGMSReferenced(iiwa.getSafetyState().areAllAxesGMSReferenced());
             robotStateIOGroup.setIsReferenced(iiwa.getSafetyState().areAllAxesPositionReferenced());
             
-
-            EK1100IOGroup.setLED_GREEN(AutExtIOGroup.getLED_GREEN());
-            EK1100IOGroup.setLED_RED(AutExtIOGroup.getLED_RED());
-            EK1100IOGroup.setLED_YELLOW(AutExtIOGroup.getLED_YELLOW());
+            // Se quitan los LEDs y la EK1100 de la config -- Kalis 02/07/2026
+            //EK1100IOGroup.setLED_GREEN(AutExtIOGroup.getLED_GREEN());
+            //EK1100IOGroup.setLED_RED(AutExtIOGroup.getLED_RED());
+            //EK1100IOGroup.setLED_YELLOW(AutExtIOGroup.getLED_YELLOW());
         
         } catch (Exception e)
         {
