@@ -117,12 +117,12 @@ public class PickNewWorkpieceProgram implements RobotProgram
 
         // Create gripper activation action
         final MediaFlangeIOGroup finalGripperIO = gripperIO;
-        finalGripperIO.setGripper1_Switch(false);
+        finalGripperIO.setGripper2_Switch(false);
         MotionStrategy.MotionAction gripperAction = new MotionStrategy.MotionAction()
         {
             public void execute() throws Exception
             {
-                finalGripperIO.setGripper1_Switch(true);
+                finalGripperIO.setGripper2_Switch(true);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             }
         };
@@ -235,7 +235,7 @@ public class PickNewWorkpieceProgram implements RobotProgram
             public void execute() throws Exception
             {
                 // Release measured workpiece (even if we don't have one, we still do the motion)
-                finalGripperIO.setGripper2_Switch(false);
+                finalGripperIO.setGripper1_Switch(false);
                 ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
                
                 
