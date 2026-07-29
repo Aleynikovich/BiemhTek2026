@@ -29,7 +29,7 @@ public class AutoCycleManager
     
     // Timing configuration
     private static final int CYCLE_DELAY_MS = 500;
-    private static final int VISION_WAIT_MS = 2000;
+    private static final int VISION_WAIT_MS = 200;
     private static final int MAX_VISION_WAIT_ITERATIONS = 150; // 30 seconds max wait
     
     private final RobotDispatcher robotDispatcher;
@@ -273,17 +273,13 @@ public class AutoCycleManager
         autExtIO.setPart_Unloaded(true);
 
         ThreadUtil.milliSleep(500); //
-        
 
         autExtIO.setPart_Unloaded(false);
 
         ThreadUtil.milliSleep(500);
 
         // Senalizar que la pieza ha sido cargada
-        
-        BooleanIOCondition loadCondition2 = new BooleanIOCondition(autExtIO.getInput("Zeiss_Load_Resquest"), true);
-        ICondition zeissCondition_load = loadCondition.or(unloadCondition);
-        observerManager.waitFor(zeissCondition_load);
+
         autExtIO.setPart_Loaded(true);
 
         ThreadUtil.milliSleep(500); //
@@ -307,15 +303,12 @@ public class AutoCycleManager
         autExtIO.setPart_Unloaded(false);
         ThreadUtil.milliSleep(500);
         autExtIO.setPart_Loaded(false);
-        autExtIO.setRobot_Out_Zeiss_Zone(false);
         ThreadUtil.milliSleep(500);
         // Step 1: Move to home
         log.info("Auto cycle: Step 1 - Moving to home");
         if (!executeHomeMove())
             return false;
-        else
-        	autExtIO.setRobot_Out_Zeiss_Zone(true);
-        
+
         // Step 2: Load reference
         log.info("Auto cycle: Step 2 - Loading reference");
         if (!executeVisionProgram(PROGRAM_LOAD_REFERENCE))
@@ -335,7 +328,7 @@ public class AutoCycleManager
         log.info("Auto cycle: Step 5 - Moving to home");
         if (!executeHomeMove())
             return false;
-        
+
         // ----------------------------
         // Disparar full scan no bloqueante
         // ----------------------------
@@ -351,7 +344,6 @@ public class AutoCycleManager
 
         // Step 6: Place new workpiece
         log.info("Auto cycle: Step 6 - Place new workpiece");
-        autExtIO.setRobot_Out_Zeiss_Zone(false);
         if (!executeRobotProgram(PROGRAM_PLACE_NEW))
             return false;
 
@@ -359,20 +351,12 @@ public class AutoCycleManager
         log.info("Auto cycle: Step 7 - Moving to home");
         if (!executeHomeMove())
             return false;
-        else
-        	autExtIO.setRobot_Out_Zeiss_Zone(true);
-        	ThreadUtil.milliSleep(500);
 
         // Senalizar descarga/carga de pieza
         autExtIO.setPart_Unloaded(true);
         ThreadUtil.milliSleep(500);
         autExtIO.setPart_Unloaded(false);
         ThreadUtil.milliSleep(500);
-    	
-        BooleanIOCondition loadCondition2 = new BooleanIOCondition(autExtIO.getInput("Zeiss_Load_Resquest"), true);
-        ICondition zeissCondition_load = (loadCondition2);
-        observerManager.waitFor(zeissCondition_load);
-        
         autExtIO.setPart_Loaded(true);
         ThreadUtil.milliSleep(500);
         autExtIO.setPart_Loaded(false);
@@ -399,9 +383,6 @@ public class AutoCycleManager
             log.info("Auto cycle: Step 5 - Moving to home");
             if (!executeHomeMove())
                 return false;
-            else
-            	autExtIO.setRobot_Out_Zeiss_Zone(true);
-            	ThreadUtil.milliSleep(500);
 
             // Disparar full scan no bloqueante para siguiente iteracion
             log.info("Auto cycle: Step 3b - Full scan (non-blocking dispatch)");
@@ -412,7 +393,6 @@ public class AutoCycleManager
             observerManager.waitFor(zeissCondition);
 
             // Step 6: Place new workpiece
-            autExtIO.setRobot_Out_Zeiss_Zone(false);
             log.info("Auto cycle: Step 6 - Place new workpiece");
             if (!executeRobotProgram(PROGRAM_PLACE_NEW))
                 return false;
@@ -421,22 +401,12 @@ public class AutoCycleManager
             log.info("Auto cycle: Step 7 - Moving to home");
             if (!executeHomeMove())
                 return false;
-            else
-            	autExtIO.setRobot_Out_Zeiss_Zone(true);
-            	ThreadUtil.milliSleep(500);
 
             // Senalizar descarga/carga de pieza
             autExtIO.setPart_Unloaded(true);
             ThreadUtil.milliSleep(500);
             autExtIO.setPart_Unloaded(false);
             ThreadUtil.milliSleep(500);
-            
-        	
-            BooleanIOCondition loadCondition3 = new BooleanIOCondition(autExtIO.getInput("Zeiss_Load_Resquest"), true);
-            ICondition zeissCondition_load2 = loadCondition3;
-            observerManager.waitFor(zeissCondition_load2);
-            
-            
             autExtIO.setPart_Loaded(true);
             ThreadUtil.milliSleep(500);
             autExtIO.setPart_Loaded(false);
@@ -470,7 +440,7 @@ public class AutoCycleManager
             int iterations = 0;
             while (homePositionManager.isHomeMoveRequested() && iterations < 100)
             {
-                ThreadUtil.milliSleep(1000);
+                ThreadUtil.milliSleep(100);
                 iterations++;
                 
                 if (!running.get())
