@@ -140,7 +140,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
                                           Frame placePositionA, Frame prepickPlacePositionA, RobotContext context, boolean forceAlternate) throws Exception
     {
         log.info("Placing new workpiece with TCP A...");
-        gripperIO.setGripper3_Switch(false);
+        gripperIO.setGripper3_Switch(true);
         if (forceAlternate)
         {
             //TODO: Add alternate position
@@ -149,7 +149,7 @@ public class PlaceNewWorkpieceProgram implements RobotProgram
             tcpA.move(ptp(prepickPlacePositionA));
             tcpA.move(lin(placePositionA));
             //gripperIO.setGripper1_Switch(false);
-            gripperIO.setGripper3_Switch(true);
+            gripperIO.setGripper3_Switch(false);
             gripperIO.setGripper3_PartPresence(true);
             ThreadUtil.milliSleep(GRIPPER_ACTIVATION_DELAY_MS);
             //gripperIO.setGripper3_Switch(true);
