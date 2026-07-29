@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7287ac6-57fa-43b0-81c3-1abfe8151e31" name="Changes" comment="reduce stiffness">
-      <changelist_data name="Alexander Sebastian Kalis" email="alex.kalis@outlook.com" date="1771844326000" automatic="true" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AppController.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AppController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/lib/managers/AutoCycleManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AppController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AutoCycleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/lib/managers/AutoCycleManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/biemhTekniker/programs/robot/subprograms/PickNewWorkpieceProgram.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +131,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Cherry-picking in master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/aley/IdeaProjects/BiehmTek&quot;,
