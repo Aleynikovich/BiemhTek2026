@@ -731,7 +731,7 @@
                 <info key="ToolVelocityPointPath" type="java.lang.String" value="/TCPB"/>
                 <info key="ToolVelocityPointPath" type="java.lang.String" value="/TCPA"/>
             </additionalInformation>
-            <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="3.884487255951194" cogY="-6.717026972060215" cogZ="71.44449641775539" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="2.55"/>
+            <loadData cogA="0.0" cogB="0.0" cogC="0.0" cogX="-7.9633503651557715" cogY="-0.5347667144229659" cogZ="95.7944792165818" inertiaX="0.0" inertiaY="0.0" inertiaZ="0.0" mass="2.8239156253493953"/>
         </toolTemplate>
     </objectTemplates>
 </RoboticsAPIData>
